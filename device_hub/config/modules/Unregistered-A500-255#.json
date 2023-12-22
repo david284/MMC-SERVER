@@ -1,0 +1,607 @@
+{
+  "nodeVariables": [
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Bit Array",
+      "displaySubTitle": "NV1",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 2,
+      "displayTitle": "Bit 0",
+      "displaySubTitle": "NV2",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableDual",
+      "nodeVariableIndexHigh": 3,
+      "nodeVariableIndexLow": 4,
+      "displayTitle": "Dual",
+      "displaySubTitle": "NV3&4"
+    },
+  	{
+	  "type": "NodeVariableNumber",
+	  "nodeVariableIndex": 5,
+	  "displayTitle": "Number",
+    "displaySubTitle": "NV5"
+    },
+  	{
+	  "type": "NodeVariableNumber",
+	  "nodeVariableIndex": 5,
+	  "displayTitle": "Number - high 4 bits",
+    "displaySubTitle": "NV5",
+    "startBit": 4,
+    "endBit": 7,
+    "displayOffset":1,
+	  "max": 15,
+	  "min": 0
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 6,
+      "displayTitle": "Select",
+      "displaySubTitle": "NV6",
+      "options": [
+        {"label": "Options 1", "value": 0},
+        {"label": "Options 2", "value": 1},
+        {"label": "Options 3", "value": 2},
+        {"label": "Options 4", "value": 8}
+      ]
+    },
+    {
+      "type": "NodeVariableSlider",
+      "nodeVariableIndex": 7,
+      "displayTitle": "Slider",
+      "displaySubTitle": "NV7",
+      "displayScale": 1,
+      "displayUnits": "Milli Seconds",
+      "max": 255,
+      "min": 0
+    },
+    {
+      "type": "NodeVariableSlider",
+      "nodeVariableIndex": 17,
+      "displayTitle": "Slider - hiNibble",
+      "displaySubTitle": "range 10 to 120 milli seconds",
+      "displayScale": 10,
+      "displayUnits": "Milli Seconds",
+      "startBit": 4,
+      "endBit": 7,
+      "displayOffset":10,
+      "max": 11,
+      "min": 0
+    },
+    {
+      "type": "group",
+      "displayTitle": "Group",
+      "groupItems": [
+        {
+          "type": "NodeVariableBitArray",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Bit Array",
+          "displaySubTitle": "NV1",
+          "bitCollection":[
+            {"bitPosition": 0, "label": "output 1"},
+            {"bitPosition": 1, "label": "output 2"},
+            {"bitPosition": 2, "label": "output 3"},
+            {"bitPosition": 3, "label": "output 4"},
+            {"bitPosition": 4, "label": "output 5"},
+            {"bitPosition": 5, "label": "output 6"},
+            {"bitPosition": 6, "label": "output 7"},
+            {"bitPosition": 7, "label": "output 8"}
+          ]
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Bit 0",
+          "displaySubTitle": "NV2",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 3,
+          "nodeVariableIndexLow": 4,
+          "displayTitle": "Dual",
+          "displaySubTitle": "NV3&4",
+          "max": 65025,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 5,
+          "displayTitle": "Number",
+          "displaySubTitle": "NV5",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableSelect",
+          "nodeVariableIndex": 6,
+          "displayTitle": "Select",
+          "displaySubTitle": "NV6",
+          "options": [
+          {"label": "Options 1", "value": 0},
+          {"label": "Options 2", "value": 1},
+          {"label": "Options 3", "value": 2},
+          {"label": "Options 4", "value": 8}
+          ]
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 7,
+          "displayTitle": "Slider",
+          "displaySubTitle": "group slider",
+          "badge": "Delay",
+          "displayScale": 1,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableTabs",
+          "tabPanels": [
+            { "displayTitle": "Single Bit",
+              "items": [
+                {
+                  "type": "NodeVariableBitSingle",
+                  "nodeVariableIndex": 2,
+                  "displayTitle": "Bit 0",
+                  "displaySubTitle": "NV2",
+                  "bit": 0
+                }
+              ]
+            },
+            { "displayTitle": "Group test",
+              "items": [
+                {
+                  "type": "group",
+                  "displayTitle": "Group 1",
+                  "groupItems": [
+                    {
+                      "type": "NodeVariableBitArray",
+                      "nodeVariableIndex": 1,
+                      "displayTitle": "Bit Array",
+                      "displaySubTitle": "NV1",
+                      "bitCollection":[
+                        {"bitPosition": 0, "label": "output 1"},
+                        {"bitPosition": 1, "label": "output 2"},
+                        {"bitPosition": 2, "label": "output 3"},
+                        {"bitPosition": 3, "label": "output 4"},
+                        {"bitPosition": 4, "label": "output 5"},
+                        {"bitPosition": 5, "label": "output 6"},
+                        {"bitPosition": 6, "label": "output 7"},
+                        {"bitPosition": 7, "label": "output 8"}
+                      ]
+                    },
+                    {
+                      "type": "NodeVariableBitSingle",
+                      "nodeVariableIndex": 2,
+                      "displayTitle": "Bit 0",
+                      "displaySubTitle": "NV2",
+                      "bit": 0
+                    }
+                  ]
+                },
+                {
+                  "type": "group",
+                  "displayTitle": "Group 2",
+                  "groupItems": [
+                    {
+                      "type": "NodeVariableSelect",
+                      "nodeVariableIndex": 6,
+                      "displayTitle": "Select",
+                      "displaySubTitle": "NV6",
+                      "options": [
+                      {"label": "Options 1", "value": 0},
+                      {"label": "Options 2", "value": 1},
+                      {"label": "Options 3", "value": 2},
+                      {"label": "Options 4", "value": 8}
+                      ]
+                    },
+                    {
+                      "type": "NodeVariableSlider",
+                      "nodeVariableIndex": 7,
+                      "displayTitle": "Slider",
+                      "displaySubTitle": "tab group slider",
+                      "badge": "Delay",
+                      "displayScale": 1,
+                      "displayUnits": "Milli Seconds",
+                      "max": 255,
+                      "min": 0
+                    }
+                  ]
+                }
+
+              ]
+            }
+          ] 
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableTabs",
+      "tabPanels": [
+        { "displayTitle": "Bit Array",
+          "items": [
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 1,
+              "displayTitle": "Bit Array",
+              "displaySubTitle": "NV1",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "output 1"},
+                {"bitPosition": 1, "label": "output 2"},
+                {"bitPosition": 2, "label": "output 3"},
+                {"bitPosition": 3, "label": "output 4"},
+                {"bitPosition": 4, "label": "output 5"},
+                {"bitPosition": 5, "label": "output 6"},
+                {"bitPosition": 6, "label": "output 7"},
+                {"bitPosition": 7, "label": "output 8"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Single Bit",
+          "items": [
+            {
+              "type": "NodeVariableBitSingle",
+              "nodeVariableIndex": 2,
+              "displayTitle": "Bit 0",
+              "displaySubTitle": "NV2",
+              "bit": 0
+            }
+          ]
+        },
+        { "displayTitle": "Dual",
+          "items": [
+            {
+              "type": "NodeVariableDual",
+              "nodeVariableIndexHigh": 3,
+              "nodeVariableIndexLow": 4,
+              "displayTitle": "Dual",
+              "displaySubTitle": "NV3&4",
+              "max": 65025,
+              "min": 0
+            }
+          ]
+        },
+        { "displayTitle": "Group",
+          "items": [
+            {
+              "type": "group",
+              "displayTitle": "Group",
+              "groupItems": [
+                {
+                  "type": "NodeVariableNumber",
+                  "nodeVariableIndex": 5,
+                  "displayTitle": "Number",
+                  "displaySubTitle": "NV5",
+                  "max": 255,
+                  "min": 0
+                }
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Number",
+          "items": [
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 5,
+              "displayTitle": "Number",
+              "displaySubTitle": "NV5",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        },
+        { "displayTitle": "Select",
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 6,
+              "displayTitle": "Select",
+              "displaySubTitle": "NV6",
+              "options": [
+              {"label": "Options 1", "value": 0},
+              {"label": "Options 2", "value": 1},
+              {"label": "Options 3", "value": 2},
+              {"label": "Options 4", "value": 8}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Slider",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        }
+      ]        
+    }
+  ],
+  "eventVariables": [
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 1,
+      "displayTitle": "Event Bit Array",
+      "displaySubTitle": "EVI-1",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitSingle",
+      "eventVariableIndex": 2,
+      "displayTitle": "Event Bit Single",
+      "displaySubTitle": "EVI-2",
+      "bit": 0
+    },
+    {
+      "type": "EventVariableNumber",
+      "eventVariableIndex": 5,
+      "displayTitle": "Output Number",
+      "displaySubTitle": "EVI-5"
+    },
+    {
+      "type": "EventVariableNumber",
+      "eventVariableIndex": 3,
+      "displayTitle": "number - high 4 bits",
+      "displaySubTitle": "EVI-3",
+      "startBit": 4,
+      "endBit": 7,
+      "displayOffset":1,
+  	  "max": 15,
+	    "min": 0
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 6,
+      "displayTitle": "EventVariable Select",
+      "displaySubTitle": "EVI-6",
+      "options": [
+        {"label": "select 0", "value": 0},
+        {"label": "select 1", "value": 1},
+        {"label": "select 2", "value": 2},
+        {"label": "select 3", "value": 3}
+      ]
+    },
+    {
+      "type": "EventVariableSlider",
+      "eventVariableIndex": 7,
+      "displayTitle": "Event Slider",
+      "displaySubTitle": "NV7",
+      "displayScale": 10,
+      "displayUnits": "Milli Seconds",
+      "max": 255,
+      "min": 0
+    },
+    {
+      "type": "EventVariableSlider",
+      "eventVariableIndex": 17,
+      "displayTitle": "Event Slider - hiNibble",
+      "displaySubTitle": "range 10 to 120 milli seconds - NV17",
+      "displayScale": 10,
+      "displayUnits": "Milli Seconds",
+      "startBit": 4,
+      "endBit": 7,
+      "displayOffset":10,
+      "max": 11,
+      "min": 0
+    },
+    {
+      "type": "EventVariableGroup",
+      "displayTitle": "Event Group Test",
+      "groupItems": [
+        {
+          "type": "EventVariableBitArray",
+          "eventVariableIndex": 1,
+          "displayTitle": "Event Bit Array",
+          "displaySubTitle": "EVI-1",
+          "bitCollection":[
+            {"bitPosition": 0, "label": "output 1"},
+            {"bitPosition": 1, "label": "output 2"},
+            {"bitPosition": 2, "label": "output 3"},
+            {"bitPosition": 3, "label": "output 4"},
+            {"bitPosition": 4, "label": "output 5"},
+            {"bitPosition": 5, "label": "output 6"},
+            {"bitPosition": 6, "label": "output 7"},
+            {"bitPosition": 7, "label": "output 8"}
+          ]
+        },
+        {
+          "type": "EventVariableBitSingle",
+          "eventVariableIndex": 2,
+          "displayTitle": "Event Bit Single",
+          "displaySubTitle": "EVI-2",
+          "bit": 0
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 5,
+          "displayTitle": "Output 1",
+          "displaySubTitle": "EVI-5",
+          "displayOffset":1,
+          "max": 15,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSelect",
+          "eventVariableIndex": 6,
+          "displayTitle": "EventVariable Select",
+          "displaySubTitle": "EVI-6",
+          "options": [
+            {"label": "select 0", "value": 0},
+            {"label": "select 1", "value": 1},
+            {"label": "select 2", "value": 2},
+            {"label": "select 3", "value": 3}
+          ]
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 7,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Group slider - NV7",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableTabs",
+          "tabPanels": [
+            { "displayTitle": "Bit",
+              "items": [
+                {
+                  "type": "EventVariableBitSingle",
+                  "eventVariableIndex": 2,
+                  "displayTitle": "Event Bit Single",
+                  "displaySubTitle": "EVI-2",
+                  "bit": 0
+                }
+              ]
+            },
+            { "displayTitle": "Slider",
+              "items": [
+                {
+                  "type": "EventVariableSlider",
+                  "eventVariableIndex": 7,
+                  "displayTitle": "Event Slider",
+                  "displaySubTitle": "Group Tab slider - NV7",
+                  "displayScale": 10,
+                  "displayUnits": "Milli Seconds",
+                  "max": 255,
+                  "min": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EventVariableTabs",
+      "tabPanels": [
+        { "displayTitle": "Bit array",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 1,
+              "displayTitle": "Event Bit Array",
+              "displaySubTitle": "EVI-1",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "output 1"},
+                {"bitPosition": 1, "label": "output 2"},
+                {"bitPosition": 2, "label": "output 3"},
+                {"bitPosition": 3, "label": "output 4"},
+                {"bitPosition": 4, "label": "output 5"},
+                {"bitPosition": 5, "label": "output 6"},
+                {"bitPosition": 6, "label": "output 7"},
+                {"bitPosition": 7, "label": "output 8"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Single Bit",
+          "items": [
+            {
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 2,
+              "displayTitle": "Event Bit Single",
+              "displaySubTitle": "EVI-2",
+              "bit": 0
+            }
+          ]
+        },
+        { "displayTitle": "Group",
+          "items": [
+            {
+              "type": "EventVariableGroup",
+              "displayTitle": "Event Group Test",
+              "groupItems": [
+                {
+                  "type": "EventVariableNumber",
+                  "eventVariableIndex": 5,
+                  "displayTitle": "Output 1",
+                  "displaySubTitle": "EVI-5"
+                }
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Number",
+          "items": [
+            {
+              "type": "EventVariableNumber",
+              "eventVariableIndex": 5,
+              "displayTitle": "Output 1",
+              "displaySubTitle": "EVI-5",
+              "displayOffset":2,
+              "max": 20,
+              "min": 0
+            }
+          ]
+        },
+        { "displayTitle": "Select",
+          "items": [
+            {
+              "type": "EventVariableSelect",
+              "eventVariableIndex": 6,
+              "displayTitle": "EventVariable Select",
+              "displaySubTitle": "EVI-6",
+              "options": [
+                {"label": "select 0", "value": 0},
+                {"label": "select 1", "value": 1},
+                {"label": "select 2", "value": 2},
+                {"label": "select 3", "value": 3}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Slider",
+          "items": [
+            {
+              "type": "EventVariableSlider",
+              "eventVariableIndex": 7,
+              "displayTitle": "Event Slider",
+              "displaySubTitle": "Tab slider - NV7",
+              "displayScale": 10,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        }
+      ]        
+    }
+
+  ]
+}

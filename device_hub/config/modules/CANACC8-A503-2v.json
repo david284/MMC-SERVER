@@ -1,0 +1,259 @@
+{
+  "moduleName":"CANACC8",
+  "nodeVariables": [
+    {
+		"type": "group",
+		"displayTitle": "Output 1",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 1,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 1,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 2",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 2,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 2,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 3",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 3,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 3,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 4",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 4,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 4,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 5",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 5,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 5,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 6",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 6,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 6,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 7",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 7,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 7,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    },
+    {
+		"type": "group",
+		"displayTitle": "Output 8",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 8,
+			  "displayTitle": "Pulse Duration",
+        "displaySubTitle": "Range 20 to 2,540 mS, 0 = continuous",
+        "displayScale": 20,
+        "displayUnits": "mS",
+        "dtartBit": 0,
+        "endBit": 6,
+        "max": 127,
+        "min": 0
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 8,
+			  "displayTitle": "Repeat enabled",
+			  "bit": 7
+			}
+		]
+    }
+  ],
+  "eventVariables":[
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 1,
+      "displayTitle": "Output enable",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 2,
+      "displayTitle": "Enable reverse polarity",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 3,
+      "displayTitle": "Event actions",
+      "bitCollection":[
+        {"bitPosition": 7, "label": "enable event"},
+        {"bitPosition": 6, "label": "reverse polarity of end point events"},
+        {"bitPosition": 5, "label": "reverse polarity of mid point event"}
+      ]
+    },
+    {
+      "type": "EventVariableNumber",
+      "eventVariableIndex": 3,
+      "displayTitle": "Output Number",
+      "startBit": 2,
+      "endBit": 4,
+      "displayOffset":1
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 3,
+      "displayTitle": "Event position",
+      "bitMask": 3,
+      "options": [
+        {"label": "event sent at ON end", "value": 0},
+        {"label": "event sent when at OFF end", "value": 1},
+        {"label": "event sent at mid travel", "value": 2},
+        {"label": "Start of Day (SoD) event", "value": 3}
+      ]
+    }
+  ]
+}

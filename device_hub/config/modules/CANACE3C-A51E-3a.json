@@ -1,0 +1,149 @@
+{
+  "moduleName":"CANACE3C",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Switch Block 1",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 2,
+      "displayTitle": "Switch Block 2",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 3,
+      "displayTitle": "Switch Block 3",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 4,
+      "displayTitle": "Switch Block 4",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 5,
+      "displayTitle": "Switch Block 5",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 6,
+      "displayTitle": "Switch Block 6",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 7,
+      "displayTitle": "Switch Block 7",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 8,
+      "displayTitle": "Switch Block 8",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Toggle Switch, Send On Event Only"},
+        {"bitPosition": 1, "label": "Toggle Switch, Send Off Event Only"},
+        {"bitPosition": 2, "label": "Pushbutton Pairs (8 switch pairs per block)"},
+        {"bitPosition": 3, "label": "Push Button Toggle with Event Monitor"},
+        {"bitPosition": 4, "label": "Push Button Toggle without Event Monitor"},
+        {"bitPosition": 5, "label": "Toggle Switch, Send states when SOD processed"},
+        {"bitPosition": 6, "label": "Enable Lockout for this block"}
+      ]
+    },
+    {
+		"type": "group",
+		"displayTitle": "General Settings",
+		"groupItems": [
+			{
+			  "type": "NodeVariableSlider",
+			  "nodeVariableIndex": 9,
+			  "displayTitle": "Delay before SoD",
+        "displaySubTitle": "Range 2 to 63 seconds",
+			  "displayScale": 1,
+			  "displayUnits": "Seconds",
+        "startBit": 0,
+        "endBit": 5,
+			  "max": 63,
+			  "min": 2
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 9,
+			  "displayTitle": "ON event enabled",
+			  "bit": 6
+			},
+			{
+			  "type": "NodeVariableBitSingle",
+			  "nodeVariableIndex": 9,
+			  "displayTitle": "OFF event enabled",
+			  "bit": 7
+			}
+		]
+    }
+
+  ]
+}
+

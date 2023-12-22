@@ -1,0 +1,21 @@
+{
+  "moduleName" : "CAN1IN1OUT",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableNumber",
+      "nodeVariableIndex": 1,
+      "displayTitle" : "Nothing"
+    }
+  ],
+  "eventVariables":[
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 2,
+      "displayTitle": "LED Control",
+      "options": [
+        {"label": "Normal", "value": 1},
+        {"label": "Blink", "value": 2}
+      ]
+    }
+  ]
+}

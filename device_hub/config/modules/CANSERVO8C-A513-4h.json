@@ -1,0 +1,516 @@
+{
+  "moduleName":"CANSERVO",
+  "nodeVariables": [
+    {
+      "type": "group",
+      "displayTitle": "Servo 1",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 5,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 6,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 7,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 8,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 2",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 9,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 10,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 11,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 12,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 1
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 1
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 1
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 1
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 1
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 3",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 13,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 14,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 15,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 16,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 2
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 2
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 2
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 2
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 2
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 4",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 17,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 18,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 19,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 20,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 3
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 3
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 3
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 3
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 3
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 5",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 21,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 22,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 23,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 24,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 4
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 4
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 4
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 4
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 4
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 6",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 25,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 26,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 27,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 28,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 5
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 5
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 5
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 5
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 5
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 7",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 29,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 30,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 31,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 32,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 6
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 6
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 6
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 6
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 6
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Servo 8",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 33,
+          "displayTitle": "ON end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 34,
+          "displayTitle": "OFF end position"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 35,
+          "displayTitle": "ON speed"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 36,
+          "displayTitle": "OFF speed"
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Cut off at end position",
+          "bit": 7
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Move at startup enable",
+          "bit": 7
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Startup position",
+          "bit": 7
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Wait for other servos to complete",
+          "bit": 7
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Testing",
+          "bit": 7
+        }
+      ]
+    }
+  
+  ],
+  "eventVariables":[
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 1,
+      "displayTitle": "Servo event enable",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Servo 1"},
+        {"bitPosition": 1, "label": "Servo 2"},
+        {"bitPosition": 2, "label": "Servo 3"},
+        {"bitPosition": 3, "label": "Servo 4"},
+        {"bitPosition": 4, "label": "Servo 5"},
+        {"bitPosition": 5, "label": "Servo 6"},
+        {"bitPosition": 6, "label": "Servo 7"},
+        {"bitPosition": 7, "label": "Servo 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 2,
+      "displayTitle": "Enable reverse polarity for event",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Servo 1"},
+        {"bitPosition": 1, "label": "Servo 2"},
+        {"bitPosition": 2, "label": "Servo 3"},
+        {"bitPosition": 3, "label": "Servo 4"},
+        {"bitPosition": 4, "label": "Servo 5"},
+        {"bitPosition": 5, "label": "Servo 6"},
+        {"bitPosition": 6, "label": "Servo 7"},
+        {"bitPosition": 7, "label": "Servo 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 3,
+      "displayTitle": "Event actions",
+      "bitCollection":[
+        {"bitPosition": 7, "label": "enable event"},
+        {"bitPosition": 6, "label": "reverse polarity of end point events"},
+        {"bitPosition": 5, "label": "reverse polarity of mid point event"}
+      ]
+    },
+    {
+      "type": "EventVariableNumber",
+      "eventVariableIndex": 3,
+      "displayTitle": "Servo Number",
+      "startBit": 2,
+      "endBit": 4,
+      "displayOffset":1
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 3,
+      "displayTitle": "Event position",
+      "bitMask": 3,
+      "options": [
+        {"label": "event sent at ON end", "value": 0},
+        {"label": "event sent when at OFF end", "value": 1},
+        {"label": "event sent at mid travel", "value": 2},
+        {"label": "Start of Day (SoD) event", "value": 3}
+      ]
+    }
+  ]
+}

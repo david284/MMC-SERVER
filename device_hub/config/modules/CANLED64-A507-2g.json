@@ -1,0 +1,278 @@
+{
+  "moduleName":"CANLED64",
+  "nodeVariables": [],
+  "eventVariables": [
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 17,
+      "displayTitle": "Select Event Action",
+      "options": [
+        {"label": "Normal", "value": 255},
+        {"label": "On only", "value": 254},
+        {"label": "Off Only", "value": 253},
+        {"label": "Flash", "value": 252}
+      ]
+    },
+    {
+      "type": "EventVariableTabs",
+      "tabPanels": [
+        { "displayTitle": "Leds 1-16",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 1,
+              "displayTitle": "Enable LEDs",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 1"},
+                {"bitPosition": 1, "label": "LED 2"},
+                {"bitPosition": 2, "label": "LED 3"},
+                {"bitPosition": 3, "label": "LED 4"},
+                {"bitPosition": 4, "label": "LED 5"},
+                {"bitPosition": 5, "label": "LED 6"},
+                {"bitPosition": 6, "label": "LED 7"},
+                {"bitPosition": 7, "label": "LED 8"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 9,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 1"},
+                {"bitPosition": 1, "label": "LED 2"},
+                {"bitPosition": 2, "label": "LED 3"},
+                {"bitPosition": 3, "label": "LED 4"},
+                {"bitPosition": 4, "label": "LED 5"},
+                {"bitPosition": 5, "label": "LED 6"},
+                {"bitPosition": 6, "label": "LED 7"},
+                {"bitPosition": 7, "label": "LED 8"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 2,
+              "displayTitle": "Enable Leds",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 9"},
+                {"bitPosition": 1, "label": "LED 10"},
+                {"bitPosition": 2, "label": "LED 11"},
+                {"bitPosition": 3, "label": "LED 12"},
+                {"bitPosition": 4, "label": "LED 13"},
+                {"bitPosition": 5, "label": "LED 14"},
+                {"bitPosition": 6, "label": "LED 15"},
+                {"bitPosition": 7, "label": "LED 16"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 10,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 9"},
+                {"bitPosition": 1, "label": "LED 10"},
+                {"bitPosition": 2, "label": "LED 11"},
+                {"bitPosition": 3, "label": "LED 12"},
+                {"bitPosition": 4, "label": "LED 13"},
+                {"bitPosition": 5, "label": "LED 14"},
+                {"bitPosition": 6, "label": "LED 15"},
+                {"bitPosition": 7, "label": "LED 16"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Leds 17-32",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 3,
+              "displayTitle": "Enable LEDs",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 17"},
+                {"bitPosition": 1, "label": "LED 18"},
+                {"bitPosition": 2, "label": "LED 19"},
+                {"bitPosition": 3, "label": "LED 20"},
+                {"bitPosition": 4, "label": "LED 21"},
+                {"bitPosition": 5, "label": "LED 22"},
+                {"bitPosition": 6, "label": "LED 23"},
+                {"bitPosition": 7, "label": "LED 24"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 11,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 17"},
+                {"bitPosition": 1, "label": "LED 18"},
+                {"bitPosition": 2, "label": "LED 19"},
+                {"bitPosition": 3, "label": "LED 20"},
+                {"bitPosition": 4, "label": "LED 21"},
+                {"bitPosition": 5, "label": "LED 22"},
+                {"bitPosition": 6, "label": "LED 23"},
+                {"bitPosition": 7, "label": "LED 24"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 4,
+              "displayTitle": "Enable Leds",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 25"},
+                {"bitPosition": 1, "label": "LED 26"},
+                {"bitPosition": 2, "label": "LED 27"},
+                {"bitPosition": 3, "label": "LED 28"},
+                {"bitPosition": 4, "label": "LED 29"},
+                {"bitPosition": 5, "label": "LED 30"},
+                {"bitPosition": 6, "label": "LED 31"},
+                {"bitPosition": 7, "label": "LED 32"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 12,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 25"},
+                {"bitPosition": 1, "label": "LED 26"},
+                {"bitPosition": 2, "label": "LED 27"},
+                {"bitPosition": 3, "label": "LED 28"},
+                {"bitPosition": 4, "label": "LED 29"},
+                {"bitPosition": 5, "label": "LED 30"},
+                {"bitPosition": 6, "label": "LED 31"},
+                {"bitPosition": 7, "label": "LED 32"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Leds 33-48",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 5,
+              "displayTitle": "Enable LEDs",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 33"},
+                {"bitPosition": 1, "label": "LED 34"},
+                {"bitPosition": 2, "label": "LED 35"},
+                {"bitPosition": 3, "label": "LED 36"},
+                {"bitPosition": 4, "label": "LED 37"},
+                {"bitPosition": 5, "label": "LED 38"},
+                {"bitPosition": 6, "label": "LED 39"},
+                {"bitPosition": 7, "label": "LED 40"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 13,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 33"},
+                {"bitPosition": 1, "label": "LED 34"},
+                {"bitPosition": 2, "label": "LED 35"},
+                {"bitPosition": 3, "label": "LED 36"},
+                {"bitPosition": 4, "label": "LED 37"},
+                {"bitPosition": 5, "label": "LED 38"},
+                {"bitPosition": 6, "label": "LED 39"},
+                {"bitPosition": 7, "label": "LED 40"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 6,
+              "displayTitle": "Enable Leds",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 41"},
+                {"bitPosition": 1, "label": "LED 42"},
+                {"bitPosition": 2, "label": "LED 43"},
+                {"bitPosition": 3, "label": "LED 44"},
+                {"bitPosition": 4, "label": "LED 45"},
+                {"bitPosition": 5, "label": "LED 46"},
+                {"bitPosition": 6, "label": "LED 47"},
+                {"bitPosition": 7, "label": "LED 48"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 14,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 41"},
+                {"bitPosition": 1, "label": "LED 42"},
+                {"bitPosition": 2, "label": "LED 43"},
+                {"bitPosition": 3, "label": "LED 44"},
+                {"bitPosition": 4, "label": "LED 45"},
+                {"bitPosition": 5, "label": "LED 46"},
+                {"bitPosition": 6, "label": "LED 47"},
+                {"bitPosition": 7, "label": "LED 48"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Leds 49-64",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 7,
+              "displayTitle": "Enable LEDs",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 49"},
+                {"bitPosition": 1, "label": "LED 50"},
+                {"bitPosition": 2, "label": "LED 51"},
+                {"bitPosition": 3, "label": "LED 52"},
+                {"bitPosition": 4, "label": "LED 53"},
+                {"bitPosition": 5, "label": "LED 54"},
+                {"bitPosition": 6, "label": "LED 55"},
+                {"bitPosition": 7, "label": "LED 56"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 15,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 49"},
+                {"bitPosition": 1, "label": "LED 50"},
+                {"bitPosition": 2, "label": "LED 51"},
+                {"bitPosition": 3, "label": "LED 52"},
+                {"bitPosition": 4, "label": "LED 53"},
+                {"bitPosition": 5, "label": "LED 54"},
+                {"bitPosition": 6, "label": "LED 55"},
+                {"bitPosition": 7, "label": "LED 56"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 8,
+              "displayTitle": "Enable Leds",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 57"},
+                {"bitPosition": 1, "label": "LED 58"},
+                {"bitPosition": 2, "label": "LED 59"},
+                {"bitPosition": 3, "label": "LED 60"},
+                {"bitPosition": 4, "label": "LED 61"},
+                {"bitPosition": 5, "label": "LED 62"},
+                {"bitPosition": 6, "label": "LED 63"},
+                {"bitPosition": 7, "label": "LED 64"}
+              ]
+            },
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 16,
+              "displayTitle": "Reverse polarity",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "LED 57"},
+                {"bitPosition": 1, "label": "LED 58"},
+                {"bitPosition": 2, "label": "LED 59"},
+                {"bitPosition": 3, "label": "LED 60"},
+                {"bitPosition": 4, "label": "LED 61"},
+                {"bitPosition": 5, "label": "LED 62"},
+                {"bitPosition": 6, "label": "LED 63"},
+                {"bitPosition": 7, "label": "LED 64"}
+              ]
+            }
+          ]
+        }
+      ]        
+    }
+  ]
+}

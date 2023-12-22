@@ -1,0 +1,3 @@
+To update the docs...
+
+	npm run jsdoc

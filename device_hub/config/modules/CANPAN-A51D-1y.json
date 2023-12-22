@@ -1,0 +1,15 @@
+{
+  "moduleName":"CANPAN",
+  "nodeVariables": [
+      {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Startup Actions",
+      "options": [
+        {"label": "0 - Send all current taught event states", "value": 0},
+        {"label": "1 - Do nothing", "value": 1},
+        {"label": "2 - Set all taught states to ON", "value": 2}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+serial port 0: COM4
+Finding CANUSBx...
+CANUSB4 : COM4
+Starting cbusServer...
+
+COM4 Open
+CbusServer Client Connected to Server
+message rejected - missing starting character: 0NAB0384A10000;
+COM4 <- Receive : :S7020NAB0384A20000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A30000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A40000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A50000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A60000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A70000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384A80000; HEARTB Opcode AB
+COM4 <- Receive : :S7020NAB0384B60000; HEARTB Opcode AB
+Client Connected to COM4
+COM4 <- Receive : :S7020NAB0384B70000; HEARTB Opcode AB
+socketServer: checkLayoutExists: Default Directory exists
+mergAdminNode: Config = ./device_hub/config/Default/nodeConfig.json
+mergAdminNode: Save Config : 
+mergAdminNode: QNN 
+mergAdminNode: Save Config : 
+CbusServer Client Connected to Server
+JSON Server: Connected to localhost on 5550
+jsonServer: Client Connected
+mergAdminNode: Connected - localhost on 5551
+jsonServer: Data Received : {"mnemonic":"QNN"}
+jsonServer: broadcast : {"mnemonic":"QNN"} 
+socketServer:  a user connected
+mergAdminNode: QNN 
+mergAdminNode: Save Config : 
+socketServer: Nodes Sent
+jsonServer: Data Received : {"mnemonic":"QNN"}
+jsonServer: broadcast : {"mnemonic":"QNN"} 
+COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 900
+mergAdminNode: module not found in mergConfig FA01
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 900
+mergAdminNode: module not found in mergConfig FA01
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+mergAdminNode: Save Node : 900
+mergAdminNode: module not found in mergConfig FA01
+socketServer: Node Sent
+COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 256
+socketServer: Node Sent
+COM4 <- Receive : :SB040NB60102A5050F; PNN Opcode B6
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 258
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":258}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":258} 
+COM4 -> Transmit : :SB780N580102; RQEVN Opcode 58
+COM4 <- Receive : :SB040N74010200; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 256
+socketServer: Node Sent
+mergAdminNode: NUMEV Opcode 74 processed
+mergAdminNode: Save Node : 256
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+socketServer:  QUERY_ALL_NODES
+mergAdminNode: QNN 
+mergAdminNode: Save Config : 
+socketServer: Nodes Sent
+jsonServer: Data Received : {"mnemonic":"QNN"}
+jsonServer: broadcast : {"mnemonic":"QNN"} 
+COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 900
+mergAdminNode: module not found in mergConfig FA01
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 256
+socketServer: Node Sent
+COM4 <- Receive : :SB040NB60102A5050F; PNN Opcode B6
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+mergAdminNode: PNN Opcode B6 processed
+mergAdminNode: Save Node : 258
+socketServer: Node Sent
+jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":258}
+jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":258} 
+COM4 -> Transmit : :SB780N580102; RQEVN Opcode 58
+COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed
+COM4 <- Receive : :SB040N74010200; NUMEV Opcode 74
+mergAdminNode: NUMEV Opcode 74 processed

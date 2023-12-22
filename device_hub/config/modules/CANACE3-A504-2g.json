@@ -1,0 +1,18 @@
+{
+  "moduleName":"CANACE3",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Mode Select",
+      "options": [
+        {"label": "Mode 0 - All ON / OFF toggles", "value": 0},
+        {"label": "Mode 1 - All pushbutton pairs", "value": 1},
+        {"label": "Mode 2 - Top 4 rows Toggles, bottom 4 rows PB pairs", "value": 2},
+        {"label": "Mode 3 - Top 4 rows Toggles, bottom 4 rows PB ON only", "value": 3},
+        {"label": "Mode 4 - Top 4 rows PB pairs, bottom 4 rows PB ON only", "value": 4},
+        {"label": "Mode 5 - All PB ON only", "value": 5}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "moduleName":"CANACC4",
+  "nodeVariables": [
+    {
+      "type": "group",
+      "displayTitle": "Output 1",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 2",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 3",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 4",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 5",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 5,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 6",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 6,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 7",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 7,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "Output 8",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 8,
+          "displayTitle": "Pulse Duration",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "displayTitle": "General Settings",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 9,
+          "displayTitle": "Recharge timer",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 10,
+          "displayTitle": "Fire Delay",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds"
+        }
+      ]
+    }
+  ],
+  "eventVariables": [
+      {
+        "type": "EventVariableBitArray",
+        "eventVariableIndex": 1,
+        "displayTitle": "Output pairs active",
+        "bitCollection":[
+          {"bitPosition": 0, "label": "pair 1&2"},
+          {"bitPosition": 1, "label": "pair 3&4"},
+          {"bitPosition": 2, "label": "pair 5&6"},
+          {"bitPosition": 3, "label": "pair 7&8"}
+        ]
+      },
+      {
+        "type": "EventVariableBitArray",
+        "eventVariableIndex": 2,
+        "displayTitle": "Reverse Polarity",
+        "bitCollection":[
+          {"bitPosition": 0, "label": "pair 1&2"},
+          {"bitPosition": 1, "label": "pair 3&4"},
+          {"bitPosition": 2, "label": "pair 5&6"},
+          {"bitPosition": 3, "label": "pair 7&8"}
+        ]
+      }
+  ]
+}

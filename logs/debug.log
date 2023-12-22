@@ -1,0 +1,203 @@
+18:20:54.060 info	serial port 0: COM4
+18:20:54.063 debug	serial port 0: {"path":"COM4","manufacturer":"Microsoft","serialNumber":"5&23475B15&0&1","pnpId":"USB\\VID_04D8&PID_F80C\\5&23475B15&0&1","locationId":"Port_#0001.Hub_#0002","friendlyName":"USB Serial Device (COM4)","vendorId":"04D8","productId":"F80C"}
+18:20:54.063 info	Finding CANUSBx...
+18:20:54.068 info	CANUSB4 : COM4
+18:20:54.078 info	Starting cbusServer...
+
+18:20:54.080 info	COM4 Open
+18:20:54.082 info	CbusServer Client Connected to Server
+18:20:54.083 debug	COM4 Rx 0NAB0384A10000
+18:20:54.084 error	message rejected - missing starting character: 0NAB0384A10000;
+18:20:54.084 debug	COM4 Rx :S7020NAB0384A20000
+18:20:54.086 info	COM4 <- Receive : :S7020NAB0384A20000; HEARTB Opcode AB
+18:20:54.086 debug	COM4 Rx :S7020NAB0384A30000
+18:20:54.086 info	COM4 <- Receive : :S7020NAB0384A30000; HEARTB Opcode AB
+18:20:54.087 debug	COM4 Rx :S7020NAB0384A40000
+18:20:54.087 info	COM4 <- Receive : :S7020NAB0384A40000; HEARTB Opcode AB
+18:20:54.088 debug	COM4 Rx :S7020NAB0384A50000
+18:20:54.088 info	COM4 <- Receive : :S7020NAB0384A50000; HEARTB Opcode AB
+18:20:54.088 debug	COM4 Rx :S7020NAB0384A60000
+18:20:54.088 info	COM4 <- Receive : :S7020NAB0384A60000; HEARTB Opcode AB
+18:20:54.089 debug	COM4 Rx :S7020NAB0384A70000
+18:20:54.089 info	COM4 <- Receive : :S7020NAB0384A70000; HEARTB Opcode AB
+18:20:54.089 debug	COM4 Rx :S7020NAB0384A80000
+18:20:54.089 info	COM4 <- Receive : :S7020NAB0384A80000; HEARTB Opcode AB
+18:20:54.090 debug	COM4 Rx :S7020NAB0384B60000
+18:20:54.090 info	COM4 <- Receive : :S7020NAB0384B60000; HEARTB Opcode AB
+18:20:54.091 info	Client Connected to COM4
+18:20:54.982 debug	COM4 Rx :S7020NAB0384B70000
+18:20:54.983 info	COM4 <- Receive : :S7020NAB0384B70000; HEARTB Opcode AB
+18:20:56.095 info	socketServer: checkLayoutExists: Default Directory exists
+18:20:56.097 debug	socketServer: nodeConfig:  file exists
+18:20:56.097 debug	socketServer: layoutDetails:  file exists
+18:20:56.099 info	mergAdminNode: Config = ./device_hub/config/Default/nodeConfig.json
+18:20:56.101 info	mergAdminNode: Save Config : 
+18:20:56.103 info	mergAdminNode: QNN 
+18:20:56.105 info	mergAdminNode: Save Config : 
+18:20:56.118 info	CbusServer Client Connected to Server
+18:20:56.118 info	JSON Server: Connected to localhost on 5550
+18:20:56.120 info	jsonServer: Client Connected
+18:20:56.121 info	mergAdminNode: Connected - localhost on 5551
+18:20:56.123 info	jsonServer: Data Received : {"mnemonic":"QNN"}
+18:20:56.124 info	jsonServer: broadcast : {"mnemonic":"QNN"} 
+18:20:56.133 info	socketServer:  a user connected
+18:20:56.134 info	mergAdminNode: QNN 
+18:20:56.134 info	mergAdminNode: Save Config : 
+18:20:56.136 info	socketServer: Nodes Sent
+18:20:56.137 debug	socketServer: Nodes Sent :{}
+18:20:56.143 info	jsonServer: Data Received : {"mnemonic":"QNN"}
+18:20:56.144 info	jsonServer: broadcast : {"mnemonic":"QNN"} 
+18:20:56.146 info	COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+18:20:56.147 debug	COM4 Tx :SB780N0D;
+18:20:56.150 info	COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+18:20:56.151 debug	COM4 Tx :SB780N0D;
+18:20:56.152 debug	COM4 Rx :S6020NB60384FA0116
+18:20:56.152 info	COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+18:20:56.155 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S6020NB60384FA0116","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":900,"manufacturerId":250,"moduleId":1,"flags":22,"text":"PNN (B6) Node 900 Manufacturer Id 250 Module Id 1 Flags 22"}
+18:20:56.155 info	mergAdminNode: PNN Opcode B6 processed
+18:20:56.156 info	mergAdminNode: Save Node : 900
+18:20:56.157 warn	mergAdminNode: module not found in mergConfig FA01
+18:20:56.158 info	socketServer: Node Sent
+18:20:56.159 debug	socketServer: Node Sent :{"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:56.161 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+18:20:56.162 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+18:20:56.163 debug	COM4 Rx :S6020NB60384FA0116
+18:20:56.164 info	COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+18:20:56.165 info	COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+18:20:56.166 debug	COM4 Tx :SB780N580384;
+18:20:56.167 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S6020NB60384FA0116","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":900,"manufacturerId":250,"moduleId":1,"flags":22,"text":"PNN (B6) Node 900 Manufacturer Id 250 Module Id 1 Flags 22"}
+18:20:56.167 info	mergAdminNode: PNN Opcode B6 processed
+18:20:56.167 debug	mergAdminNode: PNN (B6) Node found {"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:56.168 info	mergAdminNode: Save Node : 900
+18:20:56.168 warn	mergAdminNode: module not found in mergConfig FA01
+18:20:56.169 info	socketServer: Node Sent
+18:20:56.170 debug	socketServer: Node Sent :{"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:56.170 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+18:20:56.171 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+18:20:56.174 info	COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+18:20:56.175 debug	COM4 Tx :SB780N580384;
+18:20:56.175 debug	COM4 Rx :S7020N74038403
+18:20:56.175 info	COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+18:20:56.180 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S7020N74038403","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":900,"eventCount":3,"text":"NUMEV (74) Node 900 Event Count 3"}
+18:20:56.180 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:56.181 info	mergAdminNode: Save Node : 900
+18:20:56.182 warn	mergAdminNode: module not found in mergConfig FA01
+18:20:56.183 info	socketServer: Node Sent
+18:20:56.184 debug	socketServer: Node Sent :{"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:56.184 debug	COM4 Rx :S7020N74038403
+18:20:56.184 info	COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+18:20:56.186 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S7020N74038403","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":900,"eventCount":3,"text":"NUMEV (74) Node 900 Event Count 3"}
+18:20:56.186 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:56.186 debug	mergAdminNode:  NUMEV: EvCount value has not changed
+18:20:56.343 debug	COM4 Rx :SB020NB60100A5020D
+18:20:56.343 info	COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+18:20:56.344 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020NB60100A5020D","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":256,"manufacturerId":165,"moduleId":2,"flags":13,"text":"PNN (B6) Node 256 Manufacturer Id 165 Module Id 2 Flags 13"}
+18:20:56.344 info	mergAdminNode: PNN Opcode B6 processed
+18:20:56.345 info	mergAdminNode: Save Node : 256
+18:20:56.346 info	socketServer: Node Sent
+18:20:56.347 debug	socketServer: Node Sent :{"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:56.347 debug	COM4 Rx :SB040NB60102A5050F
+18:20:56.347 info	COM4 <- Receive : :SB040NB60102A5050F; PNN Opcode B6
+18:20:56.348 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+18:20:56.349 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+18:20:56.350 info	COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+18:20:56.350 debug	COM4 Tx :SB780N580100;
+18:20:56.350 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB040NB60102A5050F","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":258,"manufacturerId":165,"moduleId":5,"flags":15,"text":"PNN (B6) Node 258 Manufacturer Id 165 Module Id 5 Flags 15"}
+18:20:56.350 info	mergAdminNode: PNN Opcode B6 processed
+18:20:56.351 info	mergAdminNode: Save Node : 258
+18:20:56.352 info	socketServer: Node Sent
+18:20:56.352 debug	socketServer: Node Sent :{"nodeNumber":258,"manufacturerId":165,"moduleId":5,"moduleIdentifier":"A505","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACE8C","flags":15,"flim":true,"consumer":true,"producer":true,"bootloader":true,"coe":false,"learn":false}
+18:20:56.353 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":258}
+18:20:56.354 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":258} 
+18:20:56.356 info	COM4 -> Transmit : :SB780N580102; RQEVN Opcode 58
+18:20:56.357 debug	COM4 Tx :SB780N580102;
+18:20:56.360 debug	COM4 Rx :SB040N74010200
+18:20:56.360 info	COM4 <- Receive : :SB040N74010200; NUMEV Opcode 74
+18:20:56.362 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB040N74010200","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":258,"eventCount":0,"text":"NUMEV (74) Node 258 Event Count 0"}
+18:20:56.362 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:56.363 debug	mergAdminNode:  NUMEV: EvCount value has not changed
+18:20:56.535 debug	COM4 Rx :SB020NB60100A5020D
+18:20:56.536 info	COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+18:20:56.538 debug	COM4 Rx :SB020N74010003
+18:20:56.538 info	COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+18:20:56.539 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020NB60100A5020D","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":256,"manufacturerId":165,"moduleId":2,"flags":13,"text":"PNN (B6) Node 256 Manufacturer Id 165 Module Id 2 Flags 13"}
+18:20:56.540 info	mergAdminNode: PNN Opcode B6 processed
+18:20:56.540 debug	mergAdminNode: PNN (B6) Node found {"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:56.540 info	mergAdminNode: Save Node : 256
+18:20:56.543 info	socketServer: Node Sent
+18:20:56.544 debug	socketServer: Node Sent :{"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:56.545 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020N74010003","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":256,"eventCount":3,"text":"NUMEV (74) Node 256 Event Count 3"}
+18:20:56.545 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:56.546 info	mergAdminNode: Save Node : 256
+18:20:56.547 info	socketServer: Node Sent
+18:20:56.548 debug	socketServer: Node Sent :{"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:56.549 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+18:20:56.550 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+18:20:56.551 info	COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+18:20:56.552 debug	COM4 Tx :SB780N580100;
+18:20:56.556 debug	COM4 Rx :SB020N74010003
+18:20:56.556 info	COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+18:20:56.559 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020N74010003","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":256,"eventCount":3,"text":"NUMEV (74) Node 256 Event Count 3"}
+18:20:56.559 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:56.560 debug	mergAdminNode:  NUMEV: EvCount value has not changed
+18:20:57.468 info	socketServer:  QUERY_ALL_NODES
+18:20:57.468 info	mergAdminNode: QNN 
+18:20:57.469 info	mergAdminNode: Save Config : 
+18:20:57.470 info	socketServer: Nodes Sent
+18:20:57.470 debug	socketServer: Nodes Sent :{"256":{"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false},"258":{"nodeNumber":258,"manufacturerId":165,"moduleId":5,"moduleIdentifier":"A505","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACE8C","flags":15,"flim":true,"consumer":true,"producer":true,"bootloader":true,"coe":false,"learn":false},"900":{"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}}
+18:20:57.470 info	jsonServer: Data Received : {"mnemonic":"QNN"}
+18:20:57.471 info	jsonServer: broadcast : {"mnemonic":"QNN"} 
+18:20:57.471 info	COM4 -> Transmit : :SB780N0D; QNN Opcode 0D
+18:20:57.472 debug	COM4 Tx :SB780N0D;
+18:20:57.475 debug	COM4 Rx :S6020NB60384FA0116
+18:20:57.475 info	COM4 <- Receive : :S6020NB60384FA0116; PNN Opcode B6
+18:20:57.476 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S6020NB60384FA0116","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":900,"manufacturerId":250,"moduleId":1,"flags":22,"text":"PNN (B6) Node 900 Manufacturer Id 250 Module Id 1 Flags 22"}
+18:20:57.476 info	mergAdminNode: PNN Opcode B6 processed
+18:20:57.477 debug	mergAdminNode: PNN (B6) Node found {"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:57.477 info	mergAdminNode: Save Node : 900
+18:20:57.477 warn	mergAdminNode: module not found in mergConfig FA01
+18:20:57.478 info	socketServer: Node Sent
+18:20:57.478 debug	socketServer: Node Sent :{"nodeNumber":900,"manufacturerId":250,"moduleId":1,"moduleIdentifier":"FA01","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"Unknown","flags":22,"flim":true,"consumer":false,"producer":true,"bootloader":false,"coe":true,"learn":false}
+18:20:57.479 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":900}
+18:20:57.480 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":900} 
+18:20:57.480 info	COM4 -> Transmit : :SB780N580384; RQEVN Opcode 58
+18:20:57.481 debug	COM4 Tx :SB780N580384;
+18:20:57.485 debug	COM4 Rx :S7020N74038403
+18:20:57.485 info	COM4 <- Receive : :S7020N74038403; NUMEV Opcode 74
+18:20:57.488 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":S7020N74038403","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":900,"eventCount":3,"text":"NUMEV (74) Node 900 Event Count 3"}
+18:20:57.488 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:57.488 debug	mergAdminNode:  NUMEV: EvCount value has not changed
+18:20:57.667 debug	COM4 Rx :SB020NB60100A5020D
+18:20:57.667 info	COM4 <- Receive : :SB020NB60100A5020D; PNN Opcode B6
+18:20:57.668 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020NB60100A5020D","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":256,"manufacturerId":165,"moduleId":2,"flags":13,"text":"PNN (B6) Node 256 Manufacturer Id 165 Module Id 2 Flags 13"}
+18:20:57.669 info	mergAdminNode: PNN Opcode B6 processed
+18:20:57.669 debug	mergAdminNode: PNN (B6) Node found {"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:57.669 info	mergAdminNode: Save Node : 256
+18:20:57.670 info	socketServer: Node Sent
+18:20:57.671 debug	socketServer: Node Sent :{"nodeNumber":256,"manufacturerId":165,"moduleId":2,"moduleIdentifier":"A502","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":3,"services":{},"component":"mergDefault2","moduleName":"CANACC5","flags":13,"flim":true,"consumer":true,"producer":false,"bootloader":true,"coe":false,"learn":false}
+18:20:57.671 debug	COM4 Rx :SB040NB60102A5050F
+18:20:57.671 info	COM4 <- Receive : :SB040NB60102A5050F; PNN Opcode B6
+18:20:57.672 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":256}
+18:20:57.672 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":256} 
+18:20:57.673 info	COM4 -> Transmit : :SB780N580100; RQEVN Opcode 58
+18:20:57.674 debug	COM4 Tx :SB780N580100;
+18:20:57.674 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB040NB60102A5050F","ID_TYPE":"S","mnemonic":"PNN","opCode":"B6","nodeNumber":258,"manufacturerId":165,"moduleId":5,"flags":15,"text":"PNN (B6) Node 258 Manufacturer Id 165 Module Id 5 Flags 15"}
+18:20:57.674 info	mergAdminNode: PNN Opcode B6 processed
+18:20:57.674 debug	mergAdminNode: PNN (B6) Node found {"nodeNumber":258,"manufacturerId":165,"moduleId":5,"moduleIdentifier":"A505","parameters":[],"nodeVariables":[],"storedEvents":{},"status":false,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACE8C","flags":15,"flim":true,"consumer":true,"producer":true,"bootloader":true,"coe":false,"learn":false}
+18:20:57.675 info	mergAdminNode: Save Node : 258
+18:20:57.676 info	socketServer: Node Sent
+18:20:57.678 debug	socketServer: Node Sent :{"nodeNumber":258,"manufacturerId":165,"moduleId":5,"moduleIdentifier":"A505","parameters":[],"nodeVariables":[],"storedEvents":{},"status":true,"eventCount":0,"services":{},"component":"mergDefault2","moduleName":"CANACE8C","flags":15,"flim":true,"consumer":true,"producer":true,"bootloader":true,"coe":false,"learn":false}
+18:20:57.679 info	jsonServer: Data Received : {"mnemonic":"RQEVN","nodeNumber":258}
+18:20:57.680 info	jsonServer: broadcast : {"mnemonic":"RQEVN","nodeNumber":258} 
+18:20:57.682 info	COM4 -> Transmit : :SB780N580102; RQEVN Opcode 58
+18:20:57.683 debug	COM4 Tx :SB780N580102;
+18:20:57.683 debug	COM4 Rx :SB020N74010003
+18:20:57.683 info	COM4 <- Receive : :SB020N74010003; NUMEV Opcode 74
+18:20:57.684 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB020N74010003","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":256,"eventCount":3,"text":"NUMEV (74) Node 256 Event Count 3"}
+18:20:57.684 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:57.685 debug	mergAdminNode:  NUMEV: EvCount value has not changed
+18:20:57.686 debug	COM4 Rx :SB040N74010200
+18:20:57.686 info	COM4 <- Receive : :SB040N74010200; NUMEV Opcode 74
+18:20:57.687 debug	mergAdminNode: CBUS Receive >>>  {"encoded":":SB040N74010200","ID_TYPE":"S","mnemonic":"NUMEV","opCode":"74","nodeNumber":258,"eventCount":0,"text":"NUMEV (74) Node 258 Event Count 0"}
+18:20:57.687 info	mergAdminNode: NUMEV Opcode 74 processed
+18:20:57.688 debug	mergAdminNode:  NUMEV: EvCount value has not changed
