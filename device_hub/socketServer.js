@@ -229,6 +229,11 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
             programNode.programBootMode(data.cpuType, data.flags, intelhexString);
         })
 		
+        socket.on('STOP_SERVER', function(){
+          winston.info({message: `socketServer: STOP_SERVER`});
+          process.exit();
+        })
+      
     });
     server.listen(SOCKET_PORT, () => console.log(`SS: Server running on port ${SOCKET_PORT}`))
 
