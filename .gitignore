@@ -1,2 +1,4 @@
 /node_modules
 /logs
+/config/Default/layoutDetails.json
+/config/Default/nodeConfig.json
