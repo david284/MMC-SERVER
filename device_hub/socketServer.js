@@ -191,7 +191,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         socket.on('UPDATE_LAYOUT_DETAILS', function(data){
 			winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
             layoutDetails = data
-            jsonfile.writeFileSync('config/'+ LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+            jsonfile.writeFileSync('device_hub/config/'+ LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
             io.emit('layoutDetails', layoutDetails)
         })
         
@@ -280,7 +280,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
             winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
             node.cbusSend(node.SNN(newNodeId))
             layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-            jsonfile.writeFileSync('config/' + LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {
+            jsonfile.writeFileSync('device_hub/config/' + LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {
                 spaces: 2,
                 EOL: '\r\n'
             })
