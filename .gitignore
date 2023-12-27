@@ -1,4 +1,4 @@
 /node_modules
 /logs
 device_hub/config/Default/nodeConfig.json
-device_hub/config/Default/nodeConfig.json
+device_hub/config/Default/layoutDetails.json

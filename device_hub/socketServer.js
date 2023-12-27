@@ -26,7 +26,7 @@ const io = require('socket.io')(server, {
 
 exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
     checkLayoutExists(LAYOUT_NAME)
-    let layoutDetails = jsonfile.readFileSync('config/'+LAYOUT_NAME + "/layoutDetails.json")
+    let layoutDetails = jsonfile.readFileSync('device_hub/config/'+LAYOUT_NAME + "/layoutDetails.json")
     //const io = require('socket.io')()
     //const programNode = require('./merg/programNode.js')(NET_ADDRESS, NET_PORT)
     let node = new admin.cbusAdmin(LAYOUT_NAME, NET_ADDRESS,JSON_PORT);
@@ -303,7 +303,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
 }
 
 function checkLayoutExists(layoutName) {
-            const directory = "./config/" + layoutName + "/"
+            const directory = "./device_hub/config/" + layoutName + "/"
             
             // check if directory exists
             if (fs.existsSync(directory)) {
