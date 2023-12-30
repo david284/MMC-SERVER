@@ -1,18 +1,10 @@
-//const socketIO = require('socket.io');
-//const http = require('http')
 const winston = require('winston');		// use config from root instance
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-
-//const packageFile = jsonfile.readFileSync('./package.json')
+const packageInfo = require('.././package.json')
 
 const config = jsonfile.readFileSync('./device_hub/config/config.json')
 
-//const SOCKET_PORT = config.socketServerPort
-//const NET_PORT = config.cbusServerPort
-//const NET_ADDRESS = config.serverAddress
-//const JSON_PORT = config.jsonServerPort
-//const LAYOUT_NAME = config.layoutName
 
 const admin = require('./mergAdminNode.js')
 const server = require('http').createServer()
@@ -27,15 +19,12 @@ const io = require('socket.io')(server, {
 exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
     checkLayoutExists(LAYOUT_NAME)
     let layoutDetails = jsonfile.readFileSync('device_hub/config/'+LAYOUT_NAME + "/layoutDetails.json")
-    //const io = require('socket.io')()
-    //const programNode = require('./merg/programNode.js')(NET_ADDRESS, NET_PORT)
     let node = new admin.cbusAdmin(LAYOUT_NAME, NET_ADDRESS,JSON_PORT);
 
     io.on('connection', function(socket){
 		winston.info({message: 'socketServer:  a user connected'});
         node.cbusSend(node.QNN())
         io.emit('layoutDetails', layoutDetails)
-        //io.emit('events', events)
         socket.on('QUERY_ALL_NODES', function(){
           winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
           node.cbusSend(node.QNN())
@@ -201,15 +190,14 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         })
 		
         socket.on('REQUEST_VERSION', function(){
-			winston.info({message: `socketServer: REQUEST_VERSION ${JSON.stringify(packageFile)}`});
-            const versionArray = packageFile.version.toString().split(".");
-			let version = {
-				'major': versionArray[0],
-				'minor': versionArray[1],
-				'patch': versionArray[2],
-				}
-
-            io.emit('VERSION', version)
+    			winston.info({message: `socketServer: REQUEST_VERSION`});
+          let version = {
+            'App': packageInfo.version,
+            'API': '0.0.1',
+            'node': process.version
+          }
+          io.emit('VERSION', version)
+    			winston.info({message: `socketServer: sent VERSION ${JSON.stringify(version)}`});
         })
 
         socket.on('PROGRAM_NODE', function(data){
