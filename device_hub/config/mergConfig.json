@@ -179,25 +179,26 @@
   },
   
   "cpuManufacturerName": {
-			"1": "MICROCHIP",
-			"2": "ATMEL",
-			"3": "ARM",
-            "255": "unknown"
+		"1": "MICROCHIP",
+		"2": "ATMEL",
+		"3": "ARM",
+    "255": "unknown"
   },
 
   "moduleManufacturerName": {
-            "42": "SHAG",
-			"70": "ROCRAIL",
-			"80": "SPECTRUM",
-			"165": "MERG",
-            "255": "unknown"
+    "42": "SHAG",
+    "70": "ROCRAIL",
+		"80": "SPECTRUM",
+		"165": "MERG",
+    "250": "VLCB",
+    "255": "unknown"
   },
 
   "interfaceName": {
-			"1": "CAN",
-			"2": "Ethernet",
-			"3": "Microchip mesh network",
-            "255": "unknown"
+    "1": "CAN",
+		"2": "Ethernet",
+		"3": "Microchip mesh network",
+    "255": "unknown"
   }
 
 }
