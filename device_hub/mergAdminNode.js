@@ -17,9 +17,7 @@ function decToHex(num, len) {
 class cbusAdmin extends EventEmitter {
     constructor(LAYOUT_PATH, NET_ADDRESS, NET_PORT) {
         super();
-//        const setup = jsonfile.readFileSync(LAYOUT_PATH  + 'nodeConfig.json')
         this.configFile = './device_hub/config/' + LAYOUT_PATH + '/nodeConfig.json'
-//        this.config = jsonfile.readFileSync(this.configFile)
         this.config = {}
         const merg = jsonfile.readFileSync('./device_hub/config/mergConfig.json')
         this.merg = merg
@@ -27,9 +25,6 @@ class cbusAdmin extends EventEmitter {
         this.ServiceDefs = Service_Definitions
 
         winston.info({message: `mergAdminNode: Config = ${this.configFile}`});
-        //winston.debug({message: `mergAdminNode: ${JSON.stringify(this.merg['modules'][32]['name'])}`});
-//        this.config = setup
-//        this.configFile = LAYOUT_PATH + 'nodeConfig.json'
         this.pr1 = 2
         this.pr2 = 3
         this.canId = 60
@@ -367,6 +362,7 @@ class cbusAdmin extends EventEmitter {
                   // doesn't exist in config file, so create it (but note flag update/create done later)
                   let output = {
                       "nodeNumber": cbusMsg.nodeNumber,
+                      "nodeName": "Unknown",
                       "manufacturerId": cbusMsg.manufacturerId,
                       "moduleId": cbusMsg.moduleId,
                       "moduleIdentifier": moduleIdentifier,
@@ -385,6 +381,10 @@ class cbusAdmin extends EventEmitter {
                 if (this.merg['modules'][moduleIdentifier]) {
                   if (this.merg['modules'][moduleIdentifier]['name']) {
                     this.config.nodes[ref].moduleName = this.merg['modules'][moduleIdentifier]['name']
+                    // if no nodeName set, create one with node number & moduleName
+                    if (this.config.nodes[ref].nodeName == "Unknown") {
+                      this.config.nodes[ref].nodeName = cbusMsg.nodeNumber + " " + this.config.nodes[ref].moduleName
+                    }
                   }
                   if (this.merg['modules'][moduleIdentifier]['component']) {
                     this.config.nodes[ref].component = this.merg['modules'][moduleIdentifier]['component']
@@ -975,89 +975,6 @@ class cbusAdmin extends EventEmitter {
         return cbusLib.encodeQLOC(sessionId);
     }
 
-    /*ENRSP() {
-        let output = '';
-		winston.debug({message: `mergAdminNode: ENRSP : ${Object.keys(this.events).length}`});
-        const eventList = Object.keys(this.events)
-        for (let i = 0, len = eventList.length; i < len; i++) {
-            output += this.header + 'F2' + pad(this.nodeId.toString(16), 4) + eventList[i] + pad((i+1).toString(16), 2) + ';'
-			winston.debug({message: `mergAdminNode: ENSRP output : ${output}`});
-        }
-        return output
-    }*/
-
-    /*PNN() {
-        return this.header + 'B6' + pad(this.nodeId.toString(16), 4) + pad(this.manufId.toString(16), 2) + pad(this.moduleId.toString(16), 2) + pad(this.flags(16), 2) + ';'
-
-    }
-
-    PARAMS() {
-        var par = this.params();
-		//winston.debug({message: 'mergAdminNode: RQNPN :'+par[index]});
-        let output = this.header + 'EF'
-        for (var i = 1; i < 8; i++) {
-            output += par[i]
-        }
-        output += ';'
-        return output;
-
-    }
-
-    RQNN() {
-		winston.debug({message: `mergAdminNode: RQNN TM : ${this.TEACH_MODE ? 'TRUE' : 'FALSE'}`});
-        return this.header + '50' + pad(this.nodeId.toString(16), 4) + ';';
-    }
-
-    NNACK() {
-        return this.header + '52' + pad(this.nodeId.toString(16), 4) + ';';
-    }
-
-    WRACK() {
-        return this.header + '59' + pad(this.nodeId.toString(16), 4) + ';';
-    }
-
-    NUMEV() {
-        return this.header + '74' + pad(this.nodeId.toString(16), 4) + pad(Object.keys(this.events).length.toString(16), 2) + ';';
-        //object.keys(this.events).length
-    }
-
-    NEVAL(eventIndex, eventNo) {
-        const eventId = Object.keys(this.events)[eventIndex-1]
-		winston.debug({message: `mergAdminNode: NEVAL ${eventId} : ${eventIndex} : ${eventNo} -- ${Object.keys(this.events)}`});
-        return this.header + 'B5' + pad(this.nodeId.toString(16), 4) + pad(eventIndex.toString(16), 2) + pad(eventNo.toString(16), 2)+ pad(this.events[eventId][eventNo].toString(16), 2) + ';'
-    }
-
-    ENRSP() {
-        let output = '';
-		winston.debug({message: `mergAdminNode: ENRSP : ${Object.keys(this.events).length}`});
-        const eventList = Object.keys(this.events)
-        for (let i = 0, len = eventList.length; i < len; i++) {
-            output += this.header + 'F2' + pad(this.nodeId.toString(16), 4) + eventList[i] + pad((i+1).toString(16), 2) + ';'
-			winston.debug({message: `mergAdminNode: ENSRP output : ${output}`});
-        }
-        return output
-    }
-
-    PARAN(index) {
-        const par = this.params();
-		//winston.debug({message: 'mergAdminNode: RQNPN :'+par[index]});
-        return this.header + '9B' + pad(this.nodeId.toString(16), 4) + pad(index.toString(16), 2) + pad(par[index].toString(16), 2) + ';';
-    }
-
-    NVANS(index) {
-        return this.header + '97' + pad(this.nodeId.toString(16), 4) + pad(index.toString(16), 2) + pad(this.variables[index].toString(16), 2) + ';';
-    }
-
-    NAME() {
-        let name = this.name + '       '
-        let output = ''
-        for (let i = 0; i < 7; i++) {
-            output = output + pad(name.charCodeAt(i).toString(16), 2)
-        }
-        return this.header + 'E2' + output + ';'
-    }
-
-    */
 };
 
 
