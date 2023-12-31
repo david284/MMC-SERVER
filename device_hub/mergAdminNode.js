@@ -20,11 +20,14 @@ class cbusAdmin extends EventEmitter {
         this.configFile = './device_hub/config/' + LAYOUT_PATH + '/nodeConfig.json'
         this.config = {}
         const merg = jsonfile.readFileSync('./device_hub/config/mergConfig.json')
+        this.layoutDetailsFileName = './device_hub/config/' + LAYOUT_PATH + '/layoutDetails.json'
+        this.layoutDetails = jsonfile.readFileSync(this.layoutDetailsFileName)
         this.merg = merg
         const Service_Definitions = jsonfile.readFileSync('./device_hub/config/Service_Definitions.json')
         this.ServiceDefs = Service_Definitions
 
         winston.info({message: `mergAdminNode: Config = ${this.configFile}`});
+        winston.info({message: `mergAdminNode: Layout = ${JSON.stringify(this.layoutDetails)}`});
         this.pr1 = 2
         this.pr2 = 3
         this.canId = 60
@@ -403,6 +406,7 @@ class cbusAdmin extends EventEmitter {
                 this.config.nodes[ref].status = true
                 this.cbusSend((this.RQEVN(cbusMsg.nodeNumber)))
                 this.saveNode(cbusMsg.nodeNumber)
+                this.update_nodeName(cbusMsg.nodeNumber)
             },
             'B8': (cbusMsg) => {//Accessory On Short Event 1
                 this.eventSend(cbusMsg, 'on', 'short')
@@ -692,7 +696,33 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+    // layoutDetails functions
+    //
+    update_nodeName(nodeNumber){
+      if (nodeNumber in this.layoutDetails.nodeDetails){
+      } else {
+        // need to create entry for node
+        this.layoutDetails.nodeDetails[nodeNumber] = {}
+      }
+      if (this.layoutDetails.nodeDetails[nodeNumber].nodeName) {
+        // nodeName already exists, so do nothing
+      } else {
+        // check if module name exists
+        if (this.config.nodes[nodeNumber].moduleName) {
+          this.layoutDetails.nodeDetails[nodeNumber].nodeName = this.config.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
+        } else {
+          this.layoutDetails.nodeDetails[nodeNumber].nodeName = 'Unknown (' + nodeNumber + ')'
+        }
+        this.saveLayoutDetails()
+      }
+    }
 
+
+    saveLayoutDetails(){
+      jsonfile.writeFileSync(this.layoutDetailsFileName, this.layoutDetails, {spaces: 2, EOL: '\r\n'})
+    }
+
+    
     QNN() {//Query Node Number
         winston.info({message: 'mergAdminNode: QNN '})
         for (let node in this.config.nodes) {
