@@ -1,7 +1,7 @@
 {
   "modules": {
     "A500": {
-      "name": "Unregistered"
+      "name": "Test fixture"
     },
     "A501": {
       "name": "CANACC4"
@@ -110,6 +110,9 @@
     "2A02":{
       "name": "MERGLCB",
       "component": "mergLcbDefault"
+    },
+    "FA00": {
+      "name": "Test fixture"
     },
     "FA62": {
       "name": "CAN4in4out"

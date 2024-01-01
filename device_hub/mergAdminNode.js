@@ -365,7 +365,6 @@ class cbusAdmin extends EventEmitter {
                   // doesn't exist in config file, so create it (but note flag update/create done later)
                   let output = {
                       "nodeNumber": cbusMsg.nodeNumber,
-                      "nodeName": "Unknown",
                       "manufacturerId": cbusMsg.manufacturerId,
                       "moduleId": cbusMsg.moduleId,
                       "moduleIdentifier": moduleIdentifier,
@@ -384,10 +383,6 @@ class cbusAdmin extends EventEmitter {
                 if (this.merg['modules'][moduleIdentifier]) {
                   if (this.merg['modules'][moduleIdentifier]['name']) {
                     this.config.nodes[ref].moduleName = this.merg['modules'][moduleIdentifier]['name']
-                    // if no nodeName set, create one with node number & moduleName
-                    if (this.config.nodes[ref].nodeName == "Unknown") {
-                      this.config.nodes[ref].nodeName = cbusMsg.nodeNumber + " " + this.config.nodes[ref].moduleName
-                    }
                   }
                   if (this.merg['modules'][moduleIdentifier]['component']) {
                     this.config.nodes[ref].component = this.merg['modules'][moduleIdentifier]['component']
@@ -406,6 +401,7 @@ class cbusAdmin extends EventEmitter {
                 this.config.nodes[ref].status = true
                 this.cbusSend((this.RQEVN(cbusMsg.nodeNumber)))
                 this.saveNode(cbusMsg.nodeNumber)
+                // now update nodeName in layoutDetails
                 this.update_nodeName(cbusMsg.nodeNumber)
             },
             'B8': (cbusMsg) => {//Accessory On Short Event 1
@@ -703,23 +699,25 @@ class cbusAdmin extends EventEmitter {
       } else {
         // need to create entry for node
         this.layoutDetails.nodeDetails[nodeNumber] = {}
+        this.layoutDetails.nodeDetails[nodeNumber].colour = "black"
+        this.layoutDetails.nodeDetails[nodeNumber].group = ""
       }
-      if (this.layoutDetails.nodeDetails[nodeNumber].nodeName) {
+      if (this.layoutDetails.nodeDetails[nodeNumber].name) {
         // nodeName already exists, so do nothing
       } else {
         // check if module name exists
         if (this.config.nodes[nodeNumber].moduleName) {
-          this.layoutDetails.nodeDetails[nodeNumber].nodeName = this.config.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
+          this.layoutDetails.nodeDetails[nodeNumber].name = this.config.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
         } else {
-          this.layoutDetails.nodeDetails[nodeNumber].nodeName = 'Unknown (' + nodeNumber + ')'
+          this.layoutDetails.nodeDetails[nodeNumber].name = 'Unknown (' + nodeNumber + ')'
         }
         this.saveLayoutDetails()
       }
     }
 
-
     saveLayoutDetails(){
       jsonfile.writeFileSync(this.layoutDetailsFileName, this.layoutDetails, {spaces: 2, EOL: '\r\n'})
+      this.emit('layoutDetails', this.layoutDetails)
     }
 
     

@@ -231,7 +231,13 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         io.emit('events', events);
     })
 
-    node.on('nodes', function (nodes) {
+    node.on('layoutDetails', function (data) {
+      layoutDetails = data
+      winston.info({message: `socketServer: send layoutDetails`});
+      io.emit('layoutDetails', layoutDetails)
+  })
+
+  node.on('nodes', function (nodes) {
       winston.info({message: `socketServer: Nodes Sent`});
         winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
         io.emit('nodes', nodes);
