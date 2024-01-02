@@ -1000,8 +1000,11 @@ class cbusAdmin extends EventEmitter {
     }
 
     QLOC(sessionId) {
-        return cbusLib.encodeQLOC(sessionId);
-    }
+      let output = {}
+      output['mnemonic'] = 'QLOC'
+      output['session'] = sessionId
+      return output
+  }
 
 };
 

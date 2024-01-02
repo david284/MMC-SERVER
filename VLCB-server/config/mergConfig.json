@@ -19,8 +19,7 @@
       "name": "CANACE8C"
     },
     "A506": {
-      "name": "CANLED",
-      "component": "mergDefault"
+      "name": "CANLED"
     },
     "A507": {
       "name": "CANLED64"
@@ -29,12 +28,10 @@
       "name": "CANACC4_2"
     },
     "A509": {
-      "name": "CANCAB",
-      "component": "mergDefault"
+      "name": "CANCAB"
     },
     "A50A": {
-      "name": "CANCMD",
-      "component": "cancmd"
+      "name": "CANCMD"
     },
     "A50B": {
       "name": "CANSERVO"
@@ -46,8 +43,7 @@
       "name": "CANSERVO8C"
     },
     "A519": {
-      "name": "CANETHER",
-      "component": "mergDefault"
+      "name": "CANETHER"
     },
     "A51D": {
       "name": "CANPAN"
@@ -59,15 +55,13 @@
       "name": "CANPanel"
     },
     "A520": {
-      "name": "CANMIO",
-      "component": "canmio"
+      "name": "CANMIO"
     },
     "A521": {
       "name": "CANACE8MIO"
     },
     "A522": {
-      "name": "CANSOL",
-      "component": "mergDefault"
+      "name": "CANSOL"
     },
     "A532": {
       "name": "CANMIO-SVO"
@@ -85,31 +79,25 @@
       "name": "CANPiNODE"
     },
     "A53B": {
-      "name": "CANDISP",
-      "component": "canled64"
+      "name": "CANDISP"
     },
     "A53E": {
       "name": "CANINP"
     },
     "A53F": {
-      "name": "CANOUT",
-      "component": "canacc8"
+      "name": "CANOUT"
     },
     "65": {
-      "name": "ETHNIGE",
-      "component": "mergETHNIGE"
+      "name": "ETHNIGE"
     },
     "99": {
-      "name": "LIGHTS",
-      "component": "daveh-lights"
+      "name": "LIGHTS"
     },
     "2A01":{
-      "name": "CANMULTI",
-      "component": "mergDefault"
+      "name": "CANMULTI"
     },
     "2A02":{
-      "name": "MERGLCB",
-      "component": "mergLcbDefault"
+      "name": "MERGLCB"
     },
     "FA00": {
       "name": "Test fixture"
