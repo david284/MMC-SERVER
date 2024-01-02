@@ -3,7 +3,7 @@ const fs = require('fs');
 const jsonfile = require('jsonfile')
 const packageInfo = require('.././package.json')
 
-const config = jsonfile.readFileSync('./device_hub/config/config.json')
+const config = jsonfile.readFileSync('./VLCB-server/config/config.json')
 
 
 const admin = require('./mergAdminNode.js')
@@ -18,7 +18,7 @@ const io = require('socket.io')(server, {
 
 exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
     checkLayoutExists(LAYOUT_NAME)
-    let layoutDetails = jsonfile.readFileSync('device_hub/config/'+LAYOUT_NAME + "/layoutDetails.json")
+    let layoutDetails = jsonfile.readFileSync('VLCB-server/config/'+LAYOUT_NAME + "/layoutDetails.json")
     let node = new admin.cbusAdmin(LAYOUT_NAME, NET_ADDRESS,JSON_PORT);
 
     io.on('connection', function(socket){
@@ -180,7 +180,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         socket.on('UPDATE_LAYOUT_DETAILS', function(data){
 			winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
             layoutDetails = data
-            jsonfile.writeFileSync('device_hub/config/'+ LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+            jsonfile.writeFileSync('VLCB-server/config/'+ LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
             io.emit('layoutDetails', layoutDetails)
         })
         
@@ -274,7 +274,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
             winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
             node.cbusSend(node.SNN(newNodeId))
             layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-            jsonfile.writeFileSync('device_hub/config/' + LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {
+            jsonfile.writeFileSync('VLCB-server/config/' + LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {
                 spaces: 2,
                 EOL: '\r\n'
             })
@@ -297,7 +297,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
 }
 
 function checkLayoutExists(layoutName) {
-            const directory = "./device_hub/config/" + layoutName + "/"
+            const directory = "./VLCB-server/config/" + layoutName + "/"
             
             // check if directory exists
             if (fs.existsSync(directory)) {

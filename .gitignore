@@ -1,4 +1,5 @@
 /node_modules
 /logs
-device_hub/config/Default/nodeConfig.json
-device_hub/config/Default/layoutDetails.json
+/VLCB-server/config/Default/nodeConfig.json
+/VLCB-server/config/Default/layoutDetails.json
+/unit_tests/logs

@@ -10,11 +10,9 @@ var usersRouter = require('./routes/users');
 console.log("starting express");
 
 const winston = require('./config/winston.js');
-//var serialGC = require('./device_hub/serialGC.js');
-//var connection = new serialGC.SerialGC("COM7")
 
-const hub = require('./device_hub/hub.js');
-hub.run();
+const VLCB = require('./VLCB-server/server.js');
+VLCB.run();
 var app = express();
 
 // view engine setup

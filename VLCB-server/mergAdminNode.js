@@ -17,13 +17,13 @@ function decToHex(num, len) {
 class cbusAdmin extends EventEmitter {
     constructor(LAYOUT_PATH, NET_ADDRESS, NET_PORT) {
         super();
-        this.configFile = './device_hub/config/' + LAYOUT_PATH + '/nodeConfig.json'
+        this.configFile = './VLCB-server/config/' + LAYOUT_PATH + '/nodeConfig.json'
         this.config = {}
-        const merg = jsonfile.readFileSync('./device_hub/config/mergConfig.json')
-        this.layoutDetailsFileName = './device_hub/config/' + LAYOUT_PATH + '/layoutDetails.json'
+        const merg = jsonfile.readFileSync('./VLCB-server/config/mergConfig.json')
+        this.layoutDetailsFileName = './VLCB-server/config/' + LAYOUT_PATH + '/layoutDetails.json'
         this.layoutDetails = jsonfile.readFileSync(this.layoutDetailsFileName)
         this.merg = merg
-        const Service_Definitions = jsonfile.readFileSync('./device_hub/config/Service_Definitions.json')
+        const Service_Definitions = jsonfile.readFileSync('./VLCB-server/config/Service_Definitions.json')
         this.ServiceDefs = Service_Definitions
 
         winston.info({message: `mergAdminNode: Config = ${this.configFile}`});
@@ -675,7 +675,7 @@ class cbusAdmin extends EventEmitter {
                 this.config.nodes[nodeId]['moduleDescriptorFilename'] = filename
                 // ok - can get file now
                 try {
-                  const variableConfig = jsonfile.readFileSync('./device_hub/config/modules/' + filename)
+                  const variableConfig = jsonfile.readFileSync('./VLCB-server/config/modules/' + filename)
                   this.config.nodes[nodeId].variableConfig = variableConfig
                   winston.info({message: 'mergAdminNode: Variable Config: loaded file ' + filename});
                 }catch(err) {

@@ -1,0 +1,983 @@
+{
+  "moduleName":"CANMIO",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableTabs",
+      "tabPanels": [
+        { "displayTitle": "Globals",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 1,
+              "displayTitle": "Produced startup event Delay",
+              "displaySubTitle": "0.1 second steps, starting at 2",
+              "displayUnits": "seconds",
+              "displayScale": 0.1,
+              "displayOffset":2
+            },
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 2,
+              "displayTitle": "Heartbeat Delay",
+              "displaySubTitle": "not yet implemented",
+              "displayUnits": "milliseconds"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 5,
+              "displayTitle": "Time delay between response messages",
+              "displaySubTitle": "1 millisecond steps",
+              "displayUnits": "milliseconds"
+            },
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 3,
+              "displayTitle": "Servo speed",
+              "displaySubTitle": "If >234 MULTI servo is moved this amount every 100ms. If <= 234 this is number of 20ms periods per step",
+              "displayUnits": "milliseconds"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 4,
+              "displayTitle": "PORTB Pullups",
+              "displaySubTitle": "",
+              "bitCollection":[
+                {"bitPosition": 0, "label": "Port B0"},
+                {"bitPosition": 1, "label": "Port B1"},
+                {"bitPosition": 2, "label": "Port B2"},
+                {"bitPosition": 3, "label": "Port B3"},
+                {"bitPosition": 4, "label": "Port B4"},
+                {"bitPosition": 5, "label": "Port B5"},
+                {"bitPosition": 6, "label": "Port B6"},
+                {"bitPosition": 7, "label": "Port B7"}
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Channel 1",
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 16,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4},
+              {"label": "ANALOGUE", "value": 5},
+              {"label": "MAGNET", "value": 6}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":16, "equals": 0 },
+              "nodeVariableIndex": 18,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":16, "equals": 1 },
+              "nodeVariableIndex": 18,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":16, "equals": 2 },
+              "nodeVariableIndex": 18,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":16, "equals": 3 },
+              "nodeVariableIndex": 18,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":16, "equals": 4 },
+              "nodeVariableIndex": 18,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":16, "equals": 0 },
+              "nodeVariableIndex": 19,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":16, "equals": 1 },
+              "nodeVariableIndex": 19,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":16, "equals": 2 },
+              "nodeVariableIndex": 19,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":16, "equals": 3 },
+              "nodeVariableIndex": 19,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":16, "equals": 4 },
+              "nodeVariableIndex": 19,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":16, "equals": 2 },
+              "nodeVariableIndex": 20,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":16, "equals": 3 },
+              "nodeVariableIndex": 20,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":16, "equals": 4 },
+              "nodeVariableIndex": 20,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":16, "equals": 2 },
+              "nodeVariableIndex": 21,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":16, "equals": 3 },
+              "nodeVariableIndex": 21,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":16, "equals": 4 },
+              "nodeVariableIndex": 21,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":16, "equals": 3 },
+              "nodeVariableIndex": 22,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":16, "equals": 4 },
+              "nodeVariableIndex": 22,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 17,
+              "displayTitle": "Flags",
+              "displaySubTitle": "NV17",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 16, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 16, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 16, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 16, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 16, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 16, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 16, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        { "displayTitle": "Channel 2",
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 23,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4},
+              {"label": "ANALOGUE", "value": 5},
+              {"label": "MAGNET", "value": 6}
+              ]
+            }
+          ]    
+        },
+        { "displayTitle": "Channel 3",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 30,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        },
+        { "displayTitle": "Channel 4",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 37,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        },
+        { "displayTitle": "Channel 5",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 44,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        },
+        { "displayTitle": "Channel 6",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 51,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        },
+        { "displayTitle": "Channel 7",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 58,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        },
+        { "displayTitle": "Channel 8",
+        "items": [
+          {
+            "type": "NodeVariableSelect",
+            "nodeVariableIndex": 65,
+            "displayTitle": "I/O type",
+            "displaySubTitle": "",
+            "options": [
+            {"label": "INPUT", "value": 0},
+            {"label": "OUTPUT", "value": 1},
+            {"label": "SERVO", "value": 2},
+            {"label": "BOUNCE", "value": 3},
+            {"label": "MULTI", "value": 4},
+            {"label": "ANALOGUE", "value": 5},
+            {"label": "MAGNET", "value": 6}
+            ]
+          }
+        ]
+        }
+      ]
+    }
+  ],
+  "eventVariables": [
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 1,
+      "displayTitle": "Produced event",
+      "displaySubTitle": "EV1",
+      "options": [
+        {"value": 0, "label": "no event (0)"},
+        {"value": 1, "label": "Startup event (1)"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"value": 0, "label": "CH1 - Input Changed"},
+              {"value": 1, "label": "CH1 - Input Changed"},
+              {"value": 2, "label": "CH1 - Reached OFF"},
+              {"value": 3, "label": "CH1 - Input Changed"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 0, "label": "CH1 - TWO_ON"},
+              {"value": 2, "label": "CH1 - Reached MID"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 2, "label": "CH1 - Reached ON"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "23", "labels": [
+              {"value": 0, "label": "CH2 - Input Changed"},
+              {"value": 1, "label": "CH2 - Input Changed"},
+              {"value": 2, "label": "CH2 - Reached OFF"},
+              {"value": 3, "label": "CH2 - Input Changed"},
+              {"value": 4, "label": "Ch2 - AT1"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 0, "label": "Ch2 - TWO_ON"},
+              {"value": 2, "label": "Ch2 - Reached MID"},
+              {"value": 4, "label": "Ch2 - AT2"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 2, "label": "Ch2 - Reached ON"},
+              {"value": 4, "label": "Ch2 - AT3"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 4, "label": "Ch2 - AT4"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "30", "labels": [
+              {"value": 0, "label": "CH3 - Input Changed"},
+              {"value": 1, "label": "CH3 - Input Changed"},
+              {"value": 2, "label": "CH3 - Reached OFF"},
+              {"value": 3, "label": "CH3 - Input Changed"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "30", "labels": [
+              {"value": 0, "label": "CH3 - TWO_ON"},
+              {"value": 2, "label": "CH3 - Reached MID"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 2, "label": "CH3 - Reached ON"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "37", "labels": [
+              {"value": 0, "label": "CH4 - Input Changed"},
+              {"value": 1, "label": "CH4 - Input Changed"},
+              {"value": 2, "label": "CH4 - Reached OFF"},
+              {"value": 3, "label": "CH4 - Input Changed"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "37", "labels": [
+              {"value": 0, "label": "CH4 - TWO_ON"},
+              {"value": 2, "label": "CH4 - Reached MID"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "37", "labels": [
+              {"value": 2, "label": "CH4 - Reached ON"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "44", "labels": [
+              {"value": 0, "label": "CH5 - Input Changed"},
+              {"value": 1, "label": "CH5 - Input Changed"},
+              {"value": 2, "label": "CH5 - Reached OFF"},
+              {"value": 3, "label": "CH5 - Input Changed"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "44", "labels": [
+              {"value": 0, "label": "CH5 - TWO_ON"},
+              {"value": 2, "label": "CH5 - Reached MID"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "44", "labels": [
+              {"value": 2, "label": "CH5 - Reached ON"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "44", "labels": [
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "51", "labels": [
+              {"value": 0, "label": "CH6 - Input Changed"},
+              {"value": 1, "label": "CH6 - Input Changed"},
+              {"value": 2, "label": "CH6 - Reached OFF"},
+              {"value": 3, "label": "CH6 - Input Changed"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "51", "labels": [
+              {"value": 0, "label": "CH6 - TWO_ON"},
+              {"value": 2, "label": "CH6 - Reached MID"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "51", "labels": [
+              {"value": 2, "label": "CH6 - Reached ON"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "51", "labels": [
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "58", "labels": [
+              {"value": 0, "label": "CH7 - Input Changed"},
+              {"value": 1, "label": "CH7 - Input Changed"},
+              {"value": 2, "label": "CH7 - Reached OFF"},
+              {"value": 3, "label": "CH7 - Input Changed"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "58", "labels": [
+              {"value": 0, "label": "CH7 - TWO_ON"},
+              {"value": 2, "label": "CH7 - Reached MID"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "58", "labels": [
+              {"value": 2, "label": "CH7 - Reached ON"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "58", "labels": [
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "65", "labels": [
+              {"value": 0, "label": "CH8 - Input Changed"},
+              {"value": 1, "label": "CH8 - Input Changed"},
+              {"value": 2, "label": "CH8 - Reached OFF"},
+              {"value": 3, "label": "CH8 - Input Changed"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "65", "labels": [
+              {"value": 0, "label": "CH8 - TWO_ON"},
+              {"value": 2, "label": "CH8 - Reached MID"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "65", "labels": [
+              {"value": 2, "label": "CH8 - Reached ON"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "65", "labels": [
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 2,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV2",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

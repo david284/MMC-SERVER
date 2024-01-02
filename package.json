@@ -1,11 +1,16 @@
 {
   "name": "express",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
   },
   "dependencies": {
+    "chai": "^4.2.0",
+    "jsdoc": "^3.6.11",
+    "mocha": "^8.1.1",
+    "mocha-param": "2.0.1",
     "cbuslibrary": "^2.7.5",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
