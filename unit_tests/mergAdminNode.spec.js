@@ -153,6 +153,18 @@ describe('dummy tests', function(){
   })
 
 
+  // 0x57 NERD
+  //
+  itParam("NERD test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN NERD test '});
+    var result = node.NERD(value.nodeNumber)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('NERD');
+    expect(result.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END NERD test'});
+  })
+
+
   function GetTestCase_RQNPN() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
