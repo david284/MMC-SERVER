@@ -823,6 +823,17 @@ class cbusAdmin extends EventEmitter {
         return output
     }
 
+    // 0x78 RQSD
+    //
+    RQSD(nodeId, service) { //Request Service Delivery
+        let output = {}
+        output['mnemonic'] = 'RQSD'
+        output['nodeNumber'] = nodeId
+        output['ServiceIndex'] = service
+        return output
+        //return cbusLib.encodeRQSD(nodeNumber, ServiceNumber);
+    }
+
     REVAL(nodeId, eventId, valueId) {//Read an Events EV by index
         //winston.info({message: 'mergAdminNode: REVAL '})
         let output = {}
@@ -832,15 +843,6 @@ class cbusAdmin extends EventEmitter {
         output['eventVariableIndex'] = valueId
         return output;
         //return cbusLib.encodeREVAL(nodeId, eventId, valueId);
-    }
-
-    RQSD(nodeId, service) { //Request Service Delivery
-        let output = {}
-        output['mnemonic'] = 'RQSD'
-        output['nodeNumber'] = nodeId
-        output['ServiceIndex'] = service
-        return output
-        //return cbusLib.encodeRQSD(nodeNumber, ServiceNumber);
     }
 
     RDGN(nodeId, service, diagCode) { //Request Diagnostics
@@ -902,18 +904,6 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: `mergAdminNode: NVRD : ${nodeId} :${JSON.stringify(output)}`})
         return output
         //return cbusLib.encodeNVRD(nodeId, variableId);
-    }
-
-    // 0x58 RQEVN
-    //
-    RQEVN(nodeId) {// Read Node Variable
-
-        let output = {}
-        output['mnemonic'] = 'RQEVN'
-        output['nodeNumber'] = nodeId
-        //winston.info({message: `mergAdminNode: RQEVN : ${nodeId} :${JSON.stringify(output)}`})
-        return output;
-        //return cbusLib.encodeRQEVN(nodeId);
     }
 
     NVSET(nodeId, variableId, variableVal) {// Read Node Variable
