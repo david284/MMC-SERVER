@@ -742,6 +742,8 @@ class cbusAdmin extends EventEmitter {
         return output;
     }
 
+    // 0x73 RQNPN
+    //
     RQNPN(nodeId, param) {//Read Node Parameter
         let output = {}
         output['mnemonic'] = 'RQNPN'
