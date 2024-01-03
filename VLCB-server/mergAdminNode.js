@@ -742,6 +742,15 @@ class cbusAdmin extends EventEmitter {
         return output;
     }
 
+    // 0x22 QLOC
+    //
+    QLOC(sessionId) {
+        let output = {}
+        output['mnemonic'] = 'QLOC'
+        output['session'] = sessionId
+        return output
+    }
+  
     // 0x42
     //
     SNN(nodeId) {
@@ -783,6 +792,15 @@ class cbusAdmin extends EventEmitter {
         output['mnemonic'] = 'NERD'
         output['nodeNumber'] = nodeId
         return output
+    }
+
+    // 0x58 RQEVN
+    //
+    RQEVN(nodeId) {// Read Node Variable
+        let output = {}
+        output['mnemonic'] = 'RQEVN'
+        output['nodeNumber'] = nodeId
+        return output;
     }
 
     // 0x72 NENRD
@@ -886,6 +904,8 @@ class cbusAdmin extends EventEmitter {
         //return cbusLib.encodeNVRD(nodeId, variableId);
     }
 
+    // 0x58 RQEVN
+    //
     RQEVN(nodeId) {// Read Node Variable
 
         let output = {}
@@ -1017,13 +1037,6 @@ class cbusAdmin extends EventEmitter {
         //return cbusLib.encodeASOF(nodeId, deviceNumber);
 
     }
-
-    QLOC(sessionId) {
-      let output = {}
-      output['mnemonic'] = 'QLOC'
-      output['session'] = sessionId
-      return output
-  }
 
 };
 

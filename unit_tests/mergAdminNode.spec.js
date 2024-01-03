@@ -73,17 +73,6 @@ describe('dummy tests', function(){
   //****************************************************************************************** */  
 
 
-  function GetTestCase_session() {
-    var arg1, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 255}
-      testCases.push({'session':arg1});
-    }
-    return testCases;
-  }
-
   // 0x0D QNN
   //
   it("QNN test ", async function () {
@@ -103,6 +92,29 @@ describe('dummy tests', function(){
     winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
     expect(result.mnemonic).to.equal('RQNP');
     winston.info({message: 'unit_test: END RQNP test'});
+  })
+
+
+  function GetTestCase_session() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 255}
+      testCases.push({'session':arg1});
+    }
+    return testCases;
+  }
+
+  // 0x22 QLOC
+  //
+  itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN QLOC test ' + JSON.stringify(value)});
+    var result = node.QLOC(value.session)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('QLOC');
+    expect(result.session).to.equal(value.session);
+    winston.info({message: 'unit_test: END QLOC test'});
   })
 
 
@@ -165,6 +177,18 @@ describe('dummy tests', function(){
   })
 
 
+  // 0x58 RQEVN
+  //
+  itParam("RQEVN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN RQEVN test '});
+    var result = node.RQEVN(value.nodeNumber)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('RQEVN');
+    expect(result.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END RQEVN test'});
+  })
+
+
   function GetTestCase_NENRD() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -220,18 +244,6 @@ describe('dummy tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber);
     expect(result.parameterIndex).to.equal(value.parameterIndex);
     winston.info({message: 'unit_test: END RQNPN test'});
-  })
-
-
-
-  //
-  itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN QLOC test ' + JSON.stringify(value)});
-    var result = node.QLOC(value.session)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('QLOC');
-    expect(result.session).to.equal(value.session);
-    winston.info({message: 'unit_test: END QLOC test'});
   })
 
 
