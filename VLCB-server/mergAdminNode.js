@@ -785,6 +785,16 @@ class cbusAdmin extends EventEmitter {
         return output
     }
 
+    // 0x72 NENRD
+    //
+    NENRD(nodeId, eventId) { //Request specific event
+        let output = {}
+        output['mnemonic'] = 'NENRD'
+        output['nodeNumber'] = nodeId
+        output['eventIndex'] = eventId
+        return output
+    }
+
     // 0x73 RQNPN
     //
     RQNPN(nodeId, param) {//Read Node Parameter
@@ -793,11 +803,6 @@ class cbusAdmin extends EventEmitter {
         output['nodeNumber'] = nodeId
         output['parameterIndex'] = param
         return output
-        //return cbusLib.encodeRQNPN(nodeId, param);
-    }
-
-    NENRD(nodeId, eventId) { //Request specific event
-        return cbusLib.encodeNENRD(nodeId, eventId);
     }
 
     REVAL(nodeId, eventId, valueId) {//Read an Events EV by index

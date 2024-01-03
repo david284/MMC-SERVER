@@ -165,6 +165,35 @@ describe('dummy tests', function(){
   })
 
 
+  function GetTestCase_NENRD() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = 0}
+        if (b == 2) {arg2 = 1}
+        if (b == 3) {arg2 = 255}
+        testCases.push({'nodeNumber':arg1, 'eventIndex': arg2});
+      }
+    }
+    return testCases;
+  }
+
+  // 0x72 NENRD
+  //
+  itParam("NENRD test ${JSON.stringify(value)}", GetTestCase_NENRD(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN NENRD test '});
+    var result = node.NENRD(value.nodeNumber, value.eventIndex)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('NENRD');
+    expect(result.nodeNumber).to.equal(value.nodeNumber);
+    expect(result.parameterIndex).to.equal(value.parameterIndex);
+    winston.info({message: 'unit_test: END NENRD test'});
+  })
+
+
   function GetTestCase_RQNPN() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
