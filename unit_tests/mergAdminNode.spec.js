@@ -117,6 +117,18 @@ describe('dummy tests', function(){
     return testCases;
   }
 
+  // 0x42 SNN
+  //
+  itParam("SNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN SNN test '});
+    var result = node.SNN(value.nodeNumber)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('SNN');
+    expect(result.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END SNN test'});
+  })
+
+
   // 0x53 NNLRN
   //
   itParam("NNLRN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -126,6 +138,18 @@ describe('dummy tests', function(){
     expect(result.mnemonic).to.equal('NNLRN');
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END NNLRN test'});
+  })
+
+
+  // 0x54 NNULN
+  //
+  itParam("NNULN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN NNULN test '});
+    var result = node.NNULN(value.nodeNumber)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('NNULN');
+    expect(result.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END NNULN test'});
   })
 
 

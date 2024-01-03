@@ -742,6 +742,40 @@ class cbusAdmin extends EventEmitter {
         return output;
     }
 
+    // 0x42
+    //
+    SNN(nodeId) {
+        if (nodeId >= 0 && nodeId <= 0xFFFF) {
+            let output = {}
+            output['mnemonic'] = 'SNN'
+            output['nodeNumber'] = nodeId
+            return output
+            //return cbusLib.encodeSNN(nodeId);
+        }
+    }
+
+    // 0x53 NNLRN
+    //
+    NNLRN(nodeId) {
+        if (nodeId >= 0 && nodeId <= 0xFFFF) {
+            let output = {}
+            output['mnemonic'] = 'NNLRN'
+            output['nodeNumber'] = nodeId
+            return output
+            //return cbusLib.encodeNNLRN(nodeId);
+        }
+    }
+
+    // 0x54 NNULN
+    //
+    NNULN(nodeId) {
+        let output = {}
+        output['mnemonic'] = 'NNULN'
+        output['nodeNumber'] = nodeId
+        return output
+        //return cbusLib.encodeNNULN(nodeId);
+    }
+
     // 0x73 RQNPN
     //
     RQNPN(nodeId, param) {//Read Node Parameter
@@ -751,38 +785,6 @@ class cbusAdmin extends EventEmitter {
         output['parameterIndex'] = param
         return output
         //return cbusLib.encodeRQNPN(nodeId, param);
-    }
-
-    // 0x53 NNLRN
-    //
-    NNLRN(nodeId) {
-
-        if (nodeId >= 0 && nodeId <= 0xFFFF) {
-            let output = {}
-            output['mnemonic'] = 'NNLRN'
-            output['nodeNumber'] = nodeId
-            return output
-            //return cbusLib.encodeNNLRN(nodeId);
-        }
-
-    }
-
-    NNULN(nodeId) {
-        let output = {}
-        output['mnemonic'] = 'NNULN'
-        output['nodeNumber'] = nodeId
-        return output
-        //return cbusLib.encodeNNULN(nodeId);
-    }
-
-    SNN(nodeId) {
-        if (nodeId >= 0 && nodeId <= 0xFFFF) {
-            let output = {}
-            output['mnemonic'] = 'SNN'
-            output['nodeNumber'] = nodeId
-            return output
-            //return cbusLib.encodeSNN(nodeId);
-        }
     }
 
     NERD(nodeId) {//Request All Events
