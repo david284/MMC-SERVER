@@ -106,6 +106,29 @@ describe('dummy tests', function(){
   })
 
 
+  function GetTestCase_nodeNumber() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      testCases.push({'nodeNumber':arg1});
+    }
+    return testCases;
+  }
+
+  // 0x53 NNLRN
+  //
+  itParam("NNLRN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN NNLRN test '});
+    var result = node.NNLRN(value.nodeNumber)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('NNLRN');
+    expect(result.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END NNLRN test'});
+  })
+
+
   function GetTestCase_RQNPN() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -133,6 +156,8 @@ describe('dummy tests', function(){
     expect(result.parameterIndex).to.equal(value.parameterIndex);
     winston.info({message: 'unit_test: END RQNPN test'});
   })
+
+
 
   //
   itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {

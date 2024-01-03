@@ -753,6 +753,8 @@ class cbusAdmin extends EventEmitter {
         //return cbusLib.encodeRQNPN(nodeId, param);
     }
 
+    // 0x53 NNLRN
+    //
     NNLRN(nodeId) {
 
         if (nodeId >= 0 && nodeId <= 0xFFFF) {
