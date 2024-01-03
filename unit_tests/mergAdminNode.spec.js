@@ -84,6 +84,29 @@ describe('dummy tests', function(){
     return testCases;
   }
 
+  // 0x0D QNN
+  //
+  it("QNN test ", async function () {
+    winston.info({message: 'unit_test: BEGIN QNN test '});
+    var result = node.QNN()
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('QNN');
+    winston.info({message: 'unit_test: END QNN test'});
+  })
+
+
+  // 0x10 RQNP
+  //
+  it("RQNP test ", async function () {
+    winston.info({message: 'unit_test: BEGIN RQNP test '});
+    var result = node.RQNP()
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('RQNP');
+    winston.info({message: 'unit_test: END RQNP test'});
+  })
+
+
+
   //
   itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {
     winston.info({message: 'unit_test: BEGIN QLOC test ' + JSON.stringify(value)});

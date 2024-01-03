@@ -720,7 +720,8 @@ class cbusAdmin extends EventEmitter {
       this.emit('layoutDetails', this.layoutDetails)
     }
 
-    
+    // 0x0D QNN
+    //
     QNN() {//Query Node Number
         winston.info({message: 'mergAdminNode: QNN '})
         for (let node in this.config.nodes) {
@@ -732,8 +733,13 @@ class cbusAdmin extends EventEmitter {
         return output;
     }
 
+    // 0x10 RQNP
+    //
     RQNP() {//Request Node Parameters
-        return cbusLib.encodeRQNP();
+        winston.info({message: 'mergAdminNode: QNN '})
+        let output = {}
+        output['mnemonic'] = 'RQNP'
+        return output;
     }
 
     RQNPN(nodeId, param) {//Read Node Parameter
