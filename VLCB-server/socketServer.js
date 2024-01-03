@@ -16,10 +16,11 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
-    checkLayoutExists(LAYOUT_NAME)
-    let layoutDetails = jsonfile.readFileSync('VLCB-server/config/'+LAYOUT_NAME + "/layoutDetails.json")
-    let node = new admin.cbusAdmin(LAYOUT_NAME, NET_ADDRESS,JSON_PORT);
+exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT) {
+    checkLayoutExists(LAYOUT_PATH)
+    const NODECONFIG_PATH = LAYOUT_PATH
+    let layoutDetails = jsonfile.readFileSync(LAYOUT_PATH + "/layoutDetails.json")
+    let node = new admin.cbusAdmin(NODECONFIG_PATH, NET_ADDRESS,JSON_PORT);
 
     io.on('connection', function(socket){
 		winston.info({message: 'socketServer:  a user connected'});
@@ -180,7 +181,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         socket.on('UPDATE_LAYOUT_DETAILS', function(data){
 			winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
             layoutDetails = data
-            jsonfile.writeFileSync('VLCB-server/config/'+ LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+            jsonfile.writeFileSync(LAYOUT_PATH + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
             io.emit('layoutDetails', layoutDetails)
         })
         
@@ -247,7 +248,13 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
         winston.info({message: `socketServer: Node Sent`});
         winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node)}`});
         io.emit('node', node);
-    })
+        if(node.nodeNumber) {
+          if (update_nodeName(node.nodeNumber, layoutDetails, LAYOUT_PATH)) {
+            io.emit('layoutDetails', layoutDetails)
+            winston.info({message: `socketServer: nodeName updated, layoutDetails Sent`});
+          }
+        }
+      })
 
     node.on('cbusError', function (cbusErrors) {
 		winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
@@ -274,7 +281,7 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
             winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
             node.cbusSend(node.SNN(newNodeId))
             layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-            jsonfile.writeFileSync('VLCB-server/config/' + LAYOUT_NAME + '/layoutDetails.json', layoutDetails, {
+            jsonfile.writeFileSync(LAYOUT_PATH + '/layoutDetails.json', layoutDetails, {
                 spaces: 2,
                 EOL: '\r\n'
             })
@@ -296,45 +303,70 @@ exports.socketServer = function(NET_ADDRESS,LAYOUT_NAME,JSON_PORT,SOCKET_PORT) {
 
 }
 
-function checkLayoutExists(layoutName) {
-            const directory = "./VLCB-server/config/" + layoutName + "/"
-            
-            // check if directory exists
-            if (fs.existsSync(directory)) {
-                winston.info({message: `socketServer: checkLayoutExists: ` + layoutName + ` Directory exists`});
-            } else {
-                winston.info({message: `socketServer: checkLayoutExists: ` + layoutName + ` Directory not found - creating new one`});
-                fs.mkdir(directory, function(err) {
-                  if (err) {
-                    winston.info({message: `socketServer: ` + err})
-                  } else {
-                    winston.info({message: `socketServer: New directory successfully created.`})
-                  }
-                })            
-            }
-            
-            // check if nodeConfig file exists
-            if (fs.existsSync(directory + 'nodeConfig.json')) {
-                winston.debug({message: `socketServer: nodeConfig:  file exists`});
-            } else {
-                winston.debug({message: `socketServer: nodeConfig: file not found - creating new one`});
-                const nodeConfig = {"nodes": {}, 
-                                    "events": {}}
-                jsonfile.writeFileSync(directory + "nodeConfig.json", nodeConfig, {spaces: 2, EOL: '\r\n'})
-            }
-            
-            // check if layoutDetails file exists
-            if (fs.existsSync(directory + 'layoutDetails.json')) {
-                winston.debug({message: `socketServer: layoutDetails:  file exists`});
-            } else {
-                winston.debug({message: `socketServer: layoutDetails: file not found - creating new one`});
-                const layoutDetails = {
-                    "layoutDetails": {  "title": "New Layout", 
-                                        "subTitle": "Admin", 
-                                        "nextNodeId": 800}, 
-                    "nodeDetails": {}, 
-                    "eventDetails": {}
-                    }
-                jsonfile.writeFileSync(directory + "layoutDetails.json", layoutDetails, {spaces: 2, EOL: '\r\n'})
-            }
+function checkLayoutExists(layoutPath) {
+  // check if directory exists
+  if (fs.existsSync(layoutPath)) {
+      winston.info({message: `socketServer: checkLayoutExists: ` + layoutPath + ` Directory exists`});
+  } else {
+      winston.info({message: `socketServer: checkLayoutExists: ` + layoutPath + ` Directory not found - creating new one`});
+      fs.mkdirSync(layoutPath, { recursive: true })
+  }
+  
+  // check if nodeConfig file exists
+  if (fs.existsSync(layoutPath + 'nodeConfig.json')) {
+      winston.debug({message: `socketServer: nodeConfig:  file exists`});
+  } else {
+      winston.debug({message: `socketServer: nodeConfig: file not found - creating new one`});
+      const nodeConfig = {"nodes": {}, 
+                          "events": {}}
+      jsonfile.writeFileSync(layoutPath + "nodeConfig.json", nodeConfig, {spaces: 2, EOL: '\r\n'})
+  }
+  
+  // check if layoutDetails file exists
+  if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
+      winston.debug({message: `socketServer: layoutDetails:  file exists`});
+  } else {
+      winston.debug({message: `socketServer: layoutDetails: file not found - creating new one`});
+      const layoutDetails = {
+          "layoutDetails": {  "title": "Default Layout", 
+                              "subTitle": "layout created by default", 
+                              "nextNodeId": 800}, 
+          "nodeDetails": {}, 
+          "eventDetails": {}
+          }
+      jsonfile.writeFileSync(layoutPath + "layoutDetails.json", layoutDetails, {spaces: 2, EOL: '\r\n'})
+  }
 }
+
+// layoutDetails functions
+//
+function  update_nodeName(nodeNumber, layoutDetails, LAYOUT_PATH){
+  updated = false
+  if (nodeNumber in layoutDetails.nodeDetails){
+  } else {
+    // need to create entry for node
+    layoutDetails.nodeDetails[nodeNumber] = {}
+    layoutDetails.nodeDetails[nodeNumber].colour = "black"
+    layoutDetails.nodeDetails[nodeNumber].group = ""
+    updated = true
+  }
+  if (layoutDetails.nodeDetails[nodeNumber].name) {
+    // nodeName already exists, so do nothing
+  } else {
+    // check if module name exists - read config to get latest
+    const nodeConfig = jsonfile.readFileSync(LAYOUT_PATH + 'nodeConfig.json')
+    if (nodeConfig.nodes[nodeNumber].moduleName) {
+      layoutDetails.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
+    } else {
+      layoutDetails.nodeDetails[nodeNumber].name = 'Unknown (' + nodeNumber + ')'
+    }
+    updated = true
+  }
+  if (updated){
+    // only write if updated
+    jsonfile.writeFileSync(LAYOUT_PATH + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+  }
+  return updated
+}
+
+

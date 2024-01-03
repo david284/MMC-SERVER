@@ -11,7 +11,7 @@ const NET_PORT = 5550
 const NET_ADDRESS = "localhost"
 const JSON_PORT = 5551
 const SERVER_PORT=5552
-const LAYOUT_NAME="Default"
+const LAYOUT_PATH="./VLCB-server/layouts/default/"
 var USB_PORT = ''
 
 
@@ -47,7 +47,7 @@ exports.run = async function run(){
   await sleep(2000);   // allow time for connection to establish
 
   jsonServer.jsonServer(NET_PORT, JSON_PORT, NET_ADDRESS)
-  socketServer.socketServer(NET_ADDRESS, LAYOUT_NAME,JSON_PORT, SERVER_PORT)
+  socketServer.socketServer(NET_ADDRESS, LAYOUT_PATH,JSON_PORT, SERVER_PORT)
 
 
 }

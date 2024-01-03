@@ -15,19 +15,16 @@ function decToHex(num, len) {
 }
 
 class cbusAdmin extends EventEmitter {
-    constructor(LAYOUT_PATH, NET_ADDRESS, NET_PORT) {
+    constructor(NODECONFIG_PATH, NET_ADDRESS, NET_PORT) {
         super();
-        this.configFile = './VLCB-server/config/' + LAYOUT_PATH + '/nodeConfig.json'
+        this.configFile = NODECONFIG_PATH + '/nodeConfig.json'
         this.config = {}
         const merg = jsonfile.readFileSync('./VLCB-server/config/mergConfig.json')
-        this.layoutDetailsFileName = './VLCB-server/config/' + LAYOUT_PATH + '/layoutDetails.json'
-        this.layoutDetails = jsonfile.readFileSync(this.layoutDetailsFileName)
         this.merg = merg
         const Service_Definitions = jsonfile.readFileSync('./VLCB-server/config/Service_Definitions.json')
         this.ServiceDefs = Service_Definitions
 
         winston.info({message: `mergAdminNode: Config = ${this.configFile}`});
-        winston.info({message: `mergAdminNode: Layout = ${JSON.stringify(this.layoutDetails)}`});
         this.pr1 = 2
         this.pr2 = 3
         this.canId = 60
@@ -401,8 +398,6 @@ class cbusAdmin extends EventEmitter {
                 this.config.nodes[ref].status = true
                 this.cbusSend((this.RQEVN(cbusMsg.nodeNumber)))
                 this.saveNode(cbusMsg.nodeNumber)
-                // now update nodeName in layoutDetails
-                this.update_nodeName(cbusMsg.nodeNumber)
             },
             'B8': (cbusMsg) => {//Accessory On Short Event 1
                 this.eventSend(cbusMsg, 'on', 'short')
@@ -692,35 +687,7 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-    // layoutDetails functions
-    //
-    update_nodeName(nodeNumber){
-      if (nodeNumber in this.layoutDetails.nodeDetails){
-      } else {
-        // need to create entry for node
-        this.layoutDetails.nodeDetails[nodeNumber] = {}
-        this.layoutDetails.nodeDetails[nodeNumber].colour = "black"
-        this.layoutDetails.nodeDetails[nodeNumber].group = ""
-      }
-      if (this.layoutDetails.nodeDetails[nodeNumber].name) {
-        // nodeName already exists, so do nothing
-      } else {
-        // check if module name exists
-        if (this.config.nodes[nodeNumber].moduleName) {
-          this.layoutDetails.nodeDetails[nodeNumber].name = this.config.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
-        } else {
-          this.layoutDetails.nodeDetails[nodeNumber].name = 'Unknown (' + nodeNumber + ')'
-        }
-        this.saveLayoutDetails()
-      }
-    }
-
-    saveLayoutDetails(){
-      jsonfile.writeFileSync(this.layoutDetailsFileName, this.layoutDetails, {spaces: 2, EOL: '\r\n'})
-      this.emit('layoutDetails', this.layoutDetails)
-    }
-
-    
+  
     QNN() {//Query Node Number
         winston.info({message: 'mergAdminNode: QNN '})
         for (let node in this.config.nodes) {
