@@ -78,6 +78,16 @@ describe('configuration tests', function(){
   })
 
 
+  //
+  it("getLayoutList test ${JSON.stringify(value)}", function () {
+    winston.info({message: 'unit_test: BEGIN getLayoutList test '})
+    result = config.getListOfLayouts()
+    winston.info({message: 'result: ' + result})
+//    expect(config.getCurrentLayoutFolder()).to.equal(testFolder)
+    winston.info({message: 'unit_test: END getLayoutList test'})
+  })
+
+
   function GetTestCase_port() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {

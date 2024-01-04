@@ -57,6 +57,18 @@ class configuration {
 
   //
   //
+  getListOfLayouts(){
+    winston.debug({message: `configuration: get_layout_list:`});
+    var list = fs.readdirSync(this.config.layoutsPath).filter(function (file) {
+      return fs.statSync(this.config.layoutsPath +'/'+file).isDirectory();
+    },(this));
+    winston.debug({message: `configuration: get_layout_list: ` + list});
+    return list
+  }
+
+
+  //
+  //
   getCbusServerPort(){return this.config.cbusServerPort}
   setCbusServerPort(port){
     this.config.cbusServerPort = port

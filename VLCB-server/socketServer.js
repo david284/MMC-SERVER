@@ -194,7 +194,7 @@ exports.socketServer = function(config) {
 		
         socket.on('REQUEST_LAYOUTS_LIST', function(){
     			winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
-          const layout_list = exports.get_layout_list(config.getLayoutsPath())
+          const layout_list = config.getListOfLayouts()
           io.emit('LAYOUTS_LIST', layout_list)
     			winston.info({message: `socketServer: sent LAYOUTS_LIST` + layout_list});
         })
@@ -380,14 +380,4 @@ function  update_nodeName(nodeNumber, layoutDetails, currentLayoutPath){
   }
   return updated
 }
-
-exports.get_layout_list = function get_layout_list(path){
-  winston.debug({message: `socketServer: get_layout_list for path: ` + path});
-  var list = fs.readdirSync(path).filter(function (file) {
-    return fs.statSync(path+'/'+file).isDirectory();
-    });
-    winston.debug({message: `socketServer: get_layout_list: ` + list});
-    return list
-}
-
 

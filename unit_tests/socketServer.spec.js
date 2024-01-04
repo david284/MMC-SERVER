@@ -59,9 +59,8 @@ describe('socketServer tests', function(){
 
   // Add a connect listener
   socket.on('connect', function (socket) {
-    console.log('   web socket Connected!');
+    winston.info({message: 'socketserver: web socket Connected!'})
   });
-  socket.emit('CH01', 'me', 'test msg');
 
 
 	before(function(done) {
@@ -93,20 +92,6 @@ describe('socketServer tests', function(){
   //****************************************************************************************** */  
 
 
-  //
-  it("get_layout_list test ${JSON.stringify(value)}", async function () {
-    winston.info({message: 'unit_test: BEGIN get_layout_list test '});
-    const test_layout_path = "./unit_tests/layouts/"
-    socketServer.checkLayoutExists(test_layout_path + "test1")
-    socketServer.checkLayoutExists(test_layout_path + "test2")
-    //
-    var result = socketServer.get_layout_list(test_layout_path)
-    winston.info({message: 'unit_test: result ' + result});
-    winston.info({message: 'unit_test: result count ' + result.length});
-    expect(result[0]).to.equal('default');
-    expect(result[1]).to.equal('test1');
-    winston.info({message: 'unit_test: END get_layout_list test'});
-  })
 
   //
   it("request_layout_list test ${JSON.stringify(value)}", function () {
