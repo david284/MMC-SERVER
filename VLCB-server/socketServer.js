@@ -19,7 +19,6 @@ var currentLayoutPath = ''
 
 exports.socketServer = function(config) {
     currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
-    exports.checkLayoutExists(currentLayoutPath)
     let layoutDetails = jsonfile.readFileSync(currentLayoutPath + "layoutDetails.json")
     let node = new admin.cbusAdmin(config);
 
@@ -314,40 +313,6 @@ exports.socketServer = function(config) {
 }
 
 
-exports.checkLayoutExists = function checkLayoutExists(layoutPath) {
-  // check if directory exists
-  if (fs.existsSync(layoutPath)) {
-      winston.info({message: `socketServer: checkLayoutExists: ` + layoutPath + ` Directory exists`});
-  } else {
-      winston.info({message: `socketServer: checkLayoutExists: ` + layoutPath + ` Directory not found - creating new one`});
-      fs.mkdirSync(layoutPath, { recursive: true })
-  }
-  
-  // check if nodeConfig file exists
-  if (fs.existsSync(layoutPath + 'nodeConfig.json')) {
-      winston.debug({message: `socketServer: nodeConfig:  file exists`});
-  } else {
-      winston.debug({message: `socketServer: nodeConfig: file not found - creating new one`});
-      const nodeConfig = {"nodes": {}, 
-                          "events": {}}
-      jsonfile.writeFileSync(layoutPath + "nodeConfig.json", nodeConfig, {spaces: 2, EOL: '\r\n'})
-  }
-  
-  // check if layoutDetails file exists
-  if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
-      winston.debug({message: `socketServer: layoutDetails:  file exists`});
-  } else {
-      winston.debug({message: `socketServer: layoutDetails: file not found - creating new one`});
-      const layoutDetails = {
-          "layoutDetails": {  "title": "Default Layout", 
-                              "subTitle": "layout created by default", 
-                              "nextNodeId": 800}, 
-          "nodeDetails": {}, 
-          "eventDetails": {}
-          }
-      jsonfile.writeFileSync(layoutPath + "layoutDetails.json", layoutDetails, {spaces: 2, EOL: '\r\n'})
-  }
-}
 
 // layoutDetails functions
 //
