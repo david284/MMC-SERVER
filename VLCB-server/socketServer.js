@@ -18,11 +18,10 @@ const io = require('socket.io')(server, {
 var currentLayoutPath = ''
 
 exports.socketServer = function(config) {
-    var currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
+    currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
     exports.checkLayoutExists(currentLayoutPath)
-    const NODECONFIG_PATH = currentLayoutPath
     let layoutDetails = jsonfile.readFileSync(currentLayoutPath + "layoutDetails.json")
-    let node = new admin.cbusAdmin(config, NODECONFIG_PATH);
+    let node = new admin.cbusAdmin(config);
 
     io.on('connection', function(socket){
 		winston.info({message: 'socketServer:  a user connected'});

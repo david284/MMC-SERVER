@@ -15,7 +15,7 @@ function decToHex(num, len) {
 }
 
 class cbusAdmin extends EventEmitter {
-    constructor(config, NODECONFIG_PATH) {
+    constructor(config) {
         super();
         this.configFile = config.getLayoutsPath() + config.getCurrentLayoutFolder() + 'nodeConfig.json'
         this.config = {}
