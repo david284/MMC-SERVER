@@ -30,7 +30,7 @@ class configuration {
 
   //
   //
-  getCurrentLayoutFolder(){return this.currentLayoutFolder}
+  getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
     this.config.currentLayoutFolder = folder
     // now create current layout folder if it doesn't exist
@@ -43,7 +43,7 @@ class configuration {
 
   //
   //
-  getLayoutsPath(){return this.layoutsPath}
+  getLayoutsPath(){return this.config.layoutsPath}
   setLayoutsPath(path){
     this.config.layoutsPath = path
     // now create layouts folder if it doesn't exist

@@ -59,9 +59,10 @@ describe('configuration tests', function(){
   //
   it("layoutsPath test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN layoutsPath test '})
-    result = config.setLayoutsPath('./unit_tests/test_output/layouts/')
-//    winston.info({message: 'result: ' + result});
-//    expect(result).to.equal(expectedConfigPath);
+    var testPath = './unit_tests/test_output/layouts/'
+    result = config.setLayoutsPath(testPath)
+    winston.info({message: 'result: ' + config.getLayoutsPath()})
+    expect(config.getLayoutsPath()).to.equal(testPath)
     winston.info({message: 'unit_test: END layoutsPath test'})
   })
 
@@ -69,9 +70,10 @@ describe('configuration tests', function(){
   //
   it("currentLayoutFolder test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
-    result = config.setCurrentLayoutFolder('new_layout')
-//    winston.info({message: 'result: ' + result});
-//    expect(result).to.equal(expectedConfigPath);
+    var testFolder = 'new_layout'
+    result = config.setCurrentLayoutFolder(testFolder)
+    winston.info({message: 'result: ' + config.getCurrentLayoutFolder()})
+    expect(config.getCurrentLayoutFolder()).to.equal(testFolder)
     winston.info({message: 'unit_test: END currentLayoutFolder test'})
   })
 

@@ -18,7 +18,7 @@ const io = require('socket.io')(server, {
 var currentLayoutPath = ''
 
 exports.socketServer = function(config) {
-    currentLayoutPath = config.getLayoutsPath() + config.layoutName + '/'
+    var currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
     exports.checkLayoutExists(currentLayoutPath)
     const NODECONFIG_PATH = currentLayoutPath
     let layoutDetails = jsonfile.readFileSync(currentLayoutPath + "layoutDetails.json")

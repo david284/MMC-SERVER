@@ -12,12 +12,21 @@ const admin = require('./../VLCB-server/mergAdminNode.js')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const NET_ADDRESS = "localhost"
-const JSON_PORT = 5551
-const LAYOUT_PATH="./VLCB-server/layouts/default/"
+const config = require('../VLCB-server/configuration.js')('./unit_tests/test_output/config/')
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(JSON_PORT)
-const node = new admin.cbusAdmin(LAYOUT_PATH, NET_ADDRESS,JSON_PORT);
+// set config items
+config.setServerAddress("localhost")
+config.setCbusServerPort(5550);
+config.setJsonServerPort(5551);
+config.setSocketServerPort(5552);
+config.setLayoutsPath("./unit_tests/test_output/layouts/")
+config.setCurrentLayoutFolder('default')
+
+
+const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
+
+const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+const node = new admin.cbusAdmin(config)
 
 
 function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}
@@ -43,7 +52,7 @@ function hexToString(hex) {
 
 
 
-describe('dummy tests', function(){
+describe('mergAdminNode tests', function(){
 
 
 	before(function(done) {

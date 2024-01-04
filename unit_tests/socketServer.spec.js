@@ -16,13 +16,18 @@ const socketServer = require('../VLCB-server/socketServer.js')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const NET_ADDRESS = "localhost"
-const JSON_PORT = 5561
-const SERVER_PORT=5562
-const LAYOUTS_PATH="./unit_tests/layouts/"
+const config = require('../VLCB-server/configuration.js')('./unit_tests/test_output/config/')
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(JSON_PORT)
-socketServer.socketServer(NET_ADDRESS, LAYOUTS_PATH, JSON_PORT, SERVER_PORT)
+// set config items
+config.setServerAddress("localhost")
+config.setCbusServerPort(5560);
+config.setJsonServerPort(5561);
+config.setSocketServerPort(5562);
+config.setLayoutsPath("./unit_tests/test_output/layouts/")
+
+
+const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+socketServer.socketServer(config)
 
 
 function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}
@@ -50,7 +55,7 @@ function hexToString(hex) {
 
 describe('socketServer tests', function(){
 
-  const socket = io(`http://${NET_ADDRESS}:${SERVER_PORT}`)
+  const socket = io(`http://${config.getServerAddress()}:${config.getSocketServerPort()}`)
 
   // Add a connect listener
   socket.on('connect', function (socket) {
@@ -104,7 +109,7 @@ describe('socketServer tests', function(){
   })
 
   //
-  it("request_layout_list test ${JSON.stringify(value)}", function (done) {
+  it("request_layout_list test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
     //
     socket.on('LAYOUTS_LIST', function (data) {
@@ -120,7 +125,7 @@ describe('socketServer tests', function(){
   })
 
   //
-  it("request_version test ${JSON.stringify(value)}", function (done) {
+  it("request_version test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN request_version test '});
     //
     socket.on('VERSION', function (data) {
