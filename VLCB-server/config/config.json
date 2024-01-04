@@ -4,5 +4,6 @@
   "serverAddress": "localhost",
   "cbusServerPort": 5550,
   "jsonServerPort": 5551,
-  "socketServerPort": 5552
+  "socketServerPort": 5552,
+  "layoutsPath": "./VLCB-server/layouts/"
 }

@@ -15,17 +15,20 @@ const io = require('socket.io')(server, {
     }
 });
 
+var currentLayoutPath = ''
 
-exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT) {
-    checkLayoutExists(LAYOUT_PATH)
-    const NODECONFIG_PATH = LAYOUT_PATH
-    let layoutDetails = jsonfile.readFileSync(LAYOUT_PATH + "/layoutDetails.json")
-    let node = new admin.cbusAdmin(NODECONFIG_PATH, NET_ADDRESS,JSON_PORT);
+exports.socketServer = function(config) {
+    currentLayoutPath = config.getLayoutsPath() + config.layoutName + '/'
+    exports.checkLayoutExists(currentLayoutPath)
+    const NODECONFIG_PATH = currentLayoutPath
+    let layoutDetails = jsonfile.readFileSync(currentLayoutPath + "layoutDetails.json")
+    let node = new admin.cbusAdmin(config, NODECONFIG_PATH);
 
     io.on('connection', function(socket){
 		winston.info({message: 'socketServer:  a user connected'});
         node.cbusSend(node.QNN())
         io.emit('layoutDetails', layoutDetails)
+        
         socket.on('QUERY_ALL_NODES', function(){
           winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
           node.cbusSend(node.QNN())
@@ -181,7 +184,7 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
         socket.on('UPDATE_LAYOUT_DETAILS', function(data){
 			winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
             layoutDetails = data
-            jsonfile.writeFileSync(LAYOUT_PATH + '/layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+            jsonfile.writeFileSync(currentLayoutPath + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
             io.emit('layoutDetails', layoutDetails)
         })
         
@@ -190,6 +193,14 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
             node.clearCbusErrors()
         })
 		
+        socket.on('REQUEST_LAYOUTS_LIST', function(){
+    			winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
+          const layout_list = exports.get_layout_list(config.getLayoutsPath())
+          io.emit('LAYOUTS_LIST', layout_list)
+    			winston.info({message: `socketServer: sent LAYOUTS_LIST` + layout_list});
+        })
+
+      
         socket.on('REQUEST_VERSION', function(){
     			winston.info({message: `socketServer: REQUEST_VERSION`});
           let version = {
@@ -224,7 +235,7 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
         })
       
     });
-    server.listen(SOCKET_PORT, () => console.log(`SS: Server running on port ${SOCKET_PORT}`))
+    server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
     node.on('events', function (events) {
         winston.info({message: `socketServer: Events`});
@@ -249,7 +260,7 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
         winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node)}`});
         io.emit('node', node);
         if(node.nodeNumber) {
-          if (update_nodeName(node.nodeNumber, layoutDetails, LAYOUT_PATH)) {
+          if (update_nodeName(node.nodeNumber, layoutDetails, currentLayoutPath)) {
             io.emit('layoutDetails', layoutDetails)
             winston.info({message: `socketServer: nodeName updated, layoutDetails Sent`});
           }
@@ -281,7 +292,7 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
             winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
             node.cbusSend(node.SNN(newNodeId))
             layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-            jsonfile.writeFileSync(LAYOUT_PATH + '/layoutDetails.json', layoutDetails, {
+            jsonfile.writeFileSync(currentLayoutPath + 'layoutDetails.json', layoutDetails, {
                 spaces: 2,
                 EOL: '\r\n'
             })
@@ -303,7 +314,8 @@ exports.socketServer = function(NET_ADDRESS, LAYOUT_PATH, JSON_PORT, SOCKET_PORT
 
 }
 
-function checkLayoutExists(layoutPath) {
+
+exports.checkLayoutExists = function checkLayoutExists(layoutPath) {
   // check if directory exists
   if (fs.existsSync(layoutPath)) {
       winston.info({message: `socketServer: checkLayoutExists: ` + layoutPath + ` Directory exists`});
@@ -340,7 +352,8 @@ function checkLayoutExists(layoutPath) {
 
 // layoutDetails functions
 //
-function  update_nodeName(nodeNumber, layoutDetails, LAYOUT_PATH){
+function  update_nodeName(nodeNumber, layoutDetails, currentLayoutPath){
+  winston.info({message: `socketServer: update_nodeName currentLayoutPath ` + currentLayoutPath});
   updated = false
   if (nodeNumber in layoutDetails.nodeDetails){
   } else {
@@ -354,7 +367,7 @@ function  update_nodeName(nodeNumber, layoutDetails, LAYOUT_PATH){
     // nodeName already exists, so do nothing
   } else {
     // check if module name exists - read config to get latest
-    const nodeConfig = jsonfile.readFileSync(LAYOUT_PATH + 'nodeConfig.json')
+    const nodeConfig = jsonfile.readFileSync(currentLayoutPath + 'nodeConfig.json')
     if (nodeConfig.nodes[nodeNumber].moduleName) {
       layoutDetails.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
     } else {
@@ -364,9 +377,18 @@ function  update_nodeName(nodeNumber, layoutDetails, LAYOUT_PATH){
   }
   if (updated){
     // only write if updated
-    jsonfile.writeFileSync(LAYOUT_PATH + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(currentLayoutPath + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
   }
   return updated
+}
+
+exports.get_layout_list = function get_layout_list(path){
+  winston.debug({message: `socketServer: get_layout_list for path: ` + path});
+  var list = fs.readdirSync(path).filter(function (file) {
+    return fs.statSync(path+'/'+file).isDirectory();
+    });
+    winston.debug({message: `socketServer: get_layout_list: ` + list});
+    return list
 }
 
 

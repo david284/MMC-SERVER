@@ -14,10 +14,10 @@ const admin = require('./../VLCB-server/mergAdminNode.js')
 
 const NET_ADDRESS = "localhost"
 const JSON_PORT = 5551
-const LAYOUT_NAME="Default"
+const LAYOUT_PATH="./VLCB-server/layouts/default/"
 
 const mock_jsonServer = new (require('./mock_jsonServer'))(JSON_PORT)
-const node = new admin.cbusAdmin(LAYOUT_NAME, NET_ADDRESS,JSON_PORT);
+const node = new admin.cbusAdmin(LAYOUT_PATH, NET_ADDRESS,JSON_PORT);
 
 
 function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}

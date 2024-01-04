@@ -2,19 +2,15 @@ const net = require('net')
 const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
 
-//const JSON_SERVER_PORT = 5551;
-//const CBUS_SERVER_ADDRESS = "localhost";
-//const CBUS_SERVER_PORT = 5550
 
-exports.jsonServer = function (CBUS_SERVER_PORT, JSON_SERVER_PORT,  CBUS_SERVER_ADDRESS) {
+exports.jsonServer = function (config) {
 
     let clients = [];
 
     let cbusClient = new net.Socket();
 
-    cbusClient.connect(CBUS_SERVER_PORT, CBUS_SERVER_ADDRESS, function () {
-        //console.log('JSON Server Connected to ' + CBUS_SERVER_ADDRESS + ' on ' + CBUS_SERVER_PORT);
-        winston.info({message:'JSON Server: Connected to ' + CBUS_SERVER_ADDRESS + ' on ' + CBUS_SERVER_PORT})
+    cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
+        winston.info({message:'JSON Server: Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
     });
 
     cbusClient.on('data', function (data) {
@@ -81,6 +77,6 @@ exports.jsonServer = function (CBUS_SERVER_PORT, JSON_SERVER_PORT,  CBUS_SERVER_
         }
     })
 
-    server.listen(JSON_SERVER_PORT)
+    server.listen(config.getJsonServerPort())
 
 }

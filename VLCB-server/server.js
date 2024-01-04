@@ -6,13 +6,14 @@ const cbusServer = require('./cbusServer')
 const jsonServer = require('./jsonServer')
 const socketServer = require('./socketServer')
 
+const config = require('../VLCB-server/configuration.js')('./VLCB-server/config/')
 
-const NET_PORT = 5550
-const NET_ADDRESS = "localhost"
-const JSON_PORT = 5551
-const SERVER_PORT=5552
-const LAYOUT_PATH="./VLCB-server/layouts/default/"
-var USB_PORT = ''
+// set config items
+config.setServerAddress("localhost")
+config.setCbusServerPort(5550);
+config.setJsonServerPort(5551);
+config.setSocketServerPort(5552);
+config.setLayoutsPath("./VLCB-server/layouts/")
 
 
 exports.run = async function run(){
@@ -29,7 +30,7 @@ exports.run = async function run(){
 			const myArray = targetSerial.split("=");
       winston.info({message: 'Using serial port ' + myArray[1]});
       if (serialPorts.find(({ path }) => path === myArray[1]) ){
-        canUSB.canUSB(myArray[1], NET_PORT, NET_ADDRESS)
+        canUSB.canUSB(myArray[1], config.getCbusServerPort(), config.getServerAddress())
       } else {
         await terminateApp('serial port ' + myArray[1] + ' not found \n');
       }
@@ -40,14 +41,14 @@ exports.run = async function run(){
         await terminateApp('CANUSBx not found \n');
       }
     }
-    cbusServer.cbusServer(USB_PORT, NET_PORT, NET_ADDRESS)  //USB_PORT not used....
+    cbusServer.cbusServer(config)
     winston.info({message: 'Starting cbusServer...\n'});
   }
 
   await sleep(2000);   // allow time for connection to establish
 
-  jsonServer.jsonServer(NET_PORT, JSON_PORT, NET_ADDRESS)
-  socketServer.socketServer(NET_ADDRESS, LAYOUT_PATH,JSON_PORT, SERVER_PORT)
+  jsonServer.jsonServer(config)
+  socketServer.socketServer(config)
 
 
 }
@@ -59,12 +60,12 @@ async function connectCANUSBx(){
         if (port.vendorId != undefined && port.vendorId.toString().toUpperCase() == '04D8' && port.productId.toString().toUpperCase() == 'F80C') {
           // CANUSB4
           winston.info({message: 'CANUSB4 : ' + port.path});
-          canUSB.canUSB(port.path, NET_PORT, NET_ADDRESS)
+          canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
           resolve(true);
         } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase() == '0403' && port.productId.toString().toUpperCase() == '6001') {
           // Old CANUSB
           winston.info({message: 'CANUSB : ' + port.path});
-          canUSB.canUSB(port.path, NET_PORT, NET_ADDRESS)
+          canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
           resolve(true);
         }
       })

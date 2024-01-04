@@ -15,7 +15,7 @@ function decToHex(num, len) {
 }
 
 class cbusAdmin extends EventEmitter {
-    constructor(NODECONFIG_PATH, NET_ADDRESS, NET_PORT) {
+    constructor(config, NODECONFIG_PATH) {
         super();
         this.configFile = NODECONFIG_PATH + '/nodeConfig.json'
         this.config = {}
@@ -38,8 +38,8 @@ class cbusAdmin extends EventEmitter {
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
-        this.client.connect(NET_PORT, NET_ADDRESS, function () {
-            winston.info({message: `mergAdminNode: Connected - ${NET_ADDRESS} on ${NET_PORT}`});
+        this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
+            winston.info({message: `mergAdminNode: Connected - ${config.getServerAddress()} on ${config.getJsonServerPort()}`});
         })
         this.client.on('data', function (data) { //Receives packets from network and process individual Messages
             //const outMsg = data.toString().split(";")
@@ -64,7 +64,7 @@ class cbusAdmin extends EventEmitter {
         this.client.on('close', function () {
             winston.debug({message: 'mergAdminNode: Connection Closed'});
             setTimeout(() => {
-                this.client.connect(NET_PORT, NET_ADDRESS, function () {
+                this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
                     winston.debug({message: 'mergAdminNode: Client ReConnected'});
                 })
             }, 1000)

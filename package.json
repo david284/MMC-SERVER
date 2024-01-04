@@ -7,21 +7,22 @@
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
   },
   "dependencies": {
-    "chai": "^4.2.0",
-    "jsdoc": "^3.6.11",
-    "mocha": "^8.1.1",
-    "mocha-param": "2.0.1",
     "cbuslibrary": "^2.7.5",
+    "chai": "^4.2.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "jsdoc": "^3.6.11",
     "jsonfile": "^6.1.0",
+    "mocha": "^8.1.1",
+    "mocha-param": "2.0.1",
     "morgan": "~1.9.1",
     "openurl": "^1.1.1",
     "serialport": "^12.0.0",
     "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.3",
     "winston": "^3.11.0"
   }
 }
