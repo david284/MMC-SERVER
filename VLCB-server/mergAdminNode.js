@@ -17,7 +17,7 @@ function decToHex(num, len) {
 class cbusAdmin extends EventEmitter {
     constructor(config) {
         super();
-        this.configFile = config.getLayoutsPath() + config.getCurrentLayoutFolder() + 'nodeConfig.json'
+        this.configFile = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/nodeConfig.json'
         this.config = {}
         const merg = jsonfile.readFileSync('./VLCB-server/config/mergConfig.json')
         this.merg = merg
