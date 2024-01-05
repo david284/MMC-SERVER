@@ -79,6 +79,19 @@ describe('configuration tests', function(){
 
 
   //
+  it("readLayoutDetails test ${JSON.stringify(value)}", function (done) {
+    winston.info({message: 'unit_test: BEGIN readLayoutDetails test '})
+    result = config.readLayoutDetails()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result).to.have.property('layoutDetails')
+      winston.info({message: 'unit_test: END readLayoutDetails test'})
+        done();
+		}, 50);
+  })
+
+
+  //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
     result = config.getListOfLayouts()

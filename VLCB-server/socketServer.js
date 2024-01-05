@@ -19,7 +19,7 @@ var currentLayoutPath = ''
 
 exports.socketServer = function(config) {
     currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
-    let layoutDetails = jsonfile.readFileSync(currentLayoutPath + "layoutDetails.json")
+    let layoutDetails = config.readLayoutDetails()
     let node = new admin.cbusAdmin(config);
 
     io.on('connection', function(socket){
@@ -191,6 +191,14 @@ exports.socketServer = function(config) {
             node.clearCbusErrors()
         })
 		
+        socket.on('CHANGE_LAYOUT', function(data){
+    			winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
+          config.setCurrentLayoutFolder(data)
+          layoutDetails = config.readLayoutDetails()
+          io.emit('layoutDetails', layoutDetails)
+        })
+
+      
         socket.on('REQUEST_LAYOUTS_LIST', function(){
     			winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
           const layout_list = config.getListOfLayouts()

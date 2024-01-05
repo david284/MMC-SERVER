@@ -66,6 +66,12 @@ class configuration {
     return list
   }
 
+  // reads layoutDetails file from current layout
+  //
+  readLayoutDetails(){
+    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    return jsonfile.readFileSync(filePath)
+  }
 
   //
   //

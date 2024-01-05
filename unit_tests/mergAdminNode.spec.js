@@ -287,7 +287,7 @@ describe('mergAdminNode tests', function(){
 
 
   //
-  itParam("DKEEP test ${JSON.stringify(value)}", GetTestCase_session(), async function (done, value) {
+  itParam("DKEEP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN DKEEP test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeDKEEP(value.session)
     mock_jsonServer.messagesIn = []
