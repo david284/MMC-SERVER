@@ -48,7 +48,7 @@ describe('configuration tests', function(){
   //****************************************************************************************** */  
 
   //
-  it("configPath test ${JSON.stringify(value)}", function () {
+  it("configPath test", function () {
     winston.info({message: 'unit_test: BEGIN configPath test '});
     result = config.getConfigurationPath();
     winston.info({message: 'result: ' + result});
@@ -57,7 +57,7 @@ describe('configuration tests', function(){
   })
 
   //
-  it("layoutsPath test ${JSON.stringify(value)}", function () {
+  it("layoutsPath test", function () {
     winston.info({message: 'unit_test: BEGIN layoutsPath test '})
     var testPath = './unit_tests/test_output/layouts/'
     result = config.setLayoutsPath(testPath)
@@ -68,7 +68,7 @@ describe('configuration tests', function(){
 
 
   //
-  it("currentLayoutFolder test ${JSON.stringify(value)}", function () {
+  it("currentLayoutFolder", function () {
     winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
     var testFolder = 'new_layout'
     result = config.setCurrentLayoutFolder(testFolder)
@@ -79,7 +79,7 @@ describe('configuration tests', function(){
 
 
   //
-  it("readLayoutDetails test ${JSON.stringify(value)}", function (done) {
+  it("readLayoutDetails", function (done) {
     winston.info({message: 'unit_test: BEGIN readLayoutDetails test '})
     result = config.readLayoutDetails()
     setTimeout(function(){
@@ -156,7 +156,46 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+  //
+  it("readMergConfig test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readMergConfig test '})
+    var result = config.readMergConfig()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result).to.have.property('modules')
+      winston.info({message: 'unit_test: END readMergConfig test'})
+        done();
+		}, 50);
+  })
 
+
+  //
+  it("readServiceDefinitions test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readServiceDefinitions test '})
+    var result = config.readServiceDefinitions()
+    setTimeout(function(){
+      winston.info({message: 'result length: ' + JSON.stringify(result).length})
+      expect(JSON.stringify(result).length).to.be.greaterThan(3)
+      winston.info({message: 'unit_test: END readServiceDefinitions test'})
+        done();
+		}, 50);
+  })
+
+
+  // Assumes CANACC4-A501-2q.json file exists in /unit_tests/test_output/modules
+  //
+  it("readModuleDescriptor test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readModuleDescriptor test '})
+    var result = config.readModuleDescriptor("CANACC4-A501-2q.json")
+    setTimeout(function(){
+      winston.info({message: 'result length: ' + JSON.stringify(result).length})
+      expect(JSON.stringify(result).length).to.be.greaterThan(3)
+      winston.info({message: 'unit_test: END readModuleDescriptor test'})
+        done();
+		}, 50);
+  })
+
+  
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
