@@ -1,0 +1,8 @@
+{
+  "serverAddress": "localhost",
+  "cbusServerPort": 5560,
+  "jsonServerPort": 5561,
+  "socketServerPort": 5562,
+  "layoutsPath": "./unit_tests/test_output/layouts/",
+  "currentLayoutFolder": "unit_test3"
+}

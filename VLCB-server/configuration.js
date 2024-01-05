@@ -66,6 +66,52 @@ class configuration {
     return list
   }
 
+  // reads/writes layoutDetails file from/to current layout folder
+  //
+  readLayoutDetails(){
+    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  writeLayoutDetails(data){
+    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+  }
+
+
+  // reads/writes nodeConfig file to/from config folder
+  //
+  readNodeConfig(){
+    var filePath = this.configPath + "/nodeConfig.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  writeNodeConfig(data){
+    var filePath = this.configPath + "/nodeConfig.json"
+    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+  }
+
+  //
+  //
+  readMergConfig(){
+    var filePath = this.configPath + "/mergConfig.json"
+    return jsonfile.readFileSync(filePath)
+  }
+
+
+  //
+  //
+  readServiceDefinitions(){
+    var filePath = this.configPath + "/Service_Definitions.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  
+
+  //
+  //
+  readModuleDescriptor(filename){
+    var filePath = this.configPath + "/modules/" + filename
+    return jsonfile.readFileSync(filePath)
+  }
+  
 
   //
   //

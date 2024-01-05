@@ -62,6 +62,11 @@ describe('socketServer tests', function(){
     winston.info({message: 'socketserver: web socket Connected!'})
   });
 
+  var layoutDetails = {}
+  socket.on('layoutDetails', function (data) {
+    layoutDetails = data;
+//    winston.debug({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
+    });	
 
 	before(function(done) {
 		winston.info({message: ' '});
@@ -94,7 +99,7 @@ describe('socketServer tests', function(){
 
 
   //
-  it("request_layout_list test ${JSON.stringify(value)}", function () {
+  it("request_layout_list test ${JSON.stringify(value)}", function (done) {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
     //
     socket.on('LAYOUTS_LIST', function (data) {
@@ -107,6 +112,33 @@ describe('socketServer tests', function(){
       winston.info({message: 'unit_test: END request_layout_list test'});
 			done();
 		}, 100);
+  })
+
+
+  function GetTestCase_layout() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = "unit_test1"}
+      if (a == 2) {arg1 = "unit_test2"}
+      if (a == 3) {arg1 = "unit_test3"}
+      testCases.push({'layout':arg1});
+    }
+    return testCases;
+  }
+
+
+  //
+  itParam("change_layout test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+//    it("change_layout test ${JSON.stringify(value)}", function () {
+    winston.info({message: 'unit_test: BEGIN change_layout test '});
+    socket.emit('CHANGE_LAYOUT', value.layout)
+    //
+    setTimeout(function(){
+      winston.info({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
+      expect(layoutDetails.layoutDetails.title).to.equal(value.layout + " layout");
+      winston.info({message: 'unit_test: END change_layout test'});
+			done();
+		}, 30);
   })
 
   //

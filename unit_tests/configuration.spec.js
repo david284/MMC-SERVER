@@ -48,7 +48,7 @@ describe('configuration tests', function(){
   //****************************************************************************************** */  
 
   //
-  it("configPath test ${JSON.stringify(value)}", function () {
+  it("configPath test", function () {
     winston.info({message: 'unit_test: BEGIN configPath test '});
     result = config.getConfigurationPath();
     winston.info({message: 'result: ' + result});
@@ -57,7 +57,7 @@ describe('configuration tests', function(){
   })
 
   //
-  it("layoutsPath test ${JSON.stringify(value)}", function () {
+  it("layoutsPath test", function () {
     winston.info({message: 'unit_test: BEGIN layoutsPath test '})
     var testPath = './unit_tests/test_output/layouts/'
     result = config.setLayoutsPath(testPath)
@@ -68,7 +68,7 @@ describe('configuration tests', function(){
 
 
   //
-  it("currentLayoutFolder test ${JSON.stringify(value)}", function () {
+  it("currentLayoutFolder", function () {
     winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
     var testFolder = 'new_layout'
     result = config.setCurrentLayoutFolder(testFolder)
@@ -78,6 +78,124 @@ describe('configuration tests', function(){
   })
 
 
+  //
+  it("readLayoutDetails", function (done) {
+    winston.info({message: 'unit_test: BEGIN readLayoutDetails test '})
+    result = config.readLayoutDetails()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result).to.have.property('layoutDetails')
+      winston.info({message: 'unit_test: END readLayoutDetails test'})
+        done();
+		}, 50);
+  })
+
+  function GetTestCase_layout() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = "write_test1"}
+      if (a == 2) {arg1 = "write_test2"}
+      if (a == 3) {arg1 = "write_test3"}
+      testCases.push({'layout':arg1});
+    }
+    return testCases;
+  }
+
+  //
+  itParam("writeLayoutDetails test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN writeLayoutDetails test '})
+    var data = {
+      "layoutDetails": {
+        "title": value.layout + " layout",
+        "subTitle": "layout auto created",
+        "nextNodeId": 800
+      },
+      "nodeDetails": {},
+      "eventDetails": {}
+    }
+    result = config.setCurrentLayoutFolder("write_test")
+    config.writeLayoutDetails(data)
+    result = config.readLayoutDetails()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result.layoutDetails.title).to.equal(value.layout + " layout");
+      winston.info({message: 'unit_test: END writeLayoutDetails test'})
+        done();
+		}, 50);
+  })
+
+
+  function GetTestCase_node(){
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      testCases.push({'nodeNumber':arg1});
+    }
+    return testCases;
+  }
+
+  //
+  itParam("writeNodeConfig test ${JSON.stringify(value)}", GetTestCase_node(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN writeNodeConfig test '})
+    var data = {
+      "nodes": {
+        "301": {
+          "nodeNumber": value.nodeNumber
+        }
+      }
+    }
+    config.writeNodeConfig(data)
+    result = config.readNodeConfig()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result.nodes["301"].nodeNumber).to.equal(value.nodeNumber);
+      winston.info({message: 'unit_test: END writeNodeConfig test'})
+        done();
+		}, 50);
+  })
+
+  //
+  it("readMergConfig test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readMergConfig test '})
+    var result = config.readMergConfig()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result).to.have.property('modules')
+      winston.info({message: 'unit_test: END readMergConfig test'})
+        done();
+		}, 50);
+  })
+
+
+  //
+  it("readServiceDefinitions test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readServiceDefinitions test '})
+    var result = config.readServiceDefinitions()
+    setTimeout(function(){
+      winston.info({message: 'result length: ' + JSON.stringify(result).length})
+      expect(JSON.stringify(result).length).to.be.greaterThan(3)
+      winston.info({message: 'unit_test: END readServiceDefinitions test'})
+        done();
+		}, 50);
+  })
+
+
+  // Assumes CANACC4-A501-2q.json file exists in /unit_tests/test_output/modules
+  //
+  it("readModuleDescriptor test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readModuleDescriptor test '})
+    var result = config.readModuleDescriptor("CANACC4-A501-2q.json")
+    setTimeout(function(){
+      winston.info({message: 'result length: ' + JSON.stringify(result).length})
+      expect(JSON.stringify(result).length).to.be.greaterThan(3)
+      winston.info({message: 'unit_test: END readModuleDescriptor test'})
+        done();
+		}, 50);
+  })
+
+  
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
