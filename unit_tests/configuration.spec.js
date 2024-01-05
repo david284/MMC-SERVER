@@ -90,6 +90,40 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+  function GetTestCase_layout() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = "write_test1"}
+      if (a == 2) {arg1 = "write_test2"}
+      if (a == 3) {arg1 = "write_test3"}
+      testCases.push({'layout':arg1});
+    }
+    return testCases;
+  }
+
+  //
+  itParam("writeLayoutDetails test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN writeLayoutDetails test '})
+    var data = {
+      "layoutDetails": {
+        "title": value.layout + " layout",
+        "subTitle": "layout auto created",
+        "nextNodeId": 800
+      },
+      "nodeDetails": {},
+      "eventDetails": {}
+    }
+    result = config.setCurrentLayoutFolder("write_test")
+    config.writeLayoutDetails(data)
+    result = config.readLayoutDetails()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result.layoutDetails.title).to.equal(value.layout + " layout");
+      winston.info({message: 'unit_test: END writeLayoutDetails test'})
+        done();
+		}, 50);
+  })
+
 
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {

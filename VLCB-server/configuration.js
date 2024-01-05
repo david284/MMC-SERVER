@@ -66,12 +66,17 @@ class configuration {
     return list
   }
 
-  // reads layoutDetails file from current layout
+  // reads/writes layoutDetails file from/to current layout
   //
   readLayoutDetails(){
     var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
     return jsonfile.readFileSync(filePath)
   }
+  writeLayoutDetails(data){
+    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+  }
+
 
   //
   //
