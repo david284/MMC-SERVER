@@ -125,6 +125,38 @@ describe('configuration tests', function(){
   })
 
 
+  function GetTestCase_node(){
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      testCases.push({'nodeNumber':arg1});
+    }
+    return testCases;
+  }
+
+  //
+  itParam("writeNodeConfig test ${JSON.stringify(value)}", GetTestCase_node(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN writeNodeConfig test '})
+    var data = {
+      "nodes": {
+        "301": {
+          "nodeNumber": value.nodeNumber
+        }
+      }
+    }
+    config.writeNodeConfig(data)
+    result = config.readNodeConfig()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(result.nodes["301"].nodeNumber).to.equal(value.nodeNumber);
+      winston.info({message: 'unit_test: END writeNodeConfig test'})
+        done();
+		}, 50);
+  })
+
+
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})

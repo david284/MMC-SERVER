@@ -1,5 +1,4 @@
 const winston = require('winston');		// use config from root instance
-const fs = require('fs');
 const jsonfile = require('jsonfile')
 const packageInfo = require('.././package.json')
 
@@ -15,238 +14,253 @@ const io = require('socket.io')(server, {
     }
 });
 
-var currentLayoutPath = ''
-
 exports.socketServer = function(config) {
-    currentLayoutPath = config.getLayoutsPath() + config.getCurrentLayoutFolder() + '/'
     let layoutDetails = config.readLayoutDetails()
     let node = new admin.cbusAdmin(config);
 
     io.on('connection', function(socket){
-		winston.info({message: 'socketServer:  a user connected'});
+  		winston.info({message: 'socketServer:  a user connected'});
+      node.cbusSend(node.QNN())
+      io.emit('layoutDetails', layoutDetails)
+      
+      socket.on('QUERY_ALL_NODES', function(){
+        winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
         node.cbusSend(node.QNN())
+      })
+
+      socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
+        winston.info({message: `socketServer:  REQUEST_ALL_NODE_PARAMETERS ${JSON.stringify(data)}`});
+        if (data.delay === undefined) {
+            data.delay = 100
+        }
+        for (let i = 0; i <= data.parameters; i++) {
+            let time = i*data.delay
+            setTimeout(function() {node.cbusSend(node.RQNPN(data.nodeId, i))},time)
+        }
+      })
+
+      socket.on('RQNPN', function(data){ //Request Node Parameter
+  			winston.info({message: `socketServer:  RQNPN ${JSON.stringify(data)}`});
+        node.cbusSend(node.RQNPN(data.nodeId, data.parameter))
+      })
+
+      socket.on('REQUEST_ALL_NODE_VARIABLES', function(data){
+        winston.info({message: `socketServer:  REQUEST_ALL_NODE_VARIABLES ${JSON.stringify(data)}`})
+        if (data.start === undefined) {
+            data.start = 1
+        }
+        if (data.delay === undefined) {
+            data.delay = 100
+        }
+        let finish = data.variables + data.start -1
+        let increment = 1
+        for (let i = data.start; i <= finish; i++) {
+            let time = increment*data.delay
+            setTimeout(function() {node.cbusSend(node.NVRD(data.nodeId, i))},time)
+            increment +=1
+        }
+      })
+
+      socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
+          winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
+          node.cbusSend(node.RQSD(data.nodeId, 0))
+      })
+
+      socket.on('REQUEST_DIAGNOSTICS', function(data){
+          winston.info({message: `socketServer:  REQUEST_DIAGNOSTICS ${JSON.stringify(data)}`});
+          if (data.serviceIndex == undefined){data.serviceIndex = 0;}
+          node.cbusSend(node.RDGN(data.nodeId, data.serviceIndex, 0))
+      })
+
+      socket.on('REQUEST_NODE_VARIABLE', function(data){
+  			winston.info({message: `socketServer:  REQUEST_NODE_VARIABLE ${JSON.stringify(data)}`});
+          node.cbusSend(node.NVRD(data.nodeId, data.variableId))
+      })
+
+      socket.on('UPDATE_NODE_VARIABLE', function(data){
+        node.cbusSend(node.NVSET(data.nodeId, data.variableId, data.variableValue))
+  			winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
+          setTimeout(function() {node.cbusSend(node.NVRD(data.nodeId, data.variableId))},50)
+      })
+
+      socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
+  			winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
+        node.cbusSend(node.NNLRN(data.nodeId))
+        node.cbusSend(node.NVSET(data.nodeId, data.variableId, data.variableValue))
+        node.cbusSend(node.NNULN(data.nodeId))
+        node.cbusSend(node.NVRD(data.nodeId, data.variableId))
+        node.cbusSend(node.NNULN(data.nodeId))
+      })
+
+      socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
+        winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
+        node.removeNodeEvents(data.nodeId)
+        node.cbusSend(node.NERD(data.nodeId))
+      })
+
+      socket.on('REQUEST_ALL_EVENT_VARIABLES', function(data){
+		  	winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES ${JSON.stringify(data)}`});
+        if (data.delay === undefined) {
+            data.delay = 100
+        }
+        for (let i = 1; i <= data.variables; i++) {
+            let time = i*data.delay
+            setTimeout(function() {node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, i))},time)
+        }
+      })
+
+      socket.on('REQUEST_EVENT_VARIABLE', function(data){
+  			winston.info({message: `socketServer: REQUEST_EVENT_VARIABLE ${JSON.stringify(data)}`});
+        node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
+      })
+
+      socket.on('UPDATE_EVENT_VARIABLE', function(data){
+  			winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
+          node.cbusSend(node.NNLRN(data.nodeId))
+          //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
+          node.cbusSend(node.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
+          node.cbusSend(node.NNULN(data.nodeId))
+          node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
+          node.cbusSend(node.NNULN(data.nodeId))
+          node.cbusSend(node.NERD(data.nodeId))
+          node.cbusSend(node.RQEVN(data.nodeId))
+      })
+
+      socket.on('ACCESSORY_LONG_ON', function(data){
+		  	winston.info({message: `socketServer: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
+          node.cbusSend(node.ACON(data.nodeNumber, data.eventNumber))
+      })
+
+      socket.on('ACCESSORY_LONG_OFF', function(data){
+  			winston.info({message: `socketServer: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
+        node.cbusSend(node.ACOF(data.nodeNumber, data.eventNumber))
+      })
+  
+      socket.on('ACCESSORY_SHORT_OFF', function(data){
+	  		winston.info({message: `socketServer: ACCESSORY_SHORT_OFF ${JSON.stringify(data)}`});
+        node.cbusSend(node.ASOF(data.nodeNumber, data.deviceNumber))
+      })
+
+      socket.on('ACCESSORY_SHORT_ON', function(data){
+			  winston.info({message: `socketServer: ACCESSORY_SHORT_ON ${JSON.stringify(data)}`});
+        node.cbusSend(node.ASON(data.nodeNumber, data.deviceNumber))
+      })
+  
+      socket.on('TEACH_EVENT', function(data){
+	  		winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
+        node.cbusSend(node.NNLRN(data.nodeId))
+        //node.cbusSend(node.EVLRN(data.eventName, data.eventId, data.eventVal))
+        //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, 1, 0))
+        node.cbusSend(node.teach_event(data.nodeId, data.eventName, 1, 0))
+        node.cbusSend(node.NNULN(data.nodeId))
+        node.cbusSend(node.NNULN(data.nodeId))
+        node.cbusSend(node.NERD(data.nodeId))
+        node.cbusSend(node.RQEVN(data.nodeId))
+  // refresh events
+        node.cbusSend(node.NERD(data.nodeId))
+        node.cbusSend(node.RQEVN(data.nodeId))
+      })
+
+      socket.on('REMOVE_NODE', function(data){
+        winston.info({message: `socketServer: REMOVE_NODE ${JSON.stringify(data)}`});
+        node.removeNode(data.nodeId)
+      })
+
+      socket.on('REMOVE_EVENT', function(data){
+  			winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
+        node.cbusSend(node.NNLRN(data.nodeId))
+        node.cbusSend(node.EVULN(data.eventName))
+        node.cbusSend(node.NNULN(data.nodeId))
+        node.removeNodeEvents(data.nodeId)
+        node.cbusSend(node.NERD(data.nodeId))
+        node.cbusSend(node.RQEVN(data.nodeId))
+      })
+
+      socket.on('CLEAR_NODE_EVENTS', function(data){
+  			winston.info({message: `socketServer: CLEAR_NODE_EVENTS ${data.nodeId}`});
+        node.removeNodeEvents(data.nodeId);
+      })
+  
+      socket.on('REFRESH_EVENTS', function(){
+	  		winston.info({message: `socketServer: REFRESH_EVENTS`});
+        node.refreshEvents();
+      })
+
+      socket.on('CLEAR_EVENTS', function(){
+        winston.info({message: `socketServer: CLEAR_EVENTS`});
+        node.clearEvents();
+      })
+
+      socket.on('CLEAR_CBUS_ERRORS', function(){
+        winston.info({message: `socketServer: CLEAR_CBUS_ERRORS`});
+        node.clearCbusErrors();
+      })
+        
+      socket.on('UPDATE_LAYOUT_DETAILS', function(data){
+	  		winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
+        layoutDetails = data
+        config.writeLayoutDetails(layoutDetails)
         io.emit('layoutDetails', layoutDetails)
+      })
         
-        socket.on('QUERY_ALL_NODES', function(){
-          winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
-          node.cbusSend(node.QNN())
-        })
-        socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
-            winston.info({message: `socketServer:  REQUEST_ALL_NODE_PARAMETERS ${JSON.stringify(data)}`});
-            if (data.delay === undefined) {
-                data.delay = 100
-            }
-            for (let i = 0; i <= data.parameters; i++) {
-                let time = i*data.delay
-                setTimeout(function() {node.cbusSend(node.RQNPN(data.nodeId, i))},time)
-            }
-        })
-        socket.on('RQNPN', function(data){ //Request Node Parameter
-			winston.info({message: `socketServer:  RQNPN ${JSON.stringify(data)}`});
-            node.cbusSend(node.RQNPN(data.nodeId, data.parameter))
-        })
-        socket.on('REQUEST_ALL_NODE_VARIABLES', function(data){
-			winston.info({message: `socketServer:  REQUEST_ALL_NODE_VARIABLES ${JSON.stringify(data)}`})
-            if (data.start === undefined) {
-                data.start = 1
-            }
-            if (data.delay === undefined) {
-                data.delay = 100
-            }
-            let finish = data.variables + data.start -1
-            let increment = 1
-            for (let i = data.start; i <= finish; i++) {
-                let time = increment*data.delay
-                setTimeout(function() {node.cbusSend(node.NVRD(data.nodeId, i))},time)
-                increment +=1
-            }
-        })
-        socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
-            winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
-            node.cbusSend(node.RQSD(data.nodeId, 0))
-        })
-        socket.on('REQUEST_DIAGNOSTICS', function(data){
-            winston.info({message: `socketServer:  REQUEST_DIAGNOSTICS ${JSON.stringify(data)}`});
-            if (data.serviceIndex == undefined){data.serviceIndex = 0;}
-            node.cbusSend(node.RDGN(data.nodeId, data.serviceIndex, 0))
-        })
-        socket.on('REQUEST_NODE_VARIABLE', function(data){
-			winston.info({message: `socketServer:  REQUEST_NODE_VARIABLE ${JSON.stringify(data)}`});
-            node.cbusSend(node.NVRD(data.nodeId, data.variableId))
-        })
-        socket.on('UPDATE_NODE_VARIABLE', function(data){
-            node.cbusSend(node.NVSET(data.nodeId, data.variableId, data.variableValue))
-			winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
-            setTimeout(function() {node.cbusSend(node.NVRD(data.nodeId, data.variableId))},50)
-        })
-        socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
-			winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
-            node.cbusSend(node.NNLRN(data.nodeId))
-            node.cbusSend(node.NVSET(data.nodeId, data.variableId, data.variableValue))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.cbusSend(node.NVRD(data.nodeId, data.variableId))
-            node.cbusSend(node.NNULN(data.nodeId))
-        })
-        socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
-			winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
-			node.removeNodeEvents(data.nodeId)
-            node.cbusSend(node.NERD(data.nodeId))
-        })
-        socket.on('REQUEST_ALL_EVENT_VARIABLES', function(data){
-			winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES ${JSON.stringify(data)}`});
-            if (data.delay === undefined) {
-                data.delay = 100
-            }
-            for (let i = 1; i <= data.variables; i++) {
-                let time = i*data.delay
-                setTimeout(function() {node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, i))},time)
-            }
-        })
-        socket.on('REQUEST_EVENT_VARIABLE', function(data){
-			winston.info({message: `socketServer: REQUEST_EVENT_VARIABLE ${JSON.stringify(data)}`});
-            node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
-        })
-        socket.on('UPDATE_EVENT_VARIABLE', function(data){
-			winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
-            node.cbusSend(node.NNLRN(data.nodeId))
-            //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
-            node.cbusSend(node.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.cbusSend(node.NERD(data.nodeId))
-            node.cbusSend(node.RQEVN(data.nodeId))
-        })
-        socket.on('ACCESSORY_LONG_ON', function(data){
-			winston.info({message: `socketServer: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
-            node.cbusSend(node.ACON(data.nodeNumber, data.eventNumber))
-        })
-        socket.on('ACCESSORY_LONG_OFF', function(data){
-			winston.info({message: `socketServer: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
-            node.cbusSend(node.ACOF(data.nodeNumber, data.eventNumber))
-        })
-        socket.on('ACCESSORY_SHORT_OFF', function(data){
-			winston.info({message: `socketServer: ACCESSORY_SHORT_OFF ${JSON.stringify(data)}`});
-            node.cbusSend(node.ASOF(data.nodeNumber, data.deviceNumber))
-        })
-        socket.on('ACCESSORY_SHORT_ON', function(data){
-			winston.info({message: `socketServer: ACCESSORY_SHORT_ON ${JSON.stringify(data)}`});
-            node.cbusSend(node.ASON(data.nodeNumber, data.deviceNumber))
-        })
-        socket.on('TEACH_EVENT', function(data){
-			winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
-            node.cbusSend(node.NNLRN(data.nodeId))
-            //node.cbusSend(node.EVLRN(data.eventName, data.eventId, data.eventVal))
-            //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, 1, 0))
-            node.cbusSend(node.teach_event(data.nodeId, data.eventName, 1, 0))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.cbusSend(node.NERD(data.nodeId))
-            node.cbusSend(node.RQEVN(data.nodeId))
-			// refresh events
-            node.cbusSend(node.NERD(data.nodeId))
-            node.cbusSend(node.RQEVN(data.nodeId))
-        })
-        socket.on('REMOVE_NODE', function(data){
-            winston.info({message: `socketServer: REMOVE_NODE ${JSON.stringify(data)}`});
-            node.removeNode(data.nodeId)
-        })
-        socket.on('REMOVE_EVENT', function(data){
-			winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
-            node.cbusSend(node.NNLRN(data.nodeId))
-            node.cbusSend(node.EVULN(data.eventName))
-            node.cbusSend(node.NNULN(data.nodeId))
-            node.removeNodeEvents(data.nodeId)
-            node.cbusSend(node.NERD(data.nodeId))
-            node.cbusSend(node.RQEVN(data.nodeId))
-        })
-        socket.on('CLEAR_NODE_EVENTS', function(data){
-			winston.info({message: `socketServer: CLEAR_NODE_EVENTS ${data.nodeId}`});
-            node.removeNodeEvents(data.nodeId);
-        })
-        socket.on('REFRESH_EVENTS', function(){
-			winston.info({message: `socketServer: REFRESH_EVENTS`});
-            node.refreshEvents();
-        })
-
-        socket.on('CLEAR_EVENTS', function(){
-            winston.info({message: `socketServer: CLEAR_EVENTS`});
-            node.clearEvents();
-        })
-
-        socket.on('CLEAR_CBUS_ERRORS', function(){
-            winston.info({message: `socketServer: CLEAR_CBUS_ERRORS`});
-            node.clearCbusErrors();
-        })
-        
-        socket.on('UPDATE_LAYOUT_DETAILS', function(data){
-			winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
-            layoutDetails = data
-            config.writeLayoutDetails(layoutDetails)
-            io.emit('layoutDetails', layoutDetails)
-        })
-        
-        socket.on('CLEAR_CBUS_ERRORS', function(data){
-			winston.info({message: `socketServer: CLEAR_CBUS_ERRORS`});
-            node.clearCbusErrors()
-        })
+      socket.on('CLEAR_CBUS_ERRORS', function(data){
+		  	winston.info({message: `socketServer: CLEAR_CBUS_ERRORS`});
+        node.clearCbusErrors()
+      })
 		
-        socket.on('CHANGE_LAYOUT', function(data){
-    			winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
-          config.setCurrentLayoutFolder(data)
-          layoutDetails = config.readLayoutDetails()
-          io.emit('layoutDetails', layoutDetails)
-        })
+      socket.on('CHANGE_LAYOUT', function(data){
+        winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
+        config.setCurrentLayoutFolder(data)
+        layoutDetails = config.readLayoutDetails()
+        io.emit('layoutDetails', layoutDetails)
+      })
 
       
-        socket.on('REQUEST_LAYOUTS_LIST', function(){
-    			winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
-          const layout_list = config.getListOfLayouts()
-          io.emit('LAYOUTS_LIST', layout_list)
-    			winston.info({message: `socketServer: sent LAYOUTS_LIST` + layout_list});
-        })
+      socket.on('REQUEST_LAYOUTS_LIST', function(){
+        winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
+        const layout_list = config.getListOfLayouts()
+        io.emit('LAYOUTS_LIST', layout_list)
+        winston.info({message: `socketServer: sent LAYOUTS_LIST` + layout_list});
+      })
 
       
-        socket.on('REQUEST_VERSION', function(){
-    			winston.info({message: `socketServer: REQUEST_VERSION`});
-          let version = {
-            'App': packageInfo.version,
-            'API': '0.0.1',
-            'node': process.version
-          }
-          io.emit('VERSION', version)
-    			winston.info({message: `socketServer: sent VERSION ${JSON.stringify(version)}`});
-        })
+      socket.on('REQUEST_VERSION', function(){
+        winston.info({message: `socketServer: REQUEST_VERSION`});
+        let version = {
+          'App': packageInfo.version,
+          'API': '0.0.1',
+          'node': process.version
+        }
+        io.emit('VERSION', version)
+        winston.info({message: `socketServer: sent VERSION ${JSON.stringify(version)}`});
+      })
 
-        socket.on('PROGRAM_NODE', function(data){
-            let buff = Buffer.from(data.encodedIntelHex, 'base64');
-            let intelhexString = buff.toString('ascii');
-            winston.info({message: `socketServer: PROGRAM_NODE; intel hex ` + intelhexString});
-
-            programNode.program(data.nodeNumber, data.cpuType, data.flags, intelhexString);
-        })
+      socket.on('PROGRAM_NODE', function(data){
+        let buff = Buffer.from(data.encodedIntelHex, 'base64');
+        let intelhexString = buff.toString('ascii');
+        winston.info({message: `socketServer: PROGRAM_NODE; intel hex ` + intelhexString});
+        programNode.program(data.nodeNumber, data.cpuType, data.flags, intelhexString);
+      })
+		       
+      socket.on('PROGRAM_BOOT_MODE', function(data){
+        let buff = Buffer.from(data.encodedIntelHex, 'base64');
+        let intelhexString = buff.toString('ascii');
+        winston.info({message: `socketServer: PROGRAM_BOOT_MODE; intel hex ` + intelhexString});
+        programNode.programBootMode(data.cpuType, data.flags, intelhexString);
+      })
 		
-        
-        socket.on('PROGRAM_BOOT_MODE', function(data){
-            let buff = Buffer.from(data.encodedIntelHex, 'base64');
-            let intelhexString = buff.toString('ascii');
-            winston.info({message: `socketServer: PROGRAM_BOOT_MODE; intel hex ` + intelhexString});
-
-            programNode.programBootMode(data.cpuType, data.flags, intelhexString);
-        })
-		
-        socket.on('STOP_SERVER', function(){
-          winston.info({message: `socketServer: STOP_SERVER`});
-          process.exit();
-        })
+      socket.on('STOP_SERVER', function(){
+        winston.info({message: `socketServer: STOP_SERVER`});
+        process.exit();
+      })
       
     });
     server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
     node.on('events', function (events) {
-        winston.info({message: `socketServer: Events`});
-        winston.debug({message: `socketServer: Events :${JSON.stringify(events)}`});
-        io.emit('events', events);
+      winston.info({message: `socketServer: Events`});
+      winston.debug({message: `socketServer: Events :${JSON.stringify(events)}`});
+      io.emit('events', events);
     })
 
     node.on('layoutDetails', function (data) {
@@ -255,23 +269,23 @@ exports.socketServer = function(config) {
       io.emit('layoutDetails', layoutDetails)
   })
 
-  node.on('nodes', function (nodes) {
+    node.on('nodes', function (nodes) {
       winston.info({message: `socketServer: Nodes Sent`});
-        winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
-        io.emit('nodes', nodes);
+      winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
+      io.emit('nodes', nodes);
     })
 
     node.on('node', function (node) {
-        winston.info({message: `socketServer: Node Sent`});
-        winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node)}`});
-        io.emit('node', node);
-        if(node.nodeNumber) {
-          if (update_nodeName(node.nodeNumber, layoutDetails, currentLayoutPath)) {
-            io.emit('layoutDetails', layoutDetails)
-            winston.info({message: `socketServer: nodeName updated, layoutDetails Sent`});
-          }
+      winston.info({message: `socketServer: Node Sent`});
+      winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node)}`});
+      io.emit('node', node);
+      if(node.nodeNumber) {
+        if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
+          io.emit('layoutDetails', layoutDetails)
+          winston.info({message: `socketServer: nodeName updated, layoutDetails Sent`});
         }
-      })
+      }
+    })
 
     node.on('cbusError', function (cbusErrors) {
 		winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
@@ -321,8 +335,8 @@ exports.socketServer = function(config) {
 
 // layoutDetails functions
 //
-function  update_nodeName(nodeNumber, layoutDetails, currentLayoutPath){
-  winston.info({message: `socketServer: update_nodeName currentLayoutPath ` + currentLayoutPath});
+function  update_nodeName(config, nodeNumber, layoutDetails){
+  winston.info({message: 'socketServer: update_nodeName'});
   updated = false
   if (nodeNumber in layoutDetails.nodeDetails){
   } else {
@@ -336,7 +350,7 @@ function  update_nodeName(nodeNumber, layoutDetails, currentLayoutPath){
     // nodeName already exists, so do nothing
   } else {
     // check if module name exists - read config to get latest
-    const nodeConfig = jsonfile.readFileSync(currentLayoutPath + 'nodeConfig.json')
+    const nodeConfig = config.readNodeConfig()
     if (nodeConfig.nodes[nodeNumber].moduleName) {
       layoutDetails.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
     } else {
@@ -346,7 +360,7 @@ function  update_nodeName(nodeNumber, layoutDetails, currentLayoutPath){
   }
   if (updated){
     // only write if updated
-    jsonfile.writeFileSync(currentLayoutPath + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+    config.writeLayoutDetails(layoutDetails)
   }
   return updated
 }

@@ -1,7 +1,7 @@
 /node_modules
 /logs
+/VLCB-server/config/nodeConfig.json
 /VLCB-server/layouts
-/VLCB-server/config/Default
 /unit_tests/logs
 /unit_tests/layouts
 /unit_tests/test_output

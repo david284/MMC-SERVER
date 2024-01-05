@@ -66,7 +66,7 @@ class configuration {
     return list
   }
 
-  // reads/writes layoutDetails file from/to current layout
+  // reads/writes layoutDetails file from/to current layout folder
   //
   readLayoutDetails(){
     var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
@@ -74,6 +74,18 @@ class configuration {
   }
   writeLayoutDetails(data){
     var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+  }
+
+
+  // reads/writes nodeConfig file to/from config folder
+  //
+  readNodeConfig(){
+    var filePath = this.configPath + "/nodeConfig.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  writeNodeConfig(data){
+    var filePath = this.configPath + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
