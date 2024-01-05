@@ -89,6 +89,29 @@ class configuration {
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
+  //
+  //
+  readMergConfig(){
+    var filePath = this.configPath + "/mergConfig.json"
+    return jsonfile.readFileSync(filePath)
+  }
+
+
+  //
+  //
+  readServiceDefinitions(){
+    var filePath = this.configPath + "/Service_Definitions.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  
+
+  //
+  //
+  readModuleDescriptor(filename){
+    var filePath = this.configPath + "/modules/" + filename
+    return jsonfile.readFileSync(filePath)
+  }
+  
 
   //
   //

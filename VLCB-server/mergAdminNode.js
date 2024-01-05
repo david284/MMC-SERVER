@@ -1,6 +1,5 @@
 const winston = require('winston');		// use config from root instance
 const net = require('net')
-const jsonfile = require('jsonfile')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 
@@ -20,9 +19,9 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: `mergAdminNode: Constructor`});
         this.config = config
         this.nodeConfig = {}
-        const merg = jsonfile.readFileSync('./VLCB-server/config/mergConfig.json')
+        const merg = config.readMergConfig()
         this.merg = merg
-        const Service_Definitions = jsonfile.readFileSync('./VLCB-server/config/Service_Definitions.json')
+        const Service_Definitions = config.readServiceDefinitions()
         this.ServiceDefs = Service_Definitions
         this.pr1 = 2
         this.pr2 = 3
@@ -669,11 +668,11 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
                 // ok - can get file now
                 try {
-                  const variableConfig = jsonfile.readFileSync('./VLCB-server/config/modules/' + filename)
+                  const variableConfig = this.config.readModuleDescriptor(filename)
                   this.nodeConfig.nodes[nodeId].variableConfig = variableConfig
                   winston.info({message: 'mergAdminNode: Variable Config: loaded file ' + filename});
                 }catch(err) {
-                  winston.error({message: 'mergAdminNode: Variable Config: erro loading file ' + filename + ' ' + err});
+                  winston.error({message: 'mergAdminNode: Variable Config: error loading file ' + filename + ' ' + err});
                 }
               }
             } else {
