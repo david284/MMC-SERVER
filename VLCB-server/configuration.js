@@ -45,7 +45,7 @@ class configuration {
   getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
     // check folder name not blank, set to default if so...
-    if (folder.length < 0) {folder = 'default'}
+    if (folder.length == 0) {folder = 'default'}
     this.config.currentLayoutFolder = folder
     // now create current layout folder if it doesn't exist
 		if (this.createDirectory(this.configPath + 'layouts/' + this.config.currentLayoutFolder)) {
