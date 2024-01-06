@@ -1,6 +1,4 @@
 {
-  "layoutName": "default",
-  "usb4Port": "COM4",
   "serverAddress": "localhost",
   "cbusServerPort": 5550,
   "jsonServerPort": 5551,
