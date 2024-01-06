@@ -19,7 +19,6 @@ config.setServerAddress("localhost")
 config.setCbusServerPort(5550);
 config.setJsonServerPort(5551);
 config.setSocketServerPort(5552);
-config.setLayoutsPath("./unit_tests/test_output/layouts/")
 config.setCurrentLayoutFolder('default')
 
 

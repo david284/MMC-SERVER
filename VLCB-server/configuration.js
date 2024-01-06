@@ -22,35 +22,35 @@ class configuration {
 		this.createDirectory(this.configPath)
     this.createConfigFile(this.configPath)
     this.config = jsonfile.readFileSync(this.configPath + 'config.json')
+    // also ensure 'layouts' folder exists
+		this.createDirectory(this.configPath + 'layouts/')
+    // and default layout exists (creates directory if not there also)
+    this.createLayoutFile("default")
 	}
 
   // this value set by constructor, so no need for a 'set' method
   // 
-  getConfigurationPath(){ return this.configPath}
+  getConfigPath(){ 
+    // check if directory exists
+    if (fs.existsSync(this.configPath)) {
+      winston.info({message: `configuration: getConfigPath: ` + this.configPath});
+    } else {
+      winston.error({message: `configuration: getConfigPath: Directory does not exist ` + this.configPath});
+    }
+    return this.configPath
+  }
 
   //
   //
   getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
+    // check folder name not blank, set to default if so...
+    if (folder.length < 0) {folder = 'default'}
     this.config.currentLayoutFolder = folder
     // now create current layout folder if it doesn't exist
-		if (this.createDirectory(this.config.layoutsPath + this.config.currentLayoutFolder)) {
-      // if freshly created, create blank layout file, using folder name as layout name
-      this.createBlankLayout(this.config.layoutsPath, this.config.currentLayoutFolder)
-    }
-    jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
-  }
-
-  //
-  //
-  getLayoutsPath(){return this.config.layoutsPath}
-  setLayoutsPath(path){
-    this.config.layoutsPath = path
-    // now create layouts folder if it doesn't exist
-		if (this.createDirectory(this.config.layoutsPath)) {
-      // if freshly created, set current layout folder to 'default' & create layout folder & file
-      this.config.currentLayoutFolder = "default"
-      this.createBlankLayout(this.config.layoutsPath, this.config.currentLayoutFolder)
+		if (this.createDirectory(this.configPath + 'layouts/' + this.config.currentLayoutFolder)) {
+      // if freshly created, create blank layout file & directory, using folder name as layout name
+      this.createLayoutFile(this.config.currentLayoutFolder)
     }
     jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
@@ -59,8 +59,8 @@ class configuration {
   //
   getListOfLayouts(){
     winston.debug({message: `configuration: get_layout_list:`});
-    var list = fs.readdirSync(this.config.layoutsPath).filter(function (file) {
-      return fs.statSync(this.config.layoutsPath +'/'+file).isDirectory();
+    var list = fs.readdirSync(this.configPath + 'layouts/').filter(function (file) {
+      return fs.statSync(this.configPath + 'layouts/' +file).isDirectory();
     },(this));
     winston.debug({message: `configuration: get_layout_list: ` + list});
     return list
@@ -69,11 +69,11 @@ class configuration {
   // reads/writes layoutDetails file from/to current layout folder
   //
   readLayoutDetails(){
-    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
-    return jsonfile.readFileSync(filePath)
+    var filePath = this.configPath + 'layouts/' + this.config.currentLayoutFolder + "/"
+    return jsonfile.readFileSync(filePath + "layoutDetails.json")
   }
   writeLayoutDetails(data){
-    var filePath = this.config.layoutsPath + this.config.currentLayoutFolder + "/layoutDetails.json"
+    var filePath = this.configPath + 'layouts/' + this.config.currentLayoutFolder + "/layoutDetails.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
@@ -176,7 +176,6 @@ class configuration {
           "cbusServerPort": 5550,
           "jsonServerPort": 5551,
           "socketServerPort": 5552,
-          "layoutsPath": "./VLCB-server/layouts/",
           "currentLayoutFolder": "default"
         }
         this.config = config
@@ -188,9 +187,9 @@ class configuration {
 
   // return true if default layout freshly created
   // false if it already existed
-  createBlankLayout(path, name){
+  createLayoutFile(name){
     var result = false
-    var layoutPath = path + name + "/"
+    var layoutPath = this.configPath + 'layouts/' + name + '/'
     this.createDirectory(layoutPath)
     if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
       winston.debug({message: `configuration: layoutDetails file exists`});
