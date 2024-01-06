@@ -89,26 +89,26 @@ class configuration {
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
-  //
+  // static file, so use fixed location
   //
   readMergConfig(){
-    var filePath = this.configPath + "/mergConfig.json"
+    var filePath = "./VLCB-server/config/mergConfig.json"
     return jsonfile.readFileSync(filePath)
   }
 
 
-  //
+  // static file, so use fixed location
   //
   readServiceDefinitions(){
-    var filePath = this.configPath + "/Service_Definitions.json"
+    var filePath = "./VLCB-server/config/Service_Definitions.json"
     return jsonfile.readFileSync(filePath)
   }
   
 
-  //
+  // static file, so use fixed location
   //
   readModuleDescriptor(filename){
-    var filePath = this.configPath + "/modules/" + filename
+    var filePath = "./VLCB-server/config/modules/" + filename
     return jsonfile.readFileSync(filePath)
   }
   
@@ -175,7 +175,9 @@ class configuration {
           "serverAddress": "localhost",
           "cbusServerPort": 5550,
           "jsonServerPort": 5551,
-          "socketServerPort": 5552
+          "socketServerPort": 5552,
+          "layoutsPath": "./VLCB-server/layouts/",
+          "currentLayoutFolder": "default"
         }
         this.config = config
         jsonfile.writeFileSync(path + "config.json", config, {spaces: 2, EOL: '\r\n'})
