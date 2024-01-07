@@ -49,6 +49,13 @@ function hexToString(hex) {
 }
 
 
+var nodeTraffic = []
+node.on('cbusTraffic', function (data) {
+  nodeTraffic.push(data)
+  winston.debug({message: `mergAdminNode test: cbusTraffic:  ${JSON.stringify(data)}`})
+})
+
+
 
 
 describe('mergAdminNode tests', function(){
@@ -80,6 +87,9 @@ describe('mergAdminNode tests', function(){
   //
   //****************************************************************************************** */  
 
+  //****************************************************************************************** */
+  // outgoing messages
+  //****************************************************************************************** */
 
   // 0x0D QNN
   //
@@ -285,6 +295,12 @@ describe('mergAdminNode tests', function(){
   })
 
 
+  //****************************************************************************************** */
+  // incoming messages
+  //****************************************************************************************** */
+
+
+  // 0x23 DKEEP
   //
   itParam("DKEEP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN DKEEP test ' + JSON.stringify(value)});
@@ -293,9 +309,27 @@ describe('mergAdminNode tests', function(){
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
       var result = JSON.parse(mock_jsonServer.messagesIn[0])
+      winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
       expect(result.mnemonic).to.equal("QLOC")
       expect(result.session).to.equal(value.session)
-      winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+      winston.info({message: 'unit_test: END DKEEP test'});
+			done();
+		}, 10);
+  })
+
+
+  // 0xAF GRSP
+  //
+  itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN GRSP test ' + JSON.stringify(value)});
+    var testMessage = cbusLib.encodeGRSP(1,"00", 1, 1)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
+      winston.info({message: 'unit_test: END GRSP test'});
 			done();
 		}, 10);
   })

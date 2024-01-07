@@ -317,7 +317,8 @@ exports.socketServer = function(config) {
 
 
     node.on('cbusTraffic', function (data) {
-		winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + data.raw + " " + data.translated});
+      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + data.json.text});
+      winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " " + JSON.stringify(data.json)});
         io.emit('cbusTraffic', data);
     })
 

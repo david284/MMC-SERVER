@@ -39,6 +39,8 @@ class cbusAdmin extends EventEmitter {
         this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
             winston.info({message: `mergAdminNode: Connected - ${config.getServerAddress()} on ${config.getJsonServerPort()}`});
         })
+
+        //
         this.client.on('data', function (data) { //Receives packets from network and process individual Messages
             //const outMsg = data.toString().split(";")
             let indata = data.toString().replace(/}{/g, "}|{")
@@ -50,15 +52,17 @@ class cbusAdmin extends EventEmitter {
 
                 //let cbusMsg = cbusLib.decode(outMsg[i].concat(";"))     // replace terminator removed by 'split' method
                 winston.debug({message: `mergAdminNode: CBUS Receive >>>  ${outMsg[i]}`})
-                //this.emit('cbusTraffic', {direction: 'In', raw: cbusMsg.encoded, translated: cbusMsg.text});
-                this.action_message(JSON.parse(outMsg[i]))
-
+                var msg = JSON.parse(outMsg[i])
+                this.emit('cbusTraffic', {direction: 'In', json: msg});
+                this.action_message(msg)
             }
-            //this.action_message(outMsg)
         }.bind(this))
+
         this.client.on('error', (err) => {
             winston.debug({message: 'mergAdminNode: TCP ERROR ${err.code}'});
         })
+
+        //
         this.client.on('close', function () {
             winston.debug({message: 'mergAdminNode: Connection Closed'});
             setTimeout(() => {
@@ -67,6 +71,8 @@ class cbusAdmin extends EventEmitter {
                 })
             }, 1000)
         }.bind(this))
+
+        //
         this.actions = { //actions when Opcodes are received
             '00': (cbusMsg) => { // ACK
                 winston.info({message: "mergAdminNode: ACK (00) : No Action"});
@@ -323,6 +329,9 @@ class cbusAdmin extends EventEmitter {
                           winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
                   }
                 }
+            },
+            'AF': (cbusMsg) => {//GRSP
+                winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
             },
             'B0': (cbusMsg) => {//Accessory On Long Event 1
                 this.eventSend(cbusMsg, 'on', 'long')
