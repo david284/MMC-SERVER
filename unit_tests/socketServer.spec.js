@@ -23,7 +23,6 @@ config.setServerAddress("localhost")
 config.setCbusServerPort(5560);
 config.setJsonServerPort(5561);
 config.setSocketServerPort(5562);
-config.setLayoutsPath("./unit_tests/test_output/layouts/")
 
 
 const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())

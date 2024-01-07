@@ -12,9 +12,10 @@ const fs = require('fs');
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
 const expectedConfigPath = "./unit_tests/test_output/config/"
+// delete existing configs..
+fs.rmSync(expectedConfigPath, { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(expectedConfigPath)
-
 
 describe('configuration tests', function(){
 
@@ -26,7 +27,6 @@ describe('configuration tests', function(){
 		winston.info({message: '------------------------------ configuration tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
-        
 		done();
 	});
 
@@ -50,20 +50,10 @@ describe('configuration tests', function(){
   //
   it("configPath test", function () {
     winston.info({message: 'unit_test: BEGIN configPath test '});
-    result = config.getConfigurationPath();
+    result = config.getConfigPath();
     winston.info({message: 'result: ' + result});
     expect(result).to.equal(expectedConfigPath);
     winston.info({message: 'unit_test: END configPath test'});
-  })
-
-  //
-  it("layoutsPath test", function () {
-    winston.info({message: 'unit_test: BEGIN layoutsPath test '})
-    var testPath = './unit_tests/test_output/layouts/'
-    result = config.setLayoutsPath(testPath)
-    winston.info({message: 'result: ' + config.getLayoutsPath()})
-    expect(config.getLayoutsPath()).to.equal(testPath)
-    winston.info({message: 'unit_test: END layoutsPath test'})
   })
 
 

@@ -13,7 +13,6 @@ config.setServerAddress("localhost")
 config.setCbusServerPort(5550);
 config.setJsonServerPort(5551);
 config.setSocketServerPort(5552);
-config.setLayoutsPath("./VLCB-server/layouts/")
 
 
 exports.run = async function run(){

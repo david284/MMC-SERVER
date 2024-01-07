@@ -2,9 +2,6 @@ const winston = require('winston');		// use config from root instance
 const jsonfile = require('jsonfile')
 const packageInfo = require('.././package.json')
 
-const config = jsonfile.readFileSync('./VLCB-server/config/config.json')
-
-
 const admin = require('./mergAdminNode.js')
 const server = require('http').createServer()
 const io = require('socket.io')(server, {
