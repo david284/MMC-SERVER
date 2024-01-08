@@ -5,6 +5,7 @@ const fs = require('fs');
 const net = require('net')
 //import io from 'socket.io-client'
 const { io } = require("socket.io-client")
+const cbusLib = require('cbuslibrary')
 
 const socketServer = require('../VLCB-server/socketServer.js')
 
@@ -50,8 +51,6 @@ function hexToString(hex) {
 }
 
 
-
-
 describe('socketServer tests', function(){
 
   const socket = io(`http://${config.getServerAddress()}:${config.getSocketServerPort()}`)
@@ -95,10 +94,21 @@ describe('socketServer tests', function(){
   //
   //****************************************************************************************** */  
 
+  function GetTestCase_nodeNumber() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      testCases.push({'nodeNumber':arg1});
+    }
+    return testCases;
+  }
+
 
 
   //
-  it("request_layout_list test ${JSON.stringify(value)}", function (done) {
+  it("request_layout_list test", function (done) {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
     //
     socket.on('LAYOUTS_LIST', function (data) {
@@ -128,7 +138,6 @@ describe('socketServer tests', function(){
 
   //
   itParam("change_layout test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
-//    it("change_layout test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN change_layout test '});
     socket.emit('CHANGE_LAYOUT', value.layout)
     //
@@ -141,7 +150,7 @@ describe('socketServer tests', function(){
   })
 
   //
-  it("request_version test ${JSON.stringify(value)}", function () {
+  it("request_version test", function (done) {
     winston.info({message: 'unit_test: BEGIN request_version test '});
     //
     socket.on('VERSION', function (data) {
@@ -154,8 +163,43 @@ describe('socketServer tests', function(){
       winston.info({message: 'unit_test: END request_version test'});
 			done();
 		}, 100);
-
   })
+
+
+
+  // 0x59 WRACK
+  //
+  itParam("WRACK test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN WRACK test '});
+    var testMessage = cbusLib.encodeWRACK(value.nodeNumber)
+    mock_jsonServer.messagesIn = []
+    socketServer.nodesTaught[value.nodeNumber]=true
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      expect(nodesTaught[value.nodeNumber]).to.equal(false);
+      winston.info({message: 'unit_test: END WRACK test'});
+			done();
+		}, 10);
+  })
+
+
+  // 0xAF GRSP
+  //
+  itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN GRSP test '});
+    // nodeNumber, requestOpCode, serviceType, result
+    var testMessage = cbusLib.encodeGRSP(value.nodeNumber,"D2", 1, 1)
+    mock_jsonServer.messagesIn = []
+    socketServer.nodesTaught[value.nodeNumber]=true
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      expect(nodesTaught[value.nodeNumber]).to.equal(false);
+      winston.info({message: 'unit_test: END GRSP test'});
+			done();
+		}, 10);
+  })
+
+
 
 })
 

@@ -55,6 +55,12 @@ node.on('cbusTraffic', function (data) {
   winston.debug({message: `mergAdminNode test: cbusTraffic:  ${JSON.stringify(data)}`})
 })
 
+var grspEvents = []
+node.on('grsp', function (data) {
+  grspEvents.push(data)
+  winston.debug({message: `mergAdminNode test: grspEvents:  ${JSON.stringify(data)}`})
+})
+
 
 
 
@@ -318,10 +324,26 @@ describe('mergAdminNode tests', function(){
   })
 
 
+  // 0x59 WRACK
+  //
+  itParam("WRACK test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN WRACK test ' + JSON.stringify(value)});
+    var testMessage = cbusLib.encodeWRACK(1)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("WRACK")
+      winston.info({message: 'unit_test: END WRACK test'});
+			done();
+		}, 10);
+  })
+
   // 0xAF GRSP
   //
-  itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN GRSP test ' + JSON.stringify(value)});
+  it("GRSP test", function (done) {
+    winston.info({message: 'unit_test: BEGIN GRSP test '});
     var testMessage = cbusLib.encodeGRSP(1,"00", 1, 1)
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
@@ -329,6 +351,7 @@ describe('mergAdminNode tests', function(){
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
+      expect(grspEvents[0].mnemonic).to.equal("GRSP")
       winston.info({message: 'unit_test: END GRSP test'});
 			done();
 		}, 10);

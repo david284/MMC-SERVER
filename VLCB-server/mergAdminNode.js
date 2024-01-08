@@ -136,6 +136,7 @@ class cbusAdmin extends EventEmitter {
             },
             '59': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
+                this.emit('wrack', cbusMsg.nodeNumber)
             },
             '60': (cbusMsg) => {
                 let session = cbusMsg.session
@@ -332,6 +333,7 @@ class cbusAdmin extends EventEmitter {
             },
             'AF': (cbusMsg) => {//GRSP
                 winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
+                this.emit('grsp', cbusMsg)
             },
             'B0': (cbusMsg) => {//Accessory On Long Event 1
                 this.eventSend(cbusMsg, 'on', 'long')
