@@ -15,8 +15,8 @@ const io = require('socket.io')(server, {
 // so that a subsequent WRACK or GRSP can request a refresh of events
 // exported so that it can be set by unit tests
 //
-nodesTaught = {}
-exports.nodesTaught = nodesTaught
+nodes_EventsNeedRefreshing = {}
+exports.nodes_EventsNeedRefreshing = nodes_EventsNeedRefreshing
 
 exports.socketServer = function(config) {
     let layoutDetails = config.readLayoutDetails()
@@ -98,6 +98,7 @@ exports.socketServer = function(config) {
 
       socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
+        node.cbusSend(node.RQEVN(data.nodeId))
         node.removeNodeEvents(data.nodeId)
         node.cbusSend(node.NERD(data.nodeId))
       })
@@ -126,9 +127,9 @@ exports.socketServer = function(config) {
           node.cbusSend(node.NNULN(data.nodeId))
           node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
           node.cbusSend(node.NNULN(data.nodeId))
-          node.cbusSend(node.NERD(data.nodeId))
-          node.cbusSend(node.RQEVN(data.nodeId))
-      })
+          nodes_EventsNeedRefreshing[data.nodeId]=true
+          // events refresh done on WRACK or GRSP now
+        })
 
       socket.on('ACCESSORY_LONG_ON', function(data){
 		  	winston.info({message: `socketServer: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
@@ -158,7 +159,7 @@ exports.socketServer = function(config) {
         node.cbusSend(node.teach_event(data.nodeId, data.eventName, 1, 0))
         node.cbusSend(node.NNULN(data.nodeId))
         node.cbusSend(node.NNULN(data.nodeId))
-        nodesTaught[data.nodeId]=true
+        nodes_EventsNeedRefreshing[data.nodeId]=true
         // events refresh done on WRACK or GRSP now
       })
 
@@ -172,9 +173,8 @@ exports.socketServer = function(config) {
         node.cbusSend(node.NNLRN(data.nodeId))
         node.cbusSend(node.EVULN(data.eventName))
         node.cbusSend(node.NNULN(data.nodeId))
-        node.removeNodeEvents(data.nodeId)
-        node.cbusSend(node.NERD(data.nodeId))
-        node.cbusSend(node.RQEVN(data.nodeId))
+        nodes_EventsNeedRefreshing[data.nodeId]=true
+        // events refresh done on WRACK or GRSP now
       })
 
       socket.on('CLEAR_NODE_EVENTS', function(data){
@@ -328,11 +328,12 @@ exports.socketServer = function(config) {
 
     node.on('wrack', function (nodeNumber) {
       winston.info({message: `socketServer: wrack : node ` + nodeNumber});
-      if (nodesTaught[nodeNumber]){
-        winston.info({message: `socketServer: wrack : node ` + nodeNumber + ' had an event taught, so refresh events'});
+      if (nodes_EventsNeedRefreshing[nodeNumber]){
+        winston.info({message: `socketServer: wrack : node ` + nodeNumber + ' needs to refresh events'});
         node.cbusSend(node.RQEVN(nodeNumber))
+        node.removeNodeEvents(nodeNumber)
         node.cbusSend(node.NERD(nodeNumber))
-        nodesTaught[nodeNumber]=false
+        nodes_EventsNeedRefreshing[nodeNumber]=false
       }
     })
 
@@ -340,14 +341,16 @@ exports.socketServer = function(config) {
       winston.info({message: `socketServer: grsp : data ` + JSON.stringify(data)});
       var nodeNumber = data.nodeNumber
       if (data.requestOpCode){
-        if(data.requestOpCode == "D2"){
-          // GRSP was for an EVLRN command (D2)
-          winston.info({message: `socketServer: GRSP for EVLRN : node ` + nodeNumber});
-          if (nodesTaught[nodeNumber]){
-            winston.info({message: 'socketServer: GRSP for EVLRN : refresh events'});
+        if( (data.requestOpCode == "95") ||   // EVULN
+            (data.requestOpCode == "D2") ){   // EVLRN
+          // GRSP was for an event command
+          winston.info({message: `socketServer: GRSP for event command : node ` + nodeNumber});
+          if (nodes_EventsNeedRefreshing[nodeNumber]){
+            winston.info({message: 'socketServer: GRSP for event command : need to refresh events'});
             node.cbusSend(node.RQEVN(nodeNumber))
+            node.removeNodeEvents(nodeNumber)
             node.cbusSend(node.NERD(nodeNumber))
-            nodesTaught[nodeNumber]=false
+            nodes_EventsNeedRefreshing[nodeNumber]=false
           }
         }
       }

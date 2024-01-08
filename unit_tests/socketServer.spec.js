@@ -173,10 +173,10 @@ describe('socketServer tests', function(){
     winston.info({message: 'unit_test: BEGIN WRACK test '});
     var testMessage = cbusLib.encodeWRACK(value.nodeNumber)
     mock_jsonServer.messagesIn = []
-    socketServer.nodesTaught[value.nodeNumber]=true
+    socketServer.nodes_EventsNeedRefreshing[value.nodeNumber]=true
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
-      expect(nodesTaught[value.nodeNumber]).to.equal(false);
+      expect(nodes_EventsNeedRefreshing[value.nodeNumber]).to.equal(false);
       winston.info({message: 'unit_test: END WRACK test'});
 			done();
 		}, 10);
@@ -190,10 +190,10 @@ describe('socketServer tests', function(){
     // nodeNumber, requestOpCode, serviceType, result
     var testMessage = cbusLib.encodeGRSP(value.nodeNumber,"D2", 1, 1)
     mock_jsonServer.messagesIn = []
-    socketServer.nodesTaught[value.nodeNumber]=true
+    socketServer.nodes_EventsNeedRefreshing[value.nodeNumber]=true
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
-      expect(nodesTaught[value.nodeNumber]).to.equal(false);
+      expect(nodes_EventsNeedRefreshing[value.nodeNumber]).to.equal(false);
       winston.info({message: 'unit_test: END GRSP test'});
 			done();
 		}, 10);
