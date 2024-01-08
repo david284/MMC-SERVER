@@ -330,6 +330,7 @@ exports.socketServer = function(config) {
       winston.info({message: `socketServer: wrack : node ` + nodeNumber});
       if (nodesTaught[nodeNumber]){
         winston.info({message: `socketServer: wrack : node ` + nodeNumber + ' had an event taught, so refresh events'});
+        node.cbusSend(node.RQEVN(nodeNumber))
         node.cbusSend(node.NERD(nodeNumber))
         nodesTaught[nodeNumber]=false
       }
@@ -344,6 +345,7 @@ exports.socketServer = function(config) {
           winston.info({message: `socketServer: GRSP for EVLRN : node ` + nodeNumber});
           if (nodesTaught[nodeNumber]){
             winston.info({message: 'socketServer: GRSP for EVLRN : refresh events'});
+            node.cbusSend(node.RQEVN(nodeNumber))
             node.cbusSend(node.NERD(nodeNumber))
             nodesTaught[nodeNumber]=false
           }
