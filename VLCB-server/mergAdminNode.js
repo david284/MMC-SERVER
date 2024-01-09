@@ -556,8 +556,10 @@ class cbusAdmin extends EventEmitter {
     }
 
     removeNodeEvents(nodeId) {
+      if(this.nodeConfig.nodes[nodeId]){
         this.nodeConfig.nodes[nodeId].storedEvents = {}
         this.saveConfig()
+      }
     }
 
     removeNode(nodeId) {
