@@ -268,9 +268,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 16, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -287,9 +285,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -518,9 +514,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 23, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -537,9 +531,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -768,9 +760,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 30, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -787,10 +777,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
-                    ]
+                      {"value": 4, "label": "ACTION_INVERTED"}                    ]
                   }
                 },
                 {"bitPosition": 6, "label": "EVENT_INVERTED"},
@@ -1018,9 +1005,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 37, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -1037,9 +1022,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -1268,9 +1251,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 44, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -1287,9 +1268,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -1518,9 +1497,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 51, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -1537,9 +1514,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -1768,9 +1743,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 58, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -1787,9 +1760,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
@@ -2018,9 +1989,7 @@
                 },
                 {"bitPosition": 3, "overload":{"nv": 65, "labels": [
                       {"value": 0, "label": "DISABLE_OFF"},
-                      {"value": 1, "label": "DISABLE_OFF"},
-                      {"value": 5, "label": "DISABLE_OFF"},
-                      {"value": 6, "label": "DISABLE_OFF"}
+                      {"value": 1, "label": "DISABLE_OFF"}
                     ]
                   }
                 },
@@ -2037,9 +2006,7 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"},
-                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
-                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                      {"value": 4, "label": "ACTION_INVERTED"}
                     ]
                   }
                 },
