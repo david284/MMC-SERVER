@@ -13,6 +13,8 @@ function decToHex(num, len) {
     return parseInt(num).toString(16).toUpperCase().padStart(len, '0');
 }
 
+
+
 class cbusAdmin extends EventEmitter {
     constructor(config) {
         super();
@@ -33,6 +35,8 @@ class cbusAdmin extends EventEmitter {
         this.dccSessions = {}
         this.heartbeats = {}
         this.saveConfig()
+        this.nodes_EventsNeedRefreshing = {}
+
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
@@ -136,7 +140,8 @@ class cbusAdmin extends EventEmitter {
             },
             '59': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
-                this.emit('wrack', cbusMsg.nodeNumber)
+//                this.emit('wrack', cbusMsg.nodeNumber)
+                this.process_WRACK(cbusMsg.nodeNumber)
             },
             '60': (cbusMsg) => {
                 let session = cbusMsg.session
@@ -333,7 +338,8 @@ class cbusAdmin extends EventEmitter {
             },
             'AF': (cbusMsg) => {//GRSP
                 winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
-                this.emit('grsp', cbusMsg)
+//                this.emit('grsp', cbusMsg)
+                this.process_GRSP(cbusMsg)
             },
             'B0': (cbusMsg) => {//Accessory On Long Event 1
                 this.eventSend(cbusMsg, 'on', 'long')
@@ -546,6 +552,37 @@ class cbusAdmin extends EventEmitter {
         this.cbusSend(this.QNN())
     }
 
+    process_WRACK(nodeNumber) {
+      winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber});
+      if (this.nodes_EventsNeedRefreshing[nodeNumber]){
+        winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber + ' needs to refresh events'});
+        this.cbusSend(this.RQEVN(nodeNumber))
+        this.removeNodeEvents(nodeNumber)
+        this.cbusSend(this.NERD(nodeNumber))
+        this.nodes_EventsNeedRefreshing[nodeNumber]=false
+      }
+    }
+
+    process_GRSP (data) {
+      winston.info({message: `mergAdminNode: grsp : data ` + JSON.stringify(data)});
+      var nodeNumber = data.nodeNumber
+      if (data.requestOpCode){
+        if( (data.requestOpCode == "95") ||   // EVULN
+            (data.requestOpCode == "D2") ){   // EVLRN
+          // GRSP was for an event command
+          winston.info({message: `mergAdminNode: GRSP for event command : node ` + nodeNumber});
+          if (this.nodes_EventsNeedRefreshing[nodeNumber]){
+            winston.info({message: 'mergAdminNode: GRSP for event command : need to refresh events'});
+            this.cbusSend(this.RQEVN(nodeNumber))
+            this.removeNodeEvents(nodeNumber)
+            this.cbusSend(this.NERD(nodeNumber))
+            this.nodes_EventsNeedRefreshing[nodeNumber]=false
+          }
+        }
+      }
+    }
+
+
     action_message(cbusMsg) {
         winston.info({message: "mergAdminNode: " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode + ' processed'});
         if (this.actions[cbusMsg.opCode]) {
@@ -698,6 +735,16 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+    teach_event(nodeId, event, variableId, value) {
+      this.cbusSend(this.EVLRN(nodeId, event, variableId, value))
+      this.nodes_EventsNeedRefreshing[nodeId]=true
+    }
+  
+    remove_event(nodeId, eventName) {
+      this.cbusSend(this.EVULN(eventName))
+      this.nodes_EventsNeedRefreshing[nodeId]=true
+    }
+  
   
     // 0x0D QNN
     //
@@ -840,9 +887,6 @@ class cbusAdmin extends EventEmitter {
       return this.EVLRN(nodeId, event, variableId, value)
   }
 
-  teach_event(nodeId, event, variableId, value) {
-    return this.EVLRN(nodeId, event, variableId, value)
-  }
 
   EVLRN(nodeId, event, variableId, value) {//Update Event Variable
       //let nodeNumber = parseInt(event.substr(0, 4), 16)

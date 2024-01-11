@@ -167,40 +167,6 @@ describe('socketServer tests', function(){
 
 
 
-  // 0x59 WRACK
-  //
-  itParam("WRACK test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN WRACK test '});
-    var testMessage = cbusLib.encodeWRACK(value.nodeNumber)
-    mock_jsonServer.messagesIn = []
-    socketServer.nodes_EventsNeedRefreshing[value.nodeNumber]=true
-    mock_jsonServer.inject(testMessage)
-    setTimeout(function(){
-      expect(nodes_EventsNeedRefreshing[value.nodeNumber]).to.equal(false);
-      winston.info({message: 'unit_test: END WRACK test'});
-			done();
-		}, 10);
-  })
-
-
-  // 0xAF GRSP
-  //
-  itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN GRSP test '});
-    // nodeNumber, requestOpCode, serviceType, result
-    var testMessage = cbusLib.encodeGRSP(value.nodeNumber,"D2", 1, 1)
-    mock_jsonServer.messagesIn = []
-    socketServer.nodes_EventsNeedRefreshing[value.nodeNumber]=true
-    mock_jsonServer.inject(testMessage)
-    setTimeout(function(){
-      expect(nodes_EventsNeedRefreshing[value.nodeNumber]).to.equal(false);
-      winston.info({message: 'unit_test: END GRSP test'});
-			done();
-		}, 10);
-  })
-
-
-
 })
 
 

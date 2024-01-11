@@ -344,7 +344,7 @@ describe('mergAdminNode tests', function(){
   //
   it("GRSP test", function (done) {
     winston.info({message: 'unit_test: BEGIN GRSP test '});
-    var testMessage = cbusLib.encodeGRSP(1,"00", 1, 1)
+    var testMessage = cbusLib.encodeGRSP(1,"95", 1, 1)
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
     mock_jsonServer.inject(testMessage)

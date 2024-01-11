@@ -11,12 +11,6 @@ const io = require('socket.io')(server, {
     }
 });
 
-// array used to indicate a node has been 'taught' an event
-// so that a subsequent WRACK or GRSP can request a refresh of events
-// exported so that it can be set by unit tests
-//
-nodes_EventsNeedRefreshing = {}
-exports.nodes_EventsNeedRefreshing = nodes_EventsNeedRefreshing
 
 exports.socketServer = function(config) {
     let layoutDetails = config.readLayoutDetails()
@@ -152,13 +146,9 @@ exports.socketServer = function(config) {
       socket.on('TEACH_EVENT', function(data){
 	  		winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
         node.cbusSend(node.NNLRN(data.nodeId))
-        //node.cbusSend(node.EVLRN(data.eventName, data.eventId, data.eventVal))
-        //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, 1, 0))
         node.cbusSend(node.teach_event(data.nodeId, data.eventName, 1, 0))
         node.cbusSend(node.NNULN(data.nodeId))
         node.cbusSend(node.NNULN(data.nodeId))
-        nodes_EventsNeedRefreshing[data.nodeId]=true
-        // events refresh done on WRACK or GRSP now
       })
 
       socket.on('REMOVE_NODE', function(data){
@@ -169,10 +159,8 @@ exports.socketServer = function(config) {
       socket.on('REMOVE_EVENT', function(data){
   			winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
         node.cbusSend(node.NNLRN(data.nodeId))
-        node.cbusSend(node.EVULN(data.eventName))
+        node.cbusSend(node.remove_event(data.nodeId, data.eventName))
         node.cbusSend(node.NNULN(data.nodeId))
-        nodes_EventsNeedRefreshing[data.nodeId]=true
-        // events refresh done on WRACK or GRSP now
       })
 
       socket.on('CLEAR_NODE_EVENTS', function(data){
@@ -324,36 +312,7 @@ exports.socketServer = function(config) {
       io.emit('cbusTraffic', data);
     })
 
-    node.on('wrack', function (nodeNumber) {
-      winston.info({message: `socketServer: wrack : node ` + nodeNumber});
-      if (nodes_EventsNeedRefreshing[nodeNumber]){
-        winston.info({message: `socketServer: wrack : node ` + nodeNumber + ' needs to refresh events'});
-        node.cbusSend(node.RQEVN(nodeNumber))
-        node.removeNodeEvents(nodeNumber)
-        node.cbusSend(node.NERD(nodeNumber))
-        nodes_EventsNeedRefreshing[nodeNumber]=false
-      }
-    })
 
-    node.on('grsp', function (data) {
-      winston.info({message: `socketServer: grsp : data ` + JSON.stringify(data)});
-      var nodeNumber = data.nodeNumber
-      if (data.requestOpCode){
-        if( (data.requestOpCode == "95") ||   // EVULN
-            (data.requestOpCode == "D2") ){   // EVLRN
-          // GRSP was for an event command
-          winston.info({message: `socketServer: GRSP for event command : node ` + nodeNumber});
-          if (nodes_EventsNeedRefreshing[nodeNumber]){
-            winston.info({message: 'socketServer: GRSP for event command : need to refresh events'});
-            node.cbusSend(node.RQEVN(nodeNumber))
-            node.removeNodeEvents(nodeNumber)
-            node.cbusSend(node.NERD(nodeNumber))
-            nodes_EventsNeedRefreshing[nodeNumber]=false
-          }
-        }
-      }
-
-    })
 
     /*programNode.on('programNode', function (data) {
 		winston.info({message: `WSSERVER: 'programNode' : ` + data});

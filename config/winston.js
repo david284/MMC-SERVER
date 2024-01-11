@@ -36,7 +36,7 @@ var options = {
     filename: `./logs/console.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
-    maxsize: 5242880, // 5MB
+    maxsize: 1000000,
     maxFiles: 5,
 	  format: messageOnly
   },
@@ -45,7 +45,7 @@ var options = {
     filename: `./logs/debug.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
-    maxsize: 5242880, // 5MB
+    maxsize: 1000000,
     maxFiles: 5,
 	  format: timeStampFirst
   },
@@ -54,7 +54,7 @@ var options = {
     filename: `./logs/info.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
-    maxsize: 5242880, // 5MB
+    maxsize: 1000000,
     maxFiles: 5,
 	  format: timeStampFirst
   }

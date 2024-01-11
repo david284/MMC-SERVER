@@ -319,7 +319,7 @@
       "type": "EventVariableBitArray",
       "eventVariableIndex": 1,
       "displayTitle": "Output enable",
-      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 },
       "bitCollection":[
         {"bitPosition": 0, "label": "output 1"},
         {"bitPosition": 1, "label": "output 2"},
@@ -335,7 +335,7 @@
       "type": "EventVariableBitArray",
       "eventVariableIndex": 2,
       "displayTitle": "Enable reverse polarity",
-      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 },
       "bitCollection":[
         {"bitPosition": 0, "label": "output 1"},
         {"bitPosition": 1, "label": "output 2"},
@@ -350,7 +350,7 @@
     {
       "type": "EventVariableBitArray",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Event actions",
       "bitCollection":[
         {"bitPosition": 7, "label": "enable event"}
@@ -359,7 +359,7 @@
     {
       "type": "EventVariableNumber",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Output select",
       "startBit": 2,
       "endBit": 4,
@@ -368,7 +368,7 @@
     {
       "type": "EventVariableSelect",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Event",
       "bitMask": 3,
       "options": [
