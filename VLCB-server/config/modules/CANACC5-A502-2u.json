@@ -1,10 +1,6 @@
 {
   "moduleName":"CANACC5",
-  "producedEventLogic":{
-    "condition": "gthan",
-    "ev": 3,
-    "value": 0
-  },
+  "producedEventLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
   "nodeVariables": [
     {
       "type": "NodeVariableSlider",
@@ -313,6 +309,13 @@
   ],
   "eventVariables":[
     {
+      "type": "EventVariableBitSingle",
+      "eventVariableIndex": 3,
+      "bit": 7,
+      "displayTitle": "Set as Feedback event",
+      "displaySubTitle": ""
+    },
+    {
       "type": "EventVariableBitArray",
       "eventVariableIndex": 1,
       "displayTitle": "Output enable",
@@ -326,7 +329,7 @@
         {"bitPosition": 6, "label": "output 7"},
         {"bitPosition": 7, "label": "output 8"}
       ],
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" }
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
     },
     {
       "type": "EventVariableBitArray",
@@ -342,23 +345,14 @@
         {"bitPosition": 6, "label": "output 7"},
         {"bitPosition": 7, "label": "output 8"}
       ],
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" }
-    },
-    {
-      "type": "EventVariableBitSingle",
-      "eventVariableIndex": 3,
-      "bit": 7,
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" },
-      "displayTitle": "Set as Feedback event",
-      "displaySubTitle": ""
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
     },
     {
       "type": "EventVariableBitArray",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Event actions",
       "bitCollection":[
-        {"bitPosition": 7, "label": "enable event"},
         {"bitPosition": 6, "label": "reverse polarity of end point events"},
         {"bitPosition": 5, "label": "reverse polarity of mid point event"}
       ]
@@ -366,7 +360,7 @@
     {
       "type": "EventVariableNumber",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Servo Number",
       "startBit": 2,
       "endBit": 4,
@@ -375,7 +369,7 @@
     {
       "type": "EventVariableSelect",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
       "displayTitle": "Event position",
       "bitMask": 3,
       "options": [

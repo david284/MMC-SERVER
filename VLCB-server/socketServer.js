@@ -122,13 +122,11 @@ exports.socketServer = function(config) {
       socket.on('UPDATE_EVENT_VARIABLE', function(data){
   			winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
           node.cbusSend(node.NNLRN(data.nodeId))
-          //node.cbusSend(node.EVLRN(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
           node.cbusSend(node.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
           node.cbusSend(node.NNULN(data.nodeId))
+          // should really wait for a WRACK.... but seems ok
           node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
           node.cbusSend(node.NNULN(data.nodeId))
-          nodes_EventsNeedRefreshing[data.nodeId]=true
-          // events refresh done on WRACK or GRSP now
         })
 
       socket.on('ACCESSORY_LONG_ON', function(data){

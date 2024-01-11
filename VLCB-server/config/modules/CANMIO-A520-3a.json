@@ -66,9 +66,7 @@
               {"label": "OUTPUT", "value": 1},
               {"label": "SERVO", "value": 2},
               {"label": "BOUNCE", "value": 3},
-              {"label": "MULTI", "value": 4},
-              {"label": "ANALOGUE", "value": 5},
-              {"label": "MAGNET", "value": 6}
+              {"label": "MULTI", "value": 4}
               ]
             },
             {
@@ -243,7 +241,6 @@
               "type": "NodeVariableBitArray",
               "nodeVariableIndex": 17,
               "displayTitle": "Flags",
-              "displaySubTitle": "NV17",
               "bitCollection":[
                 {"bitPosition": 0, "overload":{"nv": 16, "labels": [
                       {"value": 0, "label": "TRIGGER_INVERTED"},
@@ -304,7 +301,8 @@
                 }
               ]
             }
-          ]
+          ],
+          "comment":"end of channel 1"
         },
         { "displayTitle": "Channel 2",
           "items": [
@@ -318,126 +316,1743 @@
               {"label": "OUTPUT", "value": 1},
               {"label": "SERVO", "value": 2},
               {"label": "BOUNCE", "value": 3},
-              {"label": "MULTI", "value": 4},
-              {"label": "ANALOGUE", "value": 5},
-              {"label": "MAGNET", "value": 6}
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":23, "equals": 0 },
+              "nodeVariableIndex": 25,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":23, "equals": 1 },
+              "nodeVariableIndex": 25,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":23, "equals": 2 },
+              "nodeVariableIndex": 25,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":23, "equals": 3 },
+              "nodeVariableIndex": 25,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":23, "equals": 4 },
+              "nodeVariableIndex": 25,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":23, "equals": 0 },
+              "nodeVariableIndex": 26,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":23, "equals": 1 },
+              "nodeVariableIndex": 26,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":23, "equals": 2 },
+              "nodeVariableIndex": 26,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":23, "equals": 3 },
+              "nodeVariableIndex": 26,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":23, "equals": 4 },
+              "nodeVariableIndex": 26,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":23, "equals": 2 },
+              "nodeVariableIndex": 27,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":23, "equals": 3 },
+              "nodeVariableIndex": 27,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":23, "equals": 4 },
+              "nodeVariableIndex": 27,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":23, "equals": 2 },
+              "nodeVariableIndex": 28,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":23, "equals": 3 },
+              "nodeVariableIndex": 28,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":23, "equals": 4 },
+              "nodeVariableIndex": 28,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":23, "equals": 3 },
+              "nodeVariableIndex": 29,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":23, "equals": 4 },
+              "nodeVariableIndex": 29,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 24,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 23, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 23, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 23, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 23, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 23, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 23, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 23, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
               ]
             }
-          ]    
+          ],
+          "comment":"end of channel 2"  
         },
         { "displayTitle": "Channel 3",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 30,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 30,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":30, "equals": 0 },
+              "nodeVariableIndex": 32,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":30, "equals": 1 },
+              "nodeVariableIndex": 32,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":30, "equals": 2 },
+              "nodeVariableIndex": 32,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":30, "equals": 3 },
+              "nodeVariableIndex": 32,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":30, "equals": 4 },
+              "nodeVariableIndex": 32,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":30, "equals": 0 },
+              "nodeVariableIndex": 33,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":30, "equals": 1 },
+              "nodeVariableIndex": 33,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":30, "equals": 2 },
+              "nodeVariableIndex": 33,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":30, "equals": 3 },
+              "nodeVariableIndex": 33,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":30, "equals": 4 },
+              "nodeVariableIndex": 33,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":30, "equals": 2 },
+              "nodeVariableIndex": 34,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":30, "equals": 3 },
+              "nodeVariableIndex": 34,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":30, "equals": 4 },
+              "nodeVariableIndex": 34,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":30, "equals": 2 },
+              "nodeVariableIndex": 35,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":30, "equals": 3 },
+              "nodeVariableIndex": 35,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":30, "equals": 4 },
+              "nodeVariableIndex": 35,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":30, "equals": 3 },
+              "nodeVariableIndex": 36,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":30, "equals": 4 },
+              "nodeVariableIndex": 36,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 31,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 30, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 30, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 30, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 30, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 30, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 30, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 30, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 3"  
         },
         { "displayTitle": "Channel 4",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 37,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 37,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":37, "equals": 0 },
+              "nodeVariableIndex": 39,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":37, "equals": 1 },
+              "nodeVariableIndex": 39,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":37, "equals": 2 },
+              "nodeVariableIndex": 39,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":37, "equals": 3 },
+              "nodeVariableIndex": 39,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":37, "equals": 4 },
+              "nodeVariableIndex": 39,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":37, "equals": 0 },
+              "nodeVariableIndex": 40,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":37, "equals": 1 },
+              "nodeVariableIndex": 40,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":37, "equals": 2 },
+              "nodeVariableIndex": 40,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":37, "equals": 3 },
+              "nodeVariableIndex": 40,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":37, "equals": 4 },
+              "nodeVariableIndex": 40,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":37, "equals": 2 },
+              "nodeVariableIndex": 41,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":37, "equals": 3 },
+              "nodeVariableIndex": 41,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":37, "equals": 4 },
+              "nodeVariableIndex": 41,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":37, "equals": 2 },
+              "nodeVariableIndex": 42,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":37, "equals": 3 },
+              "nodeVariableIndex": 42,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":37, "equals": 4 },
+              "nodeVariableIndex": 42,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":37, "equals": 3 },
+              "nodeVariableIndex": 43,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":37, "equals": 4 },
+              "nodeVariableIndex": 43,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 38,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 37, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 37, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 37, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 37, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 37, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 37, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 37, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 4"  
         },
         { "displayTitle": "Channel 5",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 44,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 44,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":44, "equals": 0 },
+              "nodeVariableIndex": 46,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":44, "equals": 1 },
+              "nodeVariableIndex": 46,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":44, "equals": 2 },
+              "nodeVariableIndex": 46,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":44, "equals": 3 },
+              "nodeVariableIndex": 46,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":44, "equals": 4 },
+              "nodeVariableIndex": 46,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":44, "equals": 0 },
+              "nodeVariableIndex": 47,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":44, "equals": 1 },
+              "nodeVariableIndex": 47,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":44, "equals": 2 },
+              "nodeVariableIndex": 47,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":44, "equals": 3 },
+              "nodeVariableIndex": 47,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":44, "equals": 4 },
+              "nodeVariableIndex": 47,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":44, "equals": 2 },
+              "nodeVariableIndex": 48,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":44, "equals": 3 },
+              "nodeVariableIndex": 48,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":44, "equals": 4 },
+              "nodeVariableIndex": 48,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":44, "equals": 2 },
+              "nodeVariableIndex": 49,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":44, "equals": 3 },
+              "nodeVariableIndex": 49,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":44, "equals": 4 },
+              "nodeVariableIndex": 49,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":44, "equals": 3 },
+              "nodeVariableIndex": 50,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":44, "equals": 4 },
+              "nodeVariableIndex": 50,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 45,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 44, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 44, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 44, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 44, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 44, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 44, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 44, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 5"  
         },
         { "displayTitle": "Channel 6",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 51,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 51,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":51, "equals": 0 },
+              "nodeVariableIndex": 53,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":51, "equals": 1 },
+              "nodeVariableIndex": 53,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":51, "equals": 2 },
+              "nodeVariableIndex": 53,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":51, "equals": 3 },
+              "nodeVariableIndex": 53,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":51, "equals": 4 },
+              "nodeVariableIndex": 53,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":51, "equals": 0 },
+              "nodeVariableIndex": 54,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":51, "equals": 1 },
+              "nodeVariableIndex": 54,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":51, "equals": 2 },
+              "nodeVariableIndex": 54,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":51, "equals": 3 },
+              "nodeVariableIndex": 54,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":51, "equals": 4 },
+              "nodeVariableIndex": 54,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":51, "equals": 2 },
+              "nodeVariableIndex": 55,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":51, "equals": 3 },
+              "nodeVariableIndex": 55,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":51, "equals": 4 },
+              "nodeVariableIndex": 55,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":51, "equals": 2 },
+              "nodeVariableIndex": 56,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":51, "equals": 3 },
+              "nodeVariableIndex": 56,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":51, "equals": 4 },
+              "nodeVariableIndex": 56,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":51, "equals": 3 },
+              "nodeVariableIndex": 57,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":51, "equals": 4 },
+              "nodeVariableIndex": 57,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 52,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 51, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 51, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 51, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 51, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 51, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 51, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 51, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 6"  
         },
         { "displayTitle": "Channel 7",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 58,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 58,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":58, "equals": 0 },
+              "nodeVariableIndex": 60,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":58, "equals": 1 },
+              "nodeVariableIndex": 60,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":58, "equals": 2 },
+              "nodeVariableIndex": 60,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":58, "equals": 3 },
+              "nodeVariableIndex": 60,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":58, "equals": 4 },
+              "nodeVariableIndex": 60,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":58, "equals": 0 },
+              "nodeVariableIndex": 61,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":58, "equals": 1 },
+              "nodeVariableIndex": 61,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":58, "equals": 2 },
+              "nodeVariableIndex": 61,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":58, "equals": 3 },
+              "nodeVariableIndex": 61,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":58, "equals": 4 },
+              "nodeVariableIndex": 61,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":58, "equals": 2 },
+              "nodeVariableIndex": 62,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":58, "equals": 3 },
+              "nodeVariableIndex": 62,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":58, "equals": 4 },
+              "nodeVariableIndex": 62,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":58, "equals": 2 },
+              "nodeVariableIndex": 63,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":58, "equals": 3 },
+              "nodeVariableIndex": 63,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":58, "equals": 4 },
+              "nodeVariableIndex": 63,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":58, "equals": 3 },
+              "nodeVariableIndex": 64,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":58, "equals": 4 },
+              "nodeVariableIndex": 64,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 59,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 58, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 58, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 58, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 58, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 58, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 58, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 58, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 7"  
         },
         { "displayTitle": "Channel 8",
-        "items": [
-          {
-            "type": "NodeVariableSelect",
-            "nodeVariableIndex": 65,
-            "displayTitle": "I/O type",
-            "displaySubTitle": "",
-            "options": [
-            {"label": "INPUT", "value": 0},
-            {"label": "OUTPUT", "value": 1},
-            {"label": "SERVO", "value": 2},
-            {"label": "BOUNCE", "value": 3},
-            {"label": "MULTI", "value": 4},
-            {"label": "ANALOGUE", "value": 5},
-            {"label": "MAGNET", "value": 6}
-            ]
-          }
-        ]
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 65,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+              {"label": "INPUT", "value": 0},
+              {"label": "OUTPUT", "value": 1},
+              {"label": "SERVO", "value": 2},
+              {"label": "BOUNCE", "value": 3},
+              {"label": "MULTI", "value": 4}
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":65, "equals": 0 },
+              "nodeVariableIndex": 67,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":65, "equals": 1 },
+              "nodeVariableIndex": 67,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":65, "equals": 2 },
+              "nodeVariableIndex": 67,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":65, "equals": 3 },
+              "nodeVariableIndex": 67,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":65, "equals": 4 },
+              "nodeVariableIndex": 67,
+              "displayTitle": "num pos",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"input type only",
+              "visibilityLogic":{ "nv":65, "equals": 0 },
+              "nodeVariableIndex": 68,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"output type only",
+              "visibilityLogic":{ "nv":65, "equals": 1 },
+              "nodeVariableIndex": 68,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":65, "equals": 2 },
+              "nodeVariableIndex": 68,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":65, "equals": 3 },
+              "nodeVariableIndex": 68,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":65, "equals": 4 },
+              "nodeVariableIndex": 68,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":65, "equals": 2 },
+              "nodeVariableIndex": 69,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":65, "equals": 3 },
+              "nodeVariableIndex": 69,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":65, "equals": 4 },
+              "nodeVariableIndex": 69,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"servo type only",
+              "visibilityLogic":{ "nv":65, "equals": 2 },
+              "nodeVariableIndex": 70,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": ""
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":65, "equals": 3 },
+              "nodeVariableIndex": 70,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":65, "equals": 4 },
+              "nodeVariableIndex": 70,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"bounce type only",
+              "visibilityLogic":{ "nv":65, "equals": 3 },
+              "nodeVariableIndex": 71,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment":"multi type only",
+              "visibilityLogic":{ "nv":65, "equals": 4 },
+              "nodeVariableIndex": 71,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 66,
+              "displayTitle": "Flags",
+              "bitCollection":[
+                {"bitPosition": 0, "overload":{"nv": 65, "labels": [
+                      {"value": 0, "label": "TRIGGER_INVERTED"},
+                      {"value": 1, "label": "TRIGGER_INVERTED"},
+                      {"value": 2, "label": "TRIGGER_INVERTED"},
+                      {"value": 3, "label": "TRIGGER_INVERTED"},
+                      {"value": 4, "label": "TRIGGER_INVERTED"}
+                    ]
+                  }
+                },
+                {"bitPosition": 1, "overload":{"nv": 65, "labels": [
+                      {"value": 2, "label": "CUTOFF"},
+                      {"value": 3, "label": "CUTOFF"},
+                      {"value": 4, "label": "CUTOFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 2, "overload":{"nv": 65, "labels": [
+                      {"value": 1, "label": "STARTUP"},
+                      {"value": 2, "label": "STARTUP"},
+                      {"value": 3, "label": "STARTUP"},
+                      {"value": 4, "label": "STARTUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 3, "overload":{"nv": 65, "labels": [
+                      {"value": 0, "label": "DISABLE_OFF"},
+                      {"value": 1, "label": "DISABLE_OFF"},
+                      {"value": 5, "label": "DISABLE_OFF"},
+                      {"value": 6, "label": "DISABLE_OFF"}
+                    ]
+                  }
+                },
+                {"bitPosition": 4, "overload":{"nv": 65, "labels": [
+                      {"value": 0, "label": "TOGGLE"},
+                      {"value": 2, "label": "PULLUP"},
+                      {"value": 3, "label": "PULLUP"},
+                      {"value": 4, "label": "PULLUP"}
+                    ]
+                  }
+                },
+                {"bitPosition": 5, "overload":{"nv": 65, "labels": [
+                      {"value": 0, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 1, "label": "ACTION_INVERTED"},
+                      {"value": 2, "label": "ACTION_INVERTED"},
+                      {"value": 3, "label": "ACTION_INVERTED"},
+                      {"value": 4, "label": "ACTION_INVERTED"},
+                      {"value": 5, "label": "INPUT_DISABLE_SOD_RESPONSE"},
+                      {"value": 6, "label": "INPUT_DISABLE_SOD_RESPONSE"}
+                    ]
+                  }
+                },
+                {"bitPosition": 6, "label": "EVENT_INVERTED"},
+                {"bitPosition": 7, "overload":{"nv": 65, "labels": [
+                      {"value": 1, "label": "ACTION_EXPEDITED"}
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "comment":"end of channel 8"  
         }
       ]
     }
@@ -667,7 +2282,8 @@
             ]
           }
         }
-      ]
+      ],
+      "comment":"end of EV1"
     },
     {
       "type": "EventVariableSelect",
@@ -682,6 +2298,7 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -977,7 +2594,1880 @@
             ]
           }
         }
-      ]
+      ],
+      "comment":"end of EV2"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 3,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV3",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV3"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 4,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV4",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV4"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 5,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV5",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV5"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 6,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV6",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV6"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 7,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV7",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV7"
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 8,
+      "displayTitle": "Consumed event",
+      "displaySubTitle": "EV8",
+      "options": [
+        {"value": 0, "label": "no action"},
+        {"value": 1, "label": "Consumed SOD"},
+        {"value": 2, "label": "WAIT05"},
+        {"value": 3, "label": "WAIT1"},
+        {"value": 4, "label": "WAIT2"},
+        {"value": 5, "label": "WAIT5"},
+        {"value": 8, "overload":{"nv": "16", "labels": [
+              {"comment":"value is the channel selection in the nv"},
+              {"value": 1, "label": "CH1 - Change"},
+              {"value": 2, "label": "CH1 - Change"},
+              {"value": 3, "label": "CH1 - Change"},
+              {"value": 4, "label": "CH1 - AT1"}
+            ]
+          }
+        },
+        {"value": 9, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - ON"},
+              {"value": 2, "label": "CH1 - ON"},
+              {"value": 3, "label": "CH1 - ON"},
+              {"value": 4, "label": "CH1 - AT2"}
+            ]
+          }
+        },
+        {"value": 10, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - OFF"},
+              {"value": 2, "label": "CH1 - OFF"},
+              {"value": 3, "label": "CH1 - OFF"},
+              {"value": 4, "label": "CH1 - AT3"}
+            ]
+          }
+        },
+        {"value": 11, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - FLASH"},
+              {"value": 4, "label": "CH1 - AT4"}
+            ]
+          }
+        },
+        {"value": 12, "overload":{"nv": "16", "labels": [
+              {"value": 1, "label": "CH1 - !Change"},
+              {"value": 2, "label": "CH1 - !Change"},
+              {"value": 3, "label": "CH1 - !Change"}
+            ]
+          }
+        },
+        {"value": 13, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - Change"},
+              {"value": 2, "label": "CH2 - Change"},
+              {"value": 3, "label": "CH2 - Change"},
+              {"value": 4, "label": "CH2 - AT1"}
+            ]
+          }
+        },
+        {"value": 14, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - ON"},
+              {"value": 2, "label": "CH2 - ON"},
+              {"value": 3, "label": "CH2 - ON"},
+              {"value": 4, "label": "CH2 - AT2"}
+            ]
+          }
+        },
+        {"value": 15, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - OFF"},
+              {"value": 2, "label": "CH2 - OFF"},
+              {"value": 3, "label": "CH2 - OFF"},
+              {"value": 4, "label": "CH2 - AT3"}
+            ]
+          }
+        },
+        {"value": 16, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - FLASH"},
+              {"value": 4, "label": "CH2 - AT4"}
+            ]
+          }
+        },
+        {"value": 17, "overload":{"nv": "23", "labels": [
+              {"value": 1, "label": "CH2 - !Change"},
+              {"value": 2, "label": "CH2 - !Change"},
+              {"value": 3, "label": "CH2 - !Change"}
+            ]
+          }
+        },
+        {"value": 18, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - Change"},
+              {"value": 2, "label": "CH3 - Change"},
+              {"value": 3, "label": "CH3 - Change"},
+              {"value": 4, "label": "CH3 - AT1"}
+            ]
+          }
+        },
+        {"value": 19, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - ON"},
+              {"value": 2, "label": "CH3 - ON"},
+              {"value": 3, "label": "CH3 - ON"},
+              {"value": 4, "label": "CH3 - AT2"}
+            ]
+          }
+        },
+        {"value": 20, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - OFF"},
+              {"value": 2, "label": "CH3 - OFF"},
+              {"value": 3, "label": "CH3 - OFF"},
+              {"value": 4, "label": "CH3 - AT3"}
+            ]
+          }
+        },
+        {"value": 21, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - FLASH"},
+              {"value": 4, "label": "CH3 - AT4"}
+            ]
+          }
+        },
+        {"value": 22, "overload":{"nv": "30", "labels": [
+              {"value": 1, "label": "CH3 - !Change"},
+              {"value": 2, "label": "CH3 - !Change"},
+              {"value": 3, "label": "CH3 - !Change"}
+            ]
+          }
+        },
+        {"value": 23, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - Change"},
+              {"value": 2, "label": "CH4 - Change"},
+              {"value": 3, "label": "CH4 - Change"},
+              {"value": 4, "label": "CH4 - AT1"}
+            ]
+          }
+        },
+        {"value": 24, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - ON"},
+              {"value": 2, "label": "CH4 - ON"},
+              {"value": 3, "label": "CH4 - ON"},
+              {"value": 4, "label": "CH4 - AT2"}
+            ]
+          }
+        },
+        {"value": 25, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - OFF"},
+              {"value": 2, "label": "CH4 - OFF"},
+              {"value": 3, "label": "CH4 - OFF"},
+              {"value": 4, "label": "CH4 - AT3"}
+            ]
+          }
+        },
+        {"value": 26, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - FLASH"},
+              {"value": 4, "label": "CH4 - AT4"}
+            ]
+          }
+        },
+        {"value": 27, "overload":{"nv": "37", "labels": [
+              {"value": 1, "label": "CH4 - !Change"},
+              {"value": 2, "label": "CH4 - !Change"},
+              {"value": 3, "label": "CH4 - !Change"}
+            ]
+          }
+        },
+        {"value": 28, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - Change"},
+              {"value": 2, "label": "CH5 - Change"},
+              {"value": 3, "label": "CH5 - Change"},
+              {"value": 4, "label": "CH5 - AT1"}
+            ]
+          }
+        },
+        {"value": 29, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - ON"},
+              {"value": 2, "label": "CH5 - ON"},
+              {"value": 3, "label": "CH5 - ON"},
+              {"value": 4, "label": "CH5 - AT2"}
+            ]
+          }
+        },
+        {"value": 30, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - OFF"},
+              {"value": 2, "label": "CH5 - OFF"},
+              {"value": 3, "label": "CH5 - OFF"},
+              {"value": 4, "label": "CH5 - AT3"}
+            ]
+          }
+        },
+        {"value": 31, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - FLASH"},
+              {"value": 4, "label": "CH5 - AT4"}
+            ]
+          }
+        },
+        {"value": 32, "overload":{"nv": "44", "labels": [
+              {"value": 1, "label": "CH5 - !Change"},
+              {"value": 2, "label": "CH5 - !Change"},
+              {"value": 3, "label": "CH5 - !Change"}
+            ]
+          }
+        },
+        {"value": 33, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - Change"},
+              {"value": 2, "label": "CH6 - Change"},
+              {"value": 3, "label": "CH6 - Change"},
+              {"value": 4, "label": "CH6 - AT1"}
+            ]
+          }
+        },
+        {"value": 34, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - ON"},
+              {"value": 2, "label": "CH6 - ON"},
+              {"value": 3, "label": "CH6 - ON"},
+              {"value": 4, "label": "CH6 - AT2"}
+            ]
+          }
+        },
+        {"value": 35, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - OFF"},
+              {"value": 2, "label": "CH6 - OFF"},
+              {"value": 3, "label": "CH6 - OFF"},
+              {"value": 4, "label": "CH6 - AT3"}
+            ]
+          }
+        },
+        {"value": 36, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - FLASH"},
+              {"value": 4, "label": "CH6 - AT4"}
+            ]
+          }
+        },
+        {"value": 37, "overload":{"nv": "51", "labels": [
+              {"value": 1, "label": "CH6 - !Change"},
+              {"value": 2, "label": "CH6 - !Change"},
+              {"value": 3, "label": "CH6 - !Change"}
+            ]
+          }
+        },
+        {"value": 38, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - Change"},
+              {"value": 2, "label": "CH7 - Change"},
+              {"value": 3, "label": "CH7 - Change"},
+              {"value": 4, "label": "CH7 - AT1"}
+            ]
+          }
+        },
+        {"value": 39, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - ON"},
+              {"value": 2, "label": "CH7 - ON"},
+              {"value": 3, "label": "CH7 - ON"},
+              {"value": 4, "label": "CH7 - AT2"}
+            ]
+          }
+        },
+        {"value": 40, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - OFF"},
+              {"value": 2, "label": "CH7 - OFF"},
+              {"value": 3, "label": "CH7 - OFF"},
+              {"value": 4, "label": "CH7 - AT3"}
+            ]
+          }
+        },
+        {"value": 41, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - FLASH"},
+              {"value": 4, "label": "CH7 - AT4"}
+            ]
+          }
+        },
+        {"value": 42, "overload":{"nv": "58", "labels": [
+              {"value": 1, "label": "CH7 - !Change"},
+              {"value": 2, "label": "CH7 - !Change"},
+              {"value": 3, "label": "CH7 - !Change"}
+            ]
+          }
+        },
+        {"value": 43, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - Change"},
+              {"value": 2, "label": "CH8 - Change"},
+              {"value": 3, "label": "CH8 - Change"},
+              {"value": 4, "label": "CH8 - AT1"}
+            ]
+          }
+        },
+        {"value": 44, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - ON"},
+              {"value": 2, "label": "CH8 - ON"},
+              {"value": 3, "label": "CH8 - ON"},
+              {"value": 4, "label": "CH8 - AT2"}
+            ]
+          }
+        },
+        {"value": 45, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - OFF"},
+              {"value": 2, "label": "CH8 - OFF"},
+              {"value": 3, "label": "CH8 - OFF"},
+              {"value": 4, "label": "CH8 - AT3"}
+            ]
+          }
+        },
+        {"value": 46, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - FLASH"},
+              {"value": 4, "label": "CH8 - AT4"}
+            ]
+          }
+        },
+        {"value": 47, "overload":{"nv": "65", "labels": [
+              {"value": 1, "label": "CH8 - !Change"},
+              {"value": 2, "label": "CH8 - !Change"},
+              {"value": 3, "label": "CH8 - !Change"}
+            ]
+          }
+        }
+      ],
+      "comment":"end of EV8"
     }
   ]
 }

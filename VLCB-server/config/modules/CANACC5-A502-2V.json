@@ -1,10 +1,6 @@
 {
   "moduleName":"CANACC5",
-  "producedEventLogic":{
-    "condition": "gthan",
-    "ev": 3,
-    "value": 127
-  },
+  "producedEventLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 },
   "nodeVariables": [
     {
       "type": "NodeVariableSlider",
@@ -313,49 +309,48 @@
   ],
   "eventVariables":[
     {
-      "type": "EventVariableBitArray",
-      "eventVariableIndex": 1,
-      "displayTitle": "Output enable",
-      "bitCollection":[
-        {"bitPosition": 0, "label": "output 1"},
-        {"bitPosition": 1, "label": "output 2"},
-        {"bitPosition": 2, "label": "output 3"},
-        {"bitPosition": 3, "label": "output 4"},
-        {"bitPosition": 4, "label": "output 5"},
-        {"bitPosition": 5, "label": "output 6"},
-        {"bitPosition": 6, "label": "output 7"},
-        {"bitPosition": 7, "label": "output 8"}
-      ],
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" }
-    },
-    {
-      "type": "EventVariableBitArray",
-      "eventVariableIndex": 2,
-      "displayTitle": "Enable reverse polarity",
-      "bitCollection":[
-        {"bitPosition": 0, "label": "output 1"},
-        {"bitPosition": 1, "label": "output 2"},
-        {"bitPosition": 2, "label": "output 3"},
-        {"bitPosition": 3, "label": "output 4"},
-        {"bitPosition": 4, "label": "output 5"},
-        {"bitPosition": 5, "label": "output 6"},
-        {"bitPosition": 6, "label": "output 7"},
-        {"bitPosition": 7, "label": "output 8"}
-      ],
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" }
-    },
-    {
       "type": "EventVariableBitSingle",
       "eventVariableIndex": 3,
       "bit": 7,
-      "visibilityLogic":{ "condition": "false", "item": "producedEvent" },
       "displayTitle": "Set as Feedback event",
       "displaySubTitle": ""
     },
     {
       "type": "EventVariableBitArray",
+      "eventVariableIndex": 1,
+      "displayTitle": "Output enable",
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 2,
+      "displayTitle": "Enable reverse polarity",
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 0 }
+      "bitCollection":[
+        {"bitPosition": 0, "label": "output 1"},
+        {"bitPosition": 1, "label": "output 2"},
+        {"bitPosition": 2, "label": "output 3"},
+        {"bitPosition": 3, "label": "output 4"},
+        {"bitPosition": 4, "label": "output 5"},
+        {"bitPosition": 5, "label": "output 6"},
+        {"bitPosition": 6, "label": "output 7"},
+        {"bitPosition": 7, "label": "output 8"}
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
       "displayTitle": "Event actions",
       "bitCollection":[
         {"bitPosition": 7, "label": "enable event"}
@@ -364,7 +359,7 @@
     {
       "type": "EventVariableNumber",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
       "displayTitle": "Output select",
       "startBit": 2,
       "endBit": 4,
@@ -373,7 +368,7 @@
     {
       "type": "EventVariableSelect",
       "eventVariableIndex": 3,
-      "visibilityLogic":{ "condition": "true", "item": "producedEvent" },
+      "visibilityLogic":{ "evBit":{"index":3, "bit":7}, "equals": 1 }
       "displayTitle": "Event",
       "bitMask": 3,
       "options": [

@@ -1,5 +1,9 @@
 {
+  "repeatBlock":{"test1":1, "test2":[1,2]},
   "nodeVariables": [
+    {
+    "repeatBlock":{"test1":1, "test2":[1,2]}
+    },
     {
       "type": "NodeVariableBitArray",
       "nodeVariableIndex": 1,
@@ -235,6 +239,9 @@
       "tabPanels": [
         { "displayTitle": "Bit Array",
           "items": [
+            {
+              "repeatBlock":{"test1":1, "test2":[1,2]}
+            },
             {
               "type": "NodeVariableBitArray",
               "nodeVariableIndex": 1,
