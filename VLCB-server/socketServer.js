@@ -115,13 +115,8 @@ exports.socketServer = function(config) {
 
       socket.on('UPDATE_EVENT_VARIABLE', function(data){
   			winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
-          node.cbusSend(node.NNLRN(data.nodeId))
-          node.cbusSend(node.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
-          node.cbusSend(node.NNULN(data.nodeId))
-          // should really wait for a WRACK.... but seems ok
-          node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
-          node.cbusSend(node.NNULN(data.nodeId))
-        })
+        node.update_event_variable(data)
+      })
 
       socket.on('ACCESSORY_LONG_ON', function(data){
 		  	winston.info({message: `socketServer: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
@@ -145,22 +140,17 @@ exports.socketServer = function(config) {
   
       socket.on('TEACH_EVENT', function(data){
 	  		winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
-        node.cbusSend(node.NNLRN(data.nodeId))
-        node.cbusSend(node.teach_event(data.nodeId, data.eventName, 1, 0))
-        node.cbusSend(node.NNULN(data.nodeId))
-        node.cbusSend(node.NNULN(data.nodeId))
+        node.teach_event(data.nodeId, data.eventName, 1, 0)
       })
 
       socket.on('REMOVE_NODE', function(data){
         winston.info({message: `socketServer: REMOVE_NODE ${JSON.stringify(data)}`});
-        node.removeNode(data.nodeId)
+        node.remove_node(data.nodeId)
       })
 
       socket.on('REMOVE_EVENT', function(data){
   			winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
-        node.cbusSend(node.NNLRN(data.nodeId))
-        node.cbusSend(node.remove_event(data.nodeId, data.eventName))
-        node.cbusSend(node.NNULN(data.nodeId))
+        node.remove_event(data.nodeId, data.eventName)
       })
 
       socket.on('CLEAR_NODE_EVENTS', function(data){
@@ -307,8 +297,8 @@ exports.socketServer = function(config) {
 
 
     node.on('cbusTraffic', function (data) {
-      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + data.json.text});
-      winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " " + JSON.stringify(data.json)});
+//      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + data.json.text});
+      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + JSON.stringify(data.json)});
       io.emit('cbusTraffic', data);
     })
 

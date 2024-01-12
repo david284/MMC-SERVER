@@ -63,7 +63,7 @@ exports.jsonServer = function (config) {
         });
 
         function broadcast(data, sender) {
-            winston.info({message:`jsonServer: broadcast : ${data} `})
+            winston.debug({message:`jsonServer: broadcast : ${data} `})
             let input = JSON.parse(data)
             let cbusMsg = cbusLib.encode(input)
             let outMsg = cbusLib.decode(cbusMsg.encoded)

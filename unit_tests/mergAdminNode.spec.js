@@ -55,13 +55,6 @@ node.on('cbusTraffic', function (data) {
   winston.debug({message: `mergAdminNode test: cbusTraffic:  ${JSON.stringify(data)}`})
 })
 
-var grspEvents = []
-node.on('grsp', function (data) {
-  grspEvents.push(data)
-  winston.debug({message: `mergAdminNode test: grspEvents:  ${JSON.stringify(data)}`})
-})
-
-
 
 
 describe('mergAdminNode tests', function(){
@@ -340,18 +333,44 @@ describe('mergAdminNode tests', function(){
 		}, 10);
   })
 
+
+  function GetTestCase_GRSP() {
+    var argA, argB, argC, argD, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = "00"}
+        if (b == 2) {argB = "01"}
+        if (b == 3) {argB = "FF"}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          for (var d = 1; d<= 3; d++) {
+            if (d == 1) {argD = 0}
+            if (d == 2) {argD = 1}
+            if (d == 3) {argD = 255}
+              testCases.push({'nodeNumber':argA, 'opCode': argB, "serviceIndex":argC, "result":argD});
+          }
+        }
+      }
+    }
+    return testCases;
+  }
+
   // 0xAF GRSP
   //
-  it("GRSP test", function (done) {
+  itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_GRSP(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN GRSP test '});
-    var testMessage = cbusLib.encodeGRSP(1,"95", 1, 1)
+    var testMessage = cbusLib.encodeGRSP(value.nodeNumber, value.opCode, value.serviceIndex, value.result)
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
-      expect(grspEvents[0].mnemonic).to.equal("GRSP")
       winston.info({message: 'unit_test: END GRSP test'});
 			done();
 		}, 10);

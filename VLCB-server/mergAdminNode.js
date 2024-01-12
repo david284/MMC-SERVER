@@ -55,7 +55,7 @@ class cbusAdmin extends EventEmitter {
             for (let i = 0; i < outMsg.length; i++) {
 
                 //let cbusMsg = cbusLib.decode(outMsg[i].concat(";"))     // replace terminator removed by 'split' method
-                winston.debug({message: `mergAdminNode: CBUS Receive >>>  ${outMsg[i]}`})
+                winston.debug({message: `mergAdminNode: CBUS Receive <<<  ${outMsg[i]}`})
                 var msg = JSON.parse(outMsg[i])
                 this.emit('cbusTraffic', {direction: 'In', json: msg});
                 this.action_message(msg)
@@ -599,11 +599,6 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-    removeNode(nodeId) {
-        delete this.nodeConfig.nodes[nodeId]
-        this.saveConfig()
-    }
-
     removeEvent(eventId) {
         delete this.nodeConfig.events[eventId]
         this.saveConfig()
@@ -619,12 +614,9 @@ class cbusAdmin extends EventEmitter {
             //winston.info({message: `mergAdminNode: cbusSend Base : ${JSON.stringify(msg)}`});
             let output = JSON.stringify(msg)
             this.client.write(output);
-
-
-            //let outMsg = cbusLib.decode(msg);
-            //this.emit('cbusTraffic', {direction: 'Out', raw: outMsg.encoded, translated: outMsg.text});
-            //winston.info({message: `mergAdminNode: CBUS send >> ${output} `});
-        }
+            this.emit('cbusTraffic', {direction: 'Out', json: msg});
+            winston.debug({message: `mergAdminNode: CBUS Transit >>>  ${output}`})
+          }
 
     }
 
@@ -735,21 +727,59 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-    teach_event(nodeId, event, variableId, value) {
-      this.cbusSend(this.EVLRN(nodeId, event, variableId, value))
-      this.nodes_EventsNeedRefreshing[nodeId]=true
-    }
+//************************************************************************ */
+//
+// functions called by the socket service
+// in alphabetical order
+//
+//************************************************************************ */
+
+  remove_event(nodeId, eventName) {
+    this.cbusSend(this.NNLRN(nodeId))
+    this.cbusSend(this.EVULN(eventName))
+    this.cbusSend(this.NNULN(nodeId))
+    this.nodes_EventsNeedRefreshing[nodeId]=true
+  }
+
   
-    remove_event(nodeId, eventName) {
-      this.cbusSend(this.EVULN(eventName))
-      this.nodes_EventsNeedRefreshing[nodeId]=true
-    }
-  
+  remove_node(nodeId) {
+    delete this.nodeConfig.nodes[nodeId]
+    this.saveConfig()
+  }
+
+  teach_event(nodeId, event, variableId, value) {
+    this.cbusSend(this.NNLRN(nodeId))
+    this.cbusSend(this.EVLRN(nodeId, event, variableId, value))
+    this.cbusSend(this.NNULN(nodeId))
+    this.cbusSend(this.NNULN(nodeId))
+    this.nodes_EventsNeedRefreshing[nodeId]=true
+  }
+
+
+  update_event_variable(data){
+    this.cbusSend(this.NNLRN(data.nodeId))
+    this.nodeConfig.nodes[data.nodeId].storedEvents[data.eventIndex].variables[data.eventVariableId] = data.eventVariableValue
+    this.cbusSend(this.EVLRN(data.nodeId, data.eventName, data.eventVariableId, data.eventVariableValue))
+    //    this.cbusSend(this.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
+    this.cbusSend(this.NNULN(data.nodeId))
+    // should really wait for a WRACK.... but seems ok
+    this.cbusSend(this.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
+    this.cbusSend(this.NNULN(data.nodeId))
+  }
+
+
+
+
+//************************************************************************ */
+//
+// Functions to create json VLCB messages
+// in opcode order
+//
+//************************************************************************ */    
   
     // 0x0D QNN
     //
     QNN() {//Query Node Number
-      winston.info({message: 'mergAdminNode: QNN '})
       for (let node in this.nodeConfig.nodes) {
           this.nodeConfig.nodes[node].status = false
       }
@@ -762,7 +792,6 @@ class cbusAdmin extends EventEmitter {
   // 0x10 RQNP
   //
   RQNP() {//Request Node Parameters
-      winston.info({message: 'mergAdminNode: QNN '})
       let output = {}
       output['mnemonic'] = 'RQNP'
       return output;
@@ -785,7 +814,6 @@ class cbusAdmin extends EventEmitter {
           output['mnemonic'] = 'SNN'
           output['nodeNumber'] = nodeId
           return output
-          //return cbusLib.encodeSNN(nodeId);
       }
   }
 
@@ -797,7 +825,6 @@ class cbusAdmin extends EventEmitter {
           output['mnemonic'] = 'NNLRN'
           output['nodeNumber'] = nodeId
           return output
-          //return cbusLib.encodeNNLRN(nodeId);
       }
   }
 
@@ -808,7 +835,6 @@ class cbusAdmin extends EventEmitter {
       output['mnemonic'] = 'NNULN'
       output['nodeNumber'] = nodeId
       return output
-      //return cbusLib.encodeNNULN(nodeId);
   }
 
   // 0x57 NERD
@@ -933,7 +959,7 @@ class cbusAdmin extends EventEmitter {
       output['nodeNumber'] = nodeId
       output['nodeVariableIndex'] = variableId
       output['nodeVariableValue'] = variableVal
-      winston.info({message: `mergAdminNode: NVSET : ${nodeId} :${JSON.stringify(output)}`})
+//      winston.info({message: `mergAdminNode: NVSET : ${nodeId} :${JSON.stringify(output)}`})
       return output
 
       //return cbusLib.encodeNVSET(nodeId, variableId, variableVal);
