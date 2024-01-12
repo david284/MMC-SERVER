@@ -556,10 +556,7 @@ class cbusAdmin extends EventEmitter {
       winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber});
       if (this.nodes_EventsNeedRefreshing[nodeNumber]){
         winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber + ' needs to refresh events'});
-        this.cbusSend(this.RQEVN(nodeNumber))
-        this.removeNodeEvents(nodeNumber)
-        this.cbusSend(this.NERD(nodeNumber))
-        this.nodes_EventsNeedRefreshing[nodeNumber]=false
+        this.request_all_node_events(nodeNumber)
       }
     }
 
@@ -573,10 +570,7 @@ class cbusAdmin extends EventEmitter {
           winston.info({message: `mergAdminNode: GRSP for event command : node ` + nodeNumber});
           if (this.nodes_EventsNeedRefreshing[nodeNumber]){
             winston.info({message: 'mergAdminNode: GRSP for event command : need to refresh events'});
-            this.cbusSend(this.RQEVN(nodeNumber))
-            this.removeNodeEvents(nodeNumber)
-            this.cbusSend(this.NERD(nodeNumber))
-            this.nodes_EventsNeedRefreshing[nodeNumber]=false
+            this.request_all_node_events(nodeNumber)
           }
         }
       }
@@ -612,9 +606,10 @@ class cbusAdmin extends EventEmitter {
     cbusSend(msg) {
         if (typeof msg !== 'undefined') {
             //winston.info({message: `mergAdminNode: cbusSend Base : ${JSON.stringify(msg)}`});
+            let tmp = cbusLib.decode(cbusLib.encode(msg).encoded)
             let output = JSON.stringify(msg)
             this.client.write(output);
-            this.emit('cbusTraffic', {direction: 'Out', json: msg});
+            this.emit('cbusTraffic', {direction: 'Out', json: tmp});
             winston.debug({message: `mergAdminNode: CBUS Transit >>>  ${output}`})
           }
 
@@ -734,17 +729,33 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */
 
-  remove_event(nodeId, eventName) {
-    this.cbusSend(this.NNLRN(nodeId))
+  remove_event(nodeNumber, eventName) {
+    this.cbusSend(this.NNLRN(nodeNumber))
     this.cbusSend(this.EVULN(eventName))
-    this.cbusSend(this.NNULN(nodeId))
-    this.nodes_EventsNeedRefreshing[nodeId]=true
+    this.cbusSend(this.NNULN(nodeNumber))
+    this.nodes_EventsNeedRefreshing[nodeNumber]=true
   }
 
   
-  remove_node(nodeId) {
-    delete this.nodeConfig.nodes[nodeId]
+  remove_node(nodeNumber) {
+    delete this.nodeConfig.nodes[nodeNumber]
     this.saveConfig()
+  }
+
+  request_all_event_variables(nodeNumber, eventIndex, variableCount){
+    //
+    let delay = 100
+    for (let i = 1; i <= variableCount; i++) {
+      let time = i*delay
+      setTimeout(function() {this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))}.bind(this),time)
+    }
+  }
+
+  request_all_node_events(nodeNumber){
+    this.cbusSend(this.RQEVN(nodeNumber))
+    this.removeNodeEvents(nodeNumber)
+    this.cbusSend(this.NERD(nodeNumber))
+    this.nodes_EventsNeedRefreshing[nodeNumber]=false
   }
 
   teach_event(nodeId, event, variableId, value) {
@@ -758,6 +769,7 @@ class cbusAdmin extends EventEmitter {
 
   update_event_variable(data){
     this.cbusSend(this.NNLRN(data.nodeId))
+    // do we really need this if we refresh later?
     this.nodeConfig.nodes[data.nodeId].storedEvents[data.eventIndex].variables[data.eventVariableId] = data.eventVariableValue
     this.cbusSend(this.EVLRN(data.nodeId, data.eventName, data.eventVariableId, data.eventVariableValue))
     //    this.cbusSend(this.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))

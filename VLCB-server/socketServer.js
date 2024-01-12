@@ -92,20 +92,12 @@ exports.socketServer = function(config) {
 
       socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
-        node.cbusSend(node.RQEVN(data.nodeId))
-        node.removeNodeEvents(data.nodeId)
-        node.cbusSend(node.NERD(data.nodeId))
+        node.request_all_node_events(data.nodeId)
       })
 
       socket.on('REQUEST_ALL_EVENT_VARIABLES', function(data){
 		  	winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES ${JSON.stringify(data)}`});
-        if (data.delay === undefined) {
-            data.delay = 100
-        }
-        for (let i = 1; i <= data.variables; i++) {
-            let time = i*data.delay
-            setTimeout(function() {node.cbusSend(node.REVAL(data.nodeId, data.eventIndex, i))},time)
-        }
+        node.request_all_event_variables(data.nodeId, data.eventIndex, data.variables)
       })
 
       socket.on('REQUEST_EVENT_VARIABLE', function(data){
@@ -297,8 +289,8 @@ exports.socketServer = function(config) {
 
 
     node.on('cbusTraffic', function (data) {
-//      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + data.json.text});
-      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " " + JSON.stringify(data.json)});
+      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
+      winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
       io.emit('cbusTraffic', data);
     })
 

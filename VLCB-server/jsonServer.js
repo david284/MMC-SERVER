@@ -40,7 +40,7 @@ exports.jsonServer = function (config) {
         winston.info({message:`jsonServer: Client Connected`})
 
         socket.on('data', function (data) {
-            winston.info({message:`jsonServer: Data Received : ${data}`})
+            winston.debug({message:`jsonServer: Data Received : ${data}`})
             //broadcast(data, socket)
             let indata = data.toString().replace(/}{/g, "}|{")
             //winston.info({message: `AdminNode CBUS Receive <<<  ${indata}`})
