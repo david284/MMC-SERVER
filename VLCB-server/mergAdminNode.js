@@ -36,6 +36,7 @@ class cbusAdmin extends EventEmitter {
         this.heartbeats = {}
         this.saveConfig()
         this.nodes_EventsNeedRefreshing = {}
+        this.nodes_EventVariablesNeedRefreshing = {}
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -140,7 +141,6 @@ class cbusAdmin extends EventEmitter {
             },
             '59': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
-//                this.emit('wrack', cbusMsg.nodeNumber)
                 this.process_WRACK(cbusMsg.nodeNumber)
             },
             '60': (cbusMsg) => {
@@ -338,7 +338,6 @@ class cbusAdmin extends EventEmitter {
             },
             'AF': (cbusMsg) => {//GRSP
                 winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
-//                this.emit('grsp', cbusMsg)
                 this.process_GRSP(cbusMsg)
             },
             'B0': (cbusMsg) => {//Accessory On Long Event 1
@@ -558,6 +557,12 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber + ' needs to refresh events'});
         this.request_all_node_events(nodeNumber)
       }
+      if (this.nodes_EventVariablesNeedRefreshing.nodeNumber){
+        if (this.nodes_EventVariablesNeedRefreshing.nodeNumber = nodeNumber){
+          let eventIndex = this.nodes_EventVariablesNeedRefreshing.eventIndex
+          this.request_all_event_variables(nodeNumber, eventIndex)
+        }
+      }
     }
 
     process_GRSP (data) {
@@ -604,15 +609,13 @@ class cbusAdmin extends EventEmitter {
     }
 
     cbusSend(msg) {
-        if (typeof msg !== 'undefined') {
-            //winston.info({message: `mergAdminNode: cbusSend Base : ${JSON.stringify(msg)}`});
-            let tmp = cbusLib.decode(cbusLib.encode(msg).encoded)
-            let output = JSON.stringify(msg)
-            this.client.write(output);
-            this.emit('cbusTraffic', {direction: 'Out', json: tmp});
-            winston.debug({message: `mergAdminNode: CBUS Transit >>>  ${output}`})
-          }
-
+      if (typeof msg !== 'undefined') {
+        let output = JSON.stringify(msg)
+        this.client.write(output);
+        let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
+        this.emit('cbusTraffic', {direction: 'Out', json: tmp});
+        winston.debug({message: `mergAdminNode: CBUS Transit >>>  ${output}`})
+      }
     }
 
     refreshEvents() {
@@ -659,11 +662,6 @@ class cbusAdmin extends EventEmitter {
 
 
     saveConfig() {
-        //winston.debug({message: `mergAdminNode: Save Config `});
-        //this.nodeConfig.events = this.events
-        //
-        //
-        //
         winston.info({message: 'mergAdminNode: Save Config : '});
         this.config.writeNodeConfig(this.nodeConfig)
         //let nodes = []
@@ -742,12 +740,13 @@ class cbusAdmin extends EventEmitter {
     this.saveConfig()
   }
 
-  request_all_event_variables(nodeNumber, eventIndex, variableCount){
-    //
-    let delay = 100
-    for (let i = 1; i <= variableCount; i++) {
-      let time = i*delay
-      setTimeout(function() {this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))}.bind(this),time)
+  // need to use event index here, as used outside of learn mode
+  async request_all_event_variables(nodeNumber, eventIndex, variableCount){
+    // get number of event variable per event
+    let eventVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[5]
+    for (let i = 1; i <= eventVariableCount; i++) {
+      await sleep(50); // allow time between requests
+      this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
     }
   }
 
@@ -757,6 +756,30 @@ class cbusAdmin extends EventEmitter {
     this.cbusSend(this.NERD(nodeNumber))
     this.nodes_EventsNeedRefreshing[nodeNumber]=false
   }
+
+  async request_all_node_parameters(nodeNumber){
+    this.cbusSend(this.RQNPN(nodeNumber, 0))    // get number of node parameters
+    await sleep(200); // wait for a response before trying to use it
+    let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
+    for (let i = 1; i <= nodeParameterCount; i++) {
+      this.cbusSend(this.RQNPN(nodeNumber, i))
+      await sleep(50); // allow time between requests
+    }
+  }
+
+  async request_all_node_variables(nodeNumber, start){
+    // get number of node variables - but wait till it exists
+    while (1){
+      if (this.nodeConfig.nodes[nodeNumber].parameters[6] != undefined) {break}
+      await sleep(50); // allow time between requests
+    }
+    let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
+    for (let i = start; i <= nodeVariableCount; i++) {
+      this.cbusSend(this.NVRD(nodeNumber, i))
+      await sleep(50); // allow time between requests
+    }
+  }
+
 
   teach_event(nodeId, event, variableId, value) {
     this.cbusSend(this.NNLRN(nodeId))
@@ -774,9 +797,8 @@ class cbusAdmin extends EventEmitter {
     this.cbusSend(this.EVLRN(data.nodeId, data.eventName, data.eventVariableId, data.eventVariableValue))
     //    this.cbusSend(this.update_event(data.nodeId, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
     this.cbusSend(this.NNULN(data.nodeId))
-    // should really wait for a WRACK.... but seems ok
-    this.cbusSend(this.REVAL(data.nodeId, data.eventIndex, data.eventVariableId))
-    this.cbusSend(this.NNULN(data.nodeId))
+    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeId, eventIndex:data.eventIndex}
+    // refresh done on receiving a WRACK
   }
 
 
@@ -971,7 +993,6 @@ class cbusAdmin extends EventEmitter {
       output['nodeNumber'] = nodeId
       output['nodeVariableIndex'] = variableId
       output['nodeVariableValue'] = variableVal
-//      winston.info({message: `mergAdminNode: NVSET : ${nodeId} :${JSON.stringify(output)}`})
       return output
 
       //return cbusLib.encodeNVSET(nodeId, variableId, variableVal);
@@ -1086,6 +1107,9 @@ class cbusAdmin extends EventEmitter {
 
 };
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 module.exports = {
     cbusAdmin: cbusAdmin

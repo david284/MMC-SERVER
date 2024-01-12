@@ -62,11 +62,12 @@ exports.jsonServer = function (config) {
             winston.error({message:`jsonServer: ` + err.stack});
         });
 
-        function broadcast(data, sender) {
+        async function broadcast(data, sender) {
             winston.debug({message:`jsonServer: broadcast : ${data} `})
             let input = JSON.parse(data)
             let cbusMsg = cbusLib.encode(input)
             let outMsg = cbusLib.decode(cbusMsg.encoded)
+            await sleep(100); // Wait for one second
             clients.forEach(function (client) {
                 // Don't want to send it to sender
                 if (client === sender)
@@ -80,3 +81,8 @@ exports.jsonServer = function (config) {
     server.listen(config.getJsonServerPort())
 
 }
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+

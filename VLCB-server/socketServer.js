@@ -28,13 +28,7 @@ exports.socketServer = function(config) {
 
       socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_PARAMETERS ${JSON.stringify(data)}`});
-        if (data.delay === undefined) {
-            data.delay = 100
-        }
-        for (let i = 0; i <= data.parameters; i++) {
-            let time = i*data.delay
-            setTimeout(function() {node.cbusSend(node.RQNPN(data.nodeId, i))},time)
-        }
+        node.request_all_node_parameters(data.nodeId)
       })
 
       socket.on('RQNPN', function(data){ //Request Node Parameter
@@ -47,16 +41,7 @@ exports.socketServer = function(config) {
         if (data.start === undefined) {
             data.start = 1
         }
-        if (data.delay === undefined) {
-            data.delay = 100
-        }
-        let finish = data.variables + data.start -1
-        let increment = 1
-        for (let i = data.start; i <= finish; i++) {
-            let time = increment*data.delay
-            setTimeout(function() {node.cbusSend(node.NVRD(data.nodeId, i))},time)
-            increment +=1
-        }
+        node.request_all_node_variables(data.nodeId, data.start)
       })
 
       socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
@@ -224,7 +209,14 @@ exports.socketServer = function(config) {
       })
       
     });
+    
     server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
+
+//*************************************************************************************** */
+//
+// events from cbusAdminNode
+//
+//*************************************************************************************** */
 
     node.on('events', function (events) {
       winston.info({message: `socketServer: Events`});
@@ -240,13 +232,14 @@ exports.socketServer = function(config) {
 
     node.on('nodes', function (nodes) {
       winston.info({message: `socketServer: Nodes Sent`});
-      winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
+      winston.debug({message: `socketServer: Nodes Sent :`});
+//      winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
       io.emit('nodes', nodes);
     })
 
     node.on('node', function (node) {
       winston.info({message: `socketServer: Node Sent`});
-      winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node)}`});
+      winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node.nodeNumber)}`});
       io.emit('node', node);
       if(node.nodeNumber) {
         if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
