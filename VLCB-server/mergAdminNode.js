@@ -800,7 +800,7 @@ class cbusAdmin extends EventEmitter {
 
   async request_all_node_parameters(nodeNumber){
     this.cbusSend(this.RQNPN(nodeNumber, 0))    // get number of node parameters
-    await sleep(200); // wait for a response before trying to use it
+    await sleep(400); // wait for a response before trying to use it
     let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
     for (let i = 1; i <= nodeParameterCount; i++) {
       this.cbusSend(this.RQNPN(nodeNumber, i))
