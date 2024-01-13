@@ -670,7 +670,7 @@ class cbusAdmin extends EventEmitter {
 
     saveNode(nodeId) {
         winston.info({message: 'mergAdminNode: Save Node : '+nodeId});
-        this.checkVariableConfig(nodeId);
+//        this.checkVariableConfig(nodeId);
         this.checkNodeDescriptor(nodeId); // do before emit node
         this.config.writeNodeConfig(this.nodeConfig)
         this.emit('node', this.nodeConfig.nodes[nodeId]);
