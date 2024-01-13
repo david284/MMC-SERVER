@@ -61,7 +61,7 @@ describe('socketServer tests', function(){
   });
 
   var layoutDetails = {}
-  socket.on('layoutDetails', function (data) {
+  socket.on('LAYOUT_DETAILS', function (data) {
     layoutDetails = data;
 //    winston.debug({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
     });	
