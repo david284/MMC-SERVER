@@ -18,12 +18,12 @@ exports.socketServer = function(config) {
 
     io.on('connection', function(socket){
   		winston.info({message: 'socketServer:  a user connected'});
-      node.cbusSend(node.QNN())
-      io.emit('layoutDetails', layoutDetails)
+      node.query_all_nodes()
+      io.emit('LAYOUT_DETAILS', layoutDetails)
       
       socket.on('QUERY_ALL_NODES', function(){
         winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
-        node.cbusSend(node.QNN())
+        node.query_all_nodes()
       })
 
       socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
@@ -154,7 +154,7 @@ exports.socketServer = function(config) {
 	  		winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
         layoutDetails = data
         config.writeLayoutDetails(layoutDetails)
-        io.emit('layoutDetails', layoutDetails)
+        io.emit('LAYOUT_DETAILS', layoutDetails)
       })
         
       socket.on('CLEAR_CBUS_ERRORS', function(data){
@@ -166,7 +166,7 @@ exports.socketServer = function(config) {
         winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
         config.setCurrentLayoutFolder(data)
         layoutDetails = config.readLayoutDetails()
-        io.emit('layoutDetails', layoutDetails)
+        io.emit('LAYOUT_DETAILS', layoutDetails)
       })
 
       
@@ -212,95 +212,101 @@ exports.socketServer = function(config) {
     
     server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
-//*************************************************************************************** */
-//
-// events from cbusAdminNode
-//
-//*************************************************************************************** */
+  //*************************************************************************************** */
+  //
+  // events from cbusAdminNode
+  //
+  //*************************************************************************************** */
 
-    node.on('events', function (events) {
-      winston.info({message: `socketServer: Events`});
-      winston.debug({message: `socketServer: Events :${JSON.stringify(events)}`});
-      io.emit('events', events);
-    })
-
-    node.on('layoutDetails', function (data) {
-      layoutDetails = data
-      winston.info({message: `socketServer: send layoutDetails`});
-      io.emit('layoutDetails', layoutDetails)
+  node.on('cbusError', function (cbusErrors) {
+    winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
+    io.emit('CBUS_ERRORS', cbusErrors);
   })
 
-    node.on('nodes', function (nodes) {
-      winston.info({message: `socketServer: Nodes Sent`});
-      winston.debug({message: `socketServer: Nodes Sent :`});
-//      winston.debug({message: `socketServer: Nodes Sent :${JSON.stringify(nodes)}`});
-      io.emit('nodes', nodes);
-    })
 
-    node.on('node', function (node) {
-      winston.info({message: `socketServer: Node Sent`});
-      winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node.nodeNumber)}`});
-      io.emit('node', node);
-      if(node.nodeNumber) {
-        if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
-          io.emit('layoutDetails', layoutDetails)
-          winston.info({message: `socketServer: nodeName updated, layoutDetails Sent`});
-        }
+  node.on('cbusNoSupport', function (cbusNoSupport) {
+    winston.info({message: `socketServer: CBUS_NO_SUPPORT sent`});
+    winston.debug({message: `socketServer: CBUS_NO_SUPPORT - Op Code Unknown : ${cbusNoSupport.opCode}`});
+    io.emit('CBUS_NO_SUPPORT', cbusNoSupport);
+  })
+
+
+  node.on('cbusTraffic', function (data) {
+    winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
+    winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
+    io.emit('CBUS_TRAFFIC', data);
+  })
+
+
+  node.on('dccError', function (error) {
+    winston.info({message: `socketServer: DCC_ERROR sent`});
+    io.emit('DCC_ERROR', error);
+  })
+
+
+  node.on('dccSessions', function (dccSessions) {
+    winston.info({message: `socketServer: DCC_SESSIONS sent`});
+    io.emit('DCC_SESSIONS', dccSessions);
+  })
+
+
+  node.on('events', function (events) {
+    winston.info({message: `socketServer: EVENTS sent`});
+//    winston.debug({message: `socketServer: EVENTS :${JSON.stringify(events)}`});
+    io.emit('EVENTS', events);
+  })
+
+
+  node.on('layoutDetails', function (data) {
+    layoutDetails = data
+    winston.info({message: `socketServer: send layoutDetails`});
+    io.emit('LAYOUT_DETAILS', layoutDetails)
+  })
+
+
+  node.on('node', function (node) {
+    winston.info({message: `socketServer: Node Sent`});
+    winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node.nodeNumber)}`});
+    io.emit('NODE', node);
+    if(node.nodeNumber) {
+      if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
+        io.emit('LAYOUT_DETAILS', layoutDetails)
+        winston.info({message: `socketServer: nodeName updated, LAYOUT_DETAILS Sent`});
       }
-    })
-
-    node.on('nodeDescriptor', function (nodeDescriptor) {
-      winston.info({message: `socketServer: NodeDescriptor Sent`});
-      winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
-      io.emit('NODE_DESCRIPTOR', nodeDescriptor);
-    })
+    }
+  })
 
 
-
-    node.on('cbusError', function (cbusErrors) {
-		winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
-        io.emit('cbusError', cbusErrors);
-    })
-
-    node.on('dccError', function (error) {
-		winston.info({message: `socketServer: DCC - ERROR :${JSON.stringify(error)}`});
-        io.emit('dccError', error);
-    })
-
-    node.on('cbusNoSupport', function (cbusNoSupport) {
-		winston.info({message: `socketServer: CBUS - Op Code Unknown : ${cbusNoSupport.opCode}`});
-        io.emit('cbusNoSupport', cbusNoSupport);
-    })
-
-    node.on('dccSessions', function (dccSessions) {
-        io.emit('dccSessions', dccSessions);
-    })
-
-    node.on('requestNodeNumber', function () {
-        if (layoutDetails.layoutDetails.assignId) {
-            const newNodeId = parseInt(layoutDetails.layoutDetails.nextNodeId)
-            winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
-            node.cbusSend(node.SNN(newNodeId))
-            layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-            config.writeLayoutDetails(layoutDetails)
-            io.emit('layoutDetails', layoutDetails)
-            node.cbusSend(node.QNN())
-        }
-    })
+  node.on('nodes', function (nodes) {
+    winston.info({message: `socketServer: NODES Sent`});
+    io.emit('NODES', nodes);
+  })
 
 
-    node.on('cbusTraffic', function (data) {
-      winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
-      winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
-      io.emit('cbusTraffic', data);
-    })
+  node.on('nodeDescriptor', function (nodeDescriptor) {
+    winston.info({message: `socketServer: NodeDescriptor Sent`});
+    winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
+    io.emit('NODE_DESCRIPTOR', nodeDescriptor);
+  })
 
 
+  node.on('requestNodeNumber', function () {
+    if (layoutDetails.layoutDetails.assignId) {
+      const newNodeId = parseInt(layoutDetails.layoutDetails.nextNodeId)
+      winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
+      node.cbusSend(node.SNN(newNodeId))
+      layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
+      config.writeLayoutDetails(layoutDetails)
+      io.emit('LAYOUT_DETAILS', layoutDetails)
+      node.cbusSend(node.QNN())
+    }
+  })
 
-    /*programNode.on('programNode', function (data) {
-		winston.info({message: `WSSERVER: 'programNode' : ` + data});
-        io.emit('PROGRAM_NODE', data);
-    })*/
+
+  /*programNode.on('programNode', function (data) {
+  winston.info({message: `WSSERVER: 'programNode' : ` + data});
+      io.emit('PROGRAM_NODE', data);
+  })*/
 
 }
 

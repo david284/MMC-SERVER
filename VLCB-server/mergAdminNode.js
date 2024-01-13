@@ -766,6 +766,15 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */
 
+  query_all_nodes(){
+    for (let node in this.nodeConfig.nodes) {
+      this.nodeConfig.nodes[node].status = false
+    }
+    this.nodeDescriptors = {}   // force re-reading of module descriptors...
+    this.saveConfig()
+    this.cbusSend(this.QNN())
+  }
+
   remove_event(nodeNumber, eventName) {
     this.cbusSend(this.NNLRN(nodeNumber))
     this.cbusSend(this.EVULN(eventName))
@@ -850,16 +859,12 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */    
   
-    // 0x0D QNN
-    //
-    QNN() {//Query Node Number
-      for (let node in this.nodeConfig.nodes) {
-          this.nodeConfig.nodes[node].status = false
-      }
-      this.saveConfig()
-      let output = {}
-      output['mnemonic'] = 'QNN'
-      return output;
+  // 0x0D QNN
+  //
+  QNN() {//Query Node Number
+    let output = {}
+    output['mnemonic'] = 'QNN'
+    return output;
   }
 
   // 0x10 RQNP
