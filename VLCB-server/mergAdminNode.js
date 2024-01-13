@@ -620,7 +620,7 @@ class cbusAdmin extends EventEmitter {
     }
 
     refreshEvents() {
-        this.emit('events', Object.values(this.nodeConfig.events))
+        this.emit('events', this.nodeConfig.events)
     }
 
     clearEvents() {
@@ -790,9 +790,18 @@ class cbusAdmin extends EventEmitter {
 
   // need to use event index here, as used outside of learn mode
   async request_all_event_variables(nodeNumber, eventIndex, variableCount){
-    // get number of event variable per event
-    let eventVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[5]
-    for (let i = 1; i <= eventVariableCount; i++) {
+    // let clear out exisitng event variables...
+    this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
+    // now try reading EV0 - should return number of event variables
+    this.cbusSend(this.REVAL(nodeNumber, eventIndex, 0))
+    await sleep(300); // wait for a response before trying to use it
+    // now assume number of variables from param 5, but use the value in EV0 if it exists
+    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+    if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0] > 0 ){
+      numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0]
+    }
+    // now read event variables
+    for (let i = 1; i <= numberOfVariables; i++) {
       await sleep(50); // allow time between requests
       this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
     }
@@ -1059,7 +1068,7 @@ class cbusAdmin extends EventEmitter {
           output['count'] = 1
           this.nodeConfig.events[eId] = output
       }
-      this.emit('events', Object.values(this.nodeConfig.events))
+      this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ACON'
       output['nodeNumber'] = nodeId
@@ -1084,9 +1093,7 @@ class cbusAdmin extends EventEmitter {
           output['count'] = 1
           this.nodeConfig.events[eId] = output
       }
-      //this.nodeConfig.events[eId]['status'] = 'off'
-      //this.nodeConfig.events[eId]['count'] += 1
-      this.emit('events', Object.values(this.nodeConfig.events))
+      this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ACOF'
       output['nodeNumber'] = nodeId
@@ -1111,7 +1118,7 @@ class cbusAdmin extends EventEmitter {
           output['count'] = 1
           this.nodeConfig.events[eId] = output
       }
-      this.emit('events', Object.values(this.nodeConfig.events))
+      this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ASON'
       output['nodeNumber'] = nodeId
@@ -1139,7 +1146,7 @@ class cbusAdmin extends EventEmitter {
           output['count'] = 1
           this.nodeConfig.events[eId] = output
       }
-      this.emit('events', Object.values(this.nodeConfig.events))
+      this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ASOF'
       output['nodeNumber'] = nodeId
