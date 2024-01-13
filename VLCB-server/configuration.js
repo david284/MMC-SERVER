@@ -89,6 +89,17 @@ class configuration {
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
+  // reads/writes the module descriptors currently in use for nodes to/from config folder
+  //
+  readNodeDescriptors(){
+    var filePath = this.configPath + "/nodeDescriptors.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  writeNodeDescriptors(data){
+    var filePath = this.configPath + "/nodeDescriptors.json"
+    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+  }
+
   // static file, so use fixed location
   //
   readMergConfig(){

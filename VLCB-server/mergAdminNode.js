@@ -21,6 +21,7 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: `mergAdminNode: Constructor`});
         this.config = config
         this.nodeConfig = {}
+        this.nodeDescriptors = {}
         const merg = config.readMergConfig()
         this.merg = merg
         const Service_Definitions = config.readServiceDefinitions()
@@ -664,17 +665,13 @@ class cbusAdmin extends EventEmitter {
     saveConfig() {
         winston.info({message: 'mergAdminNode: Save Config : '});
         this.config.writeNodeConfig(this.nodeConfig)
-        //let nodes = []
-        /*for (let node in this.nodeConfig.nodes){
-            nodes.push(this.nodeConfig.nodes[node])
-        }*/
         this.emit('nodes', this.nodeConfig.nodes);
-        //this.emit('nodes', Object.values(this.nodeConfig.nodes))
     }
 
     saveNode(nodeId) {
         winston.info({message: 'mergAdminNode: Save Node : '+nodeId});
         this.checkVariableConfig(nodeId);
+        this.checkNodeDescriptor(nodeId);
         this.config.writeNodeConfig(this.nodeConfig)
         this.emit('node', this.nodeConfig.nodes[nodeId]);
     }
@@ -716,6 +713,50 @@ class cbusAdmin extends EventEmitter {
           }
         } else {
             winston.warn({message: 'mergAdminNode: module not found in mergConfig ' + moduleIdentifier});
+        }
+      }
+    }
+
+    checkNodeDescriptor(nodeId){
+      if (this.nodeDescriptors[nodeId] == undefined) {
+        // only proceed if moduleDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
+        var moduleName = this.nodeConfig.nodes[nodeId].moduleName;                  // should be populated by PNN
+        var moduleIdentifier = this.nodeConfig.nodes[nodeId].moduleIdentifier;      // should be populated by PNN
+        if (this.merg['modules'][moduleIdentifier]) {
+          // if we get here then it's a module type we know about (present in mergConfig.json)
+          if (moduleName == "Unknown") {
+            // we can't handle a module we don't know about, so just warn & skip rest
+            winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+          } else {
+            // ok, so we recognise the module, but only get variable config if component is mergDefault2
+            if (this.nodeConfig.nodes[nodeId].component == 'mergDefault2') {
+              // build filename
+              var filename = moduleName + "-" + moduleIdentifier               
+              // need major & minor version numbers to complete building of filename
+              if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
+              {
+                filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
+                filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
+                filename += ".json"
+                this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
+                // ok - can get file now
+                try {
+                  const moduleDescriptor = this.config.readModuleDescriptor(filename)
+                  this.nodeDescriptors[nodeId] = moduleDescriptor
+                  this.config.writeNodeDescriptors(this.nodeDescriptors)
+                  winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+                  var payload = {[nodeId]:moduleDescriptor}
+                  this.emit('nodeDescriptor', payload);
+                }catch(err) {
+                  winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
+                }
+              }
+            } else {
+				winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module component not suitable ' + this.nodeConfig.nodes[nodeId].component});
+			}
+          }
+        } else {
+            winston.warn({message: 'mergAdminNode: checkNodeDescriptor: module not found in mergConfig ' + moduleIdentifier});
         }
       }
     }

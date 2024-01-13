@@ -249,6 +249,14 @@ exports.socketServer = function(config) {
       }
     })
 
+    node.on('nodeDescriptor', function (nodeDescriptor) {
+      winston.info({message: `socketServer: NodeDescriptor Sent`});
+      winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
+      io.emit('NODE_DESCRIPTOR', nodeDescriptor);
+    })
+
+
+
     node.on('cbusError', function (cbusErrors) {
 		winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
         io.emit('cbusError', cbusErrors);
