@@ -671,7 +671,7 @@ class cbusAdmin extends EventEmitter {
     saveNode(nodeId) {
         winston.info({message: 'mergAdminNode: Save Node : '+nodeId});
         this.checkVariableConfig(nodeId);
-        this.checkNodeDescriptor(nodeId);
+        this.checkNodeDescriptor(nodeId); // do before emit node
         this.config.writeNodeConfig(this.nodeConfig)
         this.emit('node', this.nodeConfig.nodes[nodeId]);
     }
@@ -728,32 +728,30 @@ class cbusAdmin extends EventEmitter {
             // we can't handle a module we don't know about, so just warn & skip rest
             winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
           } else {
-            // ok, so we recognise the module, but only get variable config if component is mergDefault2
-            if (this.nodeConfig.nodes[nodeId].component == 'mergDefault2') {
-              // build filename
-              var filename = moduleName + "-" + moduleIdentifier               
-              // need major & minor version numbers to complete building of filename
-              if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
-              {
-                filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
-                filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
-                filename += ".json"
-                this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
-                // ok - can get file now
-                try {
-                  const moduleDescriptor = this.config.readModuleDescriptor(filename)
-                  this.nodeDescriptors[nodeId] = moduleDescriptor
-                  this.config.writeNodeDescriptors(this.nodeDescriptors)
-                  winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
-                  var payload = {[nodeId]:moduleDescriptor}
-                  this.emit('nodeDescriptor', payload);
-                }catch(err) {
-                  winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
-                }
+            // build filename
+            var filename = moduleName + "-" + moduleIdentifier               
+            // need major & minor version numbers to complete building of filename
+            if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
+            {
+              filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
+              filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
+              filename += ".json"
+              // ok - can get file now
+              // but don't store the filename in nodeConfig until we're tried to read the file
+              try {
+                const moduleDescriptor = this.config.readModuleDescriptor(filename)
+                this.nodeDescriptors[nodeId] = moduleDescriptor
+                this.config.writeNodeDescriptors(this.nodeDescriptors)
+                winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+                var payload = {[nodeId]:moduleDescriptor}
+                this.emit('nodeDescriptor', payload);
+              }catch(err) {
+                winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
               }
-            } else {
-				winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module component not suitable ' + this.nodeConfig.nodes[nodeId].component});
-			}
+              // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
+              // and the client can check for filename, and if no data, then fileload failed
+              this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
+      			}
           }
         } else {
             winston.warn({message: 'mergAdminNode: checkNodeDescriptor: module not found in mergConfig ' + moduleIdentifier});
