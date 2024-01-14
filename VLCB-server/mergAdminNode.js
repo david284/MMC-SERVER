@@ -387,7 +387,9 @@ class cbusAdmin extends EventEmitter {
                       "eventCount": 0,
                       "services": {},
                       "component": 'mergDefault2',
-                      "moduleName": 'Unknown'
+                      "moduleName": 'Unknown',
+                      "eventReadInProgress":false,
+                      "eventVariableReadInProgress":false
                   }
                   this.nodeConfig.nodes[ref] = output
                 }
@@ -505,7 +507,7 @@ class cbusAdmin extends EventEmitter {
                         "eventIdentifier": cbusMsg.eventIdentifier,
                         "eventIndex": cbusMsg.eventIndex,
                         "node": cbusMsg.nodeNumber,
-                        "variables": []
+                        "variables": {}
                     }
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "CANMIO") {
                         //winston.info({message:`mergAdminNode: ENSRP CANMIO: ${cbusMsg.nodeNumber} :: ${cbusMsg.eventIndex}`})
@@ -790,28 +792,48 @@ class cbusAdmin extends EventEmitter {
 
   // need to use event index here, as used outside of learn mode
   async request_all_event_variables(nodeNumber, eventIndex, variableCount){
-    // let clear out exisitng event variables...
-    this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
-    // now try reading EV0 - should return number of event variables
-    this.cbusSend(this.REVAL(nodeNumber, eventIndex, 0))
-    await sleep(300); // wait for a response before trying to use it
-    // now assume number of variables from param 5, but use the value in EV0 if it exists
-    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
-    if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0] > 0 ){
-      numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0]
-    }
-    // now read event variables
-    for (let i = 1; i <= numberOfVariables; i++) {
-      await sleep(50); // allow time between requests
-      this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
+    // don't start if already being read
+    if(this.nodeConfig.nodes[nodeNumber].eventReadInProgress==false){
+      // need to prevent all events being refreshed whilst we're doing this
+      this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress=true
+      // check event still exists first, as some events are dynamic on the module
+      if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex]){
+        // let clear out existing event variables...
+        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
+        // now try reading EV0 - should return number of event variables
+        this.cbusSend(this.REVAL(nodeNumber, eventIndex, 0))
+        await sleep(300); // wait for a response before trying to use it
+        // now assume number of variables from param 5, but use the value in EV0 if it exists
+        var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+        if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0] > 0 ){
+          numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0]
+        }
+        // now read event variables
+        for (let i = 1; i <= numberOfVariables; i++) {
+          await sleep(50); // allow time between requests
+          this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
+        }
+      }
+      this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress=false
+    } else {
+      winston.info({message: 'mergAdminNode: request_all_event_variables: blocked '});
     }
   }
 
-  request_all_node_events(nodeNumber){
-    this.cbusSend(this.RQEVN(nodeNumber))
-    this.removeNodeEvents(nodeNumber)
-    this.cbusSend(this.NERD(nodeNumber))
-    this.nodes_EventsNeedRefreshing[nodeNumber]=false
+  async request_all_node_events(nodeNumber){
+    // don't start this if we already have an event variable read in progress
+    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress==false){
+      this.nodeConfig.nodes[nodeNumber].eventReadInProgress=true
+      this.cbusSend(this.RQEVN(nodeNumber))
+      this.removeNodeEvents(nodeNumber)
+      this.cbusSend(this.NERD(nodeNumber))
+      this.nodes_EventsNeedRefreshing[nodeNumber]=false
+      var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
+      await sleep(delay)  // give it some time to complete
+      this.nodeConfig.nodes[nodeNumber].eventReadInProgress=false
+    } else {
+      winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
+    }
   }
 
   async request_all_node_parameters(nodeNumber){
