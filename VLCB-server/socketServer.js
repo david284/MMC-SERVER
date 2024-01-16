@@ -21,6 +21,12 @@ exports.socketServer = function(config) {
       node.query_all_nodes()
       io.emit('LAYOUT_DETAILS', layoutDetails)
       
+      socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
+        winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});
+        config.writeModuleDescriptor(data)
+        node.query_all_nodes()  // force refresh of nodeDescriptors
+      })
+
       socket.on('QUERY_ALL_NODES', function(){
         winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
         node.query_all_nodes()

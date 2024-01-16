@@ -388,8 +388,8 @@ class cbusAdmin extends EventEmitter {
                       "services": {},
                       "component": 'mergDefault2',
                       "moduleName": 'Unknown',
-                      "eventReadInProgress":false,
-                      "eventVariableReadInProgress":false
+                      "eventReadBusy":false,
+                      "eventVariableReadBusy":false
                   }
                   this.nodeConfig.nodes[ref] = output
                 }
@@ -761,6 +761,21 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+
+    async holdIfBusy(busyFlag){
+      var count = 0;
+      while(busyFlag){
+        await sleep(10);
+        count++
+        // check to ensure it doesn't lock up in this routine
+        if (count > 1000){
+          winston.info({message: 'mergAdminNode: busy hold break...... '});
+          break
+        }
+      }
+//      winston.info({message: 'mergAdminNode: busy hold released at count ' + count});
+    }
+
 //************************************************************************ */
 //
 // functions called by the socket service
@@ -793,9 +808,10 @@ class cbusAdmin extends EventEmitter {
   // need to use event index here, as used outside of learn mode
   async request_all_event_variables(nodeNumber, eventIndex, variableCount){
     // don't start if already being read
-    if(this.nodeConfig.nodes[nodeNumber].eventReadInProgress==false){
+    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventReadBusy)
+    if(this.nodeConfig.nodes[nodeNumber].eventReadBusy==false){
       // need to prevent all events being refreshed whilst we're doing this
-      this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress=true
+      this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=true
       // check event still exists first, as some events are dynamic on the module
       if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex]){
         // let clear out existing event variables...
@@ -814,7 +830,7 @@ class cbusAdmin extends EventEmitter {
           this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
         }
       }
-      this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress=false
+      this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=false
     } else {
       winston.info({message: 'mergAdminNode: request_all_event_variables: blocked '});
     }
@@ -822,15 +838,16 @@ class cbusAdmin extends EventEmitter {
 
   async request_all_node_events(nodeNumber){
     // don't start this if we already have an event variable read in progress
-    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadInProgress==false){
-      this.nodeConfig.nodes[nodeNumber].eventReadInProgress=true
+    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
+    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
+      this.nodeConfig.nodes[nodeNumber].eventReadBusy=true
       this.cbusSend(this.RQEVN(nodeNumber))
       this.removeNodeEvents(nodeNumber)
       this.cbusSend(this.NERD(nodeNumber))
       this.nodes_EventsNeedRefreshing[nodeNumber]=false
       var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
       await sleep(delay)  // give it some time to complete
-      this.nodeConfig.nodes[nodeNumber].eventReadInProgress=false
+      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false
     } else {
       winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
     }
@@ -879,8 +896,6 @@ class cbusAdmin extends EventEmitter {
     this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeId, eventIndex:data.eventIndex}
     // refresh done on receiving a WRACK
   }
-
-
 
 
 //************************************************************************ */

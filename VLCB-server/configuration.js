@@ -122,6 +122,20 @@ class configuration {
     var filePath = "./VLCB-server/config/modules/" + filename
     return jsonfile.readFileSync(filePath)
   }
+  writeModuleDescriptor(data){
+    if (data.moduleDescriptorName){
+      try {
+        winston.info({message: 'configuration: writeModuleDescriptor ' + data.moduleDescriptorName})
+        var filePath = this.configPath + "/modules/" + data.moduleDescriptorName + '.json'
+        jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+      } catch(e){
+        winston.error({message: 'configuration: writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
+      }
+    } else{
+      winston.error({message: 'configuration: writeModuleDescriptor - no moduleDescriptorName'})
+    }
+  }
+
   
 
   //
