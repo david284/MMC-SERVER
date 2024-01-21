@@ -2,7 +2,7 @@
   "moduleName":"CANINP",
   "nodeVariables": [
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 1",
 		"groupItems": [
 			{
@@ -44,7 +44,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 2",
 		"groupItems": [
 			{
@@ -86,7 +86,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 3",
 		"groupItems": [
 			{
@@ -128,7 +128,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 4",
 		"groupItems": [
 			{
@@ -170,7 +170,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 5",
 		"groupItems": [
 			{
@@ -212,7 +212,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 6",
 		"groupItems": [
 			{
@@ -254,7 +254,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 7",
 		"groupItems": [
 			{
@@ -296,7 +296,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "Output 8",
 		"groupItems": [
 			{
@@ -338,7 +338,7 @@
 		]
     },
     {
-		"type": "group",
+		"type": "NodeVariableGroup",
 		"displayTitle": "General",
 		"groupItems": [
 						{

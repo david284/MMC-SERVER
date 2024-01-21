@@ -2,7 +2,7 @@
   "moduleName":"CANSERVO",
   "nodeVariables": [
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 1",
       "groupItems": [
         {
@@ -58,7 +58,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 2",
       "groupItems": [
         {
@@ -114,7 +114,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 3",
       "groupItems": [
         {
@@ -170,7 +170,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 4",
       "groupItems": [
         {
@@ -226,7 +226,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 5",
       "groupItems": [
         {
@@ -282,7 +282,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 6",
       "groupItems": [
         {
@@ -338,7 +338,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 7",
       "groupItems": [
         {
@@ -394,7 +394,7 @@
       ]
     },
     {
-      "type": "group",
+      "type": "NodeVariableGroup",
       "displayTitle": "Servo 8",
       "groupItems": [
         {

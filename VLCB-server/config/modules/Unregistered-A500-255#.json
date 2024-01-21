@@ -87,8 +87,8 @@
       "min": 0
     },
     {
-      "type": "group",
-      "displayTitle": "Group",
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableGroup",
       "groupItems": [
         {
           "type": "NodeVariableBitArray",
@@ -170,7 +170,7 @@
             { "displayTitle": "Group test",
               "items": [
                 {
-                  "type": "group",
+                  "type": "NodeVariableGroup",
                   "displayTitle": "Group 1",
                   "groupItems": [
                     {
@@ -199,7 +199,7 @@
                   ]
                 },
                 {
-                  "type": "group",
+                  "type": "NodeVariableGroup",
                   "displayTitle": "Group 2",
                   "groupItems": [
                     {
@@ -284,11 +284,11 @@
             }
           ]
         },
-        { "displayTitle": "Group",
+        { "displayTitle": "NodeVariableGroup",
           "items": [
             {
-              "type": "group",
-              "displayTitle": "Group",
+              "type": "NodeVariableGroup",
+              "displayTitle": "NodeVariableGroup",
               "groupItems": [
                 {
                   "type": "NodeVariableNumber",
@@ -548,7 +548,7 @@
             }
           ]
         },
-        { "displayTitle": "Group",
+        { "displayTitle": "NodeVariableGroup",
           "items": [
             {
               "type": "EventVariableGroup",

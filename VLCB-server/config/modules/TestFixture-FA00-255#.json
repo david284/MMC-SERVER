@@ -1,4 +1,5 @@
 {
+  "moduleName":"TestFixture",
   "nodeVariables": [
     {
       "type": "NodeVariableBitArray",
@@ -52,12 +53,20 @@
       "nodeVariableIndex": 6,
       "displayTitle": "Select",
       "displaySubTitle": "NV6",
+      "bitMask": 3,
       "options": [
         {"label": "Options 1", "value": 0},
         {"label": "Options 2", "value": 1},
         {"label": "Options 3", "value": 2},
-        {"label": "Options 4", "value": 8}
+        {"label": "Options 4", "value": 3}
       ]
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 6,
+      "displayTitle": "Bit 0",
+      "displaySubTitle": "NV6 - bit 3",
+      "bit": 2
     },
     {
       "type": "NodeVariableSlider",
@@ -83,8 +92,8 @@
       "min": 0
     },
     {
-      "type": "group",
-      "displayTitle": "Group",
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableGroup",
       "groupItems": [
         {
           "type": "NodeVariableBitArray",
@@ -166,7 +175,7 @@
             { "displayTitle": "Group test",
               "items": [
                 {
-                  "type": "group",
+                  "type": "NodeVariableGroup",
                   "displayTitle": "Group 1",
                   "groupItems": [
                     {
@@ -195,7 +204,7 @@
                   ]
                 },
                 {
-                  "type": "group",
+                  "type": "NodeVariableGroup",
                   "displayTitle": "Group 2",
                   "groupItems": [
                     {
@@ -277,11 +286,11 @@
             }
           ]
         },
-        { "displayTitle": "Group",
+        { "displayTitle": "NodeVariableGroup",
           "items": [
             {
-              "type": "group",
-              "displayTitle": "Group",
+              "type": "NodeVariableGroup",
+              "displayTitle": "NodeVariableGroup",
               "groupItems": [
                 {
                   "type": "NodeVariableNumber",
@@ -541,7 +550,7 @@
             }
           ]
         },
-        { "displayTitle": "Group",
+        { "displayTitle": "NodeVariableGroup",
           "items": [
             {
               "type": "EventVariableGroup",
