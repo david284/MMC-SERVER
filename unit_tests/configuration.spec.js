@@ -259,7 +259,7 @@ describe('configuration tests', function(){
       winston.info({message: 'unit_test: file: ' + JSON.stringify(file)})
       winston.info({message: 'unit_test: END writeModuleDescriptor test'})
       done();
-		}, 100);
+		}, 50);
   })
 
 
