@@ -128,10 +128,12 @@ class configuration {
   }
   
 
-  // static file, so use fixed location
-  //
+  // uses two locations
+  // first tries the user location (OS dependant)
+  // and if not found, tries the fixed system location
+  // Must return 'undefined' if file not found
   readModuleDescriptor(filename){
-    var moduleDescriptor = ""
+    var moduleDescriptor = undefined
     try{
       // try to read user directory first
       var filePath = this.userConfigPath + "/modules/" + filename
