@@ -136,13 +136,13 @@ class configuration {
     var moduleDescriptor = undefined
     try{
       // try to read user directory first
-      var filePath = this.userConfigPath + "/modules/" + filename
+      var filePath = this.userConfigPath + "\\modules\\" + filename
       winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
       moduleDescriptor =  jsonfile.readFileSync(filePath)
     } catch(e1){
       try{
         // fall back to project directory if not in user directory
-        var filePath = "./VLCB-server/config/modules/" + filename
+        var filePath = this.configPath + "\\modules\\" + filename
         winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
         moduleDescriptor =  jsonfile.readFileSync(filePath)
       } catch(e2) {
@@ -207,10 +207,10 @@ class configuration {
     var result = false
     // check if directory exists
     if (fs.existsSync(directory)) {
-        winston.info({message: className + `: checkLayoutExists: ` + directory + ` Directory exists`});
+        winston.info({message: className + `: createDirectory: ` + directory + ` Directory exists`});
         result = false
       } else {
-        winston.info({message: className + `: checkLayoutExists: ` + directory + ` Directory not found - creating new one`});
+        winston.info({message: className + `: createDirectory: ` + directory + ` Directory not found - creating new one`});
         fs.mkdirSync(directory, { recursive: true })
         result = true
     } 
@@ -259,7 +259,7 @@ class configuration {
   // false if it already existed
   createLayoutFile(name){
     var result = false
-    var layoutPath = this.configPath + 'layouts/' + name + '/'
+    var layoutPath = this.configPath + 'layouts\\' + name + '\\'
     this.createDirectory(layoutPath)
     if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
       winston.debug({message: className + `: layoutDetails file exists`});

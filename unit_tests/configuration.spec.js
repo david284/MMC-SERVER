@@ -2,6 +2,7 @@ const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const winston = require('./config/winston_test.js')
 const fs = require('fs');
+const jsonfile = require('jsonfile')
 
 
 // Scope:
@@ -11,7 +12,7 @@ const fs = require('fs');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const expectedConfigPath = "./unit_tests/test_output/config/"
+const expectedConfigPath = ".\\unit_tests\\test_output\\config"
 // delete existing configs..
 fs.rmSync(expectedConfigPath, { recursive: true, force: true });
 
@@ -28,6 +29,9 @@ describe('configuration tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
 		done();
+    //
+    // Use local 'user' directory for tests...
+    config.userConfigPath = ".\\unit_tests\\test_output\\test_user"
 	});
 
 	beforeEach(function() {
@@ -172,16 +176,55 @@ describe('configuration tests', function(){
   })
 
 
-  // Assumes CANACC4-A501-2q.json file exists in /unit_tests/test_output/modules
+  function GetTestCase_readModuleDescriptor() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = "test#1", arg2 = 'pass', arg3 = 1}
+      if (a == 2) {arg1 = "test#2", arg2 = 'pass', arg3 = 2}
+      if (a == 3) {arg1 = "test#3", arg2 = 'fail', arg3 = 3}
+      testCases.push({'file':arg1, 'result':arg2, 'testNumber':arg3});
+    }
+    return testCases;
+  }
+
+  // test Aims
+  // add test file #1 to test 'user' module folder
+  // retrieve said file & check it's the same
+  // add test file #2 to 'system' module folder (but not 'user' folder)
+  // retrieve said file & check it's the same
+  // attempt to retrieve non-existant file and chek it fails
   //
-  it("readModuleDescriptor test", function (done) {
-    winston.info({message: 'unit_test: BEGIN readModuleDescriptor test '})
-    var result = config.readModuleDescriptor("CANACC4-A501-2q.json")
+  itParam("readModuleDescriptor test ${JSON.stringify(value)}", GetTestCase_readModuleDescriptor(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN readModuleDescriptor test ' + JSON.stringify(value)})
+    var testPattern = {"test":value.testNumber}
+    if (value.testNumber == 1){
+      // ensure 'user' modules directory exists
+      config.createDirectory(config.userConfigPath + "\\modules")
+      jsonfile.writeFileSync(
+        config.userConfigPath + "\\modules\\" + value.file,
+        testPattern,
+        {spaces: 2, EOL: '\r\n'})
+    }
+    if (value.testNumber == 2){
+      // ensure 'system' modules directory exists
+      config.createDirectory(config.configPath + "\\modules")
+      jsonfile.writeFileSync(
+        config.configPath + "\\modules\\" + value.file,
+        testPattern,
+        {spaces: 2, EOL: '\r\n'})
+    }
+    var file = config.readModuleDescriptor(value.file)
     setTimeout(function(){
-      winston.info({message: 'result length: ' + JSON.stringify(result).length})
-      expect(JSON.stringify(result).length).to.be.greaterThan(3)
+      if (file) {
+        winston.info({message: 'result length: ' + JSON.stringify(file).length})
+        expect(JSON.stringify(file).length).to.be.greaterThan(3)
+        expect(value.result).to.be.equal('pass')
+        expect (file.toString()).to.be.equal(testPattern.toString())
+      } else {
+        expect(value.result).to.be.equal('fail')
+      }
       winston.info({message: 'unit_test: END readModuleDescriptor test'})
-        done();
+      done();
 		}, 50);
   })
 
