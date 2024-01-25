@@ -17,11 +17,6 @@ config.setSocketServerPort(5552);
 
 exports.run = async function run(){
 
-  const os = require("os");
-  winston.info({message: 'User home directory ' + os.homedir()});
-  winston.info({message: 'Platform ' + os.platform()});
-
-
     // use command line to suppress starting cbusServer, so network port can be used
   // command line arguments will be 'node' <javascript file started> '--' <arguments starting at index 3>
   if ( CommandLineArgument('network')) {

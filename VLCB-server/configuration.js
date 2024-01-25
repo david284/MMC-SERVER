@@ -12,12 +12,21 @@ const jsonfile = require('jsonfile')
 // const has block sscope (like let), and can't be changed through reassigment or redeclared
 
 
+//
+// Modules are stored in two directories
+// module descriptors published in the distribution are found in /VLCB-server/config/modules
+// User loaded module descriptors are kept in an OS specific folder
+//
+
+const className = "configuration"
+
 class configuration {
 
   constructor(path) {
     this.config= {}
     this.configPath = path
-		//                        0123456789012345678901234567890123456789
+    this.userConfigPath =""
+    //                        0123456789012345678901234567890123456789
 		winston.debug({message:  '------------ configuration Constructor - ' + this.configPath});
 		this.createDirectory(this.configPath)
     this.createConfigFile(this.configPath)
@@ -26,6 +35,9 @@ class configuration {
 		this.createDirectory(this.configPath + 'layouts/')
     // and default layout exists (creates directory if not there also)
     this.createLayoutFile("default")
+    //
+    this.createUserDirectories()
+  
 	}
 
   // this value set by constructor, so no need for a 'set' method
@@ -33,9 +45,9 @@ class configuration {
   getConfigPath(){ 
     // check if directory exists
     if (fs.existsSync(this.configPath)) {
-      winston.info({message: `configuration: getConfigPath: ` + this.configPath});
+      winston.info({message: className + `: getConfigPath: ` + this.configPath});
     } else {
-      winston.error({message: `configuration: getConfigPath: Directory does not exist ` + this.configPath});
+      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.configPath});
     }
     return this.configPath
   }
@@ -58,11 +70,11 @@ class configuration {
   //
   //
   getListOfLayouts(){
-    winston.debug({message: `configuration: get_layout_list:`});
+    winston.debug({message: className + `: get_layout_list:`});
     var list = fs.readdirSync(this.configPath + 'layouts/').filter(function (file) {
       return fs.statSync(this.configPath + 'layouts/' +file).isDirectory();
     },(this));
-    winston.debug({message: `configuration: get_layout_list: ` + list});
+    winston.debug({message: className + `: get_layout_list: ` + list});
     return list
   }
 
@@ -119,20 +131,36 @@ class configuration {
   // static file, so use fixed location
   //
   readModuleDescriptor(filename){
-    var filePath = "./VLCB-server/config/modules/" + filename
-    return jsonfile.readFileSync(filePath)
+    var moduleDescriptor = ""
+    try{
+      // try to read user directory first
+      var filePath = this.userConfigPath + "/modules/" + filename
+      winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
+      moduleDescriptor =  jsonfile.readFileSync(filePath)
+    } catch(e1){
+      try{
+        // fall back to project directory if not in user directory
+        var filePath = "./VLCB-server/config/modules/" + filename
+        winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
+        moduleDescriptor =  jsonfile.readFileSync(filePath)
+      } catch(e2) {
+        winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
+      }
+    }
+    return moduleDescriptor
   }
   writeModuleDescriptor(data){
     if (data.moduleDescriptorName){
       try {
-        winston.info({message: 'configuration: writeModuleDescriptor ' + data.moduleDescriptorName})
-        var filePath = this.configPath + "/modules/" + data.moduleDescriptorName + '.json'
+        // always write to user directory
+        winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName})
+        var filePath = this.userConfigPath + "/modules/" + data.moduleDescriptorName + '.json'
         jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
       } catch(e){
-        winston.error({message: 'configuration: writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
+        winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
       }
     } else{
-      winston.error({message: 'configuration: writeModuleDescriptor - no moduleDescriptorName'})
+      winston.error({message: className + ': writeModuleDescriptor - no moduleDescriptorName'})
     }
   }
 
@@ -177,14 +205,29 @@ class configuration {
     var result = false
     // check if directory exists
     if (fs.existsSync(directory)) {
-        winston.info({message: `socketServer: checkLayoutExists: ` + directory + ` Directory exists`});
+        winston.info({message: className + `: checkLayoutExists: ` + directory + ` Directory exists`});
         result = false
       } else {
-        winston.info({message: `socketServer: checkLayoutExists: ` + directory + ` Directory not found - creating new one`});
+        winston.info({message: className + `: checkLayoutExists: ` + directory + ` Directory not found - creating new one`});
         fs.mkdirSync(directory, { recursive: true })
         result = true
     } 
     return result
+  }
+
+  createUserDirectories(){
+    // create user directories
+    const os = require("os");
+    const homePath = os.homedir()
+    winston.info({message: className + ': Platform: ' + os.platform()});
+    winston.info({message: className + ': User home directory: ' + homePath});
+
+    //
+    if (os.platform() == "win32"){
+      this.userConfigPath = homePath + "\\AppData\\local\\MMC-SERVER"
+      this.createDirectory(this.userConfigPath)
+    }
+    winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
   }
 
   // return true if config file freshly created
@@ -192,10 +235,10 @@ class configuration {
   createConfigFile(path){
     var result = false
     if (fs.existsSync(path + 'config.json')) {
-      winston.debug({message: `configuration: config file exists`});
+      winston.debug({message: className + `: config file exists`});
       result = false
     } else {
-        winston.debug({message: `configuration: config file not found - creating new one`});
+        winston.debug({message: className + `: config file not found - creating new one`});
         const config = {
           "serverAddress": "localhost",
           "cbusServerPort": 5550,
@@ -217,10 +260,10 @@ class configuration {
     var layoutPath = this.configPath + 'layouts/' + name + '/'
     this.createDirectory(layoutPath)
     if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
-      winston.debug({message: `configuration: layoutDetails file exists`});
+      winston.debug({message: className + `: layoutDetails file exists`});
       result = false
     } else {
-        winston.debug({message: `configuration: config file not found - creating new one`});
+        winston.debug({message: className + `: config file not found - creating new one`});
         const layoutDetails = {
           "layoutDetails": {
             "title": name + " layout",
@@ -239,7 +282,4 @@ class configuration {
 }
 
 
-
-//module.exports = new configuration();
 module.exports = ( path ) => { return new configuration(path) }
-//module.exports = new configuration(path)
