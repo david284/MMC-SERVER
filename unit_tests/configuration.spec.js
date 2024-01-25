@@ -216,10 +216,10 @@ describe('configuration tests', function(){
     var file = config.readModuleDescriptor(value.file)
     setTimeout(function(){
       if (file) {
-        winston.info({message: 'result length: ' + JSON.stringify(file).length})
+        winston.info({message: 'unit_test: result length: ' + JSON.stringify(file).length})
         expect(JSON.stringify(file).length).to.be.greaterThan(3)
         expect(value.result).to.be.equal('pass')
-        expect (file.toString()).to.be.equal(testPattern.toString())
+        expect (JSON.stringify(file)).to.be.equal(JSON.stringify(testPattern))
       } else {
         expect(value.result).to.be.equal('fail')
       }
@@ -228,7 +228,41 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
-  
+  // test Aims
+  // ensure test 'user' module folder exists
+  // ensure test file is deleted
+  // write module - should be written to test 'user' module folder
+  // read file & check it contains the written data
+  //
+  it("writeModuleDescriptor test", function (done) {
+    winston.info({message: 'unit_test: BEGIN writeModuleDescriptor test '})
+    // ensure 'user' modules directory exists
+    config.createDirectory(config.userConfigPath + "\\modules")
+    var testFilePath = config.userConfigPath + "\\modules\\writeTest.json"
+    // ensure test file doesn't exist
+    fs.unlinkSync(testFilePath)
+    if (fs.existsSync(testFilePath)){
+      winston.info({message: 'unit_test: ERROR: test file not deleted: test aborted'})
+    } else {
+      winston.info({message: 'unit_test: test file deleted'})
+      // continue with test
+      var testPattern = {"test":"writeModuleDescriptor test",
+                        "moduleDescriptorName":"writeTest"}
+      config.writeModuleDescriptor(testPattern)
+    }
+    setTimeout(function(){
+      file = jsonfile.readFileSync(testFilePath)
+      winston.info({message: 'unit_test: result length: ' + JSON.stringify(file).length})
+      expect(JSON.stringify(file).length).to.be.greaterThan(3)
+      expect (file.toString()).to.be.equal(testPattern.toString())
+      expect (JSON.stringify(file)).to.be.equal(JSON.stringify(testPattern))
+      winston.info({message: 'unit_test: file: ' + JSON.stringify(file)})
+      winston.info({message: 'unit_test: END writeModuleDescriptor test'})
+      done();
+		}, 100);
+  })
+
+
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
