@@ -20,6 +20,17 @@ const jsonfile = require('jsonfile')
 
 const className = "configuration"
 
+const defaultLayoutDetails = {
+  "layoutDetails": {
+    "title": "default layout",
+    "subTitle": "layout auto created",
+    "nextNodeId": 800
+  },
+  "nodeDetails": {},
+  "eventDetails": {}
+  }
+
+
 class configuration {
 
   constructor(path) {
@@ -38,7 +49,7 @@ class configuration {
       this.createDirectory(this.userConfigPath + '/layouts')
       this.createDirectory(this.userConfigPath + '/modules')
       // and default layout exists (creates directory if not there also)
-      this.createLayoutFile("default")
+      this.createLayoutFile(defaultLayoutDetails.layoutDetails.title)
     } 
 	}
 
@@ -75,25 +86,30 @@ class configuration {
   //
   getListOfLayouts(){
     winston.debug({message: className + `: get_layout_list:`});
-    var list = fs.readdirSync(this.userConfigPath + '/layouts/').filter(function (file) {
-      return fs.statSync(this.userConfigPath + '/layouts/' +file).isDirectory();
-    },(this));
-    winston.debug({message: className + `: get_layout_list: ` + list});
-    return list
+    if (this.userConfigPath){
+      var list = fs.readdirSync(this.userConfigPath + '/layouts/').filter(function (file) {
+        return fs.statSync(this.userConfigPath + '/layouts/' +file).isDirectory();
+      },(this));
+      winston.debug({message: className + `: get_layout_list: ` + list});
+      return list
+    }
   }
 
   // reads/writes layoutDetails file from/to current layout folder
   //
   readLayoutDetails(){
     var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
-    var file = undefined
-    try{
-      file = jsonfile.readFileSync(filePath + "layoutDetails.json")
-    } catch(e){
-      winston.info({message: className + `: readLayoutDetails: Error reading ` + filePath + "layoutDetails.json"});
-      this.config.currentLayoutFolder = "default"
-      filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
-      file = jsonfile.readFileSync(filePath + "layoutDetails.json")
+    var file = defaultLayoutDetails // preload with default in case read fails
+    if(this.userConfigPath){
+      try{
+        file = jsonfile.readFileSync(filePath + "layoutDetails.json")
+      } catch(e){
+        winston.info({message: className + `: readLayoutDetails: Error reading ` + filePath + "layoutDetails.json"});
+        // couldn't find the layout, so get the default layout...
+        this.config.currentLayoutFolder = defaultLayoutDetails.layoutDetails.title
+        filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
+        file = jsonfile.readFileSync(filePath + "layoutDetails.json")
+      }
     }
     return file
   }
@@ -290,16 +306,10 @@ class configuration {
       result = false
     } else {
         winston.debug({message: className + `: config file not found - creating new one`});
-        const layoutDetails = {
-          "layoutDetails": {
-            "title": name + " layout",
-            "subTitle": "layout auto created",
-            "nextNodeId": 800
-          },
-          "nodeDetails": {},
-          "eventDetails": {}
-          }
-        jsonfile.writeFileSync(layoutPath + 'layoutDetails.json', layoutDetails, {spaces: 2, EOL: '\r\n'})
+        // use defaultLayoutDetails
+        var newLayout = defaultLayoutDetails
+        newLayout.layoutDetails.title = name
+        jsonfile.writeFileSync(layoutPath + 'layoutDetails.json', newLayout, {spaces: 2, EOL: '\r\n'})
         result = true
     }
     return result
