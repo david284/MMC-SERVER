@@ -33,8 +33,9 @@ class configuration {
     this.config = jsonfile.readFileSync(this.configPath + '/config.json')
     // create a user directory
     this.createUserDirectories()
-    // also ensure 'layouts' folder exists in user directory
-		this.createDirectory(this.userConfigPath + '/layouts/')
+    // also ensure 'layouts' & 'modules' folders exists in user directory
+		this.createDirectory(this.userConfigPath + '/layouts')
+		this.createDirectory(this.userConfigPath + '/modules')
     // and default layout exists (creates directory if not there also)
     this.createLayoutFile("default")
     //
@@ -165,7 +166,8 @@ class configuration {
   writeModuleDescriptor(data){
     if (data.moduleDescriptorName){
       try {
-        // always write to user directory
+        // always write to user directory - check it exists first
+    		if (this.createDirectory(this.userConfigPath + '/modules'))
         winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName})
         var filePath = this.userConfigPath + "/modules/" + data.moduleDescriptorName + '.json'
         jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
