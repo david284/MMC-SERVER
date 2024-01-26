@@ -25,21 +25,21 @@ class configuration {
   constructor(path) {
     this.config= {}
     this.configPath = path
-    this.userConfigPath =""
+    this.userConfigPath = undefined
     //                        0123456789012345678901234567890123456789
 		winston.debug({message:  '------------ configuration Constructor - ' + this.configPath});
 		this.createDirectory(this.configPath)
     this.createConfigFile(this.configPath)
     this.config = jsonfile.readFileSync(this.configPath + '/config.json')
-    // create a user directory
-    this.createUserDirectories()
-    // also ensure 'layouts' & 'modules' folders exists in user directory
-		this.createDirectory(this.userConfigPath + '/layouts')
-		this.createDirectory(this.userConfigPath + '/modules')
-    // and default layout exists (creates directory if not there also)
-    this.createLayoutFile("default")
-    //
-  
+    // create a user directory - will set userConfigPath
+    this.createUserDirectory()
+    if (this.userConfigPath){
+      // also ensure 'layouts' & 'modules' folders exists in user directory
+      this.createDirectory(this.userConfigPath + '/layouts')
+      this.createDirectory(this.userConfigPath + '/modules')
+      // and default layout exists (creates directory if not there also)
+      this.createLayoutFile("default")
+    } 
 	}
 
   // this value set by constructor, so no need for a 'set' method
@@ -58,15 +58,17 @@ class configuration {
   //
   getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
-    // check folder name not blank, set to default if so...
-    if (folder.length == 0) {folder = 'default'}
-    this.config.currentLayoutFolder = folder
-    // now create current layout folder if it doesn't exist
-		if (this.createDirectory(this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder)) {
-      // if freshly created, create blank layout file & directory, using folder name as layout name
-      this.createLayoutFile(this.config.currentLayoutFolder)
+    if (this.userConfigPath){
+      // check folder name not blank, set to default if so...
+      if (folder.length == 0) {folder = 'default'}
+      this.config.currentLayoutFolder = folder
+      // now create current layout folder if it doesn't exist
+      if (this.createDirectory(this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder)) {
+        // if freshly created, create blank layout file & directory, using folder name as layout name
+        this.createLayoutFile(this.config.currentLayoutFolder)
+      }
+      jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
     }
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -96,9 +98,11 @@ class configuration {
     return file
   }
   writeLayoutDetails(data){
-    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutDetails.json"
-    winston.info({message: className + `: writeLayoutDetails: ` + filePath});
-    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    if(this.userConfigPath){
+      var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutDetails.json"
+      winston.info({message: className + `: writeLayoutDetails: ` + filePath});
+      jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    }
   }
 
 
@@ -164,18 +168,20 @@ class configuration {
     return moduleDescriptor
   }
   writeModuleDescriptor(data){
-    if (data.moduleDescriptorName){
-      try {
-        // always write to user directory - check it exists first
-    		if (this.createDirectory(this.userConfigPath + '/modules'))
-        winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName})
-        var filePath = this.userConfigPath + "/modules/" + data.moduleDescriptorName + '.json'
-        jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
-      } catch(e){
-        winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
+    if (this.userConfigPath){
+      if (data.moduleDescriptorName){
+        try {
+          // always write to user directory - check it exists first
+          if (this.createDirectory(this.userConfigPath + '/modules'))
+          winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName})
+          var filePath = this.userConfigPath + "/modules/" + data.moduleDescriptorName + '.json'
+          jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+        } catch(e){
+          winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
+        }
+      } else{
+        winston.error({message: className + ': writeModuleDescriptor - no moduleDescriptorName'})
       }
-    } else{
-      winston.error({message: className + ': writeModuleDescriptor - no moduleDescriptorName'})
     }
   }
 
@@ -230,7 +236,7 @@ class configuration {
     return result
   }
 
-  createUserDirectories(){
+  createUserDirectory(){
     // create user directories
     const os = require("os");
     const homePath = os.homedir()
