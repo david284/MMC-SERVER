@@ -173,6 +173,7 @@ exports.socketServer = function(config) {
         config.setCurrentLayoutFolder(data)
         layoutDetails = config.readLayoutDetails()
         io.emit('LAYOUT_DETAILS', layoutDetails)
+        node.query_all_nodes()  // refresh all node data to fill new layout
       })
 
       
