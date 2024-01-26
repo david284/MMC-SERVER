@@ -6,7 +6,7 @@ const cbusServer = require('./cbusServer')
 const jsonServer = require('./jsonServer')
 const socketServer = require('./socketServer')
 
-const config = require('../VLCB-server/configuration.js')('./VLCB-server/config/')
+const config = require('../VLCB-server/configuration.js')('./VLCB-server/config')
 
 // set config items
 config.setServerAddress("localhost")

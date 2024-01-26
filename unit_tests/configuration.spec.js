@@ -12,8 +12,9 @@ const jsonfile = require('jsonfile')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const expectedConfigPath = ".\\unit_tests\\test_output\\config"
+const expectedConfigPath = "./unit_tests/test_output/config"
 // delete existing configs..
+winston.info({message: 'Deleting output path ' + expectedConfigPath});
 fs.rmSync(expectedConfigPath, { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(expectedConfigPath)
@@ -30,7 +31,7 @@ describe('configuration tests', function(){
 		winston.info({message: ' '});
     //
     // Use local 'user' directory for tests...
-    config.userConfigPath = ".\\unit_tests\\test_output\\test_user"
+    config.userConfigPath = "./unit_tests/test_output/test_user"
 		done();
 	});
 
@@ -199,17 +200,17 @@ describe('configuration tests', function(){
     var testPattern = {"test":value.testNumber}
     if (value.testNumber == 1){
       // ensure 'user' modules directory exists
-      config.createDirectory(config.userConfigPath + "\\modules")
+      config.createDirectory(config.userConfigPath + "/modules")
       jsonfile.writeFileSync(
-        config.userConfigPath + "\\modules\\" + value.file,
+        config.userConfigPath + "/modules/" + value.file,
         testPattern,
         {spaces: 2, EOL: '\r\n'})
     }
     if (value.testNumber == 2){
       // ensure 'system' modules directory exists
-      config.createDirectory(config.configPath + "\\modules")
+      config.createDirectory(config.configPath + "/modules")
       jsonfile.writeFileSync(
-        config.configPath + "\\modules\\" + value.file,
+        config.configPath + "/modules/" + value.file,
         testPattern,
         {spaces: 2, EOL: '\r\n'})
     }
@@ -237,8 +238,8 @@ describe('configuration tests', function(){
   it("writeModuleDescriptor test", function (done) {
     winston.info({message: 'unit_test: BEGIN writeModuleDescriptor test '})
     // ensure 'user' modules directory exists
-    config.createDirectory(config.userConfigPath + "\\modules")
-    var testFilePath = config.userConfigPath + "\\modules\\writeTest.json"
+    config.createDirectory(config.userConfigPath + "/modules")
+    var testFilePath = config.userConfigPath + "/modules/writeTest.json"
     // delete test file if it already exists
     if (fs.existsSync(testFilePath)){
       fs.unlinkSync(testFilePath)

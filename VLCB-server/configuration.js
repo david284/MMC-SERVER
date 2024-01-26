@@ -30,11 +30,11 @@ class configuration {
 		winston.debug({message:  '------------ configuration Constructor - ' + this.configPath});
 		this.createDirectory(this.configPath)
     this.createConfigFile(this.configPath)
-    this.config = jsonfile.readFileSync(this.configPath + 'config.json')
+    this.config = jsonfile.readFileSync(this.configPath + '/config.json')
     // create a user directory
     this.createUserDirectories()
     // also ensure 'layouts' folder exists in user directory
-		this.createDirectory(this.userConfigPath + 'layouts/')
+		this.createDirectory(this.userConfigPath + '/layouts/')
     // and default layout exists (creates directory if not there also)
     this.createLayoutFile("default")
     //
@@ -65,15 +65,15 @@ class configuration {
       // if freshly created, create blank layout file & directory, using folder name as layout name
       this.createLayoutFile(this.config.currentLayoutFolder)
     }
-    jsonfile.writeFileSync(this.userConfigPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
   //
   getListOfLayouts(){
     winston.debug({message: className + `: get_layout_list:`});
-    var list = fs.readdirSync(this.userConfigPath + '\\layouts\\').filter(function (file) {
-      return fs.statSync(this.userConfigPath + '\\layouts\\' +file).isDirectory();
+    var list = fs.readdirSync(this.userConfigPath + '/layouts/').filter(function (file) {
+      return fs.statSync(this.userConfigPath + '/layouts/' +file).isDirectory();
     },(this));
     winston.debug({message: className + `: get_layout_list: ` + list});
     return list
@@ -82,20 +82,20 @@ class configuration {
   // reads/writes layoutDetails file from/to current layout folder
   //
   readLayoutDetails(){
-    var filePath = this.userConfigPath + '\\layouts\\' + this.config.currentLayoutFolder + "/"
+    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
     var file = undefined
     try{
       file = jsonfile.readFileSync(filePath + "layoutDetails.json")
     } catch(e){
       winston.info({message: className + `: readLayoutDetails: Error reading ` + filePath + "layoutDetails.json"});
       this.config.currentLayoutFolder = "default"
-      filePath = this.userConfigPath + '\\layouts\\' + this.config.currentLayoutFolder + "/"
+      filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
       file = jsonfile.readFileSync(filePath + "layoutDetails.json")
     }
     return file
   }
   writeLayoutDetails(data){
-    var filePath = this.userConfigPath + '\\layouts\\' + this.config.currentLayoutFolder + "/layoutDetails.json"
+    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutDetails.json"
     winston.info({message: className + `: writeLayoutDetails: ` + filePath});
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
@@ -147,13 +147,13 @@ class configuration {
     var moduleDescriptor = undefined
     try{
       // try to read user directory first
-      var filePath = this.userConfigPath + "\\modules\\" + filename
+      var filePath = this.userConfigPath + "/modules/" + filename
       winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
       moduleDescriptor =  jsonfile.readFileSync(filePath)
     } catch(e1){
       try{
         // fall back to project directory if not in user directory
-        var filePath = this.configPath + "\\modules\\" + filename
+        var filePath = this.configPath + "/modules/" + filename
         winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
         moduleDescriptor =  jsonfile.readFileSync(filePath)
       } catch(e2) {
@@ -184,7 +184,7 @@ class configuration {
   getCbusServerPort(){return this.config.cbusServerPort}
   setCbusServerPort(port){
     this.config.cbusServerPort = port
-    jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -192,7 +192,7 @@ class configuration {
   getJsonServerPort(){return this.config.jsonServerPort}
   setJsonServerPort(port){
     this.config.jsonServerPort = port
-    jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -200,7 +200,7 @@ class configuration {
   getSocketServerPort(){return this.config.socketServerPort}
   setSocketServerPort(port){  
     this.config.socketServerPort = port
-    jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -208,7 +208,7 @@ class configuration {
   getServerAddress(){return this.config.serverAddress}
   setServerAddress(address){  
     this.config.serverAddress = address
-    jsonfile.writeFileSync(this.configPath + 'config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
 
@@ -237,7 +237,7 @@ class configuration {
 
     //
     if (os.platform() == "win32"){
-      this.userConfigPath = homePath + "\\AppData\\local\\MMC-SERVER"
+      this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
       this.createDirectory(this.userConfigPath)
     }
     winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
@@ -247,7 +247,8 @@ class configuration {
   // false if it already existed
   createConfigFile(path){
     var result = false
-    if (fs.existsSync(path + 'config.json')) {
+    var fullPath = path + '/config.json'
+    if (fs.existsSync(fullPath)) {
       winston.debug({message: className + `: config file exists`});
       result = false
     } else {
@@ -260,7 +261,7 @@ class configuration {
           "currentLayoutFolder": "default"
         }
         this.config = config
-        jsonfile.writeFileSync(path + "config.json", config, {spaces: 2, EOL: '\r\n'})
+        jsonfile.writeFileSync(fullPath, config, {spaces: 2, EOL: '\r\n'})
         result = true
     }
     return result
@@ -270,7 +271,7 @@ class configuration {
   // false if it already existed
   createLayoutFile(name){
     var result = false
-    var layoutPath = this.userConfigPath + '\\layouts\\' + name + '\\'
+    var layoutPath = this.userConfigPath + '/layouts/' + name + '/'
     this.createDirectory(layoutPath)
     if (fs.existsSync(layoutPath + 'layoutDetails.json')) {
       winston.debug({message: className + `: layoutDetails file exists`});
