@@ -74,6 +74,9 @@ describe('socketServer tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
         
+    //
+    // Use local 'user' directory for tests...
+    config.userConfigPath = ".\\unit_tests\\test_output\\test_user"
 		done();
 	});
 

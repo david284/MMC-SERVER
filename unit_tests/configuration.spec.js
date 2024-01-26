@@ -28,10 +28,10 @@ describe('configuration tests', function(){
 		winston.info({message: '------------------------------ configuration tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
-		done();
     //
     // Use local 'user' directory for tests...
     config.userConfigPath = ".\\unit_tests\\test_output\\test_user"
+		done();
 	});
 
 	beforeEach(function() {
@@ -239,8 +239,11 @@ describe('configuration tests', function(){
     // ensure 'user' modules directory exists
     config.createDirectory(config.userConfigPath + "\\modules")
     var testFilePath = config.userConfigPath + "\\modules\\writeTest.json"
-    // ensure test file doesn't exist
-    fs.unlinkSync(testFilePath)
+    // delete test file if it already exists
+    if (fs.existsSync(testFilePath)){
+      fs.unlinkSync(testFilePath)
+    }
+    // now check it's not there
     if (fs.existsSync(testFilePath)){
       winston.info({message: 'unit_test: ERROR: test file not deleted: test aborted'})
     } else {
@@ -266,6 +269,8 @@ describe('configuration tests', function(){
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
+    // ensure 'layouts' folder exists in 'test' user directory
+		config.createDirectory(config.userConfigPath + '/layouts/')
     result = config.getListOfLayouts()
     winston.info({message: 'result: ' + result})
 //    expect(config.getCurrentLayoutFolder()).to.equal(testFolder)
