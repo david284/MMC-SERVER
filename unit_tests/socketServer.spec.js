@@ -76,7 +76,7 @@ describe('socketServer tests', function(){
         
     //
     // Use local 'user' directory for tests...
-    config.userConfigPath = ".\\unit_tests\\test_output\\test_user"
+    config.userConfigPath = "./unit_tests/test_output/test_user"
 		done();
 	});
 

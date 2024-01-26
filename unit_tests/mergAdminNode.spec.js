@@ -330,7 +330,7 @@ describe('mergAdminNode tests', function(){
       expect(nodeTraffic[0].json.mnemonic).to.equal("WRACK")
       winston.info({message: 'unit_test: END WRACK test'});
 			done();
-		}, 10);
+		}, 50);
   })
 
 

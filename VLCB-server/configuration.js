@@ -240,6 +240,10 @@ class configuration {
       this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
       this.createDirectory(this.userConfigPath)
     }
+    if (os.platform() == "linux"){
+      this.userConfigPath = homePath + "/MMC-SERVER"
+      this.createDirectory(this.userConfigPath)
+    }
     winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
   }
 
