@@ -1,50 +1,58 @@
 'use strict';
-const winston = require('winston');		// use config from root instance
+const winston = require('./winston.js');
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')
 const jsonServer = require('./jsonServer')
 const socketServer = require('./socketServer')
+const utils = require('./utilities.js');
 
 const config = require('../VLCB-server/configuration.js')('./VLCB-server/config')
 
-// set config items
-config.setServerAddress("localhost")
-config.setCbusServerPort(5550);
-config.setJsonServerPort(5551);
-config.setSocketServerPort(5552);
+// set config items if they don't exist
+if (!config.getServerAddress()){
+  config.setServerAddress("localhost")
+}
+if (!config.getCbusServerPort()){
+  config.setCbusServerPort(5550);
+}
+if (!config.getJsonServerPort()){
+  config.setJsonServerPort(5551);
+}
+if (!config.getSocketServerPort()){
+  config.setSocketServerPort(5552);
+}
 
+run()
 
-exports.run = async function run(){
+async function run(){
 
     // use command line to suppress starting cbusServer, so network port can be used
   // command line arguments will be 'node' <javascript file started> '--' <arguments starting at index 3>
-  if ( CommandLineArgument('network')) {
-    winston.info({message: '\nUsing network...\n'});
-  }
-  else{
     var serialPorts = await getSerialPorts()
-    var targetSerial = undefined
-    if (targetSerial = CommandLineArgument('serialport')){
-			const myArray = targetSerial.split("=");
-      winston.info({message: 'Using serial port ' + myArray[1]});
-      if (serialPorts.find(({ path }) => path === myArray[1]) ){
-        canUSB.canUSB(myArray[1], config.getCbusServerPort(), config.getServerAddress())
-      } else {
-        await terminateApp('serial port ' + myArray[1] + ' not found \n');
+    var targetSerial = config.getSerialPort()
+    if (targetSerial){
+      winston.info({message: 'Using serial port ' + targetSerial});
+      if (serialPorts.find(({ path }) => path === targetSerial) ){
+        canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
+        cbusServer.cbusServer(config)
+        winston.info({message: 'Starting cbusServer...\n'});
+          } else {
+        await terminateApp('serial port ' + targetSerial + ' not found \n');
       }
     } else {
       winston.info({message: 'Finding CANUSBx...'});
       if ( await connectCANUSBx() ) {
+        cbusServer.cbusServer(config)
+        winston.info({message: 'Starting cbusServer...\n'});
       } else {
-        await terminateApp('CANUSBx not found \n');
+        winston.info({message: 'Failed to find CANUSBx...'});
+        winston.info({message: 'Assuming network connection'});
       }
     }
-    cbusServer.cbusServer(config)
-    winston.info({message: 'Starting cbusServer...\n'});
-  }
 
-  await sleep(2000);   // allow time for connection to establish
+
+  await utils.sleep(2000);   // allow time for connection to establish
 
   jsonServer.jsonServer(config)
   socketServer.socketServer(config)
@@ -106,17 +114,8 @@ function CommandLineArgument(argument){
 
 async function terminateApp(message){
   winston.info({message: "App terminate : " + message});
-  sleep(500);   // allow time for logs to catch up
+  utils.sleep(500);   // allow time for logs to catch up
   winston.info({message: "Exiting.... "});
   process.exit()
 }
 
-function sleep(timeout) {
-	return new Promise(function (resolve, reject) {
-		//here our function should be implemented 
-		setTimeout(()=>{
-			resolve();
-			;} , timeout
-		);
-	});
-};

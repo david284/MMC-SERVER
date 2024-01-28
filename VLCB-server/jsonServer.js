@@ -1,7 +1,12 @@
 const net = require('net')
 const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
-
+const utils = require('./utilities.js');
+//
+// JSON Server
+// listens from data from mergAdminNode (as server)
+// Connects to CAN via serial or network (as client) 
+//
 
 exports.jsonServer = function (config) {
 
@@ -9,35 +14,43 @@ exports.jsonServer = function (config) {
 
     let cbusClient = new net.Socket();
 
-    cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
+    try{
+      cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
         winston.info({message:'JSON Server: Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
-    });
+      });
+    } catch(e){
+      winston.info({message:'JSON Server: cbusClient connection failed: ' + e})
+    }
 
     cbusClient.on('data', function (data) {
         cbusClient.setKeepAlive(true, 60000);
         let outMsg = data.toString().split(";");
         for (let i = 0; i < outMsg.length - 1; i++) {
             let cbusLibMsg = cbusLib.decode(outMsg[i])
-            /*let message={}
-            message['mnemonic']=cbusLibMsg.mnemonic
-            message['nodeNumber']=cbusLibMsg.nodeNumber
-            message['eventNumber']=cbusLibMsg.eventNumber
-            let cbusLibJsonMsg = cbusLib.encode(message)
-            console.log(`New ::${outMsg[i]} ==> ${JSON.stringify(cbusLibMsg)} ==> ${JSON.stringify(cbusLibJsonMsg)} => ${cbusLibJsonMsg.encoded}`)*/
             clients.forEach(function (client) {
                 let output = JSON.stringify(cbusLibMsg);
-                //console.log('Output to Client : ' + output);
-                //winston.info({message:'Json Server Output to Client : ' + output})
+                winston.debug({message:'Json Server Output to Client : ' + output})
                 client.write(output);
             });
         }
     });
 
+    cbusClient.on('error', async function (err) {
+      winston.error({message:`jsonServer: Client error: ` + err.stack});
+      process.exit()
+      /*
+      await utils.sleep(5000)
+      cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
+        winston.info({message:'JSON Server: Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
+      });
+      */
+    })
+
+
     const server = net.createServer(function (socket) {
         socket.setKeepAlive(true, 60000);
         clients.push(socket);
-        //console.log('Client Connected to JSON Server');
-        winston.info({message:`jsonServer: Client Connected`})
+        winston.info({message:`jsonServer: Connection to jsonServer`})
 
         socket.on('data', function (data) {
             winston.debug({message:`jsonServer: Data Received : ${data}`})

@@ -98,8 +98,11 @@ class configuration {
   // reads/writes layoutDetails file from/to current layout folder
   //
   readLayoutDetails(){
-    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
     var file = defaultLayoutDetails // preload with default in case read fails
+    if (this.config.currentLayoutFolder == undefined) {
+      this.config.currentLayoutFolder = defaultLayoutDetails.layoutDetails.title
+    }
+    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
     if(this.userConfigPath){
       try{
         file = jsonfile.readFileSync(filePath + "layoutDetails.json")
@@ -108,7 +111,14 @@ class configuration {
         // couldn't find the layout, so get the default layout...
         this.config.currentLayoutFolder = defaultLayoutDetails.layoutDetails.title
         filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
-        file = jsonfile.readFileSync(filePath + "layoutDetails.json")
+        try {
+          file = jsonfile.readFileSync(filePath + "layoutDetails.json")
+        } catch(e){
+          // ok, totally failed, so load with defaults
+          winston.info({message: className + `: readLayoutDetails: Error reading ` + filePath + "layoutDetails.json"});
+          winston.info({message: className + `: readLayoutDetails: defaults loaded`});
+          file = defaultLayoutDetails
+        }
       }
     }
     return file
@@ -202,6 +212,14 @@ class configuration {
   }
 
   
+
+  //
+  //
+  getSerialPort(){return this.config.serialPort}
+  setSerialPort(port){
+    this.config.serialPort = port
+    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+  }
 
   //
   //

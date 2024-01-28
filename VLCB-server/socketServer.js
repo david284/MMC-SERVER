@@ -181,7 +181,7 @@ exports.socketServer = function(config) {
         winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
         const layout_list = config.getListOfLayouts()
         io.emit('LAYOUTS_LIST', layout_list)
-        winston.info({message: `socketServer: sent LAYOUTS_LIST` + layout_list});
+        winston.info({message: `socketServer: sent LAYOUTS_LIST ` + layout_list});
       })
 
       
