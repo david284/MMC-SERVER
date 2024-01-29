@@ -1,6 +1,6 @@
 const winston = require('winston');		// use config from root instance
 const jsonfile = require('jsonfile')
-const packageInfo = require('.././package.json')
+const packageInfo = require(process.cwd()+'/package.json')
 
 const admin = require('./mergAdminNode.js')
 const server = require('http').createServer()
