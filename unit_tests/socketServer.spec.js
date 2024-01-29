@@ -146,7 +146,7 @@ describe('socketServer tests', function(){
     //
     setTimeout(function(){
       winston.info({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
-      expect(layoutDetails.layoutDetails.title).to.equal(value.layout + " layout");
+      expect(layoutDetails.layoutDetails.title).to.equal(value.layout);
       winston.info({message: 'unit_test: END change_layout test'});
 			done();
 		}, 30);

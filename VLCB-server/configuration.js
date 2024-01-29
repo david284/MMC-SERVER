@@ -65,6 +65,16 @@ class configuration {
     return this.configPath
   }
 
+  // update current config file
+  writeConfig(){
+    winston.debug({message: className + ` writeConfig` });
+    try{
+      jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    } catch(e){
+      winston.info({message: className + `: readLayoutDetails: Error writing config.json`});
+    }
+  }
+
   //
   //
   getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
@@ -78,7 +88,7 @@ class configuration {
         // if freshly created, create blank layout file & directory, using folder name as layout name
         this.createLayoutFile(this.config.currentLayoutFolder)
       }
-      jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+      this.writeConfig()
     }
   }
 
@@ -100,18 +110,23 @@ class configuration {
   readLayoutDetails(){
     var file = defaultLayoutDetails // preload with default in case read fails
     if (this.config.currentLayoutFolder == undefined) {
+      winston.info({message: className + `: readLayoutDetails: currentLayoutFolder undefined`});
       this.config.currentLayoutFolder = defaultLayoutDetails.layoutDetails.title
+      this.writeConfig()
     }
     var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
     if(this.userConfigPath){
       try{
+        winston.info({message: className + `: readLayoutDetails: reading ` + filePath + "layoutDetails.json"});
         file = jsonfile.readFileSync(filePath + "layoutDetails.json")
       } catch(e){
         winston.info({message: className + `: readLayoutDetails: Error reading ` + filePath + "layoutDetails.json"});
         // couldn't find the layout, so get the default layout...
         this.config.currentLayoutFolder = defaultLayoutDetails.layoutDetails.title
+        this.writeConfig()
         filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
         try {
+          winston.info({message: className + `: readLayoutDetails: reading ` + filePath + "layoutDetails.json"});
           file = jsonfile.readFileSync(filePath + "layoutDetails.json")
         } catch(e){
           // ok, totally failed, so load with defaults
