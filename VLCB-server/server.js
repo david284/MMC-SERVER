@@ -7,7 +7,8 @@ const jsonServer = require('./jsonServer')
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
 
-const config = require('../VLCB-server/configuration.js')('./VLCB-server/config')
+// look for the config folder based on the directory of this module
+const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
 
 // set config items if they don't exist
 if (!config.getServerAddress()){

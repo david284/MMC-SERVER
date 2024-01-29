@@ -14,7 +14,8 @@ const jsonfile = require('jsonfile')
 
 //
 // Modules are stored in two directories
-// module descriptors published in the distribution are found in /VLCB-server/config/modules
+// module descriptors published in the distribution are found in <this.configPath>/modules
+// ( typically /VLCB-server/config/modules )
 // User loaded module descriptors are kept in an OS specific folder
 //
 
@@ -172,7 +173,7 @@ class configuration {
   // static file, so use fixed location
   //
   readMergConfig(){
-    var filePath = "./VLCB-server/config/mergConfig.json"
+    var filePath = this.configPath + "/mergConfig.json"
     return jsonfile.readFileSync(filePath)
   }
 
@@ -180,7 +181,7 @@ class configuration {
   // static file, so use fixed location
   //
   readServiceDefinitions(){
-    var filePath = "./VLCB-server/config/Service_Definitions.json"
+    var filePath = this.configPath + "/Service_Definitions.json"
     return jsonfile.readFileSync(filePath)
   }
   
