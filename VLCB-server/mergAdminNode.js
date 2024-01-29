@@ -135,7 +135,8 @@ class cbusAdmin extends EventEmitter {
                 //this.cbusSend(this.QLOC(session))
             },
             '50': (cbusMsg) => {// RQNN -  Node Number
-                this.emit('requestNodeNumber')
+              winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
+              this.emit('requestNodeNumber', cbusMsg.nodeNumber)
             },
             '52': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});

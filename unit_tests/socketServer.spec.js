@@ -130,9 +130,9 @@ describe('socketServer tests', function(){
   function GetTestCase_layout() {
     var arg1, testCases = [];
     for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = "unit_test1"}
-      if (a == 2) {arg1 = "unit_test2"}
-      if (a == 3) {arg1 = "unit_test3"}
+      if (a == 1) {arg1 = "unit_test1 layout"}
+      if (a == 2) {arg1 = "unit_test2 layout"}
+      if (a == 3) {arg1 = "unit_test3 layout"}
       testCases.push({'layout':arg1});
     }
     return testCases;
@@ -168,6 +168,44 @@ describe('socketServer tests', function(){
 		}, 100);
   })
 
+
+  itParam("SET_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN SET_NODE_NUMBER test - nodeNumber ' + value.nodeNumber});
+    mock_jsonServer.messagesIn = []
+    socket.emit('SET_NODE_NUMBER', value.nodeNumber)
+
+    setTimeout(function(){
+      CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+      winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
+      expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});
+			done();
+		}, 200);
+  })
+
+
+
+
+
+
+  //
+  itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
+    var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    var receivedNodeNumber = undefined
+    socket.once('REQUEST_NODE_NUMBER', function (nodeNumber) {
+      receivedNodeNumber = nodeNumber
+      winston.debug({message: 'unit_test: node.once - REQUEST_NODE_NUMBER ' + nodeNumber});
+    })
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      expect(receivedNodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
+			done();
+		}, 100);
+  })
 
 
 })

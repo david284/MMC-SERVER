@@ -12,7 +12,7 @@ const admin = require('./../VLCB-server/mergAdminNode.js')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const config = require('../VLCB-server/configuration.js')('./unit_tests/test_output/config/')
+const config = require('../VLCB-server/configuration.js')('./unit_tests/test_output/config')
 
 // set config items
 config.setServerAddress("localhost")
@@ -314,6 +314,29 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: END DKEEP test'});
 			done();
 		}, 10);
+  })
+
+
+  // 0x50 RQNN
+  //
+  itParam("RQNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN RQNN test ' + JSON.stringify(value)});
+    var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    var receivedNodeNumber = undefined
+    node.once('requestNodeNumber', function (nodeNumber) {
+      receivedNodeNumber = nodeNumber
+      winston.debug({message: 'unit_test: node.once - requestNodeNumber ' + nodeNumber});
+    })
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("RQNN")
+      expect(receivedNodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END RQNN test'});
+			done();
+		}, 100);
   })
 
 

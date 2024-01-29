@@ -215,6 +215,11 @@ exports.socketServer = function(config) {
         process.exit();
       })
       
+      socket.on('SET_NODE_NUMBER', function(nodeNumber){
+        winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
+        node.cbusSend(node.SNN(nodeNumber))
+      })
+      
     });
     
     server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
@@ -297,16 +302,20 @@ exports.socketServer = function(config) {
   })
 
 
-  node.on('requestNodeNumber', function () {
+  node.on('requestNodeNumber', function (nodeNumber) {   
     if (layoutDetails.layoutDetails.assignId) {
-      const newNodeId = parseInt(layoutDetails.layoutDetails.nextNodeId)
-      winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
+//      const newNodeId = parseInt(layoutDetails.layoutDetails.nextNodeId)
+//      winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
+      /*
       node.cbusSend(node.SNN(newNodeId))
       layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
       config.writeLayoutDetails(layoutDetails)
       io.emit('LAYOUT_DETAILS', layoutDetails)
       node.cbusSend(node.QNN())
+      */
     }
+    winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent`});
+    io.emit('REQUEST_NODE_NUMBER', nodeNumber)
   })
 
 

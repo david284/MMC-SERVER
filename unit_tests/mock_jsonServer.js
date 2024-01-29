@@ -16,7 +16,9 @@ class mock_jsonServer{
   
       socket.on('data', function (data) {
         winston.info({message:`mock_jsonServer: Data Received : ${data}`})
-        this.messagesIn.push(data)
+        let indata = data.toString().replace(/}{/g, "}|{")
+        const outMsg = indata.toString().split("|")
+        this.messagesIn.push(outMsg[0])
       }.bind(this));
 
     }.bind(this));

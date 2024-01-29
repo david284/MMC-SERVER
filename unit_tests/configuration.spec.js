@@ -3,7 +3,7 @@ const itParam = require('mocha-param');
 const winston = require('./config/winston_test.js')
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-
+var path = require('path');
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -13,9 +13,10 @@ const jsonfile = require('jsonfile')
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
 const expectedConfigPath = "./unit_tests/test_output/config"
+
 // delete existing configs..
 winston.info({message: 'Deleting output path ' + expectedConfigPath});
-fs.rmSync(expectedConfigPath, { recursive: true, force: true });
+fs.rmSync(path.join(expectedConfigPath, "config.json"), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(expectedConfigPath)
 
