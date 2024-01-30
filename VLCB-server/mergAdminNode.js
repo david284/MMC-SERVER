@@ -788,10 +788,10 @@ class cbusAdmin extends EventEmitter {
 //************************************************************************ */
 
   query_all_nodes(){
+    winston.info({message: name + ': query_all_nodes'});
     for (let node in this.nodeConfig.nodes) {
       this.nodeConfig.nodes[node].status = false
     }
-    winston.info({message: name + ': query_all_nodes ' + JSON.stringify(this.nodeConfig.nodes)});
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.saveConfig()
     this.cbusSend(this.QNN())
