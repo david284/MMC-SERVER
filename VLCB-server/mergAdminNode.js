@@ -13,7 +13,7 @@ function decToHex(num, len) {
     return parseInt(num).toString(16).toUpperCase().padStart(len, '0');
 }
 
-
+const name = 'mergAdminNode'
 
 class cbusAdmin extends EventEmitter {
     constructor(config) {
@@ -139,7 +139,9 @@ class cbusAdmin extends EventEmitter {
               this.emit('requestNodeNumber', cbusMsg.nodeNumber)
             },
             '52': (cbusMsg) => {
+              // NNACK - acknowledge for set node number
                 winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
+                this.cbusSend(this.QNN())   // force refresh of nodes
             },
             '59': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
@@ -679,6 +681,7 @@ class cbusAdmin extends EventEmitter {
         this.emit('node', this.nodeConfig.nodes[nodeId]);
     }
 
+
     checkVariableConfig(nodeId){
       if (this.nodeConfig.nodes[nodeId].variableConfig == undefined) {
         // only proceed if variableConfig doesn't exist, if it does exist, then just return, nothing to see here...
@@ -802,7 +805,12 @@ class cbusAdmin extends EventEmitter {
 
   
   remove_node(nodeNumber) {
+    winston.info({message: name + ': remove_node ' + nodeNumber});
+    var nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
+    winston.info({message: name + ': nodes ' + nodes});
     delete this.nodeConfig.nodes[nodeNumber]
+    nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
+    winston.info({message: name + ': nodes ' + nodes});
     this.saveConfig()
   }
 

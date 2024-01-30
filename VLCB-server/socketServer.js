@@ -126,9 +126,11 @@ exports.socketServer = function(config) {
         node.teach_event(data.nodeId, data.eventName, 1, 0)
       })
 
-      socket.on('REMOVE_NODE', function(data){
-        winston.info({message: `socketServer: REMOVE_NODE ${JSON.stringify(data)}`});
-        node.remove_node(data.nodeId)
+      socket.on('REMOVE_NODE', function(nodeNumber){
+        winston.info({message: `socketServer: REMOVE_NODE ${nodeNumber}`});
+        if (nodeNumber != undefined){
+          node.remove_node(nodeNumber)
+        }
       })
 
       socket.on('REMOVE_EVENT', function(data){
@@ -157,6 +159,7 @@ exports.socketServer = function(config) {
       })
         
       socket.on('UPDATE_LAYOUT_DETAILS', function(data){
+	  		winston.info({message: `socketServer: UPDATE_LAYOUT_DETAILS`});
 	  		winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
         layoutDetails = data
         config.writeLayoutDetails(layoutDetails)
@@ -297,24 +300,13 @@ exports.socketServer = function(config) {
 
   node.on('nodeDescriptor', function (nodeDescriptor) {
     winston.info({message: `socketServer: NodeDescriptor Sent`});
-    winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
+//    winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
     io.emit('NODE_DESCRIPTOR', nodeDescriptor);
   })
 
 
-  node.on('requestNodeNumber', function (nodeNumber) {   
-    if (layoutDetails.layoutDetails.assignId) {
-//      const newNodeId = parseInt(layoutDetails.layoutDetails.nextNodeId)
-//      winston.info({message: `socketServer: requestNodeNumber : ${newNodeId}`});
-      /*
-      node.cbusSend(node.SNN(newNodeId))
-      layoutDetails.layoutDetails.nextNodeId = newNodeId + 1
-      config.writeLayoutDetails(layoutDetails)
-      io.emit('LAYOUT_DETAILS', layoutDetails)
-      node.cbusSend(node.QNN())
-      */
-    }
-    winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent`});
+  node.on('requestNodeNumber', function (nodeNumber) {
+    winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber});
     io.emit('REQUEST_NODE_NUMBER', nodeNumber)
   })
 

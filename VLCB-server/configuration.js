@@ -25,7 +25,7 @@ const defaultLayoutDetails = {
   "layoutDetails": {
     "title": "default layout",
     "subTitle": "layout auto created",
-    "nextNodeId": 800
+    "baseNodeNumber": 256
   },
   "nodeDetails": {},
   "eventDetails": {}
@@ -136,6 +136,10 @@ class configuration {
           file = defaultLayoutDetails
         }
       }
+    }
+    // ensure change has been applied
+    if (file.layoutDetails.baseNodeNumber == undefined){
+      file.layoutDetails.baseNodeNumber = 256
     }
     return file
   }

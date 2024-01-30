@@ -104,7 +104,7 @@ describe('configuration tests', function(){
       "layoutDetails": {
         "title": value.layout + " layout",
         "subTitle": "layout auto created",
-        "nextNodeId": 800
+        "baseNodeNumber": 800
       },
       "nodeDetails": {},
       "eventDetails": {}
