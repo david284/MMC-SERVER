@@ -141,7 +141,7 @@ class cbusAdmin extends EventEmitter {
             '52': (cbusMsg) => {
               // NNACK - acknowledge for set node number
                 winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
-                this.cbusSend(this.QNN())   // force refresh of nodes
+                this.query_all_nodes()   // force refresh of nodes
             },
             '59': (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
@@ -791,6 +791,7 @@ class cbusAdmin extends EventEmitter {
     for (let node in this.nodeConfig.nodes) {
       this.nodeConfig.nodes[node].status = false
     }
+    winston.info({message: name + ': query_all_nodes ' + JSON.stringify(this.nodeConfig.nodes)});
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.saveConfig()
     this.cbusSend(this.QNN())
