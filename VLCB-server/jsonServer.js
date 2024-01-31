@@ -4,8 +4,8 @@ const winston = require('winston');		// use config from root instance
 const utils = require('./utilities.js');
 //
 // JSON Server
-// listens from data from mergAdminNode (as server)
-// Connects to CAN via serial or network (as client) 
+// listens from data from mergAdminNode (as server) - socket
+// Connects to CAN via serial or network (as client) - cbusClient
 //
 
 exports.jsonServer = function (config) {
@@ -37,13 +37,6 @@ exports.jsonServer = function (config) {
 
     cbusClient.on('error', async function (err) {
       winston.error({message:`jsonServer: Client error: ` + err.stack});
-      process.exit()
-      /*
-      await utils.sleep(5000)
-      cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
-        winston.info({message:'JSON Server: Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
-      });
-      */
     })
 
 
@@ -71,7 +64,6 @@ exports.jsonServer = function (config) {
 
         socket.on("error", function (err) {
             clients.splice(clients.indexOf(socket), 1);
-            winston.error({message:`jsonServer: Caught flash policy server socket error: `});
             winston.error({message:`jsonServer: ` + err.stack});
         });
 

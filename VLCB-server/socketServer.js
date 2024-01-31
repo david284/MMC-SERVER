@@ -3,6 +3,7 @@ const jsonfile = require('jsonfile')
 const packageInfo = require(process.cwd()+'/package.json')
 
 const admin = require('./mergAdminNode.js')
+const jsonServer = require('./jsonServer')
 const server = require('http').createServer()
 const io = require('socket.io')(server, {
     cors: {
@@ -15,6 +16,8 @@ const io = require('socket.io')(server, {
 exports.socketServer = function(config) {
     let layoutDetails = config.readLayoutDetails()
     let node = new admin.cbusAdmin(config);
+    let jsServer = jsonServer.jsonServer(config)
+
 
     io.on('connection', function(socket){
   		winston.info({message: 'socketServer:  a user connected'});

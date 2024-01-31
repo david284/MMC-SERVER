@@ -3,9 +3,10 @@ const winston = require('./winston.js');
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')
-const jsonServer = require('./jsonServer')
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
+
+const name = "server.js"
 
 // look for the config folder based on the directory of this module
 const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
@@ -28,34 +29,35 @@ run()
 
 async function run(){
 
-    // use command line to suppress starting cbusServer, so network port can be used
-  // command line arguments will be 'node' <javascript file started> '--' <arguments starting at index 3>
-    var serialPorts = await getSerialPorts()
+  // use config to get target serial port if it exists
+  // otherwise look for a CANUSBx
+  // if all else fails try plain network connection
+  var serialPorts = await getSerialPorts()
     var targetSerial = config.getSerialPort()
     if (targetSerial){
-      winston.info({message: 'Using serial port ' + targetSerial});
+      winston.info({message: name + ': Using serial port ' + targetSerial});
       if (serialPorts.find(({ path }) => path === targetSerial) ){
         canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
         cbusServer.cbusServer(config)
         winston.info({message: 'Starting cbusServer...\n'});
           } else {
-        await terminateApp('serial port ' + targetSerial + ' not found \n');
+        //await terminateApp('serial port ' +try targetSerial + ' not found \n');
+        winston.info({message: name + ': serial port ' + targetSerial + ' not found \n'});
+        winston.info({message: name + ': trying network connection'});
       }
     } else {
       winston.info({message: 'Finding CANUSBx...'});
       if ( await connectCANUSBx() ) {
         cbusServer.cbusServer(config)
-        winston.info({message: 'Starting cbusServer...\n'});
+        winston.info({message: name + ': Starting cbusServer...\n'});
       } else {
-        winston.info({message: 'Failed to find CANUSBx...'});
-        winston.info({message: 'Assuming network connection'});
+        winston.info({message: name + ': Failed to find CANUSBx...'});
+        winston.info({message: name + ': trying network connection'});
       }
     }
 
-
   await utils.sleep(2000);   // allow time for connection to establish
 
-  jsonServer.jsonServer(config)
   socketServer.socketServer(config)
 
 
