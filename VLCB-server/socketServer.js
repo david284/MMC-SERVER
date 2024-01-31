@@ -13,7 +13,8 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config) {
+
+exports.socketServer = function(config, status) {
 let layoutDetails = config.readLayoutDetails()
 let node = new admin.cbusAdmin(config);
 let jsServer = jsonServer.jsonServer(config)
@@ -182,6 +183,14 @@ let jsServer = jsonServer.jsonServer(config)
     })
 
     
+    socket.on('REQUEST_BUS_CONNECTION', function(){
+      winston.info({message: `socketServer: REQUEST_BUS_CONNECTION`});
+      io.emit('BUS_CONNECTION', status.busConnection)
+
+      winston.info({message: `socketServer: sent BUS_CONNECTION`});
+    })
+
+    
     socket.on('REQUEST_LAYOUTS_LIST', function(){
       winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
       const layout_list = config.getListOfLayouts()
@@ -324,9 +333,9 @@ let jsServer = jsonServer.jsonServer(config)
   //
   //*************************************************************************************** */
 
-  jsServer.on('no_connection', function (data) {
-    winston.info({message: `socketServer: NO_CONNECTION sent`});
-    io.emit('NO_CONNECTION', data)
+  jsServer.on('no_bus_connection', function (data) {
+    winston.info({message: `socketServer: no_bus_connection received`});
+    status.busConnection.state = false
   })
 
 }

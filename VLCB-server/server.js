@@ -27,38 +27,51 @@ if (!config.getSocketServerPort()){
 
 run()
 
+let status = {"busConnection":{
+  "state":false
+  }
+}
+
 async function run(){
 
   // use config to get target serial port if it exists
   // otherwise look for a CANUSBx
   // if all else fails try plain network connection
   var serialPorts = await getSerialPorts()
-    var targetSerial = config.getSerialPort()
-    if (targetSerial){
-      winston.info({message: name + ': Using serial port ' + targetSerial});
-      if (serialPorts.find(({ path }) => path === targetSerial) ){
-        canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
-        cbusServer.cbusServer(config)
-        winston.info({message: 'Starting cbusServer...\n'});
-          } else {
-        //await terminateApp('serial port ' +try targetSerial + ' not found \n');
-        winston.info({message: name + ': serial port ' + targetSerial + ' not found \n'});
-        winston.info({message: name + ': trying network connection'});
-      }
-    } else {
-      winston.info({message: 'Finding CANUSBx...'});
-      if ( await connectCANUSBx() ) {
-        cbusServer.cbusServer(config)
-        winston.info({message: name + ': Starting cbusServer...\n'});
-      } else {
-        winston.info({message: name + ': Failed to find CANUSBx...'});
-        winston.info({message: name + ': trying network connection'});
-      }
+  status.busConnection["serialPortList"] = serialPorts
+  var targetSerial = config.getSerialPort()
+  if (targetSerial){
+    winston.info({message: name + ': Using serial port ' + targetSerial});
+    if (serialPorts.find(({ path }) => path === targetSerial) ){
+      canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
+      cbusServer.cbusServer(config)
+      status.busConnection.state = true
+      winston.info({message: 'Starting cbusServer...\n'});
+        } else {
+      //await terminateApp('serial port ' +try targetSerial + ' not found \n');
+      winston.info({message: name + ': serial port ' + targetSerial + ' not found \n'});
+      winston.info({message: name + ': trying network connection'});
+      status.busConnection.state = true // assume true until network fails
     }
+  } else {
+    winston.info({message: 'Finding CANUSBx...'});
+    if ( await connectCANUSBx() ) {
+      cbusServer.cbusServer(config)
+      winston.info({message: name + ': Starting cbusServer...\n'});
+      status.busConnection.state = true
+    } else {
+      winston.info({message: name + ': Failed to find CANUSBx...'});
+      winston.info({message: name + ': trying network connection'});
+      status.busConnection.state = true // assume true until network fails
+    }
+  }
 
   await utils.sleep(2000);   // allow time for connection to establish
 
-  socketServer.socketServer(config)
+  winston.info({message: name + ': status' + JSON.stringify(status)});
+  
+
+  socketServer.socketServer(config, status)
 
 
 }
