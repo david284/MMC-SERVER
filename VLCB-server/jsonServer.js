@@ -2,11 +2,14 @@ const net = require('net')
 const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
 const utils = require('./utilities.js');
+const EventEmitter = require('events').EventEmitter;
+
 //
 // JSON Server
 // listens from data from mergAdminNode (as server) - socket
 // Connects to CAN via serial or network (as client) - cbusClient
 //
+const eventEmitter = new EventEmitter();
 
 exports.jsonServer = function (config) {
 
@@ -37,6 +40,7 @@ exports.jsonServer = function (config) {
 
     cbusClient.on('error', async function (err) {
       winston.error({message:`jsonServer: Client error: ` + err.stack});
+      eventEmitter.emit ('no_connection', err.stack)
     })
 
 
@@ -72,7 +76,7 @@ exports.jsonServer = function (config) {
             let input = JSON.parse(data)
             let cbusMsg = cbusLib.encode(input)
             let outMsg = cbusLib.decode(cbusMsg.encoded)
-            await sleep(100); // Wait for one second
+            await utils.sleep(100); // Wait for one second
             clients.forEach(function (client) {
                 // Don't want to send it to sender
                 if (client === sender)
@@ -85,9 +89,12 @@ exports.jsonServer = function (config) {
 
     server.listen(config.getJsonServerPort())
 
+    return eventEmitter
 }
 
+
+/*
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
+*/
