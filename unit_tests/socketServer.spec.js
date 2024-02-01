@@ -21,12 +21,12 @@ const config = require('../VLCB-server/configuration.js')('./unit_tests/test_out
 
 // set config items
 config.setServerAddress("localhost")
-config.setCbusServerPort(5560);
-config.setJsonServerPort(5561);
-config.setSocketServerPort(5562);
+config.setCbusServerPort(5570);
+config.setJsonServerPort(5571);
+config.setSocketServerPort(5572);
 
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+//const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
 socketServer.socketServer(config)
 
 

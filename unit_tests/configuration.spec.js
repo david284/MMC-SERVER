@@ -267,6 +267,30 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+  //
+  it("getModuleDescriptorFileList test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getModuleDescriptorFileList test '})
+    // user files
+    var testFilePath = path.join(config.userConfigPath, "modules/CANABC-AAFF-1q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    // system files
+    testFilePath = path.join(config.configPath, "modules/CANABC-AAFF-3q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    testFilePath = path.join(config.configPath, "modules/CANABC-CCFF-4q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    //
+    var result = config.getModuleDescriptorFileList("AAFF")
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect (result.length).to.be.equal(2)
+      winston.info({message: 'unit_test: END getModuleDescriptorFileList test'})
+        done();
+		}, 50);
+  })
+
+
 
   //
   it("getLayoutList test ${JSON.stringify(value)}", function () {

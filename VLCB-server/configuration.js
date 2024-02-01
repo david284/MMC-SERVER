@@ -2,7 +2,7 @@
 const winston = require('winston');		// use config from root instance
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-
+var path = require('path');
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -38,6 +38,8 @@ class configuration {
     this.config= {}
     this.configPath = path
     this.userConfigPath = undefined
+    this.userModuleDescriptorFileList = []
+    this.systemModuleDescriptorFileList = []
     //                        0123456789012345678901234567890123456789
 		winston.debug({message:  '------------ configuration Constructor - ' + this.configPath});
 		this.createDirectory(this.configPath)
@@ -231,6 +233,43 @@ class configuration {
     }
   }
 
+  getModuleDescriptorFileList(moduleDescriptor){
+    var result =[]
+    try{
+      if (this.userConfigPath){
+        if (this.userModuleDescriptorFileList.length == 0){
+          this.userModuleDescriptorFileList = fs.readdirSync(path.join(this.userConfigPath, 'modules'))
+          winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
+        }
+      }
+      if (this.configPath){
+        if (this.systemModuleDescriptorFileList.length == 0){
+          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.configPath, 'modules'))
+          winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
+        }
+      }
+    } catch (e) {
+      winston.error({message: className + ': ERROR getModuleDescriptorFileList: ' + e})
+    }
+    this.userModuleDescriptorFileList.forEach(item => {
+      var array = item.split('-')
+      if (array[1]){
+        if (array[1] == moduleDescriptor ){
+          result.push(item)
+        }
+      }
+    })
+    this.systemModuleDescriptorFileList.forEach(item => {
+      var array = item.split('-')
+      if (array[1]){
+        if (array[1] == moduleDescriptor ){
+          result.push(item)
+        }
+      }
+    })
+    winston.debug({message: className + ': getModuleDescriptorFileList: result: ' + JSON.stringify(result)})
+    return result
+  }
   
 
   //
