@@ -3,7 +3,6 @@ const jsonfile = require('jsonfile')
 const packageInfo = require(process.cwd()+'/package.json')
 
 const admin = require('./mergAdminNode.js')
-const jsonServer = require('./jsonServer')
 const server = require('http').createServer()
 const io = require('socket.io')(server, {
     cors: {
@@ -17,7 +16,7 @@ const io = require('socket.io')(server, {
 exports.socketServer = function(config, status) {
 let layoutDetails = config.readLayoutDetails()
 let node = new admin.cbusAdmin(config);
-let jsServer = jsonServer.jsonServer(config)
+//let jsServer = jsonServer.jsonServer(config)
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -316,6 +315,12 @@ let jsServer = jsonServer.jsonServer(config)
   })
 
 
+  node.on('node_descriptor_file_list', function (nodeNumber, list) {
+    winston.info({message: `socketServer: NODE_DESCRIPTOR_FILE_LIST Sent nodeNumber ` + nodeNumber});
+    io.emit('NODE_DESCRIPTOR_FILE_LIST', nodeNumber, list);
+  })
+
+
   node.on('requestNodeNumber', function (nodeNumber) {
     winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber});
     io.emit('REQUEST_NODE_NUMBER', nodeNumber)
@@ -333,7 +338,7 @@ let jsServer = jsonServer.jsonServer(config)
   //
   //*************************************************************************************** */
 
-  jsServer.on('no_bus_connection', function (data) {
+  config.eventBus.on('no_bus_connection', function (data) {
     winston.info({message: `socketServer: no_bus_connection received`});
     status.busConnection.state = false
   })

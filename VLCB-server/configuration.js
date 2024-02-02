@@ -3,6 +3,7 @@ const winston = require('winston');		// use config from root instance
 const fs = require('fs');
 const jsonfile = require('jsonfile')
 var path = require('path');
+const EventEmitter = require('events').EventEmitter;
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -35,6 +36,7 @@ const defaultLayoutDetails = {
 class configuration {
 
   constructor(path) {
+    this.eventBus = new EventEmitter();
     this.config= {}
     this.configPath = path
     this.userConfigPath = undefined
@@ -234,6 +236,7 @@ class configuration {
   }
 
   getModuleDescriptorFileList(moduleDescriptor){
+    winston.info({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})
     var result =[]
     try{
       if (this.userConfigPath){
@@ -253,16 +256,16 @@ class configuration {
     }
     this.userModuleDescriptorFileList.forEach(item => {
       var array = item.split('-')
-      if (array[1]){
-        if (array[1] == moduleDescriptor ){
+      if (array[array.length-2]){
+        if (array[array.length-2] == moduleDescriptor ){
           result.push(item)
         }
       }
     })
     this.systemModuleDescriptorFileList.forEach(item => {
       var array = item.split('-')
-      if (array[1]){
-        if (array[1] == moduleDescriptor ){
+      if (array[array.length-2]){
+        if (array[array.length-2] == moduleDescriptor ){
           result.push(item)
         }
       }

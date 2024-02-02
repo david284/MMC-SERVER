@@ -1,8 +1,5 @@
 {
   "modules": {
-    "A500": {
-      "name": "Test fixture"
-    },
     "A501": {
       "name": "CANACC4"
     },
@@ -87,29 +84,11 @@
     "A53F": {
       "name": "CANOUT"
     },
-    "65": {
-      "name": "ETHNIGE"
-    },
-    "99": {
-      "name": "LIGHTS"
-    },
-    "2A01":{
-      "name": "CANMULTI"
-    },
-    "2A02":{
-      "name": "MERGLCB"
-    },
-    "FA00": {
-      "name": "TestFixture"
-    },
     "FA62": {
       "name": "CAN4in4out"
     },
     "FA63": {
       "name": "CAN1in1out"
-    },
-    "FAFE": {
-      "name": "SER1in1out"
     }
 
   },

@@ -4,6 +4,7 @@ const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')
 const socketServer = require('./socketServer')
+const jsonServer = require('./jsonServer')
 const utils = require('./utilities.js');
 
 const name = "server.js"
@@ -71,6 +72,7 @@ async function run(){
   winston.info({message: name + ': status' + JSON.stringify(status)});
   
 
+  jsonServer.jsonServer(config)
   socketServer.socketServer(config, status)
 
 

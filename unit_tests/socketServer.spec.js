@@ -26,8 +26,15 @@ config.setJsonServerPort(5571);
 config.setSocketServerPort(5572);
 
 
-//const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
-socketServer.socketServer(config)
+const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+
+
+let status = {"busConnection":{
+  "state":true
+  }
+}
+
+socketServer.socketServer(config, status)
 
 
 function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}
@@ -50,6 +57,7 @@ function hexToString(hex) {
     return new TextDecoder().decode(bytes);
 }
 
+const name = 'socketServer unit_test'
 
 describe('socketServer tests', function(){
 
@@ -114,7 +122,7 @@ describe('socketServer tests', function(){
   it("request_layout_list test", function (done) {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
     //
-    socket.on('LAYOUTS_LIST', function (data) {
+    socket.once('LAYOUTS_LIST', function (data) {
 			var layouts_list = data;
 			winston.info({message: ' LAYOUTS_LIST : ' + JSON.stringify(layouts_list)});
 			});	
@@ -156,7 +164,7 @@ describe('socketServer tests', function(){
   it("request_version test", function (done) {
     winston.info({message: 'unit_test: BEGIN request_version test '});
     //
-    socket.on('VERSION', function (data) {
+    socket.once('VERSION', function (data) {
 			var version = data;
 			winston.info({message: ' VERSION : ' + JSON.stringify(version)});
 			});	
@@ -205,6 +213,38 @@ describe('socketServer tests', function(){
       winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
 			done();
 		}, 100);
+  })
+
+
+  //
+  it("no_bus_connection test", function (done) {
+    winston.info({message: 'unit_test: BEGIN no_bus_connection test '});
+    status.busConnection.state = true   // start with true
+    config.eventBus.emit('no_bus_connection', "test")
+    //
+    setTimeout(function(){
+      winston.debug({message: name + ': status.busConnection.state ' + status.busConnection.state});
+      expect (status.busConnection.state).to.equal(false)
+      winston.info({message: 'unit_test: END no_bus_connection test'});
+			done();
+		}, 100);
+  })
+
+
+  it("REQUEST_BUS_CONNECTION test", function (done) {
+    winston.info({message: 'unit_test: BEGIN REQUEST_BUS_CONNECTION test '});
+    var result = false
+    socket.once('BUS_CONNECTION', function (data) {
+      result = true
+    })
+    socket.emit('REQUEST_BUS_CONNECTION')
+    //
+    setTimeout(function(){
+      winston.debug({message: name + ': result ' + result});
+      expect (result).to.equal(true)
+      winston.info({message: 'unit_test: END REQUEST_BUS_CONNECTION test'});
+			done();
+		}, 200);
   })
 
 

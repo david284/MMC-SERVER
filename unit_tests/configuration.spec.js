@@ -54,6 +54,23 @@ describe('configuration tests', function(){
   //****************************************************************************************** */  
 
   //
+  it("eventBus test", function (done) {
+    winston.info({message: 'unit_test: BEGIN eventBus test '});
+    var result = false
+    config.eventBus.once('test', function () {
+      result = true
+    })
+    config.eventBus.emit('test')
+    setTimeout(function(){
+      winston.info({message: 'result: ' + result})
+      expect(result).to.equal(true);
+      winston.info({message: 'unit_test: END test test'})
+        done();
+		}, 50);
+  })
+
+
+  //
   it("configPath test", function () {
     winston.info({message: 'unit_test: BEGIN configPath test '});
     result = config.getConfigPath();
@@ -276,7 +293,7 @@ describe('configuration tests', function(){
     testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
     // system files
-    testFilePath = path.join(config.configPath, "modules/CANABC-AAFF-3q.json")
+    testFilePath = path.join(config.configPath, "modules/CAN-ABC-AAFF-3q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
     testFilePath = path.join(config.configPath, "modules/CANABC-CCFF-4q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
