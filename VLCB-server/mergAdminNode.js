@@ -701,9 +701,7 @@ class cbusAdmin extends EventEmitter {
         // only proceed if moduleDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         var moduleName = this.nodeConfig.nodes[nodeId].moduleName;                  // should be populated by PNN
         var moduleIdentifier = this.nodeConfig.nodes[nodeId].moduleIdentifier;      // should be populated by PNN
-        if (this.merg['modules'][moduleIdentifier]) {
-        // if we get here then it's a module type we know about (present in mergConfig.json)
-        if (moduleName == "Unknown") {
+        if ((moduleName == "Unknown") || (moduleName == undefined)) {
           // we can't handle a module we don't know about, so just warn & skip rest
           winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
         } else {
@@ -731,9 +729,6 @@ class cbusAdmin extends EventEmitter {
             // and the client can check for filename, and if no data, then fileload failed
             this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
           }
-}
-        } else {
-            winston.warn({message: 'mergAdminNode: checkNodeDescriptor: module not found in mergConfig ' + moduleIdentifier});
         }
       }
     }
