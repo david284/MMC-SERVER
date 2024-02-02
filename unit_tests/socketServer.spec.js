@@ -105,6 +105,13 @@ describe('socketServer tests', function(){
   //
   //****************************************************************************************** */  
 
+  function GetTestCase_boolean() {
+    var arg1, testCases = [];
+    testCases.push({'boolean':true});
+    testCases.push({'boolean':false});
+    return testCases;
+  }
+
   function GetTestCase_nodeNumber() {
     var arg1, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -217,15 +224,15 @@ describe('socketServer tests', function(){
 
 
   //
-  it("no_bus_connection test", function (done) {
-    winston.info({message: name + ': BEGIN no_bus_connection test '});
-    status.busConnection.state = true   // start with true
-    config.eventBus.emit('no_bus_connection', "test")
+  itParam("bus_connection_state test ${JSON.stringify(value)}", GetTestCase_boolean(), function (done, value) {
+//    it("bus_connection_state test", function (done) {
+    winston.info({message: name + ': BEGIN bus_connection_state test - boolean ' + value.boolean});
+    config.eventBus.emit('bus_connection_state', value.boolean)
     //
     setTimeout(function(){
       winston.info({message: name + ': status.busConnection.state ' + status.busConnection.state});
-      expect (status.busConnection.state).to.equal(false)
-      winston.info({message: name + ': END no_bus_connection test'});
+      expect (status.busConnection.state).to.equal(value.boolean)
+      winston.info({message: name + ': END bus_connection_state test'});
 			done();
 		}, 100);
   })

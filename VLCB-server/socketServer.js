@@ -338,9 +338,9 @@ let node = new admin.cbusAdmin(config);
   //
   //*************************************************************************************** */
 
-  config.eventBus.on('no_bus_connection', function (data) {
+  config.eventBus.on('bus_connection_state', function (state) {
     winston.info({message: `socketServer: no_bus_connection received`});
-    status.busConnection.state = false
+    status.busConnection.state = state
   })
 
 }

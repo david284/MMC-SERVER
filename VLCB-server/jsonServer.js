@@ -38,7 +38,7 @@ exports.jsonServer = function (config) {
 
     cbusClient.on('error', async function (err) {
       winston.error({message:`jsonServer: Client error: ` + err.stack});
-      config.eventBus.emit ('no_bus_connection', err.stack)
+      config.eventBus.emit ('bus_connection_state', false)
     })
 
 
