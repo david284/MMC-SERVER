@@ -254,6 +254,8 @@ class configuration {
     } catch (e) {
       winston.error({message: className + ': ERROR getModuleDescriptorFileList: ' + e})
     }
+    // To get the module identifier segment, count backwards from the end
+    // As the 'name' portion may contain the separater character, so increasing the array count
     this.userModuleDescriptorFileList.forEach(item => {
       var array = item.split('-')
       if (array[array.length-2]){

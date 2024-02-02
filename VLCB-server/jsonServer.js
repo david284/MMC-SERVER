@@ -9,6 +9,8 @@ const utils = require('./utilities.js');
 // Connects to CAN via serial or network (as client) - cbusClient
 //
 
+const name = 'jsonserver'
+
 exports.jsonServer = function (config) {
 
     let clients = [];
@@ -17,10 +19,10 @@ exports.jsonServer = function (config) {
 
     try{
       cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
-        winston.info({message:'JSON Server: Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
+        winston.info({message:name + ': Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
       });
     } catch(e){
-      winston.info({message:'JSON Server: cbusClient connection failed: ' + e})
+      winston.info({message:name + ': cbusClient connection failed: ' + e})
     }
 
     cbusClient.on('data', function (data) {
@@ -30,14 +32,15 @@ exports.jsonServer = function (config) {
             let cbusLibMsg = cbusLib.decode(outMsg[i])
             clients.forEach(function (client) {
                 let output = JSON.stringify(cbusLibMsg);
-                winston.debug({message:'Json Server Output to Client : ' + output})
+                winston.debug({message: name + ': Output to Client : ' + output})
                 client.write(output);
             });
         }
     });
 
+
     cbusClient.on('error', async function (err) {
-      winston.error({message:`jsonServer: Client error: ` + err.stack});
+      winston.error({message: name + `: Client error: ` + err.stack});
       config.eventBus.emit ('bus_connection_state', false)
     })
 
@@ -45,7 +48,7 @@ exports.jsonServer = function (config) {
     const server = net.createServer(function (socket) {
         socket.setKeepAlive(true, 60000);
         clients.push(socket);
-        winston.info({message:`jsonServer: Connection to jsonServer`})
+        winston.info({message: name + `: Connection to jsonServer`})
 
         socket.on('data', function (data) {
             winston.debug({message:`jsonServer: Data Received : ${data}`})
@@ -74,7 +77,7 @@ exports.jsonServer = function (config) {
             let input = JSON.parse(data)
             let cbusMsg = cbusLib.encode(input)
             let outMsg = cbusLib.decode(cbusMsg.encoded)
-            await utils.sleep(100); // Wait for one second
+//            await utils.sleep(100);
             clients.forEach(function (client) {
                 // Don't want to send it to sender
                 if (client === sender)
@@ -91,8 +94,3 @@ exports.jsonServer = function (config) {
 }
 
 
-/*
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-*/

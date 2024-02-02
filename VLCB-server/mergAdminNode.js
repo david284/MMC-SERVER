@@ -396,15 +396,7 @@ class cbusAdmin extends EventEmitter {
                   }
                   this.nodeConfig.nodes[ref] = output
                 }
-                // now update component & name if they exist in mergConfig
-                if (this.merg['modules'][moduleIdentifier]) {
-                  if (this.merg['modules'][moduleIdentifier]['name']) {
-                    this.nodeConfig.nodes[ref].moduleName = this.merg['modules'][moduleIdentifier]['name']
-                  }
-                  if (this.merg['modules'][moduleIdentifier]['component']) {
-                    this.nodeConfig.nodes[ref].component = this.merg['modules'][moduleIdentifier]['component']
-                  }
-                }
+                this.nodeConfig.nodes[ref].moduleName = this.getModuleName(moduleIdentifier)
                 // force variableConfig to be reloaded
                 this.nodeConfig.nodes[ref].variableConfig = undefined
                 // always update/create the flags....
@@ -559,10 +551,30 @@ class cbusAdmin extends EventEmitter {
         this.cbusSend(this.QNN())
     }
 
+    getModuleName(moduleIdentifier){
+      var moduleName = 'Unknown'
+      if (this.merg['modules'][moduleIdentifier]) {
+        if (this.merg['modules'][moduleIdentifier]['name']) {
+          moduleName = this.merg['modules'][moduleIdentifier]['name']
+          return moduleName
+        }
+      }
+      var list = this.config.getModuleDescriptorFileList(moduleIdentifier)
+      winston.info({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
+      if (list[0]){
+        var index = list[0].toString().search(moduleIdentifier)
+        winston.info({message: name + `: moduleIdentifier position: ` + index});
+        if (index > 1) {
+          moduleName =list[0].substr(0,index-1)
+        }
+      }
+      return moduleName
+    }
+
     process_WRACK(nodeNumber) {
-      winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber});
+      winston.info({message: name + `: wrack : node ` + nodeNumber});
       if (this.nodes_EventsNeedRefreshing[nodeNumber]){
-        winston.info({message: `mergAdminNode: wrack : node ` + nodeNumber + ' needs to refresh events'});
+        winston.info({message: name + `: wrack : node ` + nodeNumber + ' needs to refresh events'});
         this.request_all_node_events(nodeNumber)
       }
       if (this.nodes_EventVariablesNeedRefreshing.nodeNumber){
@@ -716,8 +728,8 @@ class cbusAdmin extends EventEmitter {
                 }
               }
             } else {
-				winston.warn({message: 'mergAdminNode: Check Variable Config : module component not suitable ' + this.nodeConfig.nodes[nodeId].component});
-			}
+            winston.warn({message: 'mergAdminNode: Check Variable Config : module component not suitable ' + this.nodeConfig.nodes[nodeId].component});
+          }
           }
         } else {
             winston.warn({message: 'mergAdminNode: module not found in mergConfig ' + moduleIdentifier});
@@ -731,36 +743,36 @@ class cbusAdmin extends EventEmitter {
         var moduleName = this.nodeConfig.nodes[nodeId].moduleName;                  // should be populated by PNN
         var moduleIdentifier = this.nodeConfig.nodes[nodeId].moduleIdentifier;      // should be populated by PNN
         if (this.merg['modules'][moduleIdentifier]) {
-          // if we get here then it's a module type we know about (present in mergConfig.json)
-          if (moduleName == "Unknown") {
-            // we can't handle a module we don't know about, so just warn & skip rest
-            winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
-          } else {
-            // build filename
-            var filename = moduleName + "-" + moduleIdentifier               
-            // need major & minor version numbers to complete building of filename
-            if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
-            {
-              filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
-              filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
-              filename += ".json"
-              // ok - can get file now
-              // but don't store the filename in nodeConfig until we're tried to read the file
-              try {
-                const moduleDescriptor = this.config.readModuleDescriptor(filename)
-                this.nodeDescriptors[nodeId] = moduleDescriptor
-                this.config.writeNodeDescriptors(this.nodeDescriptors)
-                winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
-                var payload = {[nodeId]:moduleDescriptor}
-                this.emit('nodeDescriptor', payload);
-              }catch(err) {
-                winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
-              }
-              // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
-              // and the client can check for filename, and if no data, then fileload failed
-              this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
-      			}
+        // if we get here then it's a module type we know about (present in mergConfig.json)
+        if (moduleName == "Unknown") {
+          // we can't handle a module we don't know about, so just warn & skip rest
+          winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+        } else {
+          // build filename
+          var filename = moduleName + "-" + moduleIdentifier               
+          // need major & minor version numbers to complete building of filename
+          if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
+          {
+            filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
+            filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
+            filename += ".json"
+            // ok - can get file now
+            // but don't store the filename in nodeConfig until we're tried to read the file
+            try {
+              const moduleDescriptor = this.config.readModuleDescriptor(filename)
+              this.nodeDescriptors[nodeId] = moduleDescriptor
+              this.config.writeNodeDescriptors(this.nodeDescriptors)
+              winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+              var payload = {[nodeId]:moduleDescriptor}
+              this.emit('nodeDescriptor', payload);
+            }catch(err) {
+              winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
+            }
+            // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
+            // and the client can check for filename, and if no data, then fileload failed
+            this.nodeConfig.nodes[nodeId]['moduleDescriptorFilename'] = filename
           }
+}
         } else {
             winston.warn({message: 'mergAdminNode: checkNodeDescriptor: module not found in mergConfig ' + moduleIdentifier});
         }
