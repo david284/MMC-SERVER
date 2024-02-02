@@ -219,15 +219,15 @@ class configuration {
   }
   writeModuleDescriptor(data){
     if (this.userConfigPath){
-      if (data.moduleDescriptorName){
+      if (data.moduleDescriptorFilename){
         try {
           // always write to user directory - check it exists first
-          if (this.createDirectory(this.userConfigPath + '/modules'))
-          winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName})
-          var filePath = this.userConfigPath + "/modules/" + data.moduleDescriptorName + '.json'
+          if (this.createDirectory(path.join(this.userConfigPath, 'modules')))
+          winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename})
+          var filePath = path.join(this.userConfigPath, "modules", data.moduleDescriptorFilename)
           jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
         } catch(e){
-          winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorName + ' ERROR ' + e})
+          winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename + ' ERROR ' + e})
         }
       } else{
         winston.error({message: className + ': writeModuleDescriptor - no moduleDescriptorName'})

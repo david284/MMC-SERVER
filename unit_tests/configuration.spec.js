@@ -269,7 +269,7 @@ describe('configuration tests', function(){
       winston.info({message: 'unit_test: test file deleted'})
       // continue with test
       var testPattern = {"test":"writeModuleDescriptor test",
-                        "moduleDescriptorName":"writeTest"}
+                        "moduleDescriptorFilename":"writeTest.json"}
       config.writeModuleDescriptor(testPattern)
     }
     setTimeout(function(){

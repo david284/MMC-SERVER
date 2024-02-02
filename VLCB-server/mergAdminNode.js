@@ -698,7 +698,7 @@ class cbusAdmin extends EventEmitter {
 
     checkNodeDescriptor(nodeId){
       if (this.nodeDescriptors[nodeId] == undefined) {
-        // only proceed if moduleDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
+        // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         var moduleName = this.nodeConfig.nodes[nodeId].moduleName;                  // should be populated by PNN
         var moduleIdentifier = this.nodeConfig.nodes[nodeId].moduleIdentifier;      // should be populated by PNN
         if ((moduleName == "Unknown") || (moduleName == undefined)) {
