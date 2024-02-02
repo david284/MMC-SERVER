@@ -57,7 +57,7 @@ function hexToString(hex) {
     return new TextDecoder().decode(bytes);
 }
 
-const name = 'socketServer unit_test'
+const name = 'unit_test: socketServer'
 
 describe('socketServer tests', function(){
 
@@ -218,21 +218,21 @@ describe('socketServer tests', function(){
 
   //
   it("no_bus_connection test", function (done) {
-    winston.info({message: 'unit_test: BEGIN no_bus_connection test '});
+    winston.info({message: name + ': BEGIN no_bus_connection test '});
     status.busConnection.state = true   // start with true
     config.eventBus.emit('no_bus_connection', "test")
     //
     setTimeout(function(){
-      winston.debug({message: name + ': status.busConnection.state ' + status.busConnection.state});
+      winston.info({message: name + ': status.busConnection.state ' + status.busConnection.state});
       expect (status.busConnection.state).to.equal(false)
-      winston.info({message: 'unit_test: END no_bus_connection test'});
+      winston.info({message: name + ': END no_bus_connection test'});
 			done();
 		}, 100);
   })
 
 
   it("REQUEST_BUS_CONNECTION test", function (done) {
-    winston.info({message: 'unit_test: BEGIN REQUEST_BUS_CONNECTION test '});
+    winston.info({message: name + ': BEGIN REQUEST_BUS_CONNECTION test '});
     var result = false
     socket.once('BUS_CONNECTION', function (data) {
       result = true
@@ -240,9 +240,9 @@ describe('socketServer tests', function(){
     socket.emit('REQUEST_BUS_CONNECTION')
     //
     setTimeout(function(){
-      winston.debug({message: name + ': result ' + result});
+      winston.info({message: name + ': result ' + result});
       expect (result).to.equal(true)
-      winston.info({message: 'unit_test: END REQUEST_BUS_CONNECTION test'});
+      winston.info({message: name + ': END REQUEST_BUS_CONNECTION test'});
 			done();
 		}, 200);
   })
