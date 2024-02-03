@@ -365,11 +365,13 @@ function  update_nodeName(config, nodeNumber, layoutDetails){
     // nodeName already exists, so do nothing
   } else {
     // check if module name exists - read config to get latest
+    // only auto populate if valid
     const nodeConfig = config.readNodeConfig()
     if (nodeConfig.nodes[nodeNumber].moduleName) {
-      layoutDetails.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
-    } else {
-      layoutDetails.nodeDetails[nodeNumber].name = 'Unknown (' + nodeNumber + ')'
+      if (nodeConfig.nodes[nodeNumber].moduleName != 'Unknown'){
+        // don't auto populate if we don't know the module name
+        layoutDetails.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
+      }
     }
     updated = true
   }

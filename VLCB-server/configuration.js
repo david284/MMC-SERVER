@@ -226,6 +226,8 @@ class configuration {
           winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename})
           var filePath = path.join(this.userConfigPath, "modules", data.moduleDescriptorFilename)
           jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+          // clear cached file list so it gets re-read next time accessed
+          this.userModuleDescriptorFileList = []
         } catch(e){
           winston.error({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename + ' ERROR ' + e})
         }

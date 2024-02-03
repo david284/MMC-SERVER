@@ -383,6 +383,7 @@ class cbusAdmin extends EventEmitter {
                       "manufacturerId": cbusMsg.manufacturerId,
                       "moduleId": cbusMsg.moduleId,
                       "moduleIdentifier": moduleIdentifier,
+                      "moduleVersion": "",
                       "parameters": [],
                       "nodeVariables": [],
                       "storedEvents": {},
@@ -710,8 +711,9 @@ class cbusAdmin extends EventEmitter {
           // need major & minor version numbers to complete building of filename
           if ((this.nodeConfig.nodes[nodeId].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeId].parameters[2] != undefined))
           {
-            filename += "-" + this.nodeConfig.nodes[nodeId].parameters[7]
-            filename += String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
+            // get & store the version
+            this.nodeConfig.nodes[nodeId].moduleVersion = this.nodeConfig.nodes[nodeId].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeId].parameters[2])
+            filename += "-" + this.nodeConfig.nodes[nodeId].moduleVersion
             filename += ".json"
             // ok - can get file now
             // but don't store the filename in nodeConfig until we're tried to read the file
