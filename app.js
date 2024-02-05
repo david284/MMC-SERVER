@@ -13,8 +13,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 
+
+//const vlcbServer = fork('./VLCB-server/server.js')
 /*
-const vlcbServer = fork('./VLCB-server/server.js')
 vlcbServer.on('close', () => {
   console.log(`vlcbServer process exited`);
   console.log(`express process exited`);
@@ -23,10 +24,10 @@ vlcbServer.on('close', () => {
 */
 
 
-/*
+
 const VLCB = require('./VLCB-server/server.js');
 VLCB.run();
-*/
+
 
 
 winston.info({message: name + ': Starting express'});

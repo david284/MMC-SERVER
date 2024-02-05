@@ -1,14 +1,18 @@
 'use strict';
 const path = require('path')
 const winston = require(path.join(__dirname, 'winston.js'));
-const {SerialPort} = require("serialport");
-const canUSB = require('./canUSB')
-const cbusServer = require('./cbusServer')
+const name = "server.js"
+winston.info({message: name + ': Loaded'});
+
+
+const utils = require('./utilities.js');
 const socketServer = require('./socketServer')
 const jsonServer = require('./jsonServer')
-const utils = require('./utilities.js');
+const cbusServer = require('./cbusServer')
 
-const name = "server.js"
+const {SerialPort} = require("serialport");
+const canUSB = require('./canUSB')
+
 
 // look for the config folder based on the directory of this module
 const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
@@ -27,14 +31,16 @@ if (!config.getSocketServerPort()){
   config.setSocketServerPort(5552);
 }
 
-run()
+
+//run()
+//exports.run = async function(){}
 
 let status = {"busConnection":{
   "state":false
   }
 }
 
-async function run(){
+exports.run = async function run(){
 
   // use config to get target serial port if it exists
   // otherwise look for a CANUSBx
