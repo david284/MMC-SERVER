@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-nw.Window.open('bin/index.html', {}, function(win) {});
+try {
+  nw.Window.open('bin/index.html', {}, function(win) {});
+} catch (e){}
 
 
 let path = require('path')
