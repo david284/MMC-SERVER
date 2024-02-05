@@ -1,5 +1,6 @@
 'use strict';
-const winston = require('./winston.js');
+const path = require('path')
+const winston = require(path.join(__dirname, 'winston.js'));
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')

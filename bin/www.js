@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 
+let path = require('path')
+const winston = require(path.join(__dirname + './../config/winston.js'));
+const name = "www"
+winston.info({message: name + ': Starting'});
+winston.info({message: name + ': file location ' + __dirname});
+
+
 /**
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require(path.join(__dirname + './../app'));
 var debug = require('debug')('express:server');
 var http = require('http');
 

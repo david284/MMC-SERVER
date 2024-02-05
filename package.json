@@ -2,8 +2,9 @@
   "name": "express",
   "version": "0.1.3",
   "private": true,
+  "main":"./bin/www.js",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./bin/www.js",
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
   },
   "dependencies": {

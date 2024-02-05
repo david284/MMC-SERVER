@@ -1,3 +1,7 @@
+const winston = require('winston');
+const name = "app"
+winston.info({message: name + ': Starting'});
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -8,9 +12,6 @@ const fork = require('child_process').fork;
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-console.log("starting express");
-
-const winston = require('./config/winston.js');
 
 
 const vlcbServer = fork('./VLCB-server/server.js')
@@ -21,12 +22,14 @@ vlcbServer.on('close', () => {
 });
 
 
+
 /*
 const VLCB = require('./VLCB-server/server.js');
 VLCB.run();
 */
 
 
+winston.info({message: name + ': Starting express'});
 var app = express();
 
 // view engine setup
