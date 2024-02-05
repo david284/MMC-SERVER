@@ -1,4 +1,7 @@
 const winston = require('winston');		// use config from root instance
+const name = "socketServer.js"
+winston.info({message: name + ': Loaded'});
+
 const jsonfile = require('jsonfile')
 const packageInfo = require(process.cwd()+'/package.json')
 

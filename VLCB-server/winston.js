@@ -2,7 +2,7 @@ const winston = require('winston');
 const path = require('path')
 
 /*
-for rerference only, default npm logging levels used
+for reference only, default npm logging levels used
 lower number being higher priority
 const levels = { 
   error: 0,
@@ -34,7 +34,7 @@ var messageOnly = winston.format.combine(
 var options = {
   console: {
     level: 'info',
-    filename: path.join(__dirname, `logs/console.log`),
+    filename: path.join(__dirname, `logs/VLCB-server-console.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -43,7 +43,7 @@ var options = {
   },
   debug: {
     level: 'debug',
-    filename: path.join(__dirname, `logs/debug.log`),
+    filename: path.join(__dirname, `logs/VLCB-server-debug.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -52,7 +52,7 @@ var options = {
   },
   info: {
     level: 'info',
-    filename: path.join(__dirname, `logs/info.log`),
+    filename: path.join(__dirname, `logs/VLCB-server-info.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,

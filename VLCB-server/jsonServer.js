@@ -1,6 +1,9 @@
+const winston = require('winston');		// use config from root instance
+const name = 'jsonServer.js'
+winston.info({message: name + ': Loaded'});
+
 const net = require('net')
 const cbusLib = require('cbuslibrary')
-const winston = require('winston');		// use config from root instance
 const utils = require('./utilities.js');
 
 //
@@ -9,7 +12,6 @@ const utils = require('./utilities.js');
 // Connects to CAN via serial or network (as client) - cbusClient
 //
 
-const name = 'jsonserver'
 
 exports.jsonServer = function (config) {
 

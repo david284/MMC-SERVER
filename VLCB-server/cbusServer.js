@@ -1,8 +1,8 @@
-const net = require('net')
-//const jsonfile = require('jsonfile')
-//const serialport = require('serialport')
 const winston = require('winston');		// use config from root instance
+const name = 'cbusServer.js'
+winston.info({message: name + ': Loaded'});
 
+const net = require('net')
 
 exports.cbusServer = function (config) {
     let clients = []
