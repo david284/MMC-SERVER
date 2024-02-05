@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
+nw.Window.open('bin/index.html', {}, function(win) {});
+
+
 let path = require('path')
-const winston = require(path.join(__dirname + './../config/winston.js'));
+const winston = require(path.join(process.cwd(), 'config/winston.js'));
 const name = "www"
 winston.info({message: name + ': Starting'});
+winston.info({message: name + ': current working directory ' + process.cwd()});
 winston.info({message: name + ': file location ' + __dirname});
 
 
@@ -11,7 +15,7 @@ winston.info({message: name + ': file location ' + __dirname});
  * Module dependencies.
  */
 
-var app = require(path.join(__dirname + './../app'));
+var app = require(path.join(process.cwd(), 'app'));
 var debug = require('debug')('express:server');
 var http = require('http');
 

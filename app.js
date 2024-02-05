@@ -13,14 +13,14 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 
-
+/*
 const vlcbServer = fork('./VLCB-server/server.js')
 vlcbServer.on('close', () => {
   console.log(`vlcbServer process exited`);
   console.log(`express process exited`);
   process.exit();
 });
-
+*/
 
 
 /*
