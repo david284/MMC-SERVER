@@ -654,7 +654,7 @@ class cbusAdmin extends EventEmitter {
         //let eventNumber = ''
         if (type == 'short') {
             //cbusMsg.msgId = decToHex(cbusMsg.nodeNumber,4) + decToHex(cbusMsg.eventNumber,4)
-            eId = "0000" + eId.slice(4)
+            //eId = "0000" + eId.slice(4)
         }
         if (eId in this.nodeConfig.events) {
             this.nodeConfig.events[eId]['status'] = status

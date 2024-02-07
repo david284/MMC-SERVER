@@ -36,7 +36,7 @@ var options = {
   },
   fileDebug: {
     level: 'debug',
-    filename: `./logs/unit-test-debug.log`,
+    filename: `./unit_tests/logs/unit-test-debug.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -45,7 +45,7 @@ var options = {
   },
   fileError: {
     level: 'error',
-    filename: `./logs/unit-test-error.log`,
+    filename: `./unit_tests/logs/unit-test-error.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -54,7 +54,7 @@ var options = {
   },
   fileInfo: {
     level: 'info',
-    filename: `./logs/unit-test-info.log`,
+    filename: `./unit_tests/logs/unit-test-info.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -63,7 +63,7 @@ var options = {
   },
   fileWarn: {
     level: 'warn',
-    filename: `./logs/unit-test-warn.log`,
+    filename: `./unit_tests/logs/unit-test-warn.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
