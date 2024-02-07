@@ -29,20 +29,47 @@ var messageOnly = winston.format.combine(
 
 
 var options = {
-  file: {
-    level: 'debug',
-    filename: `./unit_tests/logs/unit_tests.log`,
-	options: { flags: 'w' },
-    handleExceptions: true,
-    maxsize: 50*1024*1024, // 50MB
-    maxFiles: 5,
-	format: timeStampFirst
-  },
   console: {
-    level: 'warn',
+    level: 'error',
     handleExceptions: true,
-	format: messageOnly
+  	format: messageOnly
   },
+  fileDebug: {
+    level: 'debug',
+    filename: `./logs/unit-test-debug.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  fileError: {
+    level: 'error',
+    filename: `./logs/unit-test-error.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  fileInfo: {
+    level: 'info',
+    filename: `./logs/unit-test-info.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  fileWarn: {
+    level: 'warn',
+    filename: `./logs/unit-test-warn.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  }
 };
 
 //
@@ -53,8 +80,11 @@ var options = {
 // default logger is essentially a blank logger, and has no transports setup, so need to add them
 //
 
-winston.add(new winston.transports.File(options.file));
 winston.add(new winston.transports.Console(options.console));
+winston.add(new winston.transports.File(options.fileDebug));
+winston.add(new winston.transports.File(options.fileError));
+winston.add(new winston.transports.File(options.fileInfo));
+winston.add(new winston.transports.File(options.fileWarn));
 
 
 winston.stream = {

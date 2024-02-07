@@ -145,10 +145,15 @@ describe('socketServer tests', function(){
   itParam("ACCESSORY_LONG_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_LONG_OFF test  ' + JSON.stringify(value)});
     mock_jsonServer.messagesIn = []
-    socket.emit('ACCESSORY_LONG_OFF', {
-      "nodeNumber": value.nodeNumber,
-      "eventNumber": value.eventNumber
-    })
+    if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
+      // special case - don't send any arguments
+      socket.emit('ACCESSORY_LONG_OFF')
+    } else {
+      socket.emit('ACCESSORY_LONG_OFF', {
+        "nodeNumber": value.nodeNumber,
+        "eventNumber": value.eventNumber
+      })
+    }
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
@@ -171,11 +176,15 @@ describe('socketServer tests', function(){
   itParam("ACCESSORY_LONG_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name + ': BEGIN ACCESSORY_LONG_ON test ' + JSON.stringify(value)});
     mock_jsonServer.messagesIn = []
-//    winston.info({message: name + ': socket connected ' + socket.connected});
-    socket.emit('ACCESSORY_LONG_ON', {
-      "nodeNumber": value.nodeNumber,
-      "eventNumber": value.eventNumber
-    })
+    if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
+      // special case - don't send any arguments
+      socket.emit('ACCESSORY_LONG_ON')
+    } else {
+      socket.emit('ACCESSORY_LONG_ON', {
+        "nodeNumber": value.nodeNumber,
+        "eventNumber": value.eventNumber
+      })
+    }
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
@@ -198,10 +207,15 @@ describe('socketServer tests', function(){
   itParam("ACCESSORY_SHORT_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_OFF test  ' + JSON.stringify(value)});
     mock_jsonServer.messagesIn = []
-    socket.emit('ACCESSORY_SHORT_OFF', {
-      "nodeNumber": value.nodeNumber,
-      "deviceNumber": value.eventNumber
-    })
+    if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
+      // special case - don't send any arguments
+      socket.emit('ACCESSORY_SHORT_OFF')
+    } else {
+      socket.emit('ACCESSORY_SHORT_OFF', {
+        "nodeNumber": value.nodeNumber,
+        "deviceNumber": value.eventNumber
+      })
+    }
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
@@ -224,10 +238,15 @@ describe('socketServer tests', function(){
   itParam("ACCESSORY_SHORT_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_ON test  ' + JSON.stringify(value)});
     mock_jsonServer.messagesIn = []
-    socket.emit('ACCESSORY_SHORT_ON', {
-      "nodeNumber": value.nodeNumber,
-      "deviceNumber": value.eventNumber
-    })
+    if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
+      // special case - don't send any arguments
+      socket.emit('ACCESSORY_SHORT_ON')
+    } else {
+      socket.emit('ACCESSORY_SHORT_ON', {
+        "nodeNumber": value.nodeNumber,
+        "deviceNumber": value.eventNumber
+      })
+    }
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
