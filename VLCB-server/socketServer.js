@@ -1,4 +1,5 @@
 const winston = require('winston');		// use config from root instance
+const name = 'socketServer'
 const jsonfile = require('jsonfile')
 const packageInfo = require(process.cwd()+'/package.json')
 
@@ -104,23 +105,31 @@ let node = new admin.cbusAdmin(config);
     })
 
     socket.on('ACCESSORY_LONG_ON', function(data){
-      winston.info({message: `socketServer: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
+      winston.info({message: name + `: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
+      if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
         node.cbusSend(node.ACON(data.nodeNumber, data.eventNumber))
+      }
     })
 
     socket.on('ACCESSORY_LONG_OFF', function(data){
-      winston.info({message: `socketServer: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
-      node.cbusSend(node.ACOF(data.nodeNumber, data.eventNumber))
+      winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
+      if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
+        node.cbusSend(node.ACOF(data.nodeNumber, data.eventNumber))
+      }
     })
 
     socket.on('ACCESSORY_SHORT_OFF', function(data){
       winston.info({message: `socketServer: ACCESSORY_SHORT_OFF ${JSON.stringify(data)}`});
-      node.cbusSend(node.ASOF(data.nodeNumber, data.deviceNumber))
+      if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
+        node.cbusSend(node.ASOF(data.nodeNumber, data.deviceNumber))
+      }
     })
 
     socket.on('ACCESSORY_SHORT_ON', function(data){
       winston.info({message: `socketServer: ACCESSORY_SHORT_ON ${JSON.stringify(data)}`});
-      node.cbusSend(node.ASON(data.nodeNumber, data.deviceNumber))
+      if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
+        node.cbusSend(node.ASON(data.nodeNumber, data.deviceNumber))
+      }
     })
 
     socket.on('TEACH_EVENT', function(data){

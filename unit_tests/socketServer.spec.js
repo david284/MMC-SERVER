@@ -123,6 +123,128 @@ describe('socketServer tests', function(){
     return testCases;
   }
 
+  function GetTestCase_event() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 4; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      if (a == 4) {arg1 = undefined}
+      for (var b = 1; b<= 4; b++) {
+        if (b == 1) {arg2 = 0}
+        if (b == 2) {arg2 = 1}
+        if (b == 3) {arg2 = 65535}
+        if (b == 4) {arg2 = undefined}
+        testCases.push({'nodeNumber':arg1, 'eventNumber': arg2});
+      }
+    }
+    return testCases;
+  }
+
+
+  itParam("ACCESSORY_LONG_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+    winston.info({message: name +': BEGIN ACCESSORY_LONG_OFF test  ' + JSON.stringify(value)});
+    mock_jsonServer.messagesIn = []
+    socket.emit('ACCESSORY_LONG_OFF', {
+      "nodeNumber": value.nodeNumber,
+      "eventNumber": value.eventNumber
+    })
+    //
+    setTimeout(function(){
+      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
+        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
+        expect(CbusMsg.mnemonic).to.equal("ACOF");
+        expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
+        expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
+      } else {
+        // if either parameter is undefined, then no message should be generated
+        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+      }
+      winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
+			done();
+		}, 50);
+  })
+
+
+  itParam("ACCESSORY_LONG_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+    winston.info({message: name + ': BEGIN ACCESSORY_LONG_ON test ' + JSON.stringify(value)});
+    mock_jsonServer.messagesIn = []
+//    winston.info({message: name + ': socket connected ' + socket.connected});
+    socket.emit('ACCESSORY_LONG_ON', {
+      "nodeNumber": value.nodeNumber,
+      "eventNumber": value.eventNumber
+    })
+    //
+    setTimeout(function(){
+      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
+        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
+        expect(CbusMsg.mnemonic).to.equal("ACON");
+        expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
+        expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
+      } else {
+        // if either parameter is undefined, then no message should be generated
+        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+      }
+      winston.info({message: name +': END ACCESSORY_LONG_ON test'});
+			done();
+		}, 50);
+  })
+
+
+  itParam("ACCESSORY_SHORT_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+    winston.info({message: name +': BEGIN ACCESSORY_SHORT_OFF test  ' + JSON.stringify(value)});
+    mock_jsonServer.messagesIn = []
+    socket.emit('ACCESSORY_SHORT_OFF', {
+      "nodeNumber": value.nodeNumber,
+      "deviceNumber": value.eventNumber
+    })
+    //
+    setTimeout(function(){
+      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
+        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
+        expect(CbusMsg.mnemonic).to.equal("ASOF");
+        expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
+        expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
+      } else {
+        // if either parameter is undefined, then no message should be generated
+        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+      }
+      winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
+			done();
+		}, 50);
+  })
+
+
+  itParam("ACCESSORY_SHORT_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+    winston.info({message: name +': BEGIN ACCESSORY_SHORT_ON test  ' + JSON.stringify(value)});
+    mock_jsonServer.messagesIn = []
+    socket.emit('ACCESSORY_SHORT_ON', {
+      "nodeNumber": value.nodeNumber,
+      "deviceNumber": value.eventNumber
+    })
+    //
+    setTimeout(function(){
+      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
+        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
+        expect(CbusMsg.mnemonic).to.equal("ASON");
+        expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
+        expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
+      } else {
+        // if either parameter is undefined, then no message should be generated
+        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+      }
+      winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
+			done();
+		}, 50);
+  })
 
 
   //
