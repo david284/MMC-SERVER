@@ -169,7 +169,7 @@ describe('socketServer tests', function(){
       }
       winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
 			done();
-		}, 50);
+		}, 20);
   })
 
 
@@ -200,7 +200,7 @@ describe('socketServer tests', function(){
       }
       winston.info({message: name +': END ACCESSORY_LONG_ON test'});
 			done();
-		}, 50);
+		}, 20);
   })
 
 
@@ -231,7 +231,7 @@ describe('socketServer tests', function(){
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
 			done();
-		}, 50);
+		}, 20);
   })
 
 
@@ -262,7 +262,7 @@ describe('socketServer tests', function(){
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
 			done();
-		}, 50);
+		}, 20);
   })
 
 
