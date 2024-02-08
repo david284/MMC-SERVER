@@ -1,6 +1,5 @@
 'use strict';
 const winston = require('winston');		// use config from root instance
-const {SerialPort} = require("serialport");
 
 
 // Scope:
