@@ -1,4 +1,17 @@
 #!/usr/bin/env node
+let path = require('path')
+const winston = require(path.join(process.cwd(), 'config/winston.js'));
+const name = "www"
+winston.info({message: name + ': Starting'});
+winston.info({message: name + ': current working directory ' + process.cwd()});
+winston.info({message: name + ': file location ' + __dirname});
+
+try {
+  nw.Window.open('bin/index.html', {}, function(win) {});
+} catch (e){}
+
+
+
 
 /**
  * Module dependencies.
