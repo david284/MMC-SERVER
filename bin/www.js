@@ -17,7 +17,7 @@ try {
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require(path.join(process.cwd(), 'app'));
 var debug = require('debug')('express:server');
 var http = require('http');
 
