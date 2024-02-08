@@ -23,10 +23,12 @@ vlcbServer.on('close', () => {
 });
 */
 
-/*
+
+
+
 const VLCB = require('./VLCB-server/server.js');
 VLCB.run();
-*/
+
 
 
 var app = express();
