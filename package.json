@@ -2,7 +2,7 @@
   "name": "express",
   "version": "0.2.0",
   "private": true,
-  "main":"./bin/www.js",
+  "main": "./bin/www.js",
   "scripts": {
     "start": "node ./bin/www.js",
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
