@@ -33,7 +33,7 @@ var messageOnly = winston.format.combine(
 var options = {
   console: {
     level: 'info',
-    filename: `./logs/console.log`,
+    filename: `./logs/VLCB-server-console.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -42,7 +42,16 @@ var options = {
   },
   debug: {
     level: 'debug',
-    filename: `./logs/debug.log`,
+    filename: `./logs/VLCB-server-debug.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  error: {
+    level: 'error',
+    filename: `./logs/VLCB-server-error.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -51,7 +60,16 @@ var options = {
   },
   info: {
     level: 'info',
-    filename: `./logs/info.log`,
+    filename: `./logs/VLCB-server-info.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  warn: {
+    level: 'warn',
+    filename: `./logs/VLCB-server-warn.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -71,7 +89,9 @@ var options = {
 winston.add(new winston.transports.Console(options.console));
 winston.add(new winston.transports.File(options.console));
 winston.add(new winston.transports.File(options.debug));
+winston.add(new winston.transports.File(options.error));
 winston.add(new winston.transports.File(options.info));
+winston.add(new winston.transports.File(options.warn));
 
 
 winston.stream = {

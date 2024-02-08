@@ -1,3 +1,7 @@
+const winston = require('winston');
+const name = "app"
+winston.info({message: name + ': Starting'});
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -9,8 +13,6 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 console.log("starting express");
-
-const winston = require('./config/winston.js');
 
 
 const vlcbServer = fork('./VLCB-server/server.js')
