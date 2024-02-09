@@ -1,10 +1,10 @@
 {
   "name": "express",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "main": "./bin/www.js",
+  "main": "./main.js",
   "scripts": {
-    "start": "node ./bin/www.js",
+    "start": "node ./main.js",
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
   },
   "dependencies": {

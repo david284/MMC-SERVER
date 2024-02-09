@@ -7,28 +7,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const fork = require('child_process').fork;
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 console.log("starting express");
-
-/*
-const vlcbServer = fork('./VLCB-server/server.js')
-vlcbServer.on('close', () => {
-  console.log(`vlcbServer process exited`);
-  console.log(`express process exited`);
-  process.exit();
-});
-*/
-
-
-
-
-const VLCB = require('./VLCB-server/server.js');
-VLCB.run();
-
 
 
 var app = express();

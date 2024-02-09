@@ -650,17 +650,18 @@ class cbusAdmin extends EventEmitter {
     }
 
     eventSend(cbusMsg, status, type) {
-        let eId = cbusMsg.encoded.substr(9, 8)
+        let busIdentifier = cbusMsg.encoded.substr(9, 8)
+        let eventIdentifier = busIdentifier
         //need to remove node number from event identifier if short event
         if (type == 'short') {
-            eId = "0000" + eId.slice(4)
+          eventIdentifier = "0000" + eventIdentifier.slice(4)
         }
-        if (eId in this.nodeConfig.events) {
-            this.nodeConfig.events[eId]['status'] = status
-            this.nodeConfig.events[eId]['count'] += 1
+        if (busIdentifier in this.nodeConfig.events) {
+            this.nodeConfig.events[busIdentifier]['status'] = status
+            this.nodeConfig.events[busIdentifier]['count'] += 1
         } else {
             let output = {}
-            output['eventIdentifier'] = eId
+            output['eventIdentifier'] = eventIdentifier
             output['nodeNumber'] = cbusMsg.nodeNumber
             if (type == 'short') {
                 output['eventNumber'] = cbusMsg.deviceNumber
@@ -671,9 +672,10 @@ class cbusAdmin extends EventEmitter {
             output['type'] = type
             output['count'] = 1
             //output['data'] = cbusMsg.eventData.hex
-            this.nodeConfig.events[eId] = output
-        }
-        winston.info({message: 'mergAdminNode: EventSend : ' + JSON.stringify(this.nodeConfig.events[eId])});
+            this.nodeConfig.events[busIdentifier] = output
+            winston.debug({message: name + `: EventSend added to events ${busIdentifier}`});
+          }
+        winston.info({message: 'mergAdminNode: EventSend : ' + JSON.stringify(this.nodeConfig.events[busIdentifier])});
         //this.saveConfig()
         this.emit('events', this.nodeConfig.events);
     }
@@ -1067,21 +1069,22 @@ class cbusAdmin extends EventEmitter {
   }
 
   ACON(nodeNumber, eventNumber) {
-      const eId = decToHex(nodeNumber, 4) + decToHex(eventNumber, 4)
-      //winston.debug({message: `mergAdminNode: ACON admin ${eId}`});
+      const eventIdentifier = decToHex(nodeNumber, 4) + decToHex(eventNumber, 4)
+      //winston.debug({message: `mergAdminNode: ACON admin ${eventIdentifier}`});
       let output = {}
-      if (eId in this.nodeConfig.events) {
-          this.nodeConfig.events[eId]['status'] = 'on'
-          this.nodeConfig.events[eId]['count'] += 1
+      if (eventIdentifier in this.nodeConfig.events) {
+          this.nodeConfig.events[eventIdentifier]['status'] = 'on'
+          this.nodeConfig.events[eventIdentifier]['count'] += 1
       } else {
-          output['eventIdentifier'] = eId
+          output['eventIdentifier'] = eventIdentifier
           output['nodeNumber'] = nodeNumber
           output['eventNumber'] = eventNumber
           output['status'] = 'on'
           output['type'] = 'long'
           output['count'] = 1
-          this.nodeConfig.events[eId] = output
-      }
+          this.nodeConfig.events[eventIdentifier] = output
+          winston.debug({message: name + `: ACON added to events ${eventIdentifier}`});
+        }
       this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ACON'
@@ -1092,28 +1095,28 @@ class cbusAdmin extends EventEmitter {
   }
 
   ACOF(nodeNumber, eventNumber) {
-      const eId = decToHex(nodeNumber, 4) + decToHex(eventNumber, 4)
-      //winston.debug({message: `mergAdminNode: ACOF admin ${eId}`});
+      const eventIdentifier = decToHex(nodeNumber, 4) + decToHex(eventNumber, 4)
+      //winston.debug({message: `mergAdminNode: ACOF admin ${eventIdentifier}`});
       let output = {}
-      if (eId in this.nodeConfig.events) {
-          this.nodeConfig.events[eId]['status'] = 'off'
-          this.nodeConfig.events[eId]['count'] += 1
+      if (eventIdentifier in this.nodeConfig.events) {
+          this.nodeConfig.events[eventIdentifier]['status'] = 'off'
+          this.nodeConfig.events[eventIdentifier]['count'] += 1
       } else {
-          output['eventIdentifier'] = eId
-          output['nodeNumber'] = nodeNumber
-          output['eventNumber'] = eventNumber
-          output['status'] = 'off'
-          output['type'] = 'long'
-          output['count'] = 1
-          this.nodeConfig.events[eId] = output
-      }
+        output['eventIdentifier'] = eventIdentifier
+        output['nodeNumber'] = nodeNumber
+        output['eventNumber'] = eventNumber
+        output['status'] = 'off'
+        output['type'] = 'long'
+        output['count'] = 1
+        this.nodeConfig.events[eventIdentifier] = output
+        winston.debug({message: name + `: ACOF added to events ${eventIdentifier}`});
+    }
       this.emit('events', this.nodeConfig.events)
       output = {}
       output['mnemonic'] = 'ACOF'
       output['nodeNumber'] = nodeNumber
       output['eventNumber'] = eventNumber
       return output
-      //return cbusLib.encodeACOF(nodeNumber, eventNumber);
   }
 
   ASON(nodeNumber, deviceNumber) {
@@ -1134,6 +1137,7 @@ class cbusAdmin extends EventEmitter {
         output['type'] = 'short'
         output['count'] = 1
         this.nodeConfig.events[busIdentifier] = output
+        winston.debug({message: name + `: ASON added to events ${busIdentifier}`});
     }
     this.emit('events', this.nodeConfig.events)
     output = {}
@@ -1150,7 +1154,7 @@ class cbusAdmin extends EventEmitter {
     const busIdentifier = decToHex(nodeNumber, 4) + decToHex(deviceNumber, 4)
     const eventIdentifier = '0000' + decToHex(deviceNumber, 4)
     let output = {}
-    if (eId in this.nodeConfig.events) {
+    if (busIdentifier in this.nodeConfig.events) {
         this.nodeConfig.events[busIdentifier]['status'] = 'off'
         this.nodeConfig.events[busIdentifier]['count'] += 1
     } else {
@@ -1161,6 +1165,7 @@ class cbusAdmin extends EventEmitter {
         output['type'] = 'short'
         output['count'] = 1
         this.nodeConfig.events[busIdentifier] = output
+        winston.debug({message: name + `: ASOF added to events ${busIdentifier}`});
     }
     this.emit('events', this.nodeConfig.events)
     output = {}

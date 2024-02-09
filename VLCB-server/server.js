@@ -1,6 +1,5 @@
 'use strict';
-const path = require('path')
-const winston = require(path.join(process.cwd(), '/VLCB-server/winston.js'));
+const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 

@@ -49,9 +49,27 @@ var options = {
     maxFiles: 5,
 	  format: timeStampFirst
   },
+  error: {
+    level: 'error',
+    filename: `./logs/error.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
   info: {
     level: 'info',
     filename: `./logs/info.log`,
+	  options: { flags: 'w' },
+    handleExceptions: true,
+    maxsize: 1000000,
+    maxFiles: 5,
+	  format: timeStampFirst
+  },
+  warn: {
+    level: 'warn',
+    filename: `./logs/warn.log`,
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -71,7 +89,9 @@ var options = {
 winston.add(new winston.transports.Console(options.console));
 winston.add(new winston.transports.File(options.console));
 winston.add(new winston.transports.File(options.debug));
+winston.add(new winston.transports.File(options.error));
 winston.add(new winston.transports.File(options.info));
+winston.add(new winston.transports.File(options.warn));
 
 
 winston.stream = {
