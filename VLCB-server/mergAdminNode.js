@@ -207,7 +207,7 @@ class cbusAdmin extends EventEmitter {
                     this.cbusErrors[ref].count += 1
                 } else {
                     let output = {}
-                    output['id'] = ref
+                    output['eventIdentifier'] = ref
                     output['type'] = 'CBUS'
                     output['Error'] = cbusMsg.errorNumber
                     output['Message'] = this.merg.cbusErrors[cbusMsg.errorNumber]
@@ -651,18 +651,16 @@ class cbusAdmin extends EventEmitter {
 
     eventSend(cbusMsg, status, type) {
         let eId = cbusMsg.encoded.substr(9, 8)
-        //let eventNumber = ''
+        //need to remove node number from event identifier if short event
         if (type == 'short') {
-            //cbusMsg.msgId = decToHex(cbusMsg.nodeNumber,4) + decToHex(cbusMsg.eventNumber,4)
-            //eId = "0000" + eId.slice(4)
+            eId = "0000" + eId.slice(4)
         }
         if (eId in this.nodeConfig.events) {
             this.nodeConfig.events[eId]['status'] = status
             this.nodeConfig.events[eId]['count'] += 1
-            //this.nodeConfig.events[cbusMsg.msgId]['data'] = cbusMsg.eventData.hex
         } else {
             let output = {}
-            output['id'] = eId
+            output['eventIdentifier'] = eId
             output['nodeNumber'] = cbusMsg.nodeNumber
             if (type == 'short') {
                 output['eventNumber'] = cbusMsg.deviceNumber
@@ -1076,7 +1074,7 @@ class cbusAdmin extends EventEmitter {
           this.nodeConfig.events[eId]['status'] = 'on'
           this.nodeConfig.events[eId]['count'] += 1
       } else {
-          output['id'] = eId
+          output['eventIdentifier'] = eId
           output['nodeNumber'] = nodeNumber
           output['eventNumber'] = eventNumber
           output['status'] = 'on'
@@ -1101,7 +1099,7 @@ class cbusAdmin extends EventEmitter {
           this.nodeConfig.events[eId]['status'] = 'off'
           this.nodeConfig.events[eId]['count'] += 1
       } else {
-          output['id'] = eId
+          output['eventIdentifier'] = eId
           output['nodeNumber'] = nodeNumber
           output['eventNumber'] = eventNumber
           output['status'] = 'off'
@@ -1119,57 +1117,57 @@ class cbusAdmin extends EventEmitter {
   }
 
   ASON(nodeNumber, deviceNumber) {
-      const eId = decToHex(nodeNumber, 4) + decToHex(deviceNumber, 4)
-      //winston.debug({message: `mergAdminNode: ASON admin ${eId}`});
-      let output = {}
-      if (eId in this.nodeConfig.events) {
-          this.nodeConfig.events[eId]['status'] = 'on'
-          this.nodeConfig.events[eId]['count'] += 1
-      } else {
-          output['id'] = eId
-          output['nodeNumber'] = nodeNumber
-          output['eventNumber'] = deviceNumber
-          output['status'] = 'on'
-          output['type'] = 'short'
-          output['count'] = 1
-          this.nodeConfig.events[eId] = output
-      }
-      this.emit('events', this.nodeConfig.events)
-      output = {}
-      output['mnemonic'] = 'ASON'
-      output['nodeNumber'] = nodeNumber
-      output['deviceNumber'] = deviceNumber
-      return output
-
-      //Format: [<MjPri><MinPri=3><CANID>]<98><NN hi><NN lo><DN hi><DN lo>
-      //return cbusLib.encodeASON(nodeNumber, deviceNumber);
-
+    // short event, bus data has the source node number
+    // but the actual short event only has device number - node number is zero
+    // so we use a separate busIdentifer as well
+    const busIdentifier = decToHex(nodeNumber, 4) + decToHex(deviceNumber, 4)
+    const eventIdentifier = '0000' + decToHex(deviceNumber, 4)
+    let output = {}
+    if (busIdentifier in this.nodeConfig.events) {
+        this.nodeConfig.events[busIdentifier]['status'] = 'on'
+        this.nodeConfig.events[busIdentifier]['count'] += 1
+    } else {
+        output['eventIdentifier'] = eventIdentifier
+        output['nodeNumber'] = nodeNumber
+        output['eventNumber'] = deviceNumber
+        output['status'] = 'on'
+        output['type'] = 'short'
+        output['count'] = 1
+        this.nodeConfig.events[busIdentifier] = output
+    }
+    this.emit('events', this.nodeConfig.events)
+    output = {}
+    output['mnemonic'] = 'ASON'
+    output['nodeNumber'] = nodeNumber
+    output['deviceNumber'] = deviceNumber
+    return output
   }
 
   ASOF(nodeNumber, deviceNumber) {
-      const eId = decToHex(nodeNumber, 4) + decToHex(deviceNumber, 4)
-      //winston.debug({message: `mergAdminNode: ASOFadmin ${eId}`});
-      let output = {}
-      if (eId in this.nodeConfig.events) {
-          this.nodeConfig.events[eId]['status'] = 'off'
-          this.nodeConfig.events[eId]['count'] += 1
-      } else {
-          output['id'] = eId
-          output['nodeNumber'] = nodeNumber
-          output['eventNumber'] = deviceNumber
-          output['status'] = 'off'
-          output['type'] = 'short'
-          output['count'] = 1
-          this.nodeConfig.events[eId] = output
-      }
-      this.emit('events', this.nodeConfig.events)
-      output = {}
-      output['mnemonic'] = 'ASOF'
-      output['nodeNumber'] = nodeNumber
-      output['deviceNumber'] = deviceNumber
-      return output
-      //Format: [<MjPri><MinPri=3><CANID>]<99><NN hi><NN lo><DN hi><DN lo>
-      //return cbusLib.encodeASOF(nodeNumber, deviceNumber);
+    // short event, bus data has the source node number
+    // but the actual short event only has device number - node number is zero
+    // so we use a separate busIdentifer as well
+    const busIdentifier = decToHex(nodeNumber, 4) + decToHex(deviceNumber, 4)
+    const eventIdentifier = '0000' + decToHex(deviceNumber, 4)
+    let output = {}
+    if (eId in this.nodeConfig.events) {
+        this.nodeConfig.events[busIdentifier]['status'] = 'off'
+        this.nodeConfig.events[busIdentifier]['count'] += 1
+    } else {
+        output['eventIdentifier'] = eventIdentifier
+        output['nodeNumber'] = nodeNumber
+        output['eventNumber'] = deviceNumber
+        output['status'] = 'off'
+        output['type'] = 'short'
+        output['count'] = 1
+        this.nodeConfig.events[busIdentifier] = output
+    }
+    this.emit('events', this.nodeConfig.events)
+    output = {}
+    output['mnemonic'] = 'ASOF'
+    output['nodeNumber'] = nodeNumber
+    output['deviceNumber'] = deviceNumber
+    return output
   }
 
 };
