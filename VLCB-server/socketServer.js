@@ -81,8 +81,8 @@ let node = new admin.cbusAdmin(config);
       node.clearCbusErrors();
     })
       
-    socket.on('CLEAR_EVENTS', function(){
-      winston.info({message: `socketServer: CLEAR_EVENTS`});
+    socket.on('CLEAR_BUS_EVENTS', function(){
+      winston.info({message: `socketServer: CLEAR_BUS_EVENTS`});
       node.clearEvents();
     })
 
@@ -95,11 +95,6 @@ let node = new admin.cbusAdmin(config);
       winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});
       config.writeModuleDescriptor(data)
       node.query_all_nodes()  // force refresh of nodeDescriptors
-    })
-
-    socket.on('REFRESH_EVENTS', function(){
-      winston.info({message: `socketServer: REFRESH_EVENTS`});
-      node.refreshEvents();
     })
 
     socket.on('REMOVE_EVENT', function(data){
@@ -149,6 +144,11 @@ let node = new admin.cbusAdmin(config);
       io.emit('BUS_CONNECTION', status.busConnection)
 
       winston.info({message: `socketServer: sent BUS_CONNECTION`});
+    })
+
+    socket.on('REQUEST_BUS_EVENTS', function(){
+      winston.info({message: `socketServer: REQUEST_BUS_EVENTS`});
+      node.refreshEvents();
     })
 
     socket.on('REQUEST_DIAGNOSTICS', function(data){
@@ -299,7 +299,7 @@ let node = new admin.cbusAdmin(config);
   node.on('events', function (events) {
     winston.info({message: `socketServer: EVENTS sent`});
 //    winston.debug({message: `socketServer: EVENTS :${JSON.stringify(events)}`});
-    io.emit('EVENTS', events);
+    io.emit('BUS_EVENTS', events);
   })
 
 
