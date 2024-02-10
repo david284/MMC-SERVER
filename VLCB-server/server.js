@@ -28,15 +28,15 @@ if (!config.getSocketServerPort()){
   config.setSocketServerPort(5552);
 }
 
-run()
+//run()
 
 let status = {"busConnection":{
   "state":true
   }
 }
 
-//exports.run = async function run(){
- async function run(){
+exports.run = async function run(){
+// async function run(){
 
 
   // use config to get target serial port if it exists
