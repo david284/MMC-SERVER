@@ -1,8 +1,11 @@
-const net = require('net');
-const { SerialPort } = require("serialport");
-const { ReadlineParser } = require('@serialport/parser-readline')
-//const MockBinding = require('@serialport/binding-mock')
 const winston = require('winston');
+const name = 'canUSB.js'
+winston.info({message: name + `: loaded`})
+const net = require('net');
+
+//const SerialPort = require("chrome-apps-serialport").SerialPort;
+const { SerialPort } = require("serialport");
+//const MockBinding = require('@serialport/binding-mock')
 let cbusLib = require('cbuslibrary')
 
 
@@ -20,17 +23,27 @@ let cbusLib = require('cbuslibrary')
 
 exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
 
-    const serialPort = new SerialPort({
+  winston.info({message: name + `: starting on  ${USB_PORT}`})
+
+  
+  const serialPort = new SerialPort({
         path: USB_PORT,
         baudRate: 115200,
         dataBits: 8,
         parity: 'none',
         stopBits: 1
     })
+  
+/*
+    const serialPort = new SerialPort(USB_PORT, {
+      baudRate: 115200,
+      dataBits: 8,
+      parity: 'none',
+      stopBits: 1
+  })
+*/
 
-    const parser = new ReadlineParser({
-        delimiter: ';'
-    })
+  
     
     /*if(USB_PORT == "MOCK_PORT"){
         MockBinding.createPort('MOCK_PORT', { echo: false, record: true })
@@ -43,12 +56,14 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
 
     // }
 
-    serialPort.pipe(parser)
+    
+    
+    var RxBuffer = ""
 
     const client = new net.Socket()
 
     client.connect(NET_PORT, NET_ADDRESS, function () {
-        winston.info({message: `Client Connected to ${USB_PORT}`})
+        winston.info({message: name + `: Client Connected to ${USB_PORT}`})
     })
 
     client.on('data', function (data) {
@@ -57,29 +72,37 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
             let message = getValidMessage(outMsg[i]);    // rebuild message as string
             if (message) {
                 let cbusMsg = cbusLib.decode(message)
-                winston.info({message: `${USB_PORT} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+                winston.info({message: name + `: ${USB_PORT} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
                 serialPort.write(message)
-                winston.debug({message: `${USB_PORT} Tx ${message}`})
+                winston.debug({message: name + `: ${USB_PORT} Tx ${message}`})
               }
         }
     })
 
     serialPort.on("open", function () {
-        winston.info({message: `${USB_PORT} Open`})
-    })
+        winston.info({message: name + `: Serial port: ${USB_PORT} Open`})
+      })
     
-    parser.on('data', function (data) {
-      winston.debug({message: `${USB_PORT} Rx ${data}`})
-      let message = getValidMessage(data);    // rebuild message as string
-        if (message) {
-            let cbusMsg = cbusLib.decode(message)
-            winston.info({message: `${USB_PORT} <- Receive : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
-            client.write(message)
+    serialPort.on("data", function (data) {
+      RxBuffer += data
+      messageArray = RxBuffer.split(';')
+      if (messageArray.length > 1){
+        for (var i=0; i < messageArray.length-1; i++ ){
+          winston.debug({message: name + `: ${USB_PORT} Rx ${messageArray[i]};`})
+          let message = getValidMessage(messageArray[i]);    // rebuild message as string
+          if (message) {
+              let cbusMsg = cbusLib.decode(message)
+              winston.info({message: name + `: ${USB_PORT} <- Receive : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+              client.write(message)
+          }
         }
+        RxBuffer = messageArray[messageArray.length-1]
+      }
     })
 
+
     serialPort.on("error", function (err) {
-        winston.error({message: `Serial port ERROR:  : ${err.message}`})
+        winston.error({message: name + `: Serial port ERROR:  : ${err.message}`})
     });
     
     return serialPort;

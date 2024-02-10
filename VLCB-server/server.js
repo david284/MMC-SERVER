@@ -3,6 +3,7 @@ const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 
+//const SerialPort = require("chrome-apps-serialport").SerialPort;
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')
@@ -41,7 +42,10 @@ exports.run = async function run(){
   // use config to get target serial port if it exists
   // otherwise look for a CANUSBx
   // if all else fails try plain network connection
+  winston.info({message: name + ': trying serialport.list '});
   var serialPorts = await getSerialPorts()
+  winston.info({message: name + ': serialports ' + JSON.stringify(serialPorts)});
+  
   status.busConnection["serialPortList"] = serialPorts
   var targetSerial = config.getSerialPort()
   if (targetSerial){
@@ -86,12 +90,12 @@ async function connectCANUSBx(){
 	return new Promise(function (resolve, reject) {
     SerialPort.list().then(ports => {
       ports.forEach(function(port) {
-        if (port.vendorId != undefined && port.vendorId.toString().toUpperCase() == '04D8' && port.productId.toString().toUpperCase() == 'F80C') {
+        if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
           // CANUSB4
           winston.info({message: 'CANUSB4 : ' + port.path});
           canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
           resolve(true);
-        } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase() == '0403' && port.productId.toString().toUpperCase() == '6001') {
+        } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
           // Old CANUSB
           winston.info({message: 'CANUSB : ' + port.path});
           canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
