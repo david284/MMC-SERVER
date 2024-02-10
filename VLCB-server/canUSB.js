@@ -25,7 +25,8 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
 
   winston.info({message: name + `: starting on  ${USB_PORT}`})
 
-  
+
+  // 'standard' serialport
   const serialPort = new SerialPort({
         path: USB_PORT,
         baudRate: 115200,
@@ -33,8 +34,10 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
         parity: 'none',
         stopBits: 1
     })
-  
+
+
 /*
+    // chrome-apps-serialport
     const serialPort = new SerialPort(USB_PORT, {
       baudRate: 115200,
       dataBits: 8,
@@ -79,7 +82,11 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
         }
     })
 
-    serialPort.on("open", function () {
+    client.on("error", function (err) {
+      winston.error({message: name + `: client ERROR:  : ${err.message}`})
+    });
+  
+  serialPort.on("open", function () {
         winston.info({message: name + `: Serial port: ${USB_PORT} Open`})
       })
     
