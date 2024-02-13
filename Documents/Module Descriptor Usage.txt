@@ -1,0 +1,8 @@
+The Module Management Console (MMC) uses module descriptor files to select how to display the variables, allowing new modules to be supported by adding the appropriate module descriptor file at any time.
+Adding a file is done by using the 'manage module descriptor' option in the variables or parameter dialogs for an individual node
+If there is no matching module descriptor file, a popup warning is shown, and variables can still be modified using 'generic' variable user inputs
+The MMC selects the appropriate file by first looking for any files uploaded by the user, then falling back to system provided files. This allows a user to 'override' any system provided file, as well as retaining any user provided files on a system update
+The MMC matches the file using the module name, module manufacturer + number (module identifier), and lastly the version number of the modules firmware (major+minor)
+It gets the module name from either 'registered' names in the system, or if not found, from the 'module name' portion of files that match the module identifier
+Thus for experimenters using manufacturer ID 13, the MMC will pickup the module name from their module descriptor automatically, once one has been uploaded
+The module name & descriptor filename for a specific node can be viewed in the parameters dialog

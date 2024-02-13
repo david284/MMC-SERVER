@@ -408,6 +408,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].bootloader = (cbusMsg.flags & 8) ? true : false
                 this.nodeConfig.nodes[ref].coe = (cbusMsg.flags & 16) ? true : false
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
+                this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
                 this.nodeConfig.nodes[ref].status = true
                 this.cbusSend((this.RQEVN(cbusMsg.nodeNumber)))
                 this.saveNode(cbusMsg.nodeNumber)
