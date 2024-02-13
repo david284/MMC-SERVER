@@ -544,7 +544,7 @@
               ]
             }
           ],
-          "comment":"end of channel 2"  
+          "comment":"end of channel 2"
         },
         { "displayTitle": "Channel 3",
           "items": [
@@ -777,7 +777,8 @@
                       {"value": 1, "label": "ACTION_INVERTED"},
                       {"value": 2, "label": "ACTION_INVERTED"},
                       {"value": 3, "label": "ACTION_INVERTED"},
-                      {"value": 4, "label": "ACTION_INVERTED"}                    ]
+                      {"value": 4, "label": "ACTION_INVERTED"}
+                    ]
                   }
                 },
                 {"bitPosition": 6, "label": "EVENT_INVERTED"},
@@ -789,7 +790,7 @@
               ]
             }
           ],
-          "comment":"end of channel 3"  
+          "comment":"end of channel 3"
         },
         { "displayTitle": "Channel 4",
           "items": [
@@ -1035,7 +1036,7 @@
               ]
             }
           ],
-          "comment":"end of channel 4"  
+          "comment":"end of channel 4"
         },
         { "displayTitle": "Channel 5",
           "items": [
@@ -1281,7 +1282,7 @@
               ]
             }
           ],
-          "comment":"end of channel 5"  
+          "comment":"end of channel 5"
         },
         { "displayTitle": "Channel 6",
           "items": [
@@ -1527,7 +1528,7 @@
               ]
             }
           ],
-          "comment":"end of channel 6"  
+          "comment":"end of channel 6"
         },
         { "displayTitle": "Channel 7",
           "items": [
@@ -1773,7 +1774,7 @@
               ]
             }
           ],
-          "comment":"end of channel 7"  
+          "comment":"end of channel 7"
         },
         { "displayTitle": "Channel 8",
           "items": [
@@ -2019,7 +2020,7 @@
               ]
             }
           ],
-          "comment":"end of channel 8"  
+          "comment":"end of channel 8"
         }
       ]
     }
@@ -2065,25 +2066,25 @@
               {"value": 1, "label": "CH2 - Input Changed"},
               {"value": 2, "label": "CH2 - Reached OFF"},
               {"value": 3, "label": "CH2 - Input Changed"},
-              {"value": 4, "label": "Ch2 - AT1"}
+              {"value": 4, "label": "CH2 - AT1"}
             ]
           }
         },
         {"value": 13, "overload":{"nv": "23", "labels": [
-              {"value": 0, "label": "Ch2 - TWO_ON"},
-              {"value": 2, "label": "Ch2 - Reached MID"},
-              {"value": 4, "label": "Ch2 - AT2"}
+              {"value": 0, "label": "CH2 - TWO_ON"},
+              {"value": 2, "label": "CH2 - Reached MID"},
+              {"value": 4, "label": "CH2 - AT2"}
             ]
           }
         },
         {"value": 14, "overload":{"nv": "23", "labels": [
-              {"value": 2, "label": "Ch2 - Reached ON"},
-              {"value": 4, "label": "Ch2 - AT3"}
+              {"value": 2, "label": "CH2 - Reached ON"},
+              {"value": 4, "label": "CH2 - AT3"}
             ]
           }
         },
         {"value": 15, "overload":{"nv": "23", "labels": [
-              {"value": 4, "label": "Ch2 - AT4"}
+              {"value": 4, "label": "CH2 - AT4"}
             ]
           }
         },
@@ -2265,7 +2266,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -2577,7 +2577,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -2889,7 +2888,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -3201,7 +3199,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -3513,7 +3510,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -3825,7 +3821,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
@@ -4137,7 +4132,6 @@
         {"value": 4, "label": "WAIT2"},
         {"value": 5, "label": "WAIT5"},
         {"value": 8, "overload":{"nv": "16", "labels": [
-              {"comment":"value is the channel selection in the nv"},
               {"value": 1, "label": "CH1 - Change"},
               {"value": 2, "label": "CH1 - Change"},
               {"value": 3, "label": "CH1 - Change"},
