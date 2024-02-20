@@ -6,6 +6,7 @@ winston.info({message: name + ': current working directory ' + process.cwd()});
 winston.info({message: name + ': file location ' + __dirname});
 const fork = require('child_process').fork;
 
+/*
 try {
   var win = nw.Window.open('bin/index.html', {}, function(win) {});
   winston.info({message: name + ': nw window open'});
@@ -14,6 +15,7 @@ try {
   winston.info({message: name + ': nw window hidden'});
 
 } catch (e){}
+*/
 
 /*
 const vlcbServer = fork('./VLCB-server/server.js')
@@ -119,4 +121,15 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+}
+
+try {
+  // open a window with the port used by express
+  var win = nw.Window.open("http://localhost:" + 3000, {show_in_taskbar:false}, function(win) {
+  });
+  win.height="100%"
+  win.width="100%"
+} catch (e){
+  // if it fails, probably not using nw, so use openurl
+  require("openurl").open("http://localhost:" + 3000)
 }

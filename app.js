@@ -45,7 +45,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-require("openurl").open("http://localhost:" + 3000)
+//require("openurl").open("http://localhost:" + 3000)
 
 
 module.exports = app;
