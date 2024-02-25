@@ -795,7 +795,7 @@ class cbusAdmin extends EventEmitter {
       // check event still exists first, as some events are dynamic on the module
       if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex]){
         // let clear out existing event variables...
-        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
+//        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
         // now try reading EV0 - should return number of event variables
         this.cbusSend(this.REVAL(nodeNumber, eventIndex, 0))
         await sleep(300); // wait for a response before trying to use it
