@@ -125,10 +125,11 @@ function onListening() {
 
 try {
   // open a window with the port used by express
-  var win = nw.Window.open("http://localhost:" + 3000, {show_in_taskbar:false}, function(win) {
+  var win = nw.Window.open("http://localhost:" + 3000, {}, function(win) {
+    win.on('loaded', function() {
+      win.maximize()
+    });
   });
-  win.height="100%"
-  win.width="100%"
 } catch (e){
   // if it fails, probably not using nw, so use openurl
   require("openurl").open("http://localhost:" + 3000)
