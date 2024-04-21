@@ -84,6 +84,12 @@
     "A53F": {
       "name": "CANOUT"
     },
+    "A540": {
+      "name": "CANXIO"
+    },
+    "A550": {
+      "name": "CANLEVER"
+    },
     "FA62": {
       "name": "CAN4in4out"
     },
