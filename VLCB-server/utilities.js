@@ -24,7 +24,19 @@ const failLogger = winston.createLogger({
 
 exports.decToHex = function decToHex(num, len) {return parseInt(num).toString(16).toUpperCase().padStart(len, '0');}
 
-
+// get CAN ID from modified Grid Connect message
+// CANID is bits 0 to 6 of the CAN Identifier
+exports.getMGCCANID = function getMGCCANID(MGC_message){
+	var CANID = 0;
+	if (MGC_message.length > 6){
+		if (MGC_message[1] == 'S'){
+			// CANID is bits 0 to 6 of the 11 bit CAN Identifier
+			var identifier = MGC_message.substring(2, 6);
+			CANID = (parseInt(identifier, 16) >> 5) & 127
+		}
+	}
+	return CANID
+}
 
 exports.sleep = function sleep(timeout) {
 	return new Promise(function (resolve, reject) {

@@ -2,6 +2,7 @@ const winston = require('winston');		// use config from root instance
 const net = require('net')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
+const utils = require('./../VLCB-server/utilities.js')
 
 
 function pad(num, len) { //add zero's to ensure hex values have correct number of characters
@@ -379,6 +380,7 @@ class cbusAdmin extends EventEmitter {
                 } else {
                   // doesn't exist in config file, so create it (but note flag update/create done later)
                   let output = {
+                      "CANID": utils.getMGCCANID(cbusMsg.encoded),
                       "nodeNumber": cbusMsg.nodeNumber,
                       "manufacturerId": cbusMsg.manufacturerId,
                       "moduleId": cbusMsg.moduleId,
