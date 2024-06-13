@@ -631,13 +631,14 @@ class cbusAdmin extends EventEmitter {
         this.emit('cbusError', this.cbusErrors)
     }
 
-    cbusSend(msg) {
+    async cbusSend(msg) {
       if (typeof msg !== 'undefined') {
         let output = JSON.stringify(msg)
         this.client.write(output);
+        winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
         let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
         this.emit('cbusTraffic', {direction: 'Out', json: tmp});
-        winston.debug({message: `mergAdminNode: CBUS Transit >>>  ${output}`})
+        await utils.sleep(2)
       }
     }
 
@@ -702,36 +703,38 @@ class cbusAdmin extends EventEmitter {
     checkNodeDescriptor(nodeNumber){
       if (this.nodeDescriptors[nodeNumber] == undefined) {
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
-        var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
-        var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
-        if ((moduleName == "Unknown") || (moduleName == undefined)) {
-          // we can't handle a module we don't know about, so just warn & skip rest
-          winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
-        } else {
-          // build filename
-          var filename = moduleName + "-" + moduleIdentifier               
-          // need major & minor version numbers to complete building of filename
-          if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined))
-          {
-            // get & store the version
-            this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
-            filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
-            filename += ".json"
-            // ok - can get file now
-            // but don't store the filename in nodeConfig until we're tried to read the file
-            try {
-              const moduleDescriptor = this.config.readModuleDescriptor(filename)
-              this.nodeDescriptors[nodeNumber] = moduleDescriptor
-              this.config.writeNodeDescriptors(this.nodeDescriptors)
-              winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
-              var payload = {[nodeNumber]:moduleDescriptor}
-              this.emit('nodeDescriptor', payload);
-            }catch(err) {
-              winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
+        if (this.nodeConfig.nodes[nodeNumber]){
+          var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
+          var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
+          if ((moduleName == "Unknown") || (moduleName == undefined)) {
+            // we can't handle a module we don't know about, so just warn & skip rest
+            winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+          } else {
+            // build filename
+            var filename = moduleName + "-" + moduleIdentifier               
+            // need major & minor version numbers to complete building of filename
+            if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined))
+            {
+              // get & store the version
+              this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
+              filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
+              filename += ".json"
+              // ok - can get file now
+              // but don't store the filename in nodeConfig until we're tried to read the file
+              try {
+                const moduleDescriptor = this.config.readModuleDescriptor(filename)
+                this.nodeDescriptors[nodeNumber] = moduleDescriptor
+                this.config.writeNodeDescriptors(this.nodeDescriptors)
+                winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+                var payload = {[nodeNumber]:moduleDescriptor}
+                this.emit('nodeDescriptor', payload);
+              }catch(err) {
+                winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
+              }
+              // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
+              // and the client can check for filename, and if no data, then fileload failed
+              this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = filename
             }
-            // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
-            // and the client can check for filename, and if no data, then fileload failed
-            this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = filename
           }
         }
       }
@@ -858,24 +861,28 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
-
-  teach_event(nodeNumber, event, variableId, value) {
+  // teach_event not only creates a new event, but signals all the events for that node need refreshing
+  // as the indexs for events for that node may have changed once a new event has been created
+  teach_event(nodeNumber, eventIdentifier, variableId, value) {
     this.cbusSend(this.NNLRN(nodeNumber))
-    this.cbusSend(this.EVLRN(nodeNumber, event, variableId, value))
+    this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, variableId, value))
     this.cbusSend(this.NNULN(nodeNumber))
     this.cbusSend(this.NNULN(nodeNumber))
     this.nodes_EventsNeedRefreshing[nodeNumber]=true
   }
 
-
-  update_event_variable(data){
-    this.cbusSend(this.NNLRN(data.nodeNumber))
+  // update_event_variable not only updates the variable, but signals all the variables for that event need refreshing
+  // This is why it's different to 'teach_event'
+  async update_event_variable(data){
+    await this.cbusSend(this.NNLRN(data.nodeNumber))
     // do we really need this if we refresh later?
-    this.nodeConfig.nodes[data.nodeNumber].storedEvents[data.eventIndex].variables[data.eventVariableId] = data.eventVariableValue
-    this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
+    if (this.nodeConfig.nodes[data.nodeNumber]){
+//      this.nodeConfig.nodes[data.nodeNumber].storedEvents[data.eventIndex].variables[data.eventVariableId] = data.eventVariableValue
+    }
+    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
     //    this.cbusSend(this.update_event(data.nodeNumber, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
-    this.cbusSend(this.NNULN(data.nodeNumber))
-    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeNumber, eventIndex:data.eventIndex}
+    await this.cbusSend(this.NNULN(data.nodeNumber))
+    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeNumber, eventIndex:data.eventIndex, eventIdentifier:data.eventName}
     // refresh done on receiving a WRACK
   }
 
@@ -1014,27 +1021,21 @@ class cbusAdmin extends EventEmitter {
       //return cbusLib.encodeRDGN(nodeNumber ServiceNumber, DiagnosticCode);
   }
 
-  update_event(nodeNumber, event, eventIndex, variableId, value){
+  update_event(nodeNumber, eventIdentifier, eventIndex, variableId, value){
       this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[variableId] = value
-      return this.EVLRN(nodeNumber, event, variableId, value)
+      return this.EVLRN(nodeNumber, eventIdentifier, variableId, value)
   }
 
 
-  EVLRN(nodeNumber, event, variableId, value) {//Update Event Variable
-      //let nodeNumber = parseInt(event.substr(0, 4), 16)
-      //winston.info({message: `mergAdminNode: EVLRN ${event} ${eventIndex} ${variableId} ${value} ` })
-      //winston.info({message: `mergAdminNode: Test ${JSON.stringify(this.nodeConfig.nodes[nodeNumber])}` })
-      //this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[variableId] = value
-      //this.nodeConfig.nodes[parseInt(event.substr(0, 4), 16)].storedEvents[eventIndex].variables[variableId] = value
+  EVLRN(nodeNumber, eventIdentifier, variableId, value) {
       this.saveNode(nodeNumber)
       let output = {}
       output['mnemonic'] = 'EVLRN'
-      output['nodeNumber'] = parseInt(event.substr(0, 4), 16)
-      output['eventNumber'] = parseInt(event.substr(4, 4), 16)
+      output['nodeNumber'] = parseInt(eventIdentifier.substr(0, 4), 16)
+      output['eventNumber'] = parseInt(eventIdentifier.substr(4, 4), 16)
       output['eventVariableIndex'] = variableId
       output['eventVariableValue'] = value
       return output;
-      //return cbusLib.encodeEVLRN(parseInt(event.substr(0, 4), 16), parseInt(event.substr(4, 4), 16), variableId, valueId);
   }
 
   EVULN(event) {//Remove an Event in Learn mMode

@@ -18,7 +18,9 @@ class mock_jsonServer{
         winston.info({message:`mock_jsonServer: Data Received : ${data}`})
         let indata = data.toString().replace(/}{/g, "}|{")
         const outMsg = indata.toString().split("|")
-        this.messagesIn.push(outMsg[0])
+        var cbusMsg = JSON.parse(outMsg[0])
+        this.messagesIn.push(cbusMsg)
+        this.processMessagesIn(cbusMsg)
       }.bind(this));
 
     }.bind(this));
@@ -32,11 +34,23 @@ class mock_jsonServer{
     let cbusLibMsg = cbusLib.decode(outMsg)
     this.clients.forEach(function (client) {
         let output = JSON.stringify(cbusLibMsg);
-        winston.info({message:`mock_jsonServer: inject output` + output})
+        winston.debug({message:`mock_jsonServer: inject output` + output})
         client.write(output);
     });
   }
 
+  processMessagesIn(message){
+    winston.info({message:`mock_jsonServer: processMessagesIn ` + JSON.stringify(message)})
+    switch(message.mnemonic){
+      case "EVLRN":
+        winston.info({message:`mock_jsonServer: processMessagesIn - EVLRN `})
+        var cbusMsg = cbusLib.encodeWRACK(message.nodeNumber)
+        winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
+        this.inject(cbusMsg)
+        break
+      default:
+    }
+  }
 }
 
 module.exports = mock_jsonServer;

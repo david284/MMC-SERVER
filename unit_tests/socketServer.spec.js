@@ -158,7 +158,7 @@ describe('socketServer tests', function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        CbusMsg = mock_jsonServer.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -189,7 +189,7 @@ describe('socketServer tests', function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        CbusMsg = mock_jsonServer.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -220,7 +220,7 @@ describe('socketServer tests', function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        CbusMsg = mock_jsonServer.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -251,7 +251,7 @@ describe('socketServer tests', function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+        CbusMsg = mock_jsonServer.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -331,7 +331,7 @@ describe('socketServer tests', function(){
     socket.emit('SET_NODE_NUMBER', value.nodeNumber)
 
     setTimeout(function(){
-      CbusMsg = JSON.parse(mock_jsonServer.messagesIn[0])
+      CbusMsg = mock_jsonServer.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
       expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});

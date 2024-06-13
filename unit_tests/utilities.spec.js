@@ -66,6 +66,13 @@ describe('utilities tests', function(){
     winston.info({message: 'unit_test: END getMGCCANID test'})
   })
 
+  it("sleep test ", async function () {
+    winston.info({message: 'unit_test: BEGIN sleep test '});
+    await utils.sleep(1000)
+    winston.info({message: 'unit_test: END sleep test'});
+  })
+
+
 
 
 })
