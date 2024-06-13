@@ -8,6 +8,7 @@ class mock_jsonServer{
 
     this.clients = [];
     this.messagesIn = [];
+    this.learnNodeNumber = 0;
 
     const server = net.createServer(function (socket) {
       socket.setKeepAlive(true, 60000);
@@ -44,9 +45,13 @@ class mock_jsonServer{
     switch(message.mnemonic){
       case "EVLRN":
         winston.info({message:`mock_jsonServer: processMessagesIn - EVLRN `})
-        var cbusMsg = cbusLib.encodeWRACK(message.nodeNumber)
+        var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
         winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
         this.inject(cbusMsg)
+        break
+      case "NNLRN":
+        winston.info({message:`mock_jsonServer: processMessagesIn - NNLRN `})
+        this.learnNodeNumber = message.nodeNumber
         break
       default:
     }

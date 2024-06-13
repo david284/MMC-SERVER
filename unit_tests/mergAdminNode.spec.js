@@ -450,7 +450,8 @@ describe('mergAdminNode tests', function(){
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
     var data = {"nodeNumber": value.nodeNumber,
-      "eventName": value.eventIdentifier,
+      "eventIdentifier": value.eventIdentifier,
+      "eventIndex": 1,
       "eventVariableId": value.eventVariableIndex,
       "eventVariableValue": value.eventVariableValue
     }
@@ -462,7 +463,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END update_event_variable test'});
 			done();
-		}, 50);
+		}, 100);
   })
 
 

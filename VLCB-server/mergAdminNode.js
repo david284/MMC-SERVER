@@ -2,7 +2,8 @@ const winston = require('winston');		// use config from root instance
 const net = require('net')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
-const utils = require('./../VLCB-server/utilities.js')
+const utils = require('./../VLCB-server/utilities.js');
+const { isUndefined } = require('util');
 
 
 function pad(num, len) { //add zero's to ensure hex values have correct number of characters
@@ -580,8 +581,10 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: name + `: wrack : node ` + nodeNumber + ' needs to refresh events'});
         this.request_all_node_events(nodeNumber)
       }
-      if (this.nodes_EventVariablesNeedRefreshing.nodeNumber){
-        if (this.nodes_EventVariablesNeedRefreshing.nodeNumber = nodeNumber){
+      winston.info({message: name + `: wrack : nodes_EventVariablesNeedRefreshing ` + JSON.stringify(this.nodes_EventVariablesNeedRefreshing)});
+      if (this.nodes_EventVariablesNeedRefreshing.nodeNumber != undefined){
+        if (this.nodes_EventVariablesNeedRefreshing.nodeNumber == nodeNumber){
+          winston.info({message: name + `: wrack : EventVariablesNeedRefreshing for node ` + nodeNumber})
           let eventIndex = this.nodes_EventVariablesNeedRefreshing.eventIndex
           this.request_all_event_variables(nodeNumber, eventIndex)
         }
@@ -755,6 +758,13 @@ class cbusAdmin extends EventEmitter {
 //      winston.info({message: 'mergAdminNode: busy hold released at count ' + count});
     }
 
+
+    requestEventVariables(nodeNumber, eventIdentifier){
+      winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
+      this.cbusSend(this.NNLRN(nodeNumber))
+      this.cbusSend(this.REQEV(eventIdentifier, 0))
+      this.cbusSend(this.NNULN(nodeNumber))  
+    }
 //************************************************************************ */
 //
 // functions called by the socket service
@@ -877,12 +887,13 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.NNLRN(data.nodeNumber))
     // do we really need this if we refresh later?
     if (this.nodeConfig.nodes[data.nodeNumber]){
-//      this.nodeConfig.nodes[data.nodeNumber].storedEvents[data.eventIndex].variables[data.eventVariableId] = data.eventVariableValue
+//      this.nodeConfig.nodes[data.nodeNumber].storedEvents[data.even tIndex].variables[data.eventVariableId] = data.eventVariableValue
     }
-    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
+    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventIdentifier, data.eventVariableId, data.eventVariableValue))
     //    this.cbusSend(this.update_event(data.nodeNumber, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
     await this.cbusSend(this.NNULN(data.nodeNumber))
-    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeNumber, eventIndex:data.eventIndex, eventIdentifier:data.eventName}
+    this.requestEventVariables(data.nodeNumber, data.eventIdentifier)
+//    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeNumber, eventIndex:data.eventIndex, eventIdentifier:data.eventName}
     // refresh done on receiving a WRACK
   }
 
@@ -999,6 +1010,8 @@ class cbusAdmin extends EventEmitter {
       //return cbusLib.encodeRQSD(nodeNumber, ServiceNumber);
   }
 
+  // 0x9C REVAL
+  //
   REVAL(nodeNumber, eventNumber, valueId) {//Read an Events EV by index
       //winston.info({message: 'mergAdminNode: REVAL '})
       let output = {}
@@ -1027,7 +1040,20 @@ class cbusAdmin extends EventEmitter {
   }
 
 
-  EVLRN(nodeNumber, eventIdentifier, variableId, value) {
+  // 0x9C REVAL
+  //
+  REQEV(eventIdentifier, variableIndex) {//Read an Events EV by identifier - must be in learn mode
+    //winston.info({message: 'mergAdminNode: REQEV '})
+    let output = {}
+    output['mnemonic'] = 'REQEV'
+    output['nodeNumber'] = parseInt(eventIdentifier.substr(0, 4), 16)
+    output['eventNumber'] = parseInt(eventIdentifier.substr(4, 4), 16)
+    output['eventVariableIndex'] = variableIndex
+    return output;
+    //return cbusLib.encodeREVAL(nodeNumber, eventNumber, valueId);
+}
+
+EVLRN(nodeNumber, eventIdentifier, variableId, value) {
       this.saveNode(nodeNumber)
       let output = {}
       output['mnemonic'] = 'EVLRN'
