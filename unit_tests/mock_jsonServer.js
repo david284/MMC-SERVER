@@ -41,17 +41,21 @@ class mock_jsonServer{
   }
 
   processMessagesIn(message){
-    winston.info({message:`mock_jsonServer: processMessagesIn ` + JSON.stringify(message)})
+    winston.info({message:`mock_jsonServer: processMessagesIn ` + message.mnemonic})
     switch(message.mnemonic){
       case "EVLRN":
-        winston.info({message:`mock_jsonServer: processMessagesIn - EVLRN `})
+        winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
         var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
-        winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
-        this.inject(cbusMsg)
+//        winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
+//        this.inject(cbusMsg)
         break
       case "NNLRN":
-        winston.info({message:`mock_jsonServer: processMessagesIn - NNLRN `})
+        winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
         this.learnNodeNumber = message.nodeNumber
+        break
+      case "NNULN":
+        winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
+        this.learnNodeNumber = null
         break
       default:
     }

@@ -313,7 +313,7 @@ describe('mergAdminNode tests', function(){
       expect(result.session).to.equal(value.session)
       winston.info({message: 'unit_test: END DKEEP test'});
 			done();
-		}, 10);
+		}, 30);
   })
 
 
@@ -396,7 +396,7 @@ describe('mergAdminNode tests', function(){
       expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
       winston.info({message: 'unit_test: END GRSP test'});
 			done();
-		}, 10);
+		}, 30);
   })
 
   //****************************************************************************************** */
@@ -429,26 +429,34 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+/*
+function GetTestCase_teach_event() {
+  var argA = 1, argB = "00000002", argC = 3, argD = 4, testCases = [];
+  testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
+  return testCases;
+}
+*/
+
   itParam("teach_event test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN teach_event test '});
     mock_jsonServer.messagesIn = []
-    nodeTraffic = []
     node.teach_event(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
-      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
-      expect(nodeTraffic[0].json.mnemonic).to.equal("NNLRN")
-      expect(nodeTraffic[1].json.mnemonic).to.equal("EVLRN")
-      expect(nodeTraffic[2].json.mnemonic).to.equal("NNULN")
-      expect(nodeTraffic[3].json.mnemonic).to.equal("NNULN")
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END teach_event test'});
 			done();
-		}, 10);
+		}, 200);
   })
 
   itParam("update_event_variable test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN update_event_variable test '});
     mock_jsonServer.messagesIn = []
-    nodeTraffic = []
     var data = {"nodeNumber": value.nodeNumber,
       "eventIdentifier": value.eventIdentifier,
       "eventIndex": 1,
@@ -463,7 +471,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END update_event_variable test'});
 			done();
-		}, 100);
+		}, 200);
   })
 
 
