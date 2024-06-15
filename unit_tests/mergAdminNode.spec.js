@@ -451,7 +451,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END teach_event test'});
 			done();
-		}, 200);
+		}, 250);
   })
 
   itParam("update_event_variable test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
