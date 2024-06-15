@@ -402,7 +402,7 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   // functions called by socket server
   //****************************************************************************************** */
-
+/*
   function GetTestCase_teach_event() {
     var argA, argB, argC, argD, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -428,14 +428,14 @@ describe('mergAdminNode tests', function(){
     }
     return testCases;
   }
+*/
 
-/*
 function GetTestCase_teach_event() {
   var argA = 1, argB = "00000002", argC = 3, argD = 4, testCases = [];
   testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
   return testCases;
 }
-*/
+
 
   itParam("teach_event test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN teach_event test '});
@@ -449,6 +449,8 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("RQEVN")
+      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END teach_event test'});
 			done();
 		}, 250);

@@ -46,8 +46,8 @@ class mock_jsonServer{
       case "EVLRN":
         winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
         var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
-//        winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
-//        this.inject(cbusMsg)
+        winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
+        this.inject(cbusMsg)
         break
       case "NNLRN":
         winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})

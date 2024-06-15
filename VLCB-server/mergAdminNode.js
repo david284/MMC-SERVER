@@ -575,14 +575,9 @@ class cbusAdmin extends EventEmitter {
 
     process_WRACK(nodeNumber) {
       winston.info({message: name + `: wrack : node ` + nodeNumber});
+
       /*
-      if (this.nodes_EventsNeedRefreshing[nodeNumber]){
-        winston.info({message: name + `: wrack : node ` + nodeNumber + ' needs to refresh events'});
-        this.request_all_node_events(nodeNumber)
-      }
-      */
       winston.info({message: name + `: wrack : nodes_EventVariablesNeedRefreshing ` + JSON.stringify(this.nodes_EventVariablesNeedRefreshing)});
-      /*
       if (this.nodes_EventVariablesNeedRefreshing.nodeNumber != undefined){
         if (this.nodes_EventVariablesNeedRefreshing.nodeNumber == nodeNumber){
           winston.info({message: name + `: wrack : EventVariablesNeedRefreshing for node ` + nodeNumber})
@@ -835,10 +830,17 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+  addNodeToConfig(nodeNumber){
+    this.nodeConfig.nodes[nodeNumber] = {eventVariableReadBusy:false}
+  }
+
   async request_all_node_events(nodeNumber){
+    winston.debug({message: 'mergAdminNode: request_all_node_events: node ' + nodeNumber});
+    if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     // don't start this if we already have an event variable read in progress
     this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
     if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
+      winston.debug({message: 'mergAdminNode: request_all_node_events: start process '});
       this.nodeConfig.nodes[nodeNumber].eventReadBusy=true
       await this.cbusSend(this.RQEVN(nodeNumber))
       this.removeNodeEvents(nodeNumber)
@@ -846,10 +848,11 @@ class cbusAdmin extends EventEmitter {
       this.nodes_EventsNeedRefreshing[nodeNumber]=false
       var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
       await sleep(delay)  // give it some time to complete
-      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false
+      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false      
     } else {
       winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
     }
+
   }
 
   async request_all_node_parameters(nodeNumber){
@@ -875,14 +878,15 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
-  // teach_event not only creates a new event, but signals all the events for that node need refreshing
+  // teach_event not only creates a new event, but needs to refresh the events
   // as the indexs for events for that node may have changed once a new event has been created
   async teach_event(nodeNumber, eventIdentifier, variableId, value) {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, variableId, value))
+    await sleep(50); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
-    await this.cbusSend(this.NNULN(nodeNumber))
-//    this.nodes_EventsNeedRefreshing[nodeNumber]=true
+    await this.cbusSend(this.NNULN(nodeNumber))   // do we really need this 2nd NNULN?
+    await this.request_all_node_events(nodeNumber)
   }
 
   // update_event_variable not only updates the variable, but signals all the variables for that event need refreshing
