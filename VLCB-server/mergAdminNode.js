@@ -638,7 +638,7 @@ class cbusAdmin extends EventEmitter {
         winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
         let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
         this.emit('cbusTraffic', {direction: 'Out', json: tmp});
-        await utils.sleep(30)
+        await utils.sleep(10)
       }
     }
 
@@ -891,11 +891,12 @@ class cbusAdmin extends EventEmitter {
   // update_event_variable not only updates the variable, but refreshes all the variables for that event
   // This is why it's different to 'teach_event'
   async update_event_variable(data){
+    winston.info({message: name +': update_event_variable: data ' + JSON.stringify(data)});
     await this.cbusSend(this.NNLRN(data.nodeNumber))
-    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventIdentifier, data.eventVariableId, data.eventVariableValue))
+    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
     await sleep(50); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
-    await this.requestEventVariables(data.nodeNumber, data.eventIdentifier)
+    await this.requestEventVariables(data.nodeNumber, data.eventName)
   }
 
 
@@ -1055,7 +1056,8 @@ class cbusAdmin extends EventEmitter {
 }
 
 EVLRN(nodeNumber, eventIdentifier, variableId, value) {
-      this.saveNode(nodeNumber)
+    winston.info({message: 'mergAdminNode: EVLEN: ' + eventIdentifier + ' ' + value})
+    this.saveNode(nodeNumber)
       let output = {}
       output['mnemonic'] = 'EVLRN'
       output['nodeNumber'] = parseInt(eventIdentifier.substr(0, 4), 16)

@@ -460,7 +460,7 @@ function GetTestCase_teach_event() {
     winston.info({message: 'unit_test: BEGIN update_event_variable test '});
     mock_jsonServer.messagesIn = []
     var data = {"nodeNumber": value.nodeNumber,
-      "eventIdentifier": value.eventIdentifier,
+      "eventName": value.eventIdentifier,
       "eventIndex": 1,
       "eventVariableId": value.eventVariableIndex,
       "eventVariableValue": value.eventVariableValue
