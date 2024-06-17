@@ -758,11 +758,10 @@ class cbusAdmin extends EventEmitter {
 
     async requestEventVariables(nodeNumber, eventIdentifier){
       winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
-/*
       await this.cbusSend(this.NNLRN(nodeNumber))
       await this.cbusSend(this.REQEV(eventIdentifier, 0))
-      await this.cbusSend(this.NNULN(nodeNumber))
-*/  
+      await sleep(100); // wait for a response before trying to use it
+      await this.cbusSend(this.NNULN(nodeNumber))  
     }
 //************************************************************************ */
 //
@@ -889,20 +888,14 @@ class cbusAdmin extends EventEmitter {
     await this.request_all_node_events(nodeNumber)
   }
 
-  // update_event_variable not only updates the variable, but signals all the variables for that event need refreshing
+  // update_event_variable not only updates the variable, but refreshes all the variables for that event
   // This is why it's different to 'teach_event'
   async update_event_variable(data){
     await this.cbusSend(this.NNLRN(data.nodeNumber))
-    // do we really need this if we refresh later?
-    if (this.nodeConfig.nodes[data.nodeNumber]){
-//      this.nodeConfig.nodes[data.nodeNumber].storedEvents[data.even tIndex].variables[data.eventVariableId] = data.eventVariableValue
-    }
     await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventIdentifier, data.eventVariableId, data.eventVariableValue))
-    //    this.cbusSend(this.update_event(data.nodeNumber, data.eventName, data.eventIndex, data.eventVariableId, data.eventVariableValue))
+    await sleep(50); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
-    this.requestEventVariables(data.nodeNumber, data.eventIdentifier)
-//    this.nodes_EventVariablesNeedRefreshing = {nodeNumber:data.nodeNumber, eventIndex:data.eventIndex, eventIdentifier:data.eventName}
-    // refresh done on receiving a WRACK
+    await this.requestEventVariables(data.nodeNumber, data.eventIdentifier)
   }
 
 
