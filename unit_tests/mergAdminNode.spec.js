@@ -480,6 +480,59 @@ function GetTestCase_teach_event() {
 		}, 400);
   })
 
+  itParam("event_teach_by_identity test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN event_teach_by_identity test '});
+    mock_jsonServer.messagesIn = []
+    node.event_teach_by_identity(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
+      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
+      winston.info({message: 'unit_test: END event_teach_by_identity test'});
+			done();
+		}, 250);
+  })
+
+
+
+  function GetTestCase_eventIdentifierExists() {
+    var argA, argB, argC, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = "00000000"}
+        if (b == 2) {argB = "00000001"}
+        if (b == 3) {argB = "FFFFFFFF"}
+        for (var c = 1; c<= 2; c++) {
+          if (c == 1) {argC = true}
+          if (c == 2) {argC = false}
+            testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventExists":argC});
+        }
+      }
+    }
+    return testCases;
+  }
+
+  itParam("eventIdentifierExists test ${JSON.stringify(value)}", GetTestCase_eventIdentifierExists(), function (value) {
+    winston.info({message: 'unit_test: BEGIN eventIdentifierExists test '});
+    // create node with no matching events
+    node.nodeConfig.nodes[value.nodeNumber] = {storedEvents:{0:{}}}
+    if (value.eventExists == true){
+      // event should exist, so populate it
+      node.nodeConfig.nodes[value.nodeNumber].storedEvents[1] = {eventIdentifier: value.eventIdentifier}
+    }
+    result = node.eventIdentifierExists(value.nodeNumber, value.eventIdentifier )
+    expect(result).to.equal(value.eventExists)
+    winston.info({message: 'unit_test: END eventIdentifierExists test'});
+  })
+
 
 
 

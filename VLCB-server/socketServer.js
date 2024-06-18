@@ -210,6 +210,11 @@ let node = new admin.cbusAdmin(config);
       node.teach_event(data.nodeNumber, data.eventName, 1, 0)
     })
 
+    socket.on('EVENT_TEACH_BY_IDENTITY', function(data){
+      winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTITY ${JSON.stringify(data)}`});
+      node.event_teach_by_identity(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+    })
+
     socket.on('UPDATE_EVENT_VARIABLE', function(data){
       winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
       node.update_event_variable(data)
