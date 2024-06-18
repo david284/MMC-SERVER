@@ -498,6 +498,30 @@ function GetTestCase_teach_event() {
 		}, 250);
   })
 
+  //
+  // Test that if the event already exists, then the read all events isn't executed
+  //
+  it("event_teach_by_identity2 test", function (done) {
+    winston.info({message: 'unit_test: BEGIN event_teach_by_identity2 test '});
+    mock_jsonServer.messagesIn = []
+    // create event so that it already exists
+    node.nodeConfig.nodes[1] = {storedEvents:{0:{}}}
+    node.nodeConfig.nodes[1].storedEvents[1] = {eventIdentifier: "00000002"}
+    node.event_teach_by_identity(1, "00000002", 1, 1 )
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn.length).to.equal(3)    // check events read wasn't triggered
+      winston.info({message: 'unit_test: END event_teach_by_identity2 test'});
+			done();
+		}, 250);
+  })
+
+
 
 
   function GetTestCase_eventIdentifierExists() {
