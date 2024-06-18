@@ -692,10 +692,16 @@ class cbusAdmin extends EventEmitter {
     }
 
     saveNode(nodeNumber) {
-        winston.info({message: 'mergAdminNode: Save Node : '+nodeNumber});
-        this.checkNodeDescriptor(nodeNumber); // do before emit node
-        this.config.writeNodeConfig(this.nodeConfig)
-        this.emit('node', this.nodeConfig.nodes[nodeNumber]);
+      winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){
+        this.nodeConfig.nodes[nodeNumber] = {
+          "nodeNumber": nodeNumber,
+          "eventVariableReadBusy": false
+        } 
+      }
+      this.checkNodeDescriptor(nodeNumber); // do before emit node
+      this.config.writeNodeConfig(this.nodeConfig)
+      this.emit('node', this.nodeConfig.nodes[nodeNumber])
     }
 
 
@@ -1089,15 +1095,15 @@ class cbusAdmin extends EventEmitter {
 }
 
 EVLRN(nodeNumber, eventIdentifier, variableId, value) {
-    winston.info({message: 'mergAdminNode: EVLEN: ' + eventIdentifier + ' ' + value})
+    winston.debug({message: 'mergAdminNode: EVLRN: ' + nodeNumber + ' ' + eventIdentifier + ' ' + variableId + ' ' + value})
     this.saveNode(nodeNumber)
-      let output = {}
-      output['mnemonic'] = 'EVLRN'
-      output['nodeNumber'] = parseInt(eventIdentifier.substr(0, 4), 16)
-      output['eventNumber'] = parseInt(eventIdentifier.substr(4, 4), 16)
-      output['eventVariableIndex'] = variableId
-      output['eventVariableValue'] = value
-      return output;
+    let output = {}
+    output['mnemonic'] = 'EVLRN'
+    output['nodeNumber'] = parseInt(eventIdentifier.substr(0, 4), 16)
+    output['eventNumber'] = parseInt(eventIdentifier.substr(4, 4), 16)
+    output['eventVariableIndex'] = variableId
+    output['eventVariableValue'] = value
+    return output;
   }
 
   EVULN(event) {//Remove an Event in Learn mMode

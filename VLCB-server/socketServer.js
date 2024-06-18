@@ -210,9 +210,9 @@ let node = new admin.cbusAdmin(config);
       node.teach_event(data.nodeNumber, data.eventName, 1, 0)
     })
 
-    socket.on('EVENT_TEACH_BY_IDENTITY', function(data){
+    socket.on('EVENT_TEACH_BY_IDENTITY', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTITY ${JSON.stringify(data)}`});
-      node.event_teach_by_identity(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+      await node.event_teach_by_identity(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
     })
 
     socket.on('UPDATE_EVENT_VARIABLE', function(data){
@@ -316,10 +316,9 @@ let node = new admin.cbusAdmin(config);
 
 
   node.on('node', function (node) {
-    winston.info({message: `socketServer: Node Sent`});
-    winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node.nodeNumber)}`});
+    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
-    if(node.nodeNumber) {
+    if(node.nodeNumber != undefined) {
       if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
         io.emit('LAYOUT_DETAILS', layoutDetails)
         winston.info({message: `socketServer: nodeName updated, LAYOUT_DETAILS Sent`});
@@ -386,6 +385,7 @@ function  update_nodeName(config, nodeNumber, layoutDetails){
     layoutDetails.nodeDetails[nodeNumber].colour = "black"
     layoutDetails.nodeDetails[nodeNumber].group = ""
     updated = true
+    winston.debug({message: 'socketServer: update_nodeName: layoutdetails entry created'});
   }
   if (layoutDetails.nodeDetails[nodeNumber].name) {
     // nodeName already exists, so do nothing
@@ -401,6 +401,7 @@ function  update_nodeName(config, nodeNumber, layoutDetails){
     }
     updated = true
   }
+  winston.debug({message: 'socketServer: update_nodeName: updated ' + updated});
   if (updated){
     // only write if updated
     config.writeLayoutDetails(layoutDetails)
