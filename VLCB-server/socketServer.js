@@ -316,7 +316,8 @@ let node = new admin.cbusAdmin(config);
 
 
   node.on('node', function (node) {
-    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
+    winston.info({message: `socketServer: Node Sent `});
+//    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
     if(node.nodeNumber != undefined) {
       if (update_nodeName(config, node.nodeNumber, layoutDetails)) {

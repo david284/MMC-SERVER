@@ -40,6 +40,7 @@ class cbusAdmin extends EventEmitter {
         this.saveConfig()
         this.nodes_EventsNeedRefreshing = {}
         this.nodes_EventVariablesNeedRefreshing = {}
+        this.nodeNumberInLearnMode = null
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -460,6 +461,31 @@ class cbusAdmin extends EventEmitter {
             'D1': async (cbusMsg) => {//Accessory Off Long Event 2
                 this.eventSend(cbusMsg, 'off', 'long')
             },
+            'D3': async (cbusMsg) => {// EVANS - response to REQEV
+              //
+              var nodeNumber = this.nodeNumberInLearnMode
+              var eventIdentifier = decToHex(cbusMsg.nodeNumber, 4) + decToHex(cbusMsg.eventNumber, 4) 
+              winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
+              var tableIndex = this.getEventTableIndex( this.nodeNumberInLearnMode, eventIdentifier)
+              winston.debug({message: name + `: EVANS(D3): tableIndex ${tableIndex}`});              
+              if (tableIndex != null) {
+                if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] != null) {
+                    if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
+                        winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.variable} Value has Changed `});
+                        this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
+                        this.saveNode(nodeNumber)
+                    } else {
+                        winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.eventVariableIndex} Value has not Changed `});
+                    }
+                } else {
+                    winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.variable} Does not exist on config - adding`});
+                    this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
+                    this.saveNode(nodeNumber)
+                }
+              } else {
+                  winston.debug({message: name + `: EVANS(D3): Event Identifier ${eventIdentifier} Does not exist on config - skipping`});
+              }
+            },
             'D8': async (cbusMsg) => {//Accessory On Short Event 2
                 this.eventSend(cbusMsg, 'on', 'short')
             },
@@ -762,13 +788,6 @@ class cbusAdmin extends EventEmitter {
     }
 
 
-    async requestEventVariables(nodeNumber, eventIdentifier){
-      winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
-      await this.cbusSend(this.NNLRN(nodeNumber))
-      await this.cbusSend(this.REQEV(eventIdentifier, 0))
-      await sleep(100); // wait for a response before trying to use it
-      await this.cbusSend(this.NNULN(nodeNumber))  
-    }
 //************************************************************************ */
 //
 // functions called by the socket service
@@ -843,8 +862,9 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: 'mergAdminNode: request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     // don't start this if we already have an event variable read in progress
-    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
-    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
+//    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
+//    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
+    if(true){
       winston.debug({message: 'mergAdminNode: request_all_node_events: start process '});
       this.nodeConfig.nodes[nodeNumber].eventReadBusy=true
       await this.cbusSend(this.RQEVN(nodeNumber))
@@ -915,7 +935,49 @@ class cbusAdmin extends EventEmitter {
     if (refreshEvents){
       await this.request_all_node_events(nodeNumber)
     }
+    await this.requestEventVariables(nodeNumber, eventIdentifier)
   }
+
+  getEventTableIndex(nodeNumber, eventIdentifier){
+    var tableIndex = undefined
+    if (this.nodeConfig.nodes[nodeNumber] != undefined){
+//      winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
+      for (let eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents){
+//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
+        if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier == eventIdentifier){
+          tableIndex = eventIndex
+        }
+      }
+    }
+    winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
+    return tableIndex
+  }
+
+  async requestEventVariables(nodeNumber, eventIdentifier){
+    winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
+    await this.cbusSend(this.NNLRN(nodeNumber))
+    this.nodeNumberInLearnMode = nodeNumber
+    await this.cbusSend(this.REQEV(eventIdentifier, 0))
+    await sleep(100); // wait for a response before trying to use it
+    // now initially assume number of variables from param 5, but use the value in EV0 if it exists
+    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+    // now look for EV0 if returned, so we need the index into the table for this
+    var tableIndex = this.getEventTableIndex(nodeNumber, eventIdentifier)
+    if (tableIndex) {
+      if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[0] > 0 ){
+        numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[0]
+      }
+    }
+    // now read event variables
+    for (let i = 1; i <= numberOfVariables; i++) {
+      await sleep(50); // allow time between requests
+      await this.cbusSend(this.REQEV(eventIdentifier, i))
+    }
+    // ok, take out of learn mode now
+    await this.cbusSend(this.NNULN(nodeNumber))  
+    this.nodeNumberInLearnMode = null
+  }
+
 
   eventIdentifierExists(nodeNumber, eventIdentifier){
     var eventExists = false
