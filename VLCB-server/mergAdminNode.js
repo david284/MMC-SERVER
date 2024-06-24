@@ -1075,8 +1075,8 @@ class cbusAdmin extends EventEmitter {
       //return cbusLib.encodeRDGN(nodeNumber ServiceNumber, DiagnosticCode);
   }
 
-  update_event(nodeNumber, eventIdentifier, eventIndex, variableId, value){
-      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[variableId] = value
+  update_event(nodeNumber, eventIdentifier, variableId, value){
+//      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[variableId] = value
       return this.EVLRN(nodeNumber, eventIdentifier, variableId, value)
   }
 
