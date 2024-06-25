@@ -501,15 +501,36 @@ function GetTestCase_teach_event() {
 		}, 300);
   })
 
+  function GetTestCase_teach_event2() {
+    var argA, argB, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0, argB = 0}
+      if (a == 2) {argA = 1, argB = 2}
+      if (a == 3) {argA = 2, argB = 3}
+      testCases.push({'test':argA, 'numberOfVariables': argB});
+    }
+    return testCases;
+  }
   //
   // Test that if the event already exists, then the read all events isn't executed
   //
-  it("event_teach_by_identity2 test", function (done) {
+  itParam("event_teach_by_identity2 test ${JSON.stringify(value)}", GetTestCase_teach_event2(), function (done, value) {
+//    it("event_teach_by_identity2 test", function (done) {
     winston.info({message: 'unit_test: BEGIN event_teach_by_identity2 test '});
     mock_jsonServer.messagesIn = []
     // create event so that it already exists
     node.nodeConfig.nodes[1] = {storedEvents:{0:{}}}
     node.nodeConfig.nodes[1].storedEvents[1] = {eventIdentifier: "00000002"}
+    if(value.test == 1){
+      // lets set the node parameter for number of event variables
+      node.nodeConfig.nodes[1]["parameters"]={}
+      node.nodeConfig.nodes[1].parameters[5] = value.numberOfVariables
+    }
+    if(value.test == 2){
+      // lets set EV0 with the number of event variables      
+      node.nodeConfig.nodes[1].storedEvents[1]["variables"] = {}
+      node.nodeConfig.nodes[1].storedEvents[1].variables[0] = value.numberOfVariables
+    }
     node.event_teach_by_identity(1, "00000002", 1, 1 )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
@@ -520,8 +541,8 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("REQEV")
-      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn.length).to.equal(6)    // check events read wasn't triggered
+      expect(mock_jsonServer.messagesIn[5 + value.numberOfVariables].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn.length).to.equal(6 + value.numberOfVariables)    // check events read wasn't triggered
       winston.info({message: 'unit_test: END event_teach_by_identity2 test'});
 			done();
 		}, 300);
