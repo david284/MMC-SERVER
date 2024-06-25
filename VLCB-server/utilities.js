@@ -54,17 +54,17 @@ exports.sleep = function sleep(timeout) {
 // nodeConfig based functions
 //
 
-exports.getEventTableIndex = function getEventTableIndex(nodeConfig, nodeNumber, eventIdentifier){
+exports.getEventTableIndex = function getEventTableIndex(node, eventIdentifier){
   var tableIndex = undefined
-  if (nodeConfig.nodes[nodeNumber] != undefined){
-//      winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
-    for (let eventIndex in nodeConfig.nodes[nodeNumber].storedEvents){
-//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
-      if (nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier == eventIdentifier){
+  try{
+//    winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(node) + ' ' + eventIdentifier});
+    for (let eventIndex in node.storedEvents){
+//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(node.storedEvents[eventIndex])})
+      if (node.storedEvents[eventIndex].eventIdentifier == eventIdentifier){
         tableIndex = eventIndex
       }
     }
-  }
+  } catch (err) {}
   winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
   return tableIndex
 }

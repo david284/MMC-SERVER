@@ -423,15 +423,15 @@ describe('socketServer tests', function(){
   }
 
 
-  itParam("EVENT_TEACH_BY_IDENTITY test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTITY test '});
+  itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTIFIER test '});
     mock_jsonServer.messagesIn = []
     var data = {"nodeNumber": value.nodeNumber,
       "eventIdentifier": value.eventIdentifier,
       "eventVariableIndex": value.eventVariableIndex,
       "eventVariableValue": value.eventVariableValue
     }
-    socket.emit('EVENT_TEACH_BY_IDENTITY', data)
+    socket.emit('EVENT_TEACH_BY_IDENTIFIER', data)
 
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
@@ -442,7 +442,7 @@ describe('socketServer tests', function(){
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
       expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
-      winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTITY test'});
+      winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
 		}, 500);
   })

@@ -480,10 +480,12 @@ function GetTestCase_teach_event() {
 		}, 400);
   })
 
-  itParam("event_teach_by_identity test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN event_teach_by_identity test '});
+  itParam("event_teach_by_identifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN event_teach_by_identifier test '});
     mock_jsonServer.messagesIn = []
-    node.event_teach_by_identity(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
+    // ensure event doesn't exist, so should always refresh all events
+    node.nodeConfig.nodes[value.nodeNumber] = {storedEvents:{0:{}}}
+    node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -496,7 +498,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[6].mnemonic).to.equal("REQEV")
       expect(mock_jsonServer.messagesIn[7].mnemonic).to.equal("NNULN")
-      winston.info({message: 'unit_test: END event_teach_by_identity test'});
+      winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
 		}, 300);
   })
@@ -514,9 +516,9 @@ function GetTestCase_teach_event() {
   //
   // Test that if the event already exists, then the read all events isn't executed
   //
-  itParam("event_teach_by_identity2 test ${JSON.stringify(value)}", GetTestCase_teach_event2(), function (done, value) {
+  itParam("event_teach_by_identifier2 test ${JSON.stringify(value)}", GetTestCase_teach_event2(), function (done, value) {
 //    it("event_teach_by_identity2 test", function (done) {
-    winston.info({message: 'unit_test: BEGIN event_teach_by_identity2 test '});
+    winston.info({message: 'unit_test: BEGIN event_teach_by_identifier2 test '});
     mock_jsonServer.messagesIn = []
     // create event so that it already exists
     node.nodeConfig.nodes[1] = {storedEvents:{0:{}}}
@@ -531,7 +533,7 @@ function GetTestCase_teach_event() {
       node.nodeConfig.nodes[1].storedEvents[1]["variables"] = {}
       node.nodeConfig.nodes[1].storedEvents[1].variables[0] = value.numberOfVariables
     }
-    node.event_teach_by_identity(1, "00000002", 1, 1 )
+    node.event_teach_by_identifier(1, "00000002", 1, 1 )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -543,48 +545,10 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("REQEV")
       expect(mock_jsonServer.messagesIn[5 + value.numberOfVariables].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn.length).to.equal(6 + value.numberOfVariables)    // check events read wasn't triggered
-      winston.info({message: 'unit_test: END event_teach_by_identity2 test'});
+      winston.info({message: 'unit_test: END event_teach_by_identifier2 test'});
 			done();
 		}, 300);
   })
-
-
-
-
-  function GetTestCase_eventIdentifierExists() {
-    var argA, argB, argC, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {argA = 0}
-      if (a == 2) {argA = 1}
-      if (a == 3) {argA = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {argB = "00000000"}
-        if (b == 2) {argB = "00000001"}
-        if (b == 3) {argB = "FFFFFFFF"}
-        for (var c = 1; c<= 2; c++) {
-          if (c == 1) {argC = true}
-          if (c == 2) {argC = false}
-            testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventExists":argC});
-        }
-      }
-    }
-    return testCases;
-  }
-
-  itParam("eventIdentifierExists test ${JSON.stringify(value)}", GetTestCase_eventIdentifierExists(), function (value) {
-    winston.info({message: 'unit_test: BEGIN eventIdentifierExists test '});
-    // create node with no matching events
-    node.nodeConfig.nodes[value.nodeNumber] = {storedEvents:{0:{}}}
-    if (value.eventExists == true){
-      // event should exist, so populate it
-      node.nodeConfig.nodes[value.nodeNumber].storedEvents[1] = {eventIdentifier: value.eventIdentifier}
-    }
-    result = node.eventIdentifierExists(value.nodeNumber, value.eventIdentifier )
-    expect(result).to.equal(value.eventExists)
-    winston.info({message: 'unit_test: END eventIdentifierExists test'});
-  })
-
-
 
 
 })

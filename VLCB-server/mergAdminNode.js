@@ -466,7 +466,7 @@ class cbusAdmin extends EventEmitter {
               var nodeNumber = this.nodeNumberInLearnMode
               var eventIdentifier = decToHex(cbusMsg.nodeNumber, 4) + decToHex(cbusMsg.eventNumber, 4) 
               winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
-              var tableIndex = this.getEventTableIndex( this.nodeNumberInLearnMode, eventIdentifier)
+              var tableIndex = utils.getEventTableIndex( this.nodeConfig.nodes[nodeNumber], eventIdentifier)
               winston.debug({message: name + `: EVANS(D3): tableIndex ${tableIndex}`});              
               if (tableIndex != null) {
                 if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] != null) {
@@ -925,11 +925,11 @@ class cbusAdmin extends EventEmitter {
     await this.requestEventVariablesByIdentifier(data.nodeNumber, data.eventName)
   }
 
-  async event_teach_by_identity(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
+  async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
     //var refreshEvents = !this.eventIdentifierExists(nodeNumber, eventIdentifier)
     var refreshEvents = false
-    if (utils.getEventTableIndex(this.nodeConfig, nodeNumber, eventIdentifier) == null){
+    if (utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
       refreshEvents = true
     } 
     await this.cbusSend(this.NNLRN(nodeNumber))
@@ -955,7 +955,7 @@ class cbusAdmin extends EventEmitter {
     // now initially assume number of variables from param 5, but use the value in EV0 if it exists
     var numberOfVariables = utils.getMaxNumberOfEventVariables(this.nodeConfig, nodeNumber)
     // now look for EV0 if returned, so we need the index into the table for this
-    var tableIndex = utils.getEventTableIndex(this.nodeConfig, nodeNumber, eventIdentifier)
+    var tableIndex = utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier)
     winston.info({message: name + ': requestEventVariables: tableIndex ' + tableIndex})
     if (tableIndex) {
       try{
