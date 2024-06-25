@@ -493,9 +493,12 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
       expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
+      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[6].mnemonic).to.equal("REQEV")
+      expect(mock_jsonServer.messagesIn[7].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END event_teach_by_identity test'});
 			done();
-		}, 250);
+		}, 300);
   })
 
   //
@@ -515,7 +518,10 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn.length).to.equal(3)    // check events read wasn't triggered
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("REQEV")
+      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn.length).to.equal(6)    // check events read wasn't triggered
       winston.info({message: 'unit_test: END event_teach_by_identity2 test'});
 			done();
 		}, 300);
