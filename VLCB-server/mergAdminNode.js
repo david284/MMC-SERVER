@@ -922,7 +922,7 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
     await sleep(50); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
-    await this.requestEventVariables(data.nodeNumber, data.eventName)
+    await this.requestEventVariablesByIdentifier(data.nodeNumber, data.eventName)
   }
 
   async event_teach_by_identity(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
@@ -942,11 +942,11 @@ class cbusAdmin extends EventEmitter {
     } else {
       winston.debug({message: name + ": event_teach_by_identity: event already existed, so don't refresh all events"})
     }
-    await this.requestEventVariables(nodeNumber, eventIdentifier)
+    await this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
   }
 
 
-  async requestEventVariables(nodeNumber, eventIdentifier){
+  async requestEventVariablesByIdentifier(nodeNumber, eventIdentifier){
     winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
     await this.cbusSend(this.NNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
