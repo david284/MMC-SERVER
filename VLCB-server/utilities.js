@@ -1,5 +1,6 @@
 'use strict';
 const winston = require('winston');		// use config from root instance
+const name = 'utilities'
 
 
 // Scope:
@@ -48,5 +49,38 @@ exports.sleep = function sleep(timeout) {
 	});
 };
 	
+///////////////////////////////////////////////////////////////////////////////
+//
+// nodeConfig based functions
+//
+
+exports.getEventTableIndex = function getEventTableIndex(nodeConfig, nodeNumber, eventIdentifier){
+  var tableIndex = undefined
+  if (nodeConfig.nodes[nodeNumber] != undefined){
+//      winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
+    for (let eventIndex in nodeConfig.nodes[nodeNumber].storedEvents){
+//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
+      if (nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier == eventIdentifier){
+        tableIndex = eventIndex
+      }
+    }
+  }
+  winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
+  return tableIndex
+}
+
+exports.getMaxNumberOfEventVariables = function getMaxNumberOfEventVariables(nodeConfig, nodeNumber){
+  winston.debug({message: name + ': getMaxNumberOfEventVariables: ' + nodeNumber + ' ' + JSON.stringify(nodeConfig)});
+  var number = 0
+  if (nodeConfig.nodes[nodeNumber]){
+    if (nodeConfig.nodes[nodeNumber].parameters){
+      number = nodeConfig.nodes[nodeNumber].parameters[5]
+    }
+  }
+  winston.debug({message: name + ': getMaxNumberOfEventVariables: result ' + number});
+  return number
+}
+
+
 
 

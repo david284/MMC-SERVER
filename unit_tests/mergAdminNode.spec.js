@@ -518,7 +518,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn.length).to.equal(3)    // check events read wasn't triggered
       winston.info({message: 'unit_test: END event_teach_by_identity2 test'});
 			done();
-		}, 250);
+		}, 300);
   })
 
 

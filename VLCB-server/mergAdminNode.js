@@ -938,39 +938,28 @@ class cbusAdmin extends EventEmitter {
     await this.requestEventVariables(nodeNumber, eventIdentifier)
   }
 
-  getEventTableIndex(nodeNumber, eventIdentifier){
-    var tableIndex = undefined
-    if (this.nodeConfig.nodes[nodeNumber] != undefined){
-//      winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
-      for (let eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents){
-//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
-        if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier == eventIdentifier){
-          tableIndex = eventIndex
-        }
-      }
-    }
-    winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
-    return tableIndex
-  }
 
   async requestEventVariables(nodeNumber, eventIdentifier){
     winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
     await this.cbusSend(this.NNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
     await this.cbusSend(this.REQEV(eventIdentifier, 0))
-    await sleep(100); // wait for a response before trying to use it
+    await sleep(50); // wait for a response before trying to use it
     // now initially assume number of variables from param 5, but use the value in EV0 if it exists
-    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+    var numberOfVariables = utils.getMaxNumberOfEventVariables(this.nodeConfig, nodeNumber)
     // now look for EV0 if returned, so we need the index into the table for this
-    var tableIndex = this.getEventTableIndex(nodeNumber, eventIdentifier)
+    var tableIndex = utils.getEventTableIndex(this.nodeConfig, nodeNumber, eventIdentifier)
+    winston.info({message: name + ': requestEventVariables: tableIndex ' + tableIndex})
     if (tableIndex) {
-      if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[0] > 0 ){
+      try{
         numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[0]
+      } catch(err){
+        winston.debug({message: name + ': requestEventVariables: storedEvents.variables[0] failed ' + err});
       }
     }
+    winston.debug({message: name + ': requestEventVariables: number of variables ' + numberOfVariables});
     // now read event variables
     for (let i = 1; i <= numberOfVariables; i++) {
-      await sleep(50); // allow time between requests
       await this.cbusSend(this.REQEV(eventIdentifier, i))
     }
     // ok, take out of learn mode now
