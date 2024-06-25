@@ -927,13 +927,20 @@ class cbusAdmin extends EventEmitter {
 
   async event_teach_by_identity(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
-    var refreshEvents = !this.eventIdentifierExists(nodeNumber, eventIdentifier)
+    //var refreshEvents = !this.eventIdentifierExists(nodeNumber, eventIdentifier)
+    var refreshEvents = false
+    if (utils.getEventTableIndex(this.nodeConfig, nodeNumber, eventIdentifier) == null){
+      refreshEvents = true
+    } 
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
     await sleep(50); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
     if (refreshEvents){
+      winston.debug({message: name + ": event_teach_by_identity: event didn't exist, so refresh all events"})
       await this.request_all_node_events(nodeNumber)
+    } else {
+      winston.debug({message: name + ": event_teach_by_identity: event already existed, so don't refresh all events"})
     }
     await this.requestEventVariables(nodeNumber, eventIdentifier)
   }
@@ -967,28 +974,6 @@ class cbusAdmin extends EventEmitter {
     this.nodeNumberInLearnMode = null
   }
 
-
-  eventIdentifierExists(nodeNumber, eventIdentifier){
-    var eventExists = false
-    if (this.nodeConfig.nodes[nodeNumber] != undefined){
-      winston.debug({message: name +': eventIdentifierExists: data ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
-      for (let eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents){
-        winston.debug({message: name + ': eventIdentifierExists ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
-        if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier == eventIdentifier){
-          winston.info({message: name + ': eventIdentifierExists true ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
-          eventExists = true
-        } else {
-          winston.debug({message: name + ': eventIdentifierExists false ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex])})
-          eventExists = false
-        }
-      }
-    } else {
-      winston.debug({message: name + ': eventIdentifierExists false - no node'})
-      eventExists = false
-    }
-    winston.debug({message: name + ': eventIdentifierExists:  result ' + eventExists})
-    return eventExists
-  }
 
 //************************************************************************ */
 //
