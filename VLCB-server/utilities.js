@@ -54,6 +54,23 @@ exports.sleep = function sleep(timeout) {
 // nodeConfig based functions
 //
 
+exports.getEventIdentifier = function getEventTableIndex(node, eventIndex){
+  var result = undefined
+  try{
+//    winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(node) + ' ' + eventIdentifier});
+    for (let eventIdentifier in node.storedEventsNI){
+//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(node.storedEvents[eventIndex])})
+      if (node.storedEventsNI[eventIdentifier].eventIndex == eventIndex){
+        result = eventIdentifier
+      }
+    }
+  } catch (err) {
+    winston.debug({message: name + `: getEventIdentifier: error ${err}`});
+  }
+  winston.debug({message: name + ': getEventIdentifier:  result ' + result})
+  return result
+}
+
 exports.getEventTableIndex = function getEventTableIndex(node, eventIdentifier){
   var tableIndex = undefined
   try{
@@ -68,7 +85,6 @@ exports.getEventTableIndex = function getEventTableIndex(node, eventIdentifier){
   winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
   return tableIndex
 }
-
 exports.getMaxNumberOfEventVariables = function getMaxNumberOfEventVariables(nodeConfig, nodeNumber){
   winston.debug({message: name + ': getMaxNumberOfEventVariables: ' + nodeNumber + ' ' + JSON.stringify(nodeConfig)});
   var number = 0

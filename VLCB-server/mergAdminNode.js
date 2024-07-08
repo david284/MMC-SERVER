@@ -352,6 +352,7 @@ class cbusAdmin extends EventEmitter {
                 this.eventSend(cbusMsg, 'off', 'long')
             },
             'B5': async (cbusMsg) => {// NEVAL -Read of EV value Response REVAL
+              this.storeEventVariable(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
                 if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] != null) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != null) {
                         if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
@@ -389,6 +390,7 @@ class cbusAdmin extends EventEmitter {
                       "parameters": [],
                       "nodeVariables": [],
                       "storedEvents": {},
+                      "storedEventsNI": {},
                       "status": true,
                       "eventCount": 0,
                       "services": {},
@@ -525,33 +527,42 @@ class cbusAdmin extends EventEmitter {
                 this.eventSend(cbusMsg, 'off', 'long')
             },
             'F2': async (cbusMsg) => {//ENSRP Response to NERD/NENRD
-                // ENRSP Format: [<MjPri><MinPri=3><CANID>]<F2><NN hi><NN lo><EN3><EN2><EN1><EN0><EN#>
-                const ref = cbusMsg.eventIndex
-                if (!(ref in this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents)) {
-                    this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] = {
-                        "eventIdentifier": cbusMsg.eventIdentifier,
-                        "eventIndex": cbusMsg.eventIndex,
-                        "node": cbusMsg.nodeNumber,
-                        "variables": {}
-                    }
-                    if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "CANMIO") {
-                        //winston.info({message:`mergAdminNode: ENSRP CANMIO: ${cbusMsg.nodeNumber} :: ${cbusMsg.eventIndex}`})
-                        //if (["CANMIO","LIGHTS"].includes(this.nodeConfig.nodes[cbusMsg.nodeNumber].module)){
-                        /*setTimeout(() => {
-                            this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 0))
-                        }, 10 * ref)*/
-                        setTimeout(async () => {
-                          await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
-                        }, 20 * ref)
-                    }
-                    if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "LIGHTS") {
-                        setTimeout(async () => {
-                          await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
-                        }, 100 * ref)
-                    }
-                    this.saveConfig()
+              // ENRSP Format: [<MjPri><MinPri=3><CANID>]<F2><NN hi><NN lo><EN3><EN2><EN1><EN0><EN#>
+              const ref = cbusMsg.eventIndex
+              if (!(ref in this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents)) {
+                this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] = {
+                    "eventIdentifier": cbusMsg.eventIdentifier,
+                    "eventIndex": cbusMsg.eventIndex,
+                    "node": cbusMsg.nodeNumber,
+                    "variables": {}
                 }
-                //this.saveConfig()
+                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "CANMIO") {
+                    //winston.info({message:`mergAdminNode: ENSRP CANMIO: ${cbusMsg.nodeNumber} :: ${cbusMsg.eventIndex}`})
+                    //if (["CANMIO","LIGHTS"].includes(this.nodeConfig.nodes[cbusMsg.nodeNumber].module)){
+                    /*setTimeout(() => {
+                        this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 0))
+                    }, 10 * ref)*/
+                    setTimeout(async () => {
+                      await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
+                    }, 20 * ref)
+                }
+                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "LIGHTS") {
+                    setTimeout(async () => {
+                      await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
+                    }, 100 * ref)
+                }
+                this.saveConfig()
+              }
+              const identifier = cbusMsg.eventIdentifier
+              if (!(identifier in this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEventsNI)) {
+                this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEventsNI[identifier] = {
+                    "eventIdentifier": cbusMsg.eventIdentifier,
+                    "eventIndex": cbusMsg.eventIndex,
+                    "node": cbusMsg.nodeNumber,
+                    "variables": {}
+                }
+              this.saveConfig()
+              }
             },
             'F8': async (cbusMsg) => {//Accessory On Short Event 3
                 this.eventSend(cbusMsg, 'on', 'short')
@@ -640,9 +651,24 @@ class cbusAdmin extends EventEmitter {
         }
     }
 
+    storeEventVariable(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue){
+      winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIndex} ${eventVariableIndex} ${eventVariableValue}`});
+      try {
+        var node = this.nodeConfig.nodes[nodeNumber]
+        var eventIdentifier = utils.getEventIdentifier(node, eventIndex)
+        winston.debug({message: name + `: storeEventVariable: eventIdentifier ${eventIdentifier}`});
+        if (eventIdentifier){
+          node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        }
+      } catch (err) {
+        winston.debug({message: name + `: storeEventVariable: error ${err}`});
+      }
+    }
+
     removeNodeEvents(nodeNumber) {
       if(this.nodeConfig.nodes[nodeNumber]){
         this.nodeConfig.nodes[nodeNumber].storedEvents = {}
+        this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
         this.saveConfig()
       }
     }
@@ -972,6 +998,7 @@ class cbusAdmin extends EventEmitter {
     // ok, take out of learn mode now
     await this.cbusSend(this.NNULN(nodeNumber))  
     this.nodeNumberInLearnMode = null
+    this.saveNode(nodeNumber)
   }
 
 
