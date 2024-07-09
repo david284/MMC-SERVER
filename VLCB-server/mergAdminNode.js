@@ -352,7 +352,7 @@ class cbusAdmin extends EventEmitter {
                 this.eventSend(cbusMsg, 'off', 'long')
             },
             'B5': async (cbusMsg) => {// NEVAL -Read of EV value Response REVAL
-              this.storeEventVariable(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
+              this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
                 if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] != null) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != null) {
                         if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
@@ -467,6 +467,7 @@ class cbusAdmin extends EventEmitter {
               //
               var nodeNumber = this.nodeNumberInLearnMode
               var eventIdentifier = decToHex(cbusMsg.nodeNumber, 4) + decToHex(cbusMsg.eventNumber, 4) 
+              this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
               winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
               var tableIndex = utils.getEventTableIndex( this.nodeConfig.nodes[nodeNumber], eventIdentifier)
               winston.debug({message: name + `: EVANS(D3): tableIndex ${tableIndex}`});              
@@ -651,7 +652,19 @@ class cbusAdmin extends EventEmitter {
         }
     }
 
-    storeEventVariable(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue){
+    storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
+      winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIdentifier} ${eventVariableIndex} ${eventVariableValue}`});
+      try {
+        var node = this.nodeConfig.nodes[nodeNumber]
+        if (eventIdentifier){
+          node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        }
+      } catch (err) {
+        winston.debug({message: name + `: storeEventVariableByIdentifier: error ${err}`});
+      }
+    }
+
+    storeEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue){
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIndex} ${eventVariableIndex} ${eventVariableValue}`});
       try {
         var node = this.nodeConfig.nodes[nodeNumber]
