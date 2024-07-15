@@ -63,7 +63,9 @@ class cbusAdmin extends EventEmitter {
                 winston.debug({message: `mergAdminNode: CBUS Receive <<<  ${outMsg[i]}`})
                 var msg = JSON.parse(outMsg[i])
                 this.emit('cbusTraffic', {direction: 'In', json: msg});
-                this.action_message(msg)
+                if (this.isMessageValid(msg)){
+                  this.action_message(msg)
+                }
             }
         }.bind(this))
 
@@ -589,6 +591,41 @@ class cbusAdmin extends EventEmitter {
             }
         }
         this.cbusSend(this.QNN())
+    }
+
+    isMessageValid(cbusMsg){
+      var result = false
+      var dataLength = (cbusMsg.encoded.length - 9) / 2
+      // get numeric version of opCode
+      var opCode = parseInt(cbusMsg.opCode, 16)
+      if (opCode <= 0x1F){
+        if (dataLength == 0){ result = true}
+      }
+      if ((opCode >= 0x20) && (opCode <= 0x3F)){
+        if (dataLength == 1){ result = true}
+      }
+      if ((opCode >= 0x40) && (opCode <= 0x5F)){
+        if (dataLength == 2){ result = true}
+      }
+      if ((opCode >= 0x60) && (opCode <= 0x7F)){
+        if (dataLength == 3){ result = true}
+      }
+      if ((opCode >= 0x80) && (opCode <= 0x9F)){
+        if (dataLength == 4){ result = true}
+      }
+      if ((opCode >= 0xA0) && (opCode <= 0xBF)){
+        if (dataLength == 5){ result = true}
+      }
+      if ((opCode >= 0xC0) && (opCode <= 0xDF)){
+        if (dataLength == 6){ result = true}
+      }
+      if ((opCode >= 0xE0) && (opCode <= 0xFF)){
+        if (dataLength == 7){ result = true}
+      }
+      if (result == false){
+        winston.error({message: name + `: opCode ` + cbusMsg.opCode + ` wrong data length: ` + dataLength});
+      }
+      return result
     }
 
     getModuleName(moduleIdentifier){
