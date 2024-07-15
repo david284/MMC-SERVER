@@ -438,22 +438,22 @@ class cbusAdmin extends EventEmitter {
                           "DiagnosticCode": cbusMsg.DiagnosticCode,
                           "DiagnosticValue": cbusMsg.DiagnosticValue
                       }
-                      if (this.ServiceDefs[ServiceType]) {
-                        if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]){
-                          if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
-                            output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
-                          }
+                      try{
+                        if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
+                          output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
                         }
+                      } catch (err){
+                        winston.warn({message: `mergAdminNode - DGN: failed to get diagnostic name for diagnostic code ${cbusMsg.DiagnosticCode} ` + err});
                       }
                       this.nodeConfig.nodes[ref]["services"][cbusMsg.ServiceIndex]['diagnostics'][cbusMsg.DiagnosticCode] = output
                       this.saveNode(cbusMsg.nodeNumber)
                     }
                     else {
-                          winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${cbusMsg.nodeNumber}`});
+                          winston.warn({message: `mergAdminNode - DGN: node config services does not exist for node ${cbusMsg.nodeNumber}`});
                     }
                   }
                   else {
-                          winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
+                          winston.warn({message: `mergAdminNode - DGN: node config does not exist for node ${cbusMsg.nodeNumber}`});
                   }
                 }
             },
