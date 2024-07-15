@@ -703,7 +703,7 @@ class cbusAdmin extends EventEmitter {
         winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
         let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
         this.emit('cbusTraffic', {direction: 'Out', json: tmp});
-        await utils.sleep(10)
+        await utils.sleep(20)
       }
     }
 
