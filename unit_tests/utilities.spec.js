@@ -31,8 +31,12 @@ describe('utilities tests', function(){
         // ensure expected CAN header is reset before each test run
 	});
 
-	after(function() {
-   		winston.info({message: ' '});   // blank line to separate tests
+	after(function(done) {
+ 		winston.info({message: ' '});   // blank line to separate tests
+    // bit of timing to ensure all winston messages get sent before closing tests completely
+    setTimeout(function(){
+      done();
+    }, 100);
 	});																										
 
 

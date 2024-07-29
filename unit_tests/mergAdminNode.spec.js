@@ -76,9 +76,14 @@ describe('mergAdminNode tests', function(){
       mock_jsonServer.messagesIn = []
   });
 
-	after(function() {
-   		winston.info({message: ' '});   // blank line to separate tests
+	after(function(done) {
+ 		winston.info({message: ' '});   // blank line to separate tests
+    // bit of timing to ensure all winston messages get sent before closing tests completely
+    setTimeout(function(){
+      done();
+    }, 100);
 	});																										
+
 
   //****************************************************************************************** */
   //
