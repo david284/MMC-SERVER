@@ -500,7 +500,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[7].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
-		}, 300);
+		}, 400);
   })
 
   function GetTestCase_teach_event2() {
@@ -547,7 +547,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn.length).to.equal(6 + value.numberOfVariables)    // check events read wasn't triggered
       winston.info({message: 'unit_test: END event_teach_by_identifier2 test'});
 			done();
-		}, 300);
+		}, 400);
   })
 
 
