@@ -63,7 +63,9 @@ class cbusAdmin extends EventEmitter {
                 winston.debug({message: `mergAdminNode: CBUS Receive <<<  ${outMsg[i]}`})
                 var msg = JSON.parse(outMsg[i])
                 this.emit('cbusTraffic', {direction: 'In', json: msg});
-                this.action_message(msg)
+                if (this.isMessageValid(msg)){
+                  this.action_message(msg)
+                }
             }
         }.bind(this))
 
@@ -650,6 +652,47 @@ class cbusAdmin extends EventEmitter {
         } else {
             await this.actions['DEFAULT'](cbusMsg);
         }
+    }
+
+    isMessageValid(cbusMsg){
+      var result = false
+      if ((cbusMsg.encoded[0] == ':') && (cbusMsg.encoded[cbusMsg.encoded.length-1] == ';')){
+        // example encoding :S1234NFF12345678; - 8 data hex chars, 4 data bytes
+        //                  123456789--------0 - non-data bytes = 10
+        var dataLength = (cbusMsg.encoded.length - 10) / 2
+        // get numeric version of opCode, so we can test for 
+        var opCode = parseInt(cbusMsg.opCode, 16)
+        if (opCode <= 0x1F){
+          if (dataLength == 0){ result = true}
+        }
+        if ((opCode >= 0x20) && (opCode <= 0x3F)){
+          if (dataLength == 1){ result = true}
+        }
+        if ((opCode >= 0x40) && (opCode <= 0x5F)){
+          if (dataLength == 2){ result = true}
+        }
+        if ((opCode >= 0x60) && (opCode <= 0x7F)){
+          if (dataLength == 3){ result = true}
+        }
+        if ((opCode >= 0x80) && (opCode <= 0x9F)){
+          if (dataLength == 4){ result = true}
+        }
+        if ((opCode >= 0xA0) && (opCode <= 0xBF)){
+          if (dataLength == 5){ result = true}
+        }
+        if ((opCode >= 0xC0) && (opCode <= 0xDF)){
+          if (dataLength == 6){ result = true}
+        }
+        if ((opCode >= 0xE0) && (opCode <= 0xFF)){
+          if (dataLength == 7){ result = true}
+        }
+        if (result == false){
+          winston.error({message: name + `: isMessageValid: opCode ` + cbusMsg.opCode + ` wrong data length: ` + dataLength});
+        }
+      } else {
+        winston.error({message: name + `: isMessageValid: wrongly formed ` + cbusMsg.encoded });
+      }
+      return result
     }
 
     storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
