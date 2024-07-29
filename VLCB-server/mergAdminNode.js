@@ -373,36 +373,19 @@ class cbusAdmin extends EventEmitter {
                     winston.debug({message: `mergAdminNode: NEVAL: Event Index ${cbusMsg.eventIndex} Does not exist on config - skipping`});
                 }
             },
-            'B6': async (cbusMsg) => { //PNN Recieved from Node
+            'B6': async (cbusMsg) => { //PNN Received from Node
                 const ref = cbusMsg.nodeNumber
                 const moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
-                
                 if (ref in this.nodeConfig.nodes) {
                   // already exists in config file...
-                  winston.debug({message: `mergAdminNode: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[ref])})
+                  winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[ref])})
                 } else {
-                  // doesn't exist in config file, so create it (but note flag update/create done later)
-                  let output = {
-                      "CANID": utils.getMGCCANID(cbusMsg.encoded),
-                      "nodeNumber": cbusMsg.nodeNumber,
-                      "manufacturerId": cbusMsg.manufacturerId,
-                      "moduleId": cbusMsg.moduleId,
-                      "moduleIdentifier": moduleIdentifier,
-                      "moduleVersion": "",
-                      "parameters": [],
-                      "nodeVariables": [],
-                      "storedEvents": {},
-                      "storedEventsNI": {},
-                      "status": true,
-                      "eventCount": 0,
-                      "services": {},
-                      "component": 'mergDefault2',
-                      "moduleName": 'Unknown',
-                      "eventReadBusy":false,
-                      "eventVariableReadBusy":false
-                  }
-                  this.nodeConfig.nodes[ref] = output
+                  this.createNodeConfig(cbusMsg.nodeNumber)
                 }
+                this.nodeConfig.nodes[ref].CANID = utils.getMGCCANID(cbusMsg.encoded)
+                this.nodeConfig.nodes[ref].manufacturerId = cbusMsg.manufacturerId
+                this.nodeConfig.nodes[ref].moduleId = cbusMsg.moduleId
+                this.nodeConfig.nodes[ref].moduleIdentifier =  moduleIdentifier
                 this.nodeConfig.nodes[ref].moduleName = this.getModuleName(moduleIdentifier)
                 // force variableConfig to be reloaded
                 this.nodeConfig.nodes[ref].variableConfig = undefined
@@ -439,23 +422,32 @@ class cbusAdmin extends EventEmitter {
                       let output = {
                           "DiagnosticCode": cbusMsg.DiagnosticCode,
                           "DiagnosticValue": cbusMsg.DiagnosticValue
-                      }
+                      }/*
                       if (this.ServiceDefs[ServiceType]) {
                         if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]){
                           if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
                             output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
                           }
                         }
+                      }*/
+
+                      try{
+                        if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
+                          output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
+                        }
+                      } catch (err){
+                        winston.warn({message: name + `: DGN: failed to get diagnostic name for diagnostic code ${cbusMsg.DiagnosticCode} ` + err});
                       }
+
                       this.nodeConfig.nodes[ref]["services"][cbusMsg.ServiceIndex]['diagnostics'][cbusMsg.DiagnosticCode] = output
                       this.saveNode(cbusMsg.nodeNumber)
                     }
                     else {
-                          winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${cbusMsg.nodeNumber}`});
+                          winston.warn({message: name + `: DGN: node config services does not exist for node ${cbusMsg.nodeNumber}`});
                     }
                   }
                   else {
-                          winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
+                          winston.warn({message: name + `: DGN: node config does not exist for node ${cbusMsg.nodeNumber}`});
                   }
                 }
             },
@@ -694,6 +686,32 @@ class cbusAdmin extends EventEmitter {
       }
       return result
     }
+
+
+    createNodeConfig(nodeNumber){
+        // doesn't exist in config file, so create an entry for it
+        let output = {
+          "CANID": "",
+          "nodeNumber": nodeNumber,
+          "manufacturerId": "",
+          "moduleId": "",
+          "moduleIdentifier": "",
+          "moduleVersion": "",
+          "parameters": [],
+          "nodeVariables": [],
+          "storedEvents": {},
+          "storedEventsNI": {},
+          "status": true,
+          "eventCount": 0,
+          "services": {},
+          "moduleName": 'Unknown',
+          "eventReadBusy":false,
+          "eventVariableReadBusy":false
+      }
+      this.nodeConfig.nodes[nodeNumber] = output
+      winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
+    }
+
 
     storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIdentifier} ${eventVariableIndex} ${eventVariableValue}`});

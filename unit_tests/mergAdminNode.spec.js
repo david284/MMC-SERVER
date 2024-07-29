@@ -399,6 +399,55 @@ describe('mergAdminNode tests', function(){
 		}, 30);
   })
 
+  function GetTestCase_DGN() {
+    var argA, argB, argC, argD, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 2; b++) {
+        if (b == 1) {argB = 1}      // service index starts at 1
+        if (b == 2) {argB = 255}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          for (var d = 1; d<= 3; d++) {
+            if (d == 1) {argD = 0}
+            if (d == 2) {argD = 1}
+            if (d == 3) {argD = 255}
+              testCases.push({'nodeNumber':argA, 'ServiceIndex': argB, "DiagnosticCode":argC, "DiagnosticValue":argD});
+          }
+        }
+      }
+    }
+    return testCases;
+  }
+
+  // 0xC7 DGN
+  //
+  itParam("DGN test ${JSON.stringify(value)}", GetTestCase_DGN(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN DGN test ' + JSON.stringify(value)});
+    //     encodeDGN(nodeNumber, ServiceIndex, DiagnosticCode, DiagnosticValue) {
+    var testMessage = cbusLib.encodeDGN(value.nodeNumber, value.ServiceIndex, value.DiagnosticCode, value.DiagnosticValue)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    // create entry for service index
+    node.nodeConfig.nodes[value.nodeNumber].services[value.ServiceIndex] = {
+      "ServiceIndex": value.ServiceIndex,
+      "diagnostics": {}
+    }
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.debug({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].services[value.ServiceIndex])});      
+      expect(nodeTraffic[0].json.mnemonic).to.equal("DGN")
+      expect(node.nodeConfig.nodes[value.nodeNumber].services[value.ServiceIndex].diagnostics[value.DiagnosticCode].DiagnosticValue).to.equal(value.DiagnosticValue)
+      winston.info({message: 'unit_test: END DGN test'});
+			done();
+		}, 30);
+  })
+
   //****************************************************************************************** */
   // functions called by socket server
   //****************************************************************************************** */
@@ -453,7 +502,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END teach_event test'});
 			done();
-		}, 250);
+		}, 300);
   })
 
   itParam("update_event_variable test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
@@ -500,7 +549,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[7].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
-		}, 400);
+		}, 450);
   })
 
   function GetTestCase_teach_event2() {
@@ -547,7 +596,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn.length).to.equal(6 + value.numberOfVariables)    // check events read wasn't triggered
       winston.info({message: 'unit_test: END event_teach_by_identifier2 test'});
 			done();
-		}, 400);
+		}, 450);
   })
 
 
