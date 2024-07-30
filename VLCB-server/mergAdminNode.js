@@ -909,7 +909,7 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVULN(eventName))
     await this.cbusSend(this.NNULN(nodeNumber))
-    this.nodes_EventsNeedRefreshing[nodeNumber]=true
+    await this.request_all_node_events(nodeNumber)
   }
 
   
