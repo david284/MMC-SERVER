@@ -38,8 +38,6 @@ class cbusAdmin extends EventEmitter {
         this.dccSessions = {}
         this.heartbeats = {}
         this.saveConfig()
-        this.nodes_EventsNeedRefreshing = {}
-        this.nodes_EventVariablesNeedRefreshing = {}
         this.nodeNumberInLearnMode = null
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
@@ -607,17 +605,6 @@ class cbusAdmin extends EventEmitter {
 
     process_WRACK(nodeNumber) {
       winston.info({message: name + `: wrack : node ` + nodeNumber});
-
-      /*
-      winston.info({message: name + `: wrack : nodes_EventVariablesNeedRefreshing ` + JSON.stringify(this.nodes_EventVariablesNeedRefreshing)});
-      if (this.nodes_EventVariablesNeedRefreshing.nodeNumber != undefined){
-        if (this.nodes_EventVariablesNeedRefreshing.nodeNumber == nodeNumber){
-          winston.info({message: name + `: wrack : EventVariablesNeedRefreshing for node ` + nodeNumber})
-          let eventIndex = this.nodes_EventVariablesNeedRefreshing.eventIndex
-          this.request_all_event_variables(nodeNumber, eventIndex)
-        }
-      }
-      */
     }
 
     async process_GRSP (data) {
@@ -628,10 +615,6 @@ class cbusAdmin extends EventEmitter {
             (data.requestOpCode == "D2") ){   // EVLRN
           // GRSP was for an event command
           winston.info({message: `mergAdminNode: GRSP for event command : node ` + nodeNumber});
-          if (this.nodes_EventsNeedRefreshing[nodeNumber]){
-            winston.info({message: 'mergAdminNode: GRSP for event command : need to refresh events'});
-            await this.request_all_node_events(nodeNumber)
-          }
         }
       }
     }
@@ -970,7 +953,6 @@ class cbusAdmin extends EventEmitter {
       await this.cbusSend(this.RQEVN(nodeNumber))
       this.removeNodeEvents(nodeNumber)
       await this.cbusSend(this.NERD(nodeNumber))
-      this.nodes_EventsNeedRefreshing[nodeNumber]=false
       var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
       await sleep(delay)  // give it some time to complete
       this.nodeConfig.nodes[nodeNumber].eventReadBusy=false      
