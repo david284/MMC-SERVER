@@ -521,41 +521,7 @@ class cbusAdmin extends EventEmitter {
             },
             'F2': async (cbusMsg) => {//ENSRP Response to NERD/NENRD
               // ENRSP Format: [<MjPri><MinPri=3><CANID>]<F2><NN hi><NN lo><EN3><EN2><EN1><EN0><EN#>
-              const ref = cbusMsg.eventIndex
-              if (!(ref in this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents)) {
-                this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] = {
-                    "eventIdentifier": cbusMsg.eventIdentifier,
-                    "eventIndex": cbusMsg.eventIndex,
-                    "node": cbusMsg.nodeNumber,
-                    "variables": {}
-                }
-                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "CANMIO") {
-                    //winston.info({message:`mergAdminNode: ENSRP CANMIO: ${cbusMsg.nodeNumber} :: ${cbusMsg.eventIndex}`})
-                    //if (["CANMIO","LIGHTS"].includes(this.nodeConfig.nodes[cbusMsg.nodeNumber].module)){
-                    /*setTimeout(() => {
-                        this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 0))
-                    }, 10 * ref)*/
-                    setTimeout(async () => {
-                      await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
-                    }, 20 * ref)
-                }
-                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].module == "LIGHTS") {
-                    setTimeout(async () => {
-                      await this.cbusSend(this.REVAL(cbusMsg.nodeNumber, cbusMsg.eventIndex, 1))
-                    }, 100 * ref)
-                }
-                this.saveConfig()
-              }
-              const identifier = cbusMsg.eventIdentifier
-              if (!(identifier in this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEventsNI)) {
-                this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEventsNI[identifier] = {
-                    "eventIdentifier": cbusMsg.eventIdentifier,
-                    "eventIndex": cbusMsg.eventIndex,
-                    "node": cbusMsg.nodeNumber,
-                    "variables": {}
-                }
-              this.saveConfig()
-              }
+              this.updateEventInNodeconfig(cbusMsg.nodeNumber, cbusMsg.eventIdentifier, cbusMsg.eventIndex)
             },
             'F8': async (cbusMsg) => {//Accessory On Short Event 3
                 this.eventSend(cbusMsg, 'on', 'short')
@@ -695,6 +661,30 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
     }
 
+    updateEventInNodeconfig(nodeNumber, eventIdentifier, eventIndex){
+      if (this.nodeConfig.nodes[nodeNumber] == undefined) {
+        this.createNodeConfig(nodeNumber)
+      }
+      if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents)) {
+        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex] = {
+            "eventIndex": eventIndex,
+            "variables": {}
+        }
+      }
+      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier = eventIdentifier
+      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].nodeNumber = nodeNumber
+      //
+      if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
+        this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
+            "eventIdentifier": eventIdentifier,
+            "variables": {}
+        }
+      }
+      this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
+      this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].nodeNumber = nodeNumber
+      //
+      this.saveConfig()      
+    }
 
     storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIdentifier} ${eventVariableIndex} ${eventVariableValue}`});
@@ -1058,9 +1048,15 @@ class cbusAdmin extends EventEmitter {
     this.saveNode(nodeNumber)
 */
     // use eventIndex as bug in EVANS response in CBUSLib prevents use of REQEV (returns wrong nodeNumber)
-    var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-    if (eventIndex){
-      this.requestEventVariablesByIndex(nodeNumber, eventIndex, 0)
+    try{
+      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+      if (eventIndex){
+        this.requestEventVariablesByIndex(nodeNumber, eventIndex, 0)
+      } else {
+        winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
+      }
+    } catch (err){
+      winston.error({message: name + ': requestEventVariablesByIdentifier: ' + err});
     }
   }
 

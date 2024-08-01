@@ -519,6 +519,7 @@ function GetTestCase_teach_event() {
       "eventVariableId": value.eventVariableIndex,
       "eventVariableValue": value.eventVariableValue
     }
+    node.updateEventInNodeconfig(value.nodeNumber, value.eventIdentifier, 1)
     node.update_event_variable(data) 
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
@@ -527,8 +528,7 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("REQEV")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END update_event_variable test'});
 			done();
 		}, 400);
