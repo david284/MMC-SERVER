@@ -521,7 +521,7 @@ class cbusAdmin extends EventEmitter {
             },
             'F2': async (cbusMsg) => {//ENSRP Response to NERD/NENRD
               // ENRSP Format: [<MjPri><MinPri=3><CANID>]<F2><NN hi><NN lo><EN3><EN2><EN1><EN0><EN#>
-              this.updateEventInNodeconfig(cbusMsg.nodeNumber, cbusMsg.eventIdentifier, cbusMsg.eventIndex)
+              this.updateEventInNodeConfig(cbusMsg.nodeNumber, cbusMsg.eventIdentifier, cbusMsg.eventIndex)
             },
             'F8': async (cbusMsg) => {//Accessory On Short Event 3
                 this.eventSend(cbusMsg, 'on', 'short')
@@ -661,7 +661,7 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
     }
 
-    updateEventInNodeconfig(nodeNumber, eventIdentifier, eventIndex){
+    updateEventInNodeConfig(nodeNumber, eventIdentifier, eventIndex){
       if (this.nodeConfig.nodes[nodeNumber] == undefined) {
         this.createNodeConfig(nodeNumber)
       }
@@ -1020,34 +1020,9 @@ class cbusAdmin extends EventEmitter {
 
   async requestEventVariablesByIdentifier(nodeNumber, eventIdentifier){
     winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
-/*
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    this.nodeNumberInLearnMode = nodeNumber
-    await this.cbusSend(this.REQEV(eventIdentifier, 0))
-    await sleep(50); // wait for a response before trying to use it
-    // now initially assume number of variables from param 5, but use the value in EV0 if it exists
-    var numberOfVariables = utils.getMaxNumberOfEventVariables(this.nodeConfig, nodeNumber)
-    // now look for EV0 if returned, so we need the index into the table for this
-    var tableIndex = utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier)
-    winston.info({message: name + ': requestEventVariables: tableIndex ' + tableIndex})
-    if (tableIndex) {
-      try{
-        numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[0]
-      } catch(err){
-        winston.debug({message: name + ': requestEventVariables: storedEvents.variables[0] failed ' + err});
-      }
-    }
-    winston.debug({message: name + ': requestEventVariables: number of variables ' + numberOfVariables});
-    // now read event variables
-    for (let i = 1; i <= numberOfVariables; i++) {
-      await this.cbusSend(this.REQEV(eventIdentifier, i))
-    }
-    // ok, take out of learn mode now
-    await this.cbusSend(this.NNULN(nodeNumber))  
-    this.nodeNumberInLearnMode = null
-    this.saveNode(nodeNumber)
-*/
-    // use eventIndex as bug in EVANS response in CBUSLib prevents use of REQEV (returns wrong nodeNumber)
+
+    // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
+    // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
     try{
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex){
@@ -1056,7 +1031,7 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
       }
     } catch (err){
-      winston.error({message: name + ': requestEventVariablesByIdentifier: ' + err});
+      winston.error({message: name + ': requestEventVariablesByIdentifier: failed to get eventIndex: ' + err});
     }
   }
 
