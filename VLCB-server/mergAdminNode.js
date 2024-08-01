@@ -907,7 +907,7 @@ class cbusAdmin extends EventEmitter {
   }
 
   // need to use event index here, as used outside of learn mode
-  async request_all_event_variables(nodeNumber, eventIndex, variableCount){
+  async requestEventVariablesByIndex(nodeNumber, eventIndex, variableCount){
     // don't start if already being read
     this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventReadBusy)
     if(this.nodeConfig.nodes[nodeNumber].eventReadBusy==false){
@@ -933,7 +933,7 @@ class cbusAdmin extends EventEmitter {
       }
       this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=false
     } else {
-      winston.info({message: 'mergAdminNode: request_all_event_variables: blocked '});
+      winston.info({message: 'mergAdminNode: requestEventVariablesByIndex: blocked '});
     }
   }
 
@@ -1029,7 +1029,8 @@ class cbusAdmin extends EventEmitter {
 
 
   async requestEventVariablesByIdentifier(nodeNumber, eventIdentifier){
-    winston.info({message: name + ': requestEventVariables ' + nodeNumber + ' ' + eventIdentifier});
+    winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+/*
     await this.cbusSend(this.NNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
     await this.cbusSend(this.REQEV(eventIdentifier, 0))
@@ -1055,6 +1056,12 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.NNULN(nodeNumber))  
     this.nodeNumberInLearnMode = null
     this.saveNode(nodeNumber)
+*/
+    // use eventIndex as bug in EVANS response in CBUSLib prevents use of REQEV (returns wrong nodeNumber)
+    var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+    if (eventIndex){
+      this.requestEventVariablesByIndex(nodeNumber, eventIndex, 0)
+    }
   }
 
 
