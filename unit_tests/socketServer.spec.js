@@ -94,8 +94,12 @@ describe('socketServer tests', function(){
         // ensure expected CAN header is reset before each test run
 	});
 
-	after(function() {
-   		winston.info({message: ' '});   // blank line to separate tests
+	after(function(done) {
+		winston.info({message: ' '});   // blank line to separate tests
+    // bit of timing to ensure all winston messages get sent before closing tests completely
+    setTimeout(function(){
+      done();
+    }, 100);
 	});																										
 
 
@@ -393,6 +397,58 @@ describe('socketServer tests', function(){
       winston.info({message: name + ': END REQUEST_BUS_CONNECTION test'});
 			done();
 		}, 200);
+  })
+
+
+  function GetTestCase_teach_event() {
+    var argA, argB, argC, argD, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = "00000000"}
+        if (b == 2) {argB = "00000001"}
+        if (b == 3) {argB = "FFFFFFFF"}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          for (var d = 1; d<= 3; d++) {
+            if (d == 1) {argD = 0}
+            if (d == 2) {argD = 1}
+            if (d == 3) {argD = 255}
+              testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
+          }
+        }
+      }
+    }
+    return testCases;
+  }
+
+
+  itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTIFIER test '});
+    mock_jsonServer.messagesIn = []
+    var data = {"nodeNumber": value.nodeNumber,
+      "eventIdentifier": value.eventIdentifier,
+      "eventVariableIndex": value.eventVariableIndex,
+      "eventVariableValue": value.eventVariableValue
+    }
+    socket.emit('EVENT_TEACH_BY_IDENTIFIER', data)
+
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
+      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
+      winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
+			done();
+		}, 500);
   })
 
 

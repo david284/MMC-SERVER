@@ -111,7 +111,7 @@ let node = new admin.cbusAdmin(config);
 
     socket.on('REQUEST_ALL_EVENT_VARIABLES', function(data){
       winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES ${JSON.stringify(data)}`});
-      node.request_all_event_variables(data.nodeNumber, data.eventIndex, data.variables)
+      node.requestEventVariablesByIndex(data.nodeNumber, data.eventIndex, data.variables)
     })
 
     socket.on('QUERY_ALL_NODES', function(){
@@ -208,6 +208,11 @@ let node = new admin.cbusAdmin(config);
     socket.on('TEACH_EVENT', function(data){
       winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
       node.teach_event(data.nodeNumber, data.eventName, 1, 0)
+    })
+
+    socket.on('EVENT_TEACH_BY_IDENTIFIER', function(data){
+      winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
+      node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
     })
 
     socket.on('UPDATE_EVENT_VARIABLE', function(data){
@@ -311,10 +316,10 @@ let node = new admin.cbusAdmin(config);
 
 
   node.on('node', function (node) {
-    winston.info({message: `socketServer: Node Sent`});
-    winston.debug({message: `socketServer: Node Sent :${JSON.stringify(node.nodeNumber)}`});
+    winston.info({message: `socketServer: Node Sent `});
+//    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
-    if(node.nodeNumber) {
+    if(node.nodeNumber != undefined) {
       if (update_nodeName(config, node.nodeNumber, layoutDetails)) {
         io.emit('LAYOUT_DETAILS', layoutDetails)
         winston.info({message: `socketServer: nodeName updated, LAYOUT_DETAILS Sent`});
@@ -381,6 +386,7 @@ function  update_nodeName(config, nodeNumber, layoutDetails){
     layoutDetails.nodeDetails[nodeNumber].colour = "black"
     layoutDetails.nodeDetails[nodeNumber].group = ""
     updated = true
+    winston.debug({message: 'socketServer: update_nodeName: layoutdetails entry created'});
   }
   if (layoutDetails.nodeDetails[nodeNumber].name) {
     // nodeName already exists, so do nothing
@@ -396,6 +402,7 @@ function  update_nodeName(config, nodeNumber, layoutDetails){
     }
     updated = true
   }
+  winston.debug({message: 'socketServer: update_nodeName: updated ' + updated});
   if (updated){
     // only write if updated
     config.writeLayoutDetails(layoutDetails)

@@ -29,12 +29,13 @@ exports.jsonServer = function (config) {
         cbusClient.setKeepAlive(true, 60000);
         let outMsg = data.toString().split(";");
         for (let i = 0; i < outMsg.length - 1; i++) {
-            let cbusLibMsg = cbusLib.decode(outMsg[i])
-            clients.forEach(function (client) {
-                let output = JSON.stringify(cbusLibMsg);
-                winston.debug({message: name + ': Output to Client : ' + output})
-                client.write(output);
-            });
+          // restore terminating ';' lost due to split & then decode
+          let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
+          clients.forEach(function (client) {
+              let output = JSON.stringify(cbusLibMsg);
+              winston.debug({message: name + ': Output to Client : ' + output})
+              client.write(output);
+          });
         }
     });
 
