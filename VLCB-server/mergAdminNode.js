@@ -955,7 +955,8 @@ class cbusAdmin extends EventEmitter {
       await this.cbusSend(this.NERD(nodeNumber))
       var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
       await sleep(delay)  // give it some time to complete
-      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false      
+      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false
+      this.emit('events', this.nodeConfig.events)
     } else {
       winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
     }
