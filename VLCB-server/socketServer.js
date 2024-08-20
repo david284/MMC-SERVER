@@ -91,6 +91,13 @@ let node = new admin.cbusAdmin(config);
       node.removeNodeEvents(data.nodeNumber);
     })
 
+    socket.on('DELETE_ALL_EVENTS', function(nodeNumber){
+      winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(nodeNumber)}`});
+//      node.remove_event(data.nodeNumber, data.eventName)
+    })
+
+
+
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
       winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});
       config.writeModuleDescriptor(data)
@@ -140,10 +147,10 @@ let node = new admin.cbusAdmin(config);
     })
 
     socket.on('REQUEST_BUS_CONNECTION', function(){
-      winston.info({message: `socketServer: REQUEST_BUS_CONNECTION`});
+      winston.debug({message: `socketServer: REQUEST_BUS_CONNECTION`});
       io.emit('BUS_CONNECTION', status.busConnection)
 
-      winston.info({message: `socketServer: sent BUS_CONNECTION`});
+      winston.debug({message: `socketServer: sent BUS_CONNECTION`});
     })
 
     socket.on('REQUEST_BUS_EVENTS', function(){
