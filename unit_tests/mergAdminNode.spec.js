@@ -602,6 +602,21 @@ function GetTestCase_teach_event() {
 		}, 450);
   })
 
+  itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN delete_all_events test '});
+    mock_jsonServer.messagesIn = []
+    node.delete_all_events(value.nodeNumber)
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NNCLR")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      winston.info({message: 'unit_test: END delete_all_events test'});
+			done();
+		}, 200);
+  })
 
 })
 

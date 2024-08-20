@@ -931,6 +931,16 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber] = {eventVariableReadBusy:false}
   }
 
+  async delete_all_events(nodeNumber) {
+    winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
+    await this.cbusSend(this.NNLRN(nodeNumber))
+    await this.cbusSend(this.NNCLR(nodeNumber))
+    await sleep(50); // allow a bit more time after NNCLR
+    await this.cbusSend(this.NNULN(nodeNumber))
+    await this.request_all_node_events(nodeNumber)
+  }
+
+
   async request_all_node_events(nodeNumber){
     winston.debug({message: 'mergAdminNode: request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
@@ -1078,6 +1088,18 @@ class cbusAdmin extends EventEmitter {
           return output
       }
   }
+
+  // 0x4F NNCLR
+  //
+  NNCLR(nodeNumber) {
+    if (nodeNumber >= 0 && nodeNumber <= 0xFFFF) {
+        let output = {}
+        output['mnemonic'] = 'NNCLR'
+        output['nodeNumber'] = nodeNumber
+        return output
+    }
+}
+
 
   // 0x53 NNLRN
   //

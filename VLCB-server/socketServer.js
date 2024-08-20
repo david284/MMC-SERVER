@@ -91,9 +91,9 @@ let node = new admin.cbusAdmin(config);
       node.removeNodeEvents(data.nodeNumber);
     })
 
-    socket.on('DELETE_ALL_EVENTS', function(nodeNumber){
-      winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(nodeNumber)}`});
-//      node.remove_event(data.nodeNumber, data.eventName)
+    socket.on('DELETE_ALL_EVENTS', function(data){
+      winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
+      node.delete_all_events(data.nodeNumber)
     })
 
 
