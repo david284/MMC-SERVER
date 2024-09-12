@@ -15,7 +15,7 @@ const EventEmitter = require('events').EventEmitter;
 
 //
 // Modules are stored in two directories
-// module descriptors published in the distribution are found in <this.configPath>/modules
+// module descriptors published in the distribution are found in <this.systemConfigPath>/modules
 // ( typically /VLCB-server/config/modules )
 // User loaded module descriptors are kept in an OS specific folder
 //
@@ -32,25 +32,33 @@ const defaultLayoutDetails = {
   "eventDetails": {}
   }
 
+  // In normal use, the userConfigPath is NOT supplied - i.e. only supply systemConfigPath
+  // the code will create a system specific user directory
+  //
+  // userConfigPath is intended to be supplied when unit testing
+  // to avoid polluting the user directory
 
 class configuration {
 
-  constructor(path) {
+  constructor(systemConfigPath, userConfigPath) {
+    //                        012345678901234567890123456789987654321098765432109876543210
+		winston.debug({message:  '----------------- configuration Constructor ----------------'});
+		winston.debug({message:  '--- system path: ' + systemConfigPath});
+		winston.debug({message:  '--- user path: ' + userConfigPath});
     this.eventBus = new EventEmitter();
     this.config= {}
-    this.configPath = path
-    this.userConfigPath = undefined
+    this.systemConfigPath = systemConfigPath
+    this.userConfigPath = userConfigPath
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
-    //                        0123456789012345678901234567890123456789
-		winston.debug({message:  '------------ configuration Constructor - ' + this.configPath});
-		this.createDirectory(this.configPath)
-    this.createConfigFile(this.configPath)
-    this.config = jsonfile.readFileSync(this.configPath + '/config.json')
+		this.createDirectory(this.systemConfigPath)
+    this.createConfigFile(this.systemConfigPath)
+    this.config = jsonfile.readFileSync(this.systemConfigPath + '/config.json')
     // create a user directory - will set userConfigPath
     this.createUserDirectory()
     if (this.userConfigPath){
-      // also ensure 'layouts' & 'modules' folders exists in user directory
+      // also ensure all the expected folders exists in user directory
+      this.createDirectory(this.userConfigPath + '/backups')
       this.createDirectory(this.userConfigPath + '/layouts')
       this.createDirectory(this.userConfigPath + '/modules')
       // and default layout exists (creates directory if not there also)
@@ -62,19 +70,19 @@ class configuration {
   // 
   getConfigPath(){ 
     // check if directory exists
-    if (fs.existsSync(this.configPath)) {
-      winston.info({message: className + `: getConfigPath: ` + this.configPath});
+    if (fs.existsSync(this.systemConfigPath)) {
+      winston.info({message: className + `: getConfigPath: ` + this.systemConfigPath});
     } else {
-      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.configPath});
+      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.systemConfigPath});
     }
-    return this.configPath
+    return this.systemConfigPath
   }
 
   // update current config file
   writeConfig(){
     winston.debug({message: className + ` writeConfig` });
     try{
-      jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+      jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
     } catch(e){
       winston.info({message: className + `: readLayoutDetails: Error writing config.json`});
     }
@@ -99,8 +107,10 @@ class configuration {
 
 
   // update current config file
-  readBackup(filePath){
-    winston.debug({message: className + ` readBackup` });
+  readBackup(filename){
+    winston.info({message: className + ` readBackup ` + filename });
+    var filePath = path.join(this.userConfigPath, 'backups', filename)
+    winston.debug({message: className + ` readBackup: ` + filePath });
     var file = null
     try{
       file = jsonfile.readFileSync(filePath)
@@ -112,8 +122,10 @@ class configuration {
 
 
   // update current config file
-  writeBackup(filePath, layoutData){
-    winston.debug({message: className + ` writeBackup` });
+  writeBackup(layoutData, fileName){
+    winston.info({message: className + ` writeBackup: ` + fileName });
+    var filePath = path.join(this.userConfigPath, 'backups', fileName)
+    winston.debug({message: className + ` writeBackup: ` + filePath });
     try{
       var backup = { 
         "config": this.config,
@@ -188,29 +200,29 @@ class configuration {
   // reads/writes nodeConfig file to/from config folder
   //
   readNodeConfig(){
-    var filePath = this.configPath + "/nodeConfig.json"
+    var filePath = this.systemConfigPath + "/nodeConfig.json"
     return jsonfile.readFileSync(filePath)
   }
   writeNodeConfig(data){
-    var filePath = this.configPath + "/nodeConfig.json"
+    var filePath = this.systemConfigPath + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
   // reads/writes the module descriptors currently in use for nodes to/from config folder
   //
   readNodeDescriptors(){
-    var filePath = this.configPath + "/nodeDescriptors.json"
+    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     return jsonfile.readFileSync(filePath)
   }
   writeNodeDescriptors(data){
-    var filePath = this.configPath + "/nodeDescriptors.json"
+    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
   // static file, so use fixed location
   //
   readMergConfig(){
-    var filePath = this.configPath + "/mergConfig.json"
+    var filePath = this.systemConfigPath + "/mergConfig.json"
     return jsonfile.readFileSync(filePath)
   }
 
@@ -218,7 +230,7 @@ class configuration {
   // static file, so use fixed location
   //
   readServiceDefinitions(){
-    var filePath = this.configPath + "/Service_Definitions.json"
+    var filePath = this.systemConfigPath + "/Service_Definitions.json"
     return jsonfile.readFileSync(filePath)
   }
   
@@ -237,7 +249,7 @@ class configuration {
     } catch(e1){
       try{
         // fall back to project directory if not in user directory
-        var filePath = this.configPath + "/modules/" + filename
+        var filePath = this.systemConfigPath + "/modules/" + filename
         winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
         moduleDescriptor =  jsonfile.readFileSync(filePath)
       } catch(e2) {
@@ -276,9 +288,9 @@ class configuration {
           winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
         }
       }
-      if (this.configPath){
+      if (this.systemConfigPath){
         if (this.systemModuleDescriptorFileList.length == 0){
-          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.configPath, 'modules'))
+          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemConfigPath, 'modules'))
           winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
         }
       }
@@ -313,7 +325,7 @@ class configuration {
   getSerialPort(){return this.config.serialPort}
   setSerialPort(port){
     this.config.serialPort = port
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -321,7 +333,7 @@ class configuration {
   getCbusServerPort(){return this.config.cbusServerPort}
   setCbusServerPort(port){
     this.config.cbusServerPort = port
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -329,7 +341,7 @@ class configuration {
   getJsonServerPort(){return this.config.jsonServerPort}
   setJsonServerPort(port){
     this.config.jsonServerPort = port
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -337,7 +349,7 @@ class configuration {
   getSocketServerPort(){return this.config.socketServerPort}
   setSocketServerPort(port){  
     this.config.socketServerPort = port
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
   //
@@ -345,7 +357,7 @@ class configuration {
   getServerAddress(){return this.config.serverAddress}
   setServerAddress(address){  
     this.config.serverAddress = address
-    jsonfile.writeFileSync(this.configPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
 
@@ -366,20 +378,25 @@ class configuration {
   }
 
   createUserDirectory(){
-    // create user directories
-    const os = require("os");
-    const homePath = os.homedir()
-    winston.info({message: className + ': Platform: ' + os.platform()});
-    winston.info({message: className + ': User home directory: ' + homePath});
+    if (this.userConfigPath){
+      // override supplied for user config directory
+      this.createDirectory(this.userConfigPath)
+    } else {
+      // create OS based user directories
+      const os = require("os");
+      const homePath = os.homedir()
+      winston.info({message: className + ': Platform: ' + os.platform()});
+      winston.info({message: className + ': User home directory: ' + homePath});
 
-    //
-    if (os.platform() == "win32"){
-      this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
-      this.createDirectory(this.userConfigPath)
-    }
-    if (os.platform() == "linux"){
-      this.userConfigPath = homePath + "/MMC-SERVER"
-      this.createDirectory(this.userConfigPath)
+      //
+      if (os.platform() == "win32"){
+        this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
+        this.createDirectory(this.userConfigPath)
+      }
+      if (os.platform() == "linux"){
+        this.userConfigPath = homePath + "/MMC-SERVER"
+        this.createDirectory(this.userConfigPath)
+      }
     }
     winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
   }
@@ -431,4 +448,4 @@ class configuration {
 }
 
 
-module.exports = ( path ) => { return new configuration(path) }
+module.exports = ( arg1, arg2 ) => { return new configuration(arg1, arg2) }

@@ -12,13 +12,14 @@ var path = require('path');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const expectedConfigPath = "./unit_tests/test_output/config"
+const testSystemConfigPath = "./unit_tests/test_output/config"
+const testUserConfigPath = "./unit_tests/test_output/test_user"
 
 // delete existing configs..
-winston.info({message: 'Deleting output path ' + expectedConfigPath});
-fs.rmSync(path.join(expectedConfigPath, "config.json"), { recursive: true, force: true });
+winston.info({message: 'Deleting output path ' + testSystemConfigPath});
+fs.rmSync(path.join(testSystemConfigPath, "config.json"), { recursive: true, force: true });
 
-const config = require('../VLCB-server/configuration.js')(expectedConfigPath)
+const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 describe('configuration tests', function(){
 
@@ -31,8 +32,6 @@ describe('configuration tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
     //
-    // Use local 'user' directory for tests...
-    config.userConfigPath = "./unit_tests/test_output/test_user"
 		done();
 	});
 
@@ -63,14 +62,17 @@ describe('configuration tests', function(){
   it("Backup test", function (done) {
     winston.info({message: 'unit_test: BEGIN Backup test '})
     layoutData = {layout: 1} 
-    var filePath = 'c:/temp/backup001.json'
-    config.writeBackup(filePath, layoutData)
-    result = config.readBackup(filePath)
+    var timestamp = Date.now()
+    var fileName = "backup_" + timestamp
+    layoutData["verification"] =  timestamp
+    config.writeBackup(layoutData, fileName)
+    result = config.readBackup(fileName)
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
       expect(result).to.have.property('config')
       expect(JSON.stringify(result.layout)).to.equal(JSON.stringify(layoutData));
+      expect(result.layout.verification).to.equal(timestamp);
       done();
 		}, 50);
   })
@@ -98,7 +100,7 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: BEGIN configPath test '});
     result = config.getConfigPath();
     winston.info({message: 'result: ' + result});
-    expect(result).to.equal(expectedConfigPath);
+    expect(result).to.equal(testSystemConfigPath);
     winston.info({message: 'unit_test: END configPath test'});
   })
 
@@ -249,9 +251,9 @@ describe('configuration tests', function(){
     }
     if (value.testNumber == 2){
       // ensure 'system' modules directory exists
-      config.createDirectory(config.configPath + "/modules")
+      config.createDirectory(config.systemConfigPath + "/modules")
       jsonfile.writeFileSync(
-        config.configPath + "/modules/" + value.file,
+        config.systemConfigPath + "/modules/" + value.file,
         testPattern,
         {spaces: 2, EOL: '\r\n'})
     }
@@ -316,9 +318,9 @@ describe('configuration tests', function(){
     testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
     // system files
-    testFilePath = path.join(config.configPath, "modules/CAN-ABC-AAFF-3q.json")
+    testFilePath = path.join(config.systemConfigPath, "modules/CAN-ABC-AAFF-3q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.configPath, "modules/CANABC-CCFF-4q.json")
+    testFilePath = path.join(config.systemConfigPath, "modules/CANABC-CCFF-4q.json")
     jsonfile.writeFileSync(testFilePath, "testPattern")
     //
     var result = config.getModuleDescriptorFileList("AAFF")

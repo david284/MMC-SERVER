@@ -17,7 +17,9 @@ const socketServer = require('../VLCB-server/socketServer.js')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const config = require('../VLCB-server/configuration.js')('./unit_tests/test_output/config/')
+const testSystemConfigPath = "./unit_tests/test_output/config"
+const testUserConfigPath = "./unit_tests/test_output/test_user"
+const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 // set config items
 config.setServerAddress("localhost")
