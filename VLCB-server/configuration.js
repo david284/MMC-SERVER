@@ -122,7 +122,7 @@ class configuration {
 
 
   // update current config file
-  writeBackup(layoutData, fileName){
+  writeBackup(nodeConfig, layoutData, fileName){
     winston.info({message: className + ` writeBackup: ` + fileName });
     var filePath = path.join(this.userConfigPath, 'backups', fileName)
     winston.debug({message: className + ` writeBackup: ` + filePath });
@@ -130,6 +130,7 @@ class configuration {
       var backup = { 
         timestamp: new Date().toISOString(),
         config: this.config,
+        nodeConfig: nodeConfig,
         layout: layoutData
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})

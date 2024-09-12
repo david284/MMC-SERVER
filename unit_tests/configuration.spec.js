@@ -61,11 +61,12 @@ describe('configuration tests', function(){
   //
   it("Backup test", function (done) {
     winston.info({message: 'unit_test: BEGIN Backup test '})
-    layoutData = {layout: 1} 
+    var nodeConfig = {config: 1}
+    var layoutData = {layout: 1} 
     var timestamp = Date.now()
     var fileName = "backup_" + timestamp
     layoutData["verification"] =  timestamp
-    config.writeBackup(layoutData, fileName)
+    config.writeBackup(nodeConfig, layoutData, fileName)
     result = config.readBackup(fileName)
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})

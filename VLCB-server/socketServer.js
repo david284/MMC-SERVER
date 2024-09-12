@@ -204,7 +204,7 @@ let node = new admin.cbusAdmin(config);
 
     socket.on('SAVE_BACKUP', function(data){ //save backup
       winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
-      config.writeBackup(data.layout, data.fileName)
+      config.writeBackup(node.nodeConfig, data.layout, data.fileName)
     })
 
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
