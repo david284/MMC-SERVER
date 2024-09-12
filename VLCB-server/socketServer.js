@@ -202,6 +202,11 @@ let node = new admin.cbusAdmin(config);
       node.cbusSend(node.RQNPN(data.nodeNumber, data.parameter))
     })
 
+    socket.on('SAVE_BACKUP', function(data){ //save backup
+      winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
+      config.writeBackup(data.layout, data.fileName)
+    })
+
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
       node.cbusSend(node.SNN(nodeNumber))

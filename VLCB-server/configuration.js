@@ -128,8 +128,9 @@ class configuration {
     winston.debug({message: className + ` writeBackup: ` + filePath });
     try{
       var backup = { 
-        "config": this.config,
-        "layout": layoutData
+        timestamp: new Date().toISOString(),
+        config: this.config,
+        layout: layoutData
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
     } catch(err){
