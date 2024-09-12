@@ -58,6 +58,23 @@ describe('configuration tests', function(){
   //****************************************************************************************** */  
 
   //
+  // test backup - does both read & write
+  //
+  it("Backup test", function (done) {
+    winston.info({message: 'unit_test: BEGIN Backup test '})
+    layoutData = {"layout": 1} 
+    var filePath = 'c:/temp/backup001.json'
+    config.writeBackup(filePath, layoutData)
+    result = config.readBackup(filePath)
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      winston.info({message: 'unit_test: END Backup test'})
+        done();
+		}, 50);
+  })
+
+
+  //
   it("eventBus test", function (done) {
     winston.info({message: 'unit_test: BEGIN eventBus test '});
     var result = false
