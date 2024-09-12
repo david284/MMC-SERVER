@@ -97,6 +97,22 @@ class configuration {
     }
   }
 
+
+  // update current config file
+  writeBackup(filePath, layoutData){
+    winston.debug({message: className + ` writeBackup` });
+    try{
+      var backup = { 
+        "config": this.config,
+        "layout": layoutData
+      }
+      jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
+    } catch(err){
+      winston.info({message: className + `: writeBackup: ` + err});
+    }
+  }
+
+
   //
   //
   getListOfLayouts(){
