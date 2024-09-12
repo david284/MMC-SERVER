@@ -99,6 +99,19 @@ class configuration {
 
 
   // update current config file
+  readBackup(filePath){
+    winston.debug({message: className + ` readBackup` });
+    var file = null
+    try{
+      file = jsonfile.readFileSync(filePath)
+    } catch(err){
+      winston.info({message: className + `: readBackup: ` + err});
+    }
+    return file
+  }
+
+
+  // update current config file
   writeBackup(filePath, layoutData){
     winston.debug({message: className + ` writeBackup` });
     try{
