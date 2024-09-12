@@ -62,14 +62,16 @@ describe('configuration tests', function(){
   //
   it("Backup test", function (done) {
     winston.info({message: 'unit_test: BEGIN Backup test '})
-    layoutData = {"layout": 1} 
+    layoutData = {layout: 1} 
     var filePath = 'c:/temp/backup001.json'
     config.writeBackup(filePath, layoutData)
     result = config.readBackup(filePath)
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
-        done();
+      expect(result).to.have.property('config')
+      expect(JSON.stringify(result.layout)).to.equal(JSON.stringify(layoutData));
+      done();
 		}, 50);
   })
 
