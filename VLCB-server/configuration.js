@@ -58,7 +58,6 @@ class configuration {
     this.createUserDirectory()
     if (this.userConfigPath){
       // also ensure all the expected folders exists in user directory
-      this.createDirectory(this.userConfigPath + '/backups')
       this.createDirectory(this.userConfigPath + '/layouts')
       this.createDirectory(this.userConfigPath + '/modules')
       // and default layout exists (creates directory if not there also)
@@ -107,9 +106,9 @@ class configuration {
 
 
   // update current config file
-  readBackup(filename){
+  readBackup(layoutName, filename){
     winston.info({message: className + ` readBackup ` + filename });
-    var filePath = path.join(this.userConfigPath, 'backups', filename)
+    var filePath = path.join(this.userConfigPath, 'layouts', layoutName, 'backups', filename)
     winston.debug({message: className + ` readBackup: ` + filePath });
     var file = null
     try{
@@ -122,9 +121,12 @@ class configuration {
 
 
   // update current config file
-  writeBackup(nodeConfig, layoutData, fileName){
+  writeBackup(layoutName, fileName,  layoutData, nodeConfig){
     winston.info({message: className + ` writeBackup: ` + fileName });
-    var filePath = path.join(this.userConfigPath, 'backups', fileName)
+    var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
+    // now create current backup folder if it doesn't exist
+    this.createDirectory(backupFolder)
+    var filePath = path.join(backupFolder, fileName)
     winston.debug({message: className + ` writeBackup: ` + filePath });
     try{
       var backup = { 
