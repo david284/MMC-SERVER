@@ -247,12 +247,12 @@ let node = new admin.cbusAdmin(config);
       node.cbusSend(node.NNULN(data.nodeNumber))
     })
 
-    socket.on('UPDATE_LAYOUT_DETAILS', function(data){
-      winston.info({message: `socketServer: UPDATE_LAYOUT_DETAILS`});
-      winston.debug({message: `socketServer: UPDATE_LAYOUT_DETAILS ${JSON.stringify(data)}`});
-      layoutDetails = data
-      config.writeLayoutDetails(layoutDetails)
-      io.emit('LAYOUT_DETAILS', layoutDetails)
+    socket.on('UPDATE_LAYOUT_DATA', function(data){
+      winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
+      winston.debug({message: `socketServer: UPDATE_LAYOUT_DATA ${JSON.stringify(data)}`});
+//      layoutDetails = data
+      config.writeLayoutData(data)
+      io.emit('LAYOUT_DETAILS', data)
     })
       
 /*    
