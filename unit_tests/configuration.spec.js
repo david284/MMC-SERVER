@@ -119,13 +119,13 @@ describe('configuration tests', function(){
 
 
   //
-  it("readLayoutDetails", function (done) {
-    winston.info({message: 'unit_test: BEGIN readLayoutDetails test '})
-    result = config.readLayoutDetails()
+  it("readLayoutData", function (done) {
+    winston.info({message: 'unit_test: BEGIN readLayoutData test '})
+    result = config.readLayoutData()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       expect(result).to.have.property('layoutDetails')
-      winston.info({message: 'unit_test: END readLayoutDetails test'})
+      winston.info({message: 'unit_test: END readLayoutData test'})
         done();
 		}, 50);
   })
@@ -142,8 +142,8 @@ describe('configuration tests', function(){
   }
 
   //
-  itParam("writeLayoutDetails test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN writeLayoutDetails test '})
+  itParam("writeLayoutData test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN writeLayoutData test '})
     var data = {
       "layoutDetails": {
         "title": value.layout + " layout",
@@ -154,12 +154,12 @@ describe('configuration tests', function(){
       "eventDetails": {}
     }
     result = config.setCurrentLayoutFolder("write_test")
-    config.writeLayoutDetails(data)
-    result = config.readLayoutDetails()
+    config.writeLayoutData(data)
+    result = config.readLayoutData()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       expect(result.layoutDetails.title).to.equal(value.layout + " layout");
-      winston.info({message: 'unit_test: END writeLayoutDetails test'})
+      winston.info({message: 'unit_test: END writeLayoutData test'})
         done();
 		}, 50);
   })

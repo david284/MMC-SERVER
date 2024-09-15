@@ -70,10 +70,10 @@ describe('socketServer tests', function(){
     winston.info({message: 'socketserver: web socket Connected!'})
   });
 
-  var layoutDetails = {}
-  socket.on('LAYOUT_DETAILS', function (data) {
-    layoutDetails = data;
-//    winston.debug({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
+  var layoutData = {}
+  socket.on('LAYOUT_DATA', function (data) {
+    layoutData = data;
+//    winston.debug({message: ' layoutData : ' + JSON.stringify(layoutData)});
     });	
 
 	before(function(done) {
@@ -307,8 +307,8 @@ describe('socketServer tests', function(){
     socket.emit('CHANGE_LAYOUT', value.layout)
     //
     setTimeout(function(){
-      winston.info({message: ' layoutDetails : ' + JSON.stringify(layoutDetails)});
-      expect(layoutDetails.layoutDetails.title).to.equal(value.layout);
+      winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
+      expect(layoutData.layoutDetails.title).to.equal(value.layout);
       winston.info({message: 'unit_test: END change_layout test'});
 			done();
 		}, 30);

@@ -83,7 +83,7 @@ class configuration {
     try{
       jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
     } catch(e){
-      winston.info({message: className + `: readLayoutDetails: Error writing config.json`});
+      winston.info({message: className + `: writeConfig: Error writing config.json`});
     }
   }
 
