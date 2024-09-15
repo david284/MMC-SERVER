@@ -18,6 +18,8 @@ const testUserConfigPath = "./unit_tests/test_output/test_user"
 // delete existing configs..
 winston.info({message: 'Deleting output path ' + testSystemConfigPath});
 fs.rmSync(path.join(testSystemConfigPath, "config.json"), { recursive: true, force: true });
+winston.info({message: 'Deleting user path ' + testUserConfigPath});
+fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
@@ -61,7 +63,7 @@ describe('configuration tests', function(){
   //
   it("Backup test", function (done) {
     winston.info({message: 'unit_test: BEGIN Backup test '})
-    var layoutName = 'mytestLayout'
+    var layoutName = 'test_backup_layout'
     var nodeConfig = {config: 1}
     var layoutData = {layout: 1} 
     var timestamp = Date.now()
@@ -78,6 +80,33 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
+
+
+  //
+  // test createDirectory
+  //
+  it("createDirectory test", function (done) {
+    winston.info({message: 'unit_test: BEGIN createDirectory test '})
+    var layout = 'test_createDirectory_' + Date.now()
+    config.createDirectory(path.join(testUserConfigPath, 'layouts', layout) )
+    var layout_list = config.getListOfLayouts()
+    setTimeout(function(){
+      winston.info({message: 'layout_list: ' + JSON.stringify(layout_list)})
+      expect(layout_list).to.include(layout)
+      done();
+		}, 50);
+  })
+
+  //
+  it("currentLayoutFolder test", function () {
+    winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
+    var layout = 'test_currentLayout_' + Date.now()
+    result = config.setCurrentLayoutFolder(layout)
+    winston.info({message: 'result: ' + config.getCurrentLayoutFolder()})
+    expect(config.getCurrentLayoutFolder()).to.equal(layout)
+    winston.info({message: 'unit_test: END currentLayoutFolder test'})
+  })
+
 
 
   //
@@ -104,17 +133,6 @@ describe('configuration tests', function(){
     winston.info({message: 'result: ' + result});
     expect(result).to.equal(testSystemConfigPath);
     winston.info({message: 'unit_test: END configPath test'});
-  })
-
-
-  //
-  it("currentLayoutFolder", function () {
-    winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
-    var testFolder = 'new_layout'
-    result = config.setCurrentLayoutFolder(testFolder)
-    winston.info({message: 'result: ' + config.getCurrentLayoutFolder()})
-    expect(config.getCurrentLayoutFolder()).to.equal(testFolder)
-    winston.info({message: 'unit_test: END currentLayoutFolder test'})
   })
 
 

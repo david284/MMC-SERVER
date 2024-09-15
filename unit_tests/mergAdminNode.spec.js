@@ -21,7 +21,7 @@ config.setServerAddress("localhost")
 config.setCbusServerPort(5550);
 config.setJsonServerPort(5551);
 config.setSocketServerPort(5552);
-config.setCurrentLayoutFolder('default')
+config.setCurrentLayoutFolder() // use default layout
 
 
 const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
