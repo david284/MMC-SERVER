@@ -18,6 +18,8 @@ const testUserConfigPath = "./unit_tests/test_output/test_user"
 // delete existing configs..
 winston.info({message: 'Deleting output path ' + testSystemConfigPath});
 fs.rmSync(path.join(testSystemConfigPath, "config.json"), { recursive: true, force: true });
+winston.info({message: 'Deleting test modules ' + testSystemConfigPath});
+fs.rmSync(path.join(testSystemConfigPath, 'modules'), { recursive: true, force: true });
 winston.info({message: 'Deleting user path ' + testUserConfigPath});
 fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
