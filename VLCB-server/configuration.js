@@ -131,9 +131,9 @@ class configuration {
     try{
       var backup = { 
         timestamp: new Date().toISOString(),
-        config: this.config,
+        systemConfig: this.config,
         nodeConfig: nodeConfig,
-        layout: layoutData
+        layoutData: layoutData
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
     } catch(err){
