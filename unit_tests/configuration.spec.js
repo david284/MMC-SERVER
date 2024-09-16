@@ -72,7 +72,8 @@ describe('configuration tests', function(){
     var fileName = "backup_" + timestamp
     layoutData["verification"] =  timestamp
     config.writeBackup(layoutName, fileName, layoutData, nodeConfig)
-    result = config.readBackup(layoutName, fileName)
+    var result = config.readBackup(layoutName, fileName)
+    var list = config.getListOfBackups(layoutName)
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
@@ -80,6 +81,7 @@ describe('configuration tests', function(){
       expect(result).to.have.property('nodeConfig')
       expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
       expect(result.layoutData.verification).to.equal(timestamp);
+      expect (list).to.include(fileName)
       done();
 		}, 50);
   })

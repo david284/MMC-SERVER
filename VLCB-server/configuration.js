@@ -121,7 +121,7 @@ class configuration {
 
 
   // update current config file
-  writeBackup(layoutName, fileName,  layoutData, nodeConfig){
+  writeBackup(layoutName, fileName, layoutData, nodeConfig){
     winston.info({message: className + ` writeBackup: ` + fileName });
     var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
     // now create current backup folder if it doesn't exist
@@ -138,6 +138,20 @@ class configuration {
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
     } catch(err){
       winston.info({message: className + `: writeBackup: ` + err});
+    }
+  }
+
+  //
+  //
+  getListOfBackups(layoutName){
+    winston.debug({message: className + `: getListOfBackups:`});
+    if (this.userConfigPath){
+      var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
+      var list = fs.readdirSync(backupFolder).filter(function (file) {
+        return fs.statSync(path.join(backupFolder, file)).isFile();
+      },(this));
+      winston.debug({message: className + `: getListOfBackups: ` + list});
+      return list
     }
   }
 
