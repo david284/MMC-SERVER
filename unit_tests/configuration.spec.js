@@ -76,9 +76,10 @@ describe('configuration tests', function(){
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
-      expect(result).to.have.property('config')
-      expect(JSON.stringify(result.layout)).to.equal(JSON.stringify(layoutData));
-      expect(result.layout.verification).to.equal(timestamp);
+      expect(result).to.have.property('systemConfig')
+      expect(result).to.have.property('nodeConfig')
+      expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
+      expect(result.layoutData.verification).to.equal(timestamp);
       done();
 		}, 50);
   })
