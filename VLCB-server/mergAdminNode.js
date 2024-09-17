@@ -817,17 +817,19 @@ class cbusAdmin extends EventEmitter {
           } else {
             // build filename
             var filename = moduleName + "-" + moduleIdentifier               
-            // need major & minor version numbers to complete building of filename
-            if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined))
+            // need major & minor version numbers, and cpu type
+            // to complete building of filename
+            if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
             {
               // get & store the version
               this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
               filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
+              filename += "-" + '#P' + this.nodeConfig.nodes[nodeNumber].parameters[9]  // cpu type
               filename += ".json"
               // ok - can get file now
               // but don't store the filename in nodeConfig until we're tried to read the file
               try {
-                const moduleDescriptor = this.config.readModuleDescriptor(filename)
+                const moduleDescriptor = this.config.readModuleDescriptor(this.nodeConfig, nodeNumber, filename)
                 this.nodeDescriptors[nodeNumber] = moduleDescriptor
                 this.config.writeNodeDescriptors(this.nodeDescriptors)
                 winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
@@ -838,7 +840,7 @@ class cbusAdmin extends EventEmitter {
               }
               // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
               // and the client can check for filename, and if no data, then fileload failed
-              this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = filename
+//              this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = filename
             }
           }
         }
