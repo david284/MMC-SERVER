@@ -257,17 +257,17 @@ class configuration {
   // first tries the user location (OS dependant)
   // and if not found, tries the fixed system location
   // Must return 'undefined' if file not found
-  readModuleDescriptor(nodeConfig, nodeNumber, filename){
+  readModuleDescriptor(filename){
     var moduleDescriptor = undefined
     try{
       // try to read user directory first
-      var filePath = this.userConfigPath + "/modules/" + filename
+      var filePath = path.join(this.userConfigPath, "modules", filename)
       winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
       moduleDescriptor =  jsonfile.readFileSync(filePath)
     } catch(e1){
       try{
         // fall back to project directory if not in user directory
-        var filePath = this.systemConfigPath + "/modules/" + filename
+        var filePath = path.join(this.systemConfigPath, "modules", filename)
         winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
         moduleDescriptor =  jsonfile.readFileSync(filePath)
       } catch(e2) {
@@ -276,7 +276,7 @@ class configuration {
     }
     if(moduleDescriptor == undefined){
       // remove CPU type option
-      filename = filename.slice(0, filename.indexOf("-#P")) + '.json'
+      filename = filename.slice(0, filename.indexOf("--P")) + '.json'
       try{
         // try to read user directory first
         var filePath = this.userConfigPath + "/modules/" + filename
@@ -294,7 +294,9 @@ class configuration {
       }
     }
     // store the filename actually used
-    nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = filename
+    if (moduleDescriptor){
+      moduleDescriptor['moduleDescriptorFilename'] = filename
+    }
     return moduleDescriptor
   }
   writeModuleDescriptor(data){

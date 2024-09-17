@@ -265,30 +265,30 @@ describe('configuration tests', function(){
   //
   itParam("readModuleDescriptor test ${JSON.stringify(value)}", GetTestCase_readModuleDescriptor(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN readModuleDescriptor test ' + JSON.stringify(value)})
-    var testPattern = {"test":value.testNumber}
+    var testPattern = {"testNumber":value.testNumber}
     if (value.testNumber == 1){
       // ensure 'user' modules directory exists
-      config.createDirectory(config.userConfigPath + "/modules")
+      config.createDirectory(path.join(config.userConfigPath, "modules"))
       jsonfile.writeFileSync(
-        config.userConfigPath + "/modules/" + value.file,
+        path.join(config.userConfigPath, "modules", value.file),
         testPattern,
         {spaces: 2, EOL: '\r\n'})
     }
     if (value.testNumber == 2){
       // ensure 'system' modules directory exists
-      config.createDirectory(config.systemConfigPath + "/modules")
+      config.createDirectory(path.join(config.systemConfigPath, "modules"))
       jsonfile.writeFileSync(
-        config.systemConfigPath + "/modules/" + value.file,
+        path.join(config.systemConfigPath, "modules", value.file),
         testPattern,
         {spaces: 2, EOL: '\r\n'})
     }
-    var file = config.readModuleDescriptor(value.file)
+    var moduleDescriptor = config.readModuleDescriptor(value.file)
     setTimeout(function(){
-      if (file) {
-        winston.info({message: 'unit_test: result length: ' + JSON.stringify(file).length})
-        expect(JSON.stringify(file).length).to.be.greaterThan(3)
+      if (moduleDescriptor) {
+        winston.info({message: 'unit_test: result length: ' + JSON.stringify(moduleDescriptor).length})
+        expect(JSON.stringify(moduleDescriptor).length).to.be.greaterThan(3)
         expect(value.result).to.be.equal('pass')
-        expect (JSON.stringify(file)).to.be.equal(JSON.stringify(testPattern))
+        expect (moduleDescriptor.testNumber).to.be.equal(testPattern.testNumber)
       } else {
         expect(value.result).to.be.equal('fail')
       }

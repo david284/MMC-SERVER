@@ -1,4 +1,99 @@
 {
-  "nodes": {},
-  "events": {}
+  "nodes": {
+    "0": {
+      "nodeNumber": 0,
+      "eventVariableReadBusy": false,
+      "eventReadBusy": false,
+      "storedEvents": {},
+      "storedEventsNI": {}
+    },
+    "1": {
+      "nodeNumber": 1,
+      "eventVariableReadBusy": false,
+      "eventReadBusy": false,
+      "storedEvents": {},
+      "storedEventsNI": {}
+    },
+    "65535": {
+      "nodeNumber": 65535,
+      "eventVariableReadBusy": false,
+      "eventReadBusy": true,
+      "storedEvents": {},
+      "storedEventsNI": {}
+    }
+  },
+  "events": {
+    "00000000": {
+      "eventIdentifier": "00000000",
+      "nodeNumber": 0,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "00000001": {
+      "eventIdentifier": "00000001",
+      "nodeNumber": 0,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "0000FFFF": {
+      "eventIdentifier": "0000FFFF",
+      "nodeNumber": 0,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "00010000": {
+      "eventIdentifier": "00010000",
+      "nodeNumber": 1,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "00010001": {
+      "eventIdentifier": "00010001",
+      "nodeNumber": 1,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "0001FFFF": {
+      "eventIdentifier": "0001FFFF",
+      "nodeNumber": 1,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "FFFF0000": {
+      "eventIdentifier": "FFFF0000",
+      "nodeNumber": 65535,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "FFFF0001": {
+      "eventIdentifier": "FFFF0001",
+      "nodeNumber": 65535,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    },
+    "FFFFFFFF": {
+      "eventIdentifier": "FFFFFFFF",
+      "nodeNumber": 65535,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 4
+    }
+  }
 }
