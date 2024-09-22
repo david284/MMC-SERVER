@@ -11,11 +11,6 @@ There are essentially two components:
 Once run, the program will start the client on the same machine in the default browser, but like any other web server, it will accept connections from browsers on other machines on the same network - no need to load software on those machines
 In principal, another machine could be a tablet or mobile on the same network, but very little testing has been done for this situation
 
-# Pre-Built version of MMC
-There is a pre-built version of MMC for windows only
-[MMC v0.3.4](https://drive.google.com/drive/folders/13aIiK6aS5IIsKclI7LTy1RCsYEfLOEQG?usp=sharing)
-This is wholly self contained, including a pre-built version of NodeJS for windows, and needs no additional downloads or setup. This will auto detect and use either CANUSB or CANUSB4
-
 # To run the application using NodeJS (all platforms)
 
 ## Requirements
@@ -69,5 +64,10 @@ use 'npm start [command line options]'
    network          - uses tcp connection
    serialPort=<XXX> - selects specific serial port (e.g. COM3)
 
+# Pre-Built version of MMC
+There was a pre-built version of MMC for windows only, using NW.js (previously known as node-webkit)
+Unfortunately, it no longer works
+It is likely my ignorance of this, but I found it difficult to create, and had reports of others not being able to use it
+I would welcome any help from anyone who has experience in creating installable nodejs applications
 
 
