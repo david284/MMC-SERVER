@@ -261,18 +261,41 @@ class configuration {
     var moduleDescriptor = undefined
     try{
       // try to read user directory first
-      var filePath = this.userConfigPath + "/modules/" + filename
+      var filePath = path.join(this.userConfigPath, "modules", filename)
       winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
       moduleDescriptor =  jsonfile.readFileSync(filePath)
     } catch(e1){
       try{
         // fall back to project directory if not in user directory
-        var filePath = this.systemConfigPath + "/modules/" + filename
+        var filePath = path.join(this.systemConfigPath, "modules", filename)
         winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
         moduleDescriptor =  jsonfile.readFileSync(filePath)
       } catch(e2) {
         winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
       }
+    }
+    if(moduleDescriptor == undefined){
+      // remove CPU type option
+      filename = filename.slice(0, filename.indexOf("--P")) + '.json'
+      try{
+        // try to read user directory first
+        var filePath = this.userConfigPath + "/modules/" + filename
+        winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
+        moduleDescriptor =  jsonfile.readFileSync(filePath)
+      } catch(e1){
+        try{
+          // fall back to project directory if not in user directory
+          var filePath = this.systemConfigPath + "/modules/" + filename
+          winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
+          moduleDescriptor =  jsonfile.readFileSync(filePath)
+        } catch(e2) {
+          winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
+        }
+      }
+    }
+    // store the filename actually used
+    if (moduleDescriptor){
+      moduleDescriptor['moduleDescriptorFilename'] = filename
     }
     return moduleDescriptor
   }
