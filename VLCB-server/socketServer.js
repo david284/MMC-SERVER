@@ -121,6 +121,11 @@ let node = new admin.cbusAdmin(config);
       node.requestEventVariablesByIndex(data.nodeNumber, data.eventIndex, data.variables)
     })
 
+    socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
+      winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
+      node.requestEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
+    })
+
     socket.on('QUERY_ALL_NODES', function(){
       winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
       node.query_all_nodes()
