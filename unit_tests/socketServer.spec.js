@@ -39,8 +39,6 @@ let status = {"busConnection":{
 socketServer.socketServer(config, status)
 
 
-function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}
-
 function stringToHex(string) {
   // expects UTF-8 string
   var bytes = new TextEncoder().encode(string);
