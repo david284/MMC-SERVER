@@ -15,14 +15,11 @@ const io = require('socket.io')(server, {
 
 
 exports.socketServer = function(config, status) {
-let layoutData = config.readLayoutData()
 let node = new admin.cbusAdmin(config);
-//let jsServer = jsonServer.jsonServer(config)
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
     node.query_all_nodes()
-    io.emit('LAYOUT_DATA', layoutData)
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
       winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
@@ -71,8 +68,7 @@ let node = new admin.cbusAdmin(config);
     socket.on('CHANGE_LAYOUT', function(data){
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
       config.setCurrentLayoutFolder(data)
-      layoutData = config.readLayoutData()
-      io.emit('LAYOUT_DATA', layoutData)
+      io.emit('LAYOUT_DATA', config.readLayoutData())
       node.query_all_nodes()  // refresh all node data to fill new layout
     })
 
@@ -263,9 +259,8 @@ let node = new admin.cbusAdmin(config);
     socket.on('UPDATE_LAYOUT_DATA', function(data){
       winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
       winston.debug({message: `socketServer: UPDATE_LAYOUT_DATA ${JSON.stringify(data)}`});
-//      layoutDetails = data
       config.writeLayoutData(data)
-      io.emit('LAYOUT_DATA', data)
+      io.emit('LAYOUT_DATA', data)    // hack to refresh client
     })
       
 /*    
@@ -333,23 +328,10 @@ let node = new admin.cbusAdmin(config);
   })
 
 
-  node.on('layoutData', function (data) {
-    layoutData = data
-    winston.info({message: `socketServer: send LAYOUT_DATA`});
-    io.emit('LAYOUT_DATA', layoutData)
-  })
-
-
   node.on('node', function (node) {
     winston.info({message: `socketServer: Node Sent `});
 //    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
-    if(node.nodeNumber != undefined) {
-      if (update_nodeName(config, node.nodeNumber, layoutData)) {
-        io.emit('LAYOUT_DATA', layoutData)
-        winston.info({message: `socketServer: nodeName updated, LAYOUT_DATA Sent`});
-      }
-    }
   })
 
 
@@ -399,39 +381,4 @@ let node = new admin.cbusAdmin(config);
 
 
 
-// layoutDetails functions
-//
-function  update_nodeName(config, nodeNumber, layoutData){
-  winston.info({message: 'socketServer: update_nodeName'});
-  updated = false
-  if (nodeNumber in layoutData.nodeDetails){
-  } else {
-    // need to create entry for node
-    layoutData.nodeDetails[nodeNumber] = {}
-    layoutData.nodeDetails[nodeNumber].colour = "black"
-    layoutData.nodeDetails[nodeNumber].group = ""
-    updated = true
-    winston.debug({message: 'socketServer: update_nodeName: layoutdetails entry created'});
-  }
-  if (layoutData.nodeDetails[nodeNumber].name) {
-    // nodeName already exists, so do nothing
-  } else {
-    // check if module name exists - read config to get latest
-    // only auto populate if valid
-    const nodeConfig = config.readNodeConfig()
-    if (nodeConfig.nodes[nodeNumber].moduleName) {
-      if (nodeConfig.nodes[nodeNumber].moduleName != 'Unknown'){
-        // don't auto populate if we don't know the module name
-        layoutData.nodeDetails[nodeNumber].name = nodeConfig.nodes[nodeNumber].moduleName + ' (' + nodeNumber + ')'
-      }
-    }
-    updated = true
-  }
-  winston.debug({message: 'socketServer: update_nodeName: updated ' + updated});
-  if (updated){
-    // only write if updated
-    config.writeLayoutData(layoutData)
-  }
-  return updated
-}
 
