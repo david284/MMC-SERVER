@@ -92,7 +92,10 @@ let node = new admin.cbusAdmin(config);
       node.delete_all_events(data.nodeNumber)
     })
 
-
+    socket.on('DELETE_LAYOUT', function(data){
+      winston.info({message: name + `: DELETE_LAYOUT ${JSON.stringify(data.layoutName)}`});
+      config.deleteLayoutFolder(data.layoutName)
+    })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
       winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});

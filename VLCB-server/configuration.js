@@ -168,6 +168,24 @@ class configuration {
       return list
     }
   }
+  deleteLayoutFolder(folder){
+    winston.info({message: className + `: deleteLayoutFolder: ` + folder});
+    try {
+      if (this.userConfigPath){
+        // check folder name not blank
+        if (folder != undefined) {
+          var folderPath = path.join(this.userConfigPath, '/layouts/', folder )
+          fs.rmSync(folderPath, { recursive: true }) 
+        }
+        this.writeConfig()
+      }
+    } catch (err) {
+      winston.error({message: className + ': deleteLayoutFolder: ' + err});
+    }
+  }
+
+
+
 
   // reads/writes layoutDetails file from/to current layout folder
   //
