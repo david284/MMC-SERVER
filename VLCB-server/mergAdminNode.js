@@ -372,7 +372,9 @@ class cbusAdmin extends EventEmitter {
                 }
             },
             'B6': async (cbusMsg) => { //PNN Received from Node
-                const ref = cbusMsg.nodeNumber
+              const ref = cbusMsg.nodeNumber
+              // don't process the PNN if it's node number 0, as it's an uninitialsed module
+              if (ref > 0){
                 const moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
                 if (ref in this.nodeConfig.nodes) {
                   // already exists in config file...
@@ -401,6 +403,7 @@ class cbusAdmin extends EventEmitter {
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
                 this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
+              }
             },
             'B8': async (cbusMsg) => {//Accessory On Short Event 1
                 this.eventSend(cbusMsg, 'on', 'short')
