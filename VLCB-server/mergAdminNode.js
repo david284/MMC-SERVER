@@ -775,7 +775,7 @@ class cbusAdmin extends EventEmitter {
             output['type'] = type
             output['count'] = 1
             //output['data'] = cbusMsg.eventData.hex
-            this.nodeConfig.events[busIdentifier] = output
+            this.nodeConfig.events[eventIdentifier] = output
             winston.debug({message: name + `: EventSend added to events ${busIdentifier}`});
           }
         winston.info({message: 'mergAdminNode: EventSend : ' + JSON.stringify(this.nodeConfig.events[busIdentifier])});
