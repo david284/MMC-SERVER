@@ -3,6 +3,7 @@ const itParam = require('mocha-param');
 const winston = require('./config/winston_test.js')
 const cbusLib = require('cbuslibrary')
 const admin = require('./../VLCB-server/mergAdminNode.js')
+const utils = require('./../VLCB-server/utilities.js');
 
 
 // Scope:
@@ -619,6 +620,40 @@ function GetTestCase_teach_event() {
 			done();
 		}, 200);
   })
+
+  function GetTestCase_events() {
+    var arg1, arg2, arg3, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 1, arg3="long"}
+      if (a == 2) {arg1 = 65535, arg3 = 'long'}
+      if (a == 3) {arg1 = 65535, arg3 = 'short'}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = 0}
+        if (b == 2) {arg2 = 1}
+        if (b == 3) {arg2 = 65535}
+        testCases.push({'nodeNumber':arg1, 'eventNumber': arg2, 'type': arg3});
+      }
+    }
+    return testCases;
+  }
+
+  //
+  //
+  //
+  itParam("eventSend test ${JSON.stringify(value)}", GetTestCase_events(), function (value) {
+    winston.info({message: 'unit_test: BEGIN eventSend test '});
+    node.nodeConfig.events = []
+    var busIdentifier = utils.decToHex(value.nodeNumber, 4) + utils.decToHex(value.eventNumber, 4)
+
+    node.eventSend(value.nodeNumber, value.eventNumber, 'on', value.type)
+//20:00:47.532 info	mergAdminNode: EventSend : {"nodeNumber":1,"eventNumber":1,"status":"on","type":"long","count":1}
+    winston.info({message: 'unit_test: node.nodeConfig.events ' + JSON.stringify(node.nodeConfig.events[busIdentifier])});
+    expect(node.nodeConfig.events[busIdentifier].nodeNumber).to.equal(value.nodeNumber)
+    expect(node.nodeConfig.events[busIdentifier].eventNumber).to.equal(value.eventNumber)
+    winston.info({message: 'unit_test: END eventSend test'});
+
+  })
+
 
 })
 
