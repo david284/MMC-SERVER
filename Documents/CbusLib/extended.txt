@@ -1,0 +1,40 @@
+    encodeExtendedMessage(message){
+        if(message.hasOwnProperty('operation')) {
+            switch (message.operation) {
+                case 'PUT':
+                    if(message.hasOwnProperty('type')){
+                        if (message.type == 'CONTROL') {
+                            if(!message.hasOwnProperty('address')) {throw Error("encode extended: property 'address' missing")};
+                            if(!message.hasOwnProperty('CTLBT')) {throw Error("encode extended: property 'CTLBT' missing")};
+                            if(!message.hasOwnProperty('SPCMD')) {throw Error("encode extended: property 'SPCMD' missing")};
+                            if(!message.hasOwnProperty('CPDTL')) {throw Error("encode extended: property 'CPDTL' missing")};
+                            if(!message.hasOwnProperty('CPDTH')) {throw Error("encode extended: property 'CPDTH' missing")};
+                            message.encoded = this.encode_EXT_PUT_CONTROL(message.address, message.CTLBT, message.SPCMD, message.CPDTL, message.CPDTH);
+                        }
+                        else if (message.type == 'DATA') {
+                            if(!message.hasOwnProperty('data')) {throw Error("encode extended: property 'data' missing")};
+                            message.encoded = this.encode_EXT_PUT_DATA(message.data);
+                        }
+                        else {
+                            throw Error('encode extended: type \'' + message.type + '\' not supported');
+                        }
+                            
+                    } else {
+                        throw Error("encode extended: property \'type\' missing");
+                    }
+                    break;
+                case 'GET':
+                    break;
+                case 'RESPONSE':
+                    if(!message.hasOwnProperty('response')) {throw Error("encode extended: property 'response' missing")};
+                    message.encoded = this.encode_EXT_RESPONSE(message.response);
+                    break;
+                default:
+                     throw Error('encode extended: \'' + message.operation + '\' not supported');
+                   break;
+            }
+            return message;
+        } else {
+            throw Error("encode extended: property \'operation\' missing");
+        }
+    }
