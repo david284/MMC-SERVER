@@ -228,7 +228,7 @@ class programNode extends EventEmitter  {
                             }
                             if (cbusMsg.response == 2) {
                                 winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
-                                await this.sendFirmware(FLAGS)
+                                this.sendFirmware(FLAGS)
                             }
                         }
                     }.bind(this))
@@ -265,13 +265,13 @@ class programNode extends EventEmitter  {
     async programBootMode (CPUTYPE, FLAGS, INTEL_HEX_STRING) {
       winston.info({message: 'programBootNode: Started'})
         this.success = false
-        this.nodeNumber = null
+        this.nodeNumber = 0
 
         await utils.sleep(10)    // allow time for connection
 
         try {
             // parse the intel hex file into our firmware object
-            this.parseHexFile(INTEL_HEX_STRING, function (firmwareObject) {
+            this.parseHexFile(INTEL_HEX_STRING, async function (firmwareObject) {
 
                 if (firmwareObject == null) {
                     this.sendFailureToClient('Failed: file parsing failed')
@@ -377,7 +377,7 @@ class programNode extends EventEmitter  {
               this.sendBootModeToClient(text)
           }
         }
-        
+
         if (FLAGS & 0x1) {      // Program CONFIG area
             for (const block in this.FIRMWARE['CONFIG']) {
                 var config = this.FIRMWARE['CONFIG'][block]
@@ -505,6 +505,7 @@ class programNode extends EventEmitter  {
       var count = 0
       this.client.write(JSON.stringify(jsonMessage))
       var startTime = Date.now()
+      await utils.sleep(1)
       while (((Date.now() - startTime) < 4) && (this.ackReceived == false)){
         await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
         count++

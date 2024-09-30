@@ -139,7 +139,7 @@ describe('programNode tests', function(){
 	    winston.warn({message: 'TEST: short download: ' + JSON.stringify(downloadData)});
 		});	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
-		programNode.program(300, 1, 3, intelHexString);
+		programNode.program(3000, 1, 3, intelHexString);
 		setTimeout(function(){
       //
       // expect first message to be BOOTM
@@ -290,6 +290,7 @@ describe('programNode tests', function(){
     //
 	it('programBootMode short test', function(done) {
 		winston.debug({message: 'TEST: programBootMode:'});
+    mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
 			downloadData = data;
