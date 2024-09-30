@@ -135,7 +135,7 @@ describe('programNode tests', function(){
     // expect: Last thing, expect reset command sent
     //
 	it('Download short test', function(done) {
-		winston.debug({message: 'TEST: BEGIN short download:'});
+		winston.info({message: 'TEST: BEGIN short download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
     	downloadData = data;
@@ -165,12 +165,12 @@ describe('programNode tests', function(){
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
-      winston.debug({message: 'TEST: END short download:'});
+      winston.info({message: 'TEST: END short download:'});
 			done();
-		}, 3000);
+		}, 1000);
 	});
 
-/*
+
     //
     // test sequence of operations on download
     // using full file this time
@@ -180,7 +180,7 @@ describe('programNode tests', function(){
     // expect: Last thing, expect reset command sent
     //
 	it('Download full test', function(done) {
-		winston.debug({message: 'TEST: full download:'});
+		winston.info({message: 'TEST: full download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
 			downloadData = data;
@@ -206,10 +206,11 @@ describe('programNode tests', function(){
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
+      winston.info({message: 'TEST: END full download:'});
 			done();
-		}, 29000);
+		}, 15000);
 	});
-*/
+
 
     //
     // test rejection of corrupted file
@@ -277,7 +278,7 @@ describe('programNode tests', function(){
       expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
       expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
 			done();
-		}, 2000);
+		}, 1000);
 	});
 
 
@@ -313,7 +314,7 @@ describe('programNode tests', function(){
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
 			done();
-		}, 2000);
+		}, 1000);
 	});
 
 

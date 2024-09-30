@@ -96,19 +96,19 @@ class mock_jsonServer{
       if (message.type == 'CONTROL') {
         switch (message.SPCMD) {
             case 0:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_NOP <<< '});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_NOP <<< '});
                 break;
             case 1:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_RESET  <<< '});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RESET  <<< '});
                 this.firmware = []
                 break;
             case 2:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_RST_CHKSM <<< '});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
                 break;
             case 3:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_CHK_RUN <<< '});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
                 this.firmwareChecksum = arrayChecksum(this.firmware)
-                winston.debug({message: 'Mock CBUS Network: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
+                winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
                 if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
                     this.outputExtResponse(1)   // 1 = ok
                 } else {
@@ -116,18 +116,18 @@ class mock_jsonServer{
                 }
                 break;
             case 4:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_BOOT_TEST <<< '});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_BOOT_TEST <<< '});
                 this.outputExtResponse(2)   // 2 = confirm boot load
                 this.firmware = []
                 break;
             default:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message UNKNOWN COMMAND ' + message.text});
+                winston.debug({message: 'mock_jsonServer: <<< Received control message UNKNOWN COMMAND ' + message.text});
                 break
         }
       }
       if (message.type == 'DATA') {
         for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
-        winston.debug({message: 'Mock CBUS Network: <<< Received DATA - new length ' + this.firmware.length});
+        winston.debug({message: 'mock_jsonServer: <<< Received DATA - new length ' + this.firmware.length});
       }
     }
   }

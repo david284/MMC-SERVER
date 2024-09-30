@@ -803,7 +803,7 @@ class cbusAdmin extends EventEmitter {
           var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
           if ((moduleName == "Unknown") || (moduleName == undefined)) {
             // we can't handle a module we don't know about, so just warn & skip rest
-            winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+            winston.info({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
           } else {
             // build filename
             var filename = moduleName + "-" + moduleIdentifier               
