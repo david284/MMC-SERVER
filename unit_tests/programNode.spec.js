@@ -56,15 +56,14 @@ describe('programNode tests', function(){
     //
     //
     //
-	it('Checksum test', function(done) {
+	it('Checksum test', function() {
 		winston.debug({message: 'TEST: Checksum:'});
-        const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-        // expect to get two's compliment of 16 bit checksum returned
-        var array = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00]
-        // checksum of above is 06F9, so two's complement is F907
-        var expected  = 'F907'
-        expect(programNode.arrayChecksum(array)).to.equal(expected);
-        done();
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    // expect to get two's compliment of 16 bit checksum returned
+    var array = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00]
+    // checksum of above is 06F9, so two's complement is F907
+    var expected  = 'F907'
+    expect(programNode.arrayChecksum(array)).to.equal(expected);
 	});
 
 
@@ -73,19 +72,19 @@ describe('programNode tests', function(){
     //
 	it('Parse Hex File test', function(done) {
 		winston.debug({message: 'TEST: Parse Hex File test:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
-        var callbackInvoked = false
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
+    var callbackInvoked = false
 		programNode.parseHexFile(intelHexString, 
-            function(firmwareObject){ 
-                winston.debug({message: 'TEST: Parse Hex File Test: callback invoked: ' + JSON.stringify(firmwareObject)});
-//                expect(firmwareObject["FLASH"]['00000800'].length).to.equal(6064, 'FLASH length'); 
-                expect(programNode.arrayChecksum(firmwareObject["FLASH"]['00000800'])).to.equal('EC12','checksum');
-                callbackInvoked = true
-            }
-        );
+      function(firmwareObject){ 
+        winston.debug({message: 'TEST: Parse Hex File Test: callback invoked: ' + JSON.stringify(firmwareObject)});
+    //    expect(firmwareObject["FLASH"]['00000800'].length).to.equal(6064, 'FLASH length'); 
+        expect(programNode.arrayChecksum(firmwareObject["FLASH"]['00000800'])).to.equal('EC12','checksum');
+        callbackInvoked = true
+      }
+    );
 		setTimeout(function(){
-            expect(callbackInvoked).to.equal(true, 'callbackInvoked');
+      expect(callbackInvoked).to.equal(true, 'callbackInvoked');
 			done();
 		}, 500);
 	});
@@ -94,33 +93,31 @@ describe('programNode tests', function(){
     //
     // test callback works on decode line function
     //
-	it('decode line test', function(done) {
+	it('decode line test', function() {
 		winston.debug({message: 'TEST: decode line:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        var callbackInvoked = false
-        var firmware = {}
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    var callbackInvoked = false
+    var firmware = {}
 		programNode.decodeLine(firmware, ':00000001FF', function(){ callbackInvoked = true;});
-        expect(callbackInvoked).to.equal(true, 'callbackInvoked');
-        done();
+    expect(callbackInvoked).to.equal(true, 'callbackInvoked');
 	});
 
 
     //
     // test line checksum works on decode line function
     //
-	it('decode line checksum test', function(done) {
+	it('decode line checksum test', function() {
 		winston.debug({message: 'TEST: decode line:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        var callbackInvoked = false
-        var firmware = {}
-        var result = 'notNull'
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    var callbackInvoked = false
+    var firmware = {}
+    var result = 'notNull'
 		programNode.decodeLine(firmware, ':00000008FF', function (firmwareObject){ 
-            result = firmwareObject
-            callbackInvoked = true;
-        });
-        expect(callbackInvoked).to.equal(true, 'callbackInvoked');
-        expect(result).to.equal(null, 'callback result');
-        done();
+      result = firmwareObject
+      callbackInvoked = true;
+    });
+    expect(callbackInvoked).to.equal(true, 'callbackInvoked');
+    expect(result).to.equal(null, 'callback result');
 	});
 
 
@@ -245,16 +242,16 @@ describe('programNode tests', function(){
     //
 	it('Download wrong file test', function(done) {
 		winston.debug({message: 'TEST: wrong file:'});
-        const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-        programNode.on('programNode', function (data) {
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: wrong file: ' + JSON.stringify(downloadData)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/paramsOnly.HEX');
+    });	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/paramsOnly.HEX');
 		programNode.program(300, 0, 0, intelHexString);
 		setTimeout(function(){
-            expect(downloadData.status).to.equal('Failure', 'Download event');
-            expect(downloadData.text).to.equal('CPU mismatch', 'Download event');
+      expect(downloadData.status).to.equal('Failure', 'Download event');
+      expect(downloadData.text).to.equal('CPU mismatch', 'Download event');
 			done();
 		}, 500);
 	});
@@ -314,7 +311,7 @@ describe('programNode tests', function(){
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
 			done();
-		}, 1000);
+		}, 2000);
 	});
 
 
@@ -327,17 +324,17 @@ describe('programNode tests', function(){
     //
 	it('programBootMode corrupt file test', function(done) {
 		winston.debug({message: 'TEST: programBootMode: corrupt file test:'});
-        const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-        programNode.on('programNode', function (data) {
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: programBootMode: corrupt file test: ' + JSON.stringify(downloadData)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
+    });	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
 		programNode.programBootMode(1, 3, intelHexString);
 		setTimeout(function(){
-            expect (mock_jsonServer.messagesIn.length).to.equal(0, "programBootMode: check sent messages")
-            expect(downloadData.status).to.equal("Failure", 'programBootMode: expected event');
-            expect(downloadData.text).to.equal('Failed: file parsing failed', 'programBootMode: expected event');
+      expect (mock_jsonServer.messagesIn.length).to.equal(0, "programBootMode: check sent messages")
+      expect(downloadData.status).to.equal("Failure", 'programBootMode: expected event');
+      expect(downloadData.text).to.equal('Failed: file parsing failed', 'programBootMode: expected event');
 			done();
 		}, 200);
 	});

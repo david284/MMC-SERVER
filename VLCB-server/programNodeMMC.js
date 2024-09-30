@@ -146,9 +146,13 @@ class programNode extends EventEmitter  {
         super()
         this.net_address = NET_ADDRESS
         this.net_port = NET_PORT
-        this.client = null
+        this.client = new net.Socket()
+        this.client.connect(this.net_port, this.net_address, function () {
+          winston.info({message: 'programNode: this Client Connected ' + this.net_address + ':' + this.net_port});
+        }.bind(this))
         this.FIRMWARE = {}
         this.nodeNumber = null
+        this.ackReceived = false
     }
     
     //  expose decodeLine for testing purposes
@@ -166,15 +170,11 @@ class programNode extends EventEmitter  {
     * 4 = Ignore CPUTYPE
     */
     async program (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
-      winston.debug({message: 'programNode: Started'})
+      winston.info({message: 'programNode: Started'})
       this.success = false
       this.nodeNumber = NODENUMBER
-      this.client = new net.Socket()
-      this.client.connect(this.net_port, this.net_address, function () {
-        winston.info({message: 'programNode: this Client Connected ' + this.net_address + ':' + this.net_port});
-      }.bind(this))
-      await utils.sleep(100)    // allow time for connection
-//      this.client.write|("test")
+
+      await utils.sleep(10)    // allow time for connection
 
         try {
             // parse the intel hex file into our firmware object
@@ -262,9 +262,12 @@ class programNode extends EventEmitter  {
     }
     
 
-    programBootMode (CPUTYPE, FLAGS, INTEL_HEX_STRING) {
+    async programBootMode (CPUTYPE, FLAGS, INTEL_HEX_STRING) {
+      winston.info({message: 'programBootNode: Started'})
         this.success = false
         this.nodeNumber = null
+
+        await utils.sleep(10)    // allow time for connection
 
         try {
             // parse the intel hex file into our firmware object
@@ -274,7 +277,6 @@ class programNode extends EventEmitter  {
                     this.sendFailureToClient('Failed: file parsing failed')
                     return
                 }
-
                 winston.debug({message: 'programBootMode: >>>>>>>>>>>>> parseHexFile callback ' + JSON.stringify(firmwareObject)})
 
                 this.FIRMWARE = firmwareObject
@@ -289,12 +291,6 @@ class programNode extends EventEmitter  {
                     }
                 }
                
-                this.client = new net.Socket()
-                
-                this.client.connect(this.net_port, this.net_address, function () {
-                    winston.debug({message: 'programBootMode: Client Connected ' + this.net_address + ':' + this.net_port});
-                }.bind(this))
-                
                 this.client.on('error', (err) => {
                     var msg = 'TCP ERROR: ' + err.code
                     winston.debug({message: 'programBootMode: ' + msg});
@@ -340,7 +336,7 @@ class programNode extends EventEmitter  {
                     winston.debug({message: 'programBootMode: ***************** download: ENDING - success is ' + this.success});
                     // 'Failed:' is a necessary string in the message to signal the client it's failed
                     if (this.success == false) { this.sendFailureToClient('Failed: Timeout') }               
-                }, 25000)
+                }, 60000)
                 
             }.bind(this))
 
@@ -505,8 +501,16 @@ class programNode extends EventEmitter  {
     {
       var jsonMessage = cbusLib.decode(msg)
       winston.info({message: 'programNode: CBUS Transmit >>>: ' + JSON.stringify(jsonMessage)})
+      this.ackReceived = false  // set to false before writing
+      var count = 0
       this.client.write(JSON.stringify(jsonMessage))
-      await utils.sleep(10)
+      var startTime = Date.now()
+      while (((Date.now() - startTime) < 4) && (this.ackReceived == false)){
+        await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
+        count++
+      }       
+      winston.debug({message: 'programNode: CBUS Transmit time ' + (Date.now() - startTime) + ' ' + count})
+
     }
 
 

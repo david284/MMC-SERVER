@@ -47,6 +47,7 @@ class mock_jsonServer{
             this.processMessagesIn(cbusMsg)
           } catch (err){
             winston.error({message:`mock_jsonServer: Data Received ` + err})
+            winston.error({message:`mock_jsonServer: Data Received ` + JSON.stringify(data)})
           }
       }.bind(this));
 
