@@ -8,6 +8,12 @@ let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 
+//=============================================================================
+//
+// Based on the microchip AN247 application note (see documents folder)
+//
+//=============================================================================
+
 
 //
 //
