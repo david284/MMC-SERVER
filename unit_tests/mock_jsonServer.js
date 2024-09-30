@@ -108,8 +108,8 @@ class mock_jsonServer{
             case 3:
                 winston.debug({message: 'Mock CBUS Network: <<< Received control message CMD_CHK_RUN <<< '});
                 this.firmwareChecksum = arrayChecksum(this.firmware)
-                winston.debug({message: 'Mock CBUS Network: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum + ' received checksum: ' + utils.decToHex(cbusMsg.CPDTH, 2) + utils.decToHex(cbusMsg.CPDTL, 2)});
-                if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(cbusMsg.CPDTL, 2)) {
+                winston.debug({message: 'Mock CBUS Network: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
+                if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
                     this.outputExtResponse(1)   // 1 = ok
                 } else {
                     this.outputExtResponse(0)   // 0 = not ok
@@ -121,12 +121,12 @@ class mock_jsonServer{
                 this.firmware = []
                 break;
             default:
-                winston.debug({message: 'Mock CBUS Network: <<< Received control message UNKNOWN COMMAND ' + cbusMsg.text});
+                winston.debug({message: 'Mock CBUS Network: <<< Received control message UNKNOWN COMMAND ' + message.text});
                 break
         }
       }
-      if (cbusMsg.type == 'DATA') {
-        for (var i = 0; i < 8; i++) {this.firmware.push(cbusMsg.data[i])}
+      if (message.type == 'DATA') {
+        for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
         winston.debug({message: 'Mock CBUS Network: <<< Received DATA - new length ' + this.firmware.length});
       }
     }

@@ -168,7 +168,7 @@ class programNode extends EventEmitter  {
         winston.info({message: 'programNode: this Client Connected ' + this.net_address + ':' + this.net_port});
       }.bind(this))
       await utils.sleep(500)
-      this.client.write|("test")
+//      this.client.write|("test")
 
         try {
             // parse the intel hex file into our firmware object

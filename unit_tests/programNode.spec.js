@@ -37,7 +37,7 @@ describe('programNode tests', function(){
     
     beforeEach(function() {
    		winston.debug({message: '  '});   // blank line to separate tests
-//        mock_Cbus.clearSendArray()
+      mock_jsonServer.messagesIn = []
     })
 
 	after(function(done) {
@@ -152,15 +152,15 @@ describe('programNode tests', function(){
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
       //
       // verify checksum when process is signalled as complete
-//      expect(downloadData.status).to.equal('Success', 'Download event');
-//      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-//      expect(mock_Cbus.firmwareChecksum).to.equal('C68E', 'Checksum');
+      expect(downloadData.status).to.equal('Success', 'Download event');
+      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
+      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
 			winston.info({message: 'TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
       var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
 			winston.info({message: 'TEST: short download: last message: ' + JSON.stringify(lastMsg)});
-//      var lastMsg = cbusLib.decode(lastMsg)
+      var lastMsg = cbusLib.decode(lastMsg)
 			winston.debug({message: 'TEST: short download: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
@@ -181,35 +181,35 @@ describe('programNode tests', function(){
     //
 	it('Download full test', function(done) {
 		winston.debug({message: 'TEST: full download:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        programNode.on('programNode', function (data) {
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: full download: ' + JSON.stringify(downloadData)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
+    });	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
 		programNode.program(300, 1, 3, intelHexString);
 		setTimeout(function(){
-            //
-            // expect first message to be BOOTM
-            var firstMsg = cbusLib.decode(mock_Cbus.sendArray[0])
+      //
+      // expect first message to be BOOTM
+      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
 			winston.debug({message: 'TEST: full download: first message: ' + firstMsg.text});
-            expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
-            expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
-            //
-            // verify checksum when process is signalled as complete
-            expect(downloadData.status).to.equal('Success', 'Download event');
-            expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-            //
-            // check last message is a reset command
-            var lastMsg = cbusLib.decode(mock_Cbus.sendArray[mock_Cbus.sendArray.length - 1])
-			winston.debug({message: 'TEST: full download: last message: ' + lastMsg.text});
-            expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
-            expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
-            expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
+      expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
+      expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
+      //
+      // verify checksum when process is signalled as complete
+      expect(downloadData.status).to.equal('Success', 'Download event');
+      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
+      //
+      // check last message is a reset command
+      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
+      winston.debug({message: 'TEST: full download: last message: ' + lastMsg.text});
+      expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
+      expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
+      expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
 			done();
-		}, 25000);
+		}, 29000);
 	});
-
+*/
 
     //
     // test rejection of corrupted file
@@ -221,19 +221,20 @@ describe('programNode tests', function(){
     //
 	it('Download corrupt file test', function(done) {
 		winston.debug({message: 'TEST: corrupt download:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        programNode.on('programNode', function (data) {
-			corruptFileData = data;
-			winston.warn({message: 'TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    var corruptFileData
+    programNode.on('programNode', function (data) {
+      corruptFileData = data;
+		  winston.warn({message: 'TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
+		});	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
 		programNode.program(300, 1, 3, intelHexString);
 		setTimeout(function(){
-            expect (mock_Cbus.sendArray.length).to.equal(0, "check sent messages")
-            expect(corruptFileData.status).to.equal("Failure", 'Download event');
-            expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
-            done();
-		}, 200);
+      expect (mock_jsonServer.messagesIn.length).to.equal(0, "check sent messages")
+      expect(corruptFileData.status).to.equal("Failure", 'Download event');
+      expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
+      done();
+		}, 1000);
 	});
 
 
@@ -243,7 +244,7 @@ describe('programNode tests', function(){
     //
 	it('Download wrong file test', function(done) {
 		winston.debug({message: 'TEST: wrong file:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
+        const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
         programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: wrong file: ' + JSON.stringify(downloadData)});
@@ -263,20 +264,20 @@ describe('programNode tests', function(){
     //
 	it('Download ignore CPUTYPE test', function(done) {
 		winston.debug({message: 'TEST: ignore CPUTYPE:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        downloadDataArray = []
-        programNode.on('programNode', function (data) {
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    downloadDataArray = []
+    programNode.on('programNode', function (data) {
 			downloadDataArray.push(data);
 			winston.warn({message: 'TEST: ignore CPUTYPE: ' + JSON.stringify(data)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
+    });	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
 		programNode.program(300, 99, 4, intelHexString);
 		setTimeout(function(){
-            expect(downloadDataArray[1].text).to.equal('CPUTYPE ignored', 'Download event');
-            expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
-            expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
+      expect(downloadDataArray[1].text).to.equal('CPUTYPE ignored', 'Download event');
+      expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
+      expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
 			done();
-		}, 1000);
+		}, 2000);
 	});
 
 
@@ -291,26 +292,26 @@ describe('programNode tests', function(){
     //
 	it('programBootMode short test', function(done) {
 		winston.debug({message: 'TEST: programBootMode:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
-        programNode.on('programNode', function (data) {
+    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
+    programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: programBootMode: ' + JSON.stringify(downloadData)});
-			});	        
-        var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
+    });	        
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
 		programNode.programBootMode(1, 3, intelHexString);
 		setTimeout(function(){
-            //
-            // verify process is signalled as complete & checksum correct
-            expect(downloadData.status).to.equal("Success", 'programBootMode: expected event');
-            expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-            expect(mock_Cbus.firmwareChecksum).to.equal('C68E', 'Checksum');
-            //
-            // check last message is a reset command
-            var lastMsg = cbusLib.decode(mock_Cbus.sendArray[mock_Cbus.sendArray.length - 1])
+      //
+      // verify process is signalled as complete & checksum correct
+      expect(downloadData.status).to.equal("Success", 'programBootMode: expected event');
+      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
+      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+      //
+      // check last message is a reset command
+      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
 			winston.debug({message: 'TEST: programBootMode: last message: ' + lastMsg.text});
-            expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
-            expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
-            expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
+      expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
+      expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
+      expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
 			done();
 		}, 2000);
 	});
@@ -325,7 +326,7 @@ describe('programNode tests', function(){
     //
 	it('programBootMode corrupt file test', function(done) {
 		winston.debug({message: 'TEST: programBootMode: corrupt file test:'});
-        const programNode = require('../VLCB-server/programNode.js')(NET_ADDRESS, NET_PORT)
+        const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
         programNode.on('programNode', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: programBootMode: corrupt file test: ' + JSON.stringify(downloadData)});
@@ -333,14 +334,13 @@ describe('programNode tests', function(){
         var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
 		programNode.programBootMode(1, 3, intelHexString);
 		setTimeout(function(){
-            expect (mock_Cbus.sendArray.length).to.equal(0, "programBootMode: check sent messages")
+            expect (mock_jsonServer.messagesIn.length).to.equal(0, "programBootMode: check sent messages")
             expect(downloadData.status).to.equal("Failure", 'programBootMode: expected event');
             expect(downloadData.text).to.equal('Failed: file parsing failed', 'programBootMode: expected event');
 			done();
 		}, 200);
 	});
 
-*/
 
 
 })
