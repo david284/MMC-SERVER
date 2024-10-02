@@ -30,9 +30,6 @@ const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
 const node = new admin.cbusAdmin(config)
 
-
-function decToHex(num, len) {return parseInt(num & (2 ** (4*len) - 1)).toString(16).toUpperCase().padStart(len, '0');}
-
 function stringToHex(string) {
   // expects UTF-8 string
   var bytes = new TextEncoder().encode(string);

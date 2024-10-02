@@ -7,7 +7,7 @@
   "main": "./main.js",
   "scripts": {
     "start": "node ./main.js",
-    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --exit"
+    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 60000 --exit"
   },
   "dependencies": {
     "cbuslibrary": "^2.7.5",

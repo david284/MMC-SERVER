@@ -30,7 +30,7 @@ var messageOnly = winston.format.combine(
 
 var options = {
   console: {
-    level: 'error',
+    level: 'warn',
     handleExceptions: true,
   	format: messageOnly
   },

@@ -5,16 +5,6 @@ const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 const { isUndefined } = require('util');
 
-
-function pad(num, len) { //add zero's to ensure hex values have correct number of characters
-    let padded = "00000000" + num;
-    return padded.substr(-len);
-}
-
-function decToHex(num, len) {
-    return parseInt(num).toString(16).toUpperCase().padStart(len, '0');
-}
-
 const name = 'mergAdminNode'
 
 class cbusAdmin extends EventEmitter {
@@ -199,7 +189,7 @@ class cbusAdmin extends EventEmitter {
                 output['type'] = 'DCC'
                 output['Error'] = cbusMsg.errorNumber
                 output['Message'] = this.merg.dccErrors[cbusMsg.errorNumber]
-                output['data'] = decToHex(cbusMsg.data1, 2) + decToHex(cbusMsg.data2, 2)
+                output['data'] = utils.decToHex(cbusMsg.data1, 2) + utils.decToHex(cbusMsg.data2, 2)
                 this.emit('dccError', output)
             },
             '6F': async (cbusMsg) => {// CMDERR - Cbus Error
@@ -461,7 +451,7 @@ class cbusAdmin extends EventEmitter {
             'D3': async (cbusMsg) => {// EVANS - response to REQEV
               //
               var nodeNumber = this.nodeNumberInLearnMode
-              var eventIdentifier = decToHex(cbusMsg.nodeNumber, 4) + decToHex(cbusMsg.eventNumber, 4) 
+              var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
               this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
               winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
               var tableIndex = utils.getEventTableIndex( this.nodeConfig.nodes[nodeNumber], eventIdentifier)
@@ -812,7 +802,7 @@ class cbusAdmin extends EventEmitter {
           var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
           if ((moduleName == "Unknown") || (moduleName == undefined)) {
             // we can't handle a module we don't know about, so just warn & skip rest
-            winston.warn({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+            winston.info({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
           } else {
             // build filename
             var filename = moduleName + "-" + moduleIdentifier               

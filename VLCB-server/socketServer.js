@@ -150,6 +150,13 @@ let node = new admin.cbusAdmin(config);
       node.request_all_node_variables(data.nodeNumber, data.start)
     })
 
+    socket.on('REQUEST_BACKUPS_LIST', function(data){
+      winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
+      const backups_list = config.getListOfBackups(data.layoutName)
+      io.emit('BACKUPS_LIST', backups_list)
+      winston.info({message: `socketServer: sent BACKUPS_LIST ` + backups_list});
+    })
+
     socket.on('REQUEST_BUS_CONNECTION', function(){
       winston.debug({message: `socketServer: REQUEST_BUS_CONNECTION`});
       io.emit('BUS_CONNECTION', status.busConnection)
@@ -210,14 +217,6 @@ let node = new admin.cbusAdmin(config);
       winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
       config.writeBackup(data.layoutName, data.fileName, data.layout, node.nodeConfig)
     })
-
-    socket.on('REQUEST_BACKUPS_LIST', function(data){
-      winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
-      const backups_list = config.getListOfBackups(data.layoutName)
-      io.emit('BACKUPS_LIST', backups_list)
-      winston.info({message: `socketServer: sent BACKUPS_LIST ` + backups_list});
-    })
-
  
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
@@ -232,11 +231,6 @@ let node = new admin.cbusAdmin(config);
     socket.on('TEACH_EVENT', function(data){
       winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
       node.teach_event(data.nodeNumber, data.eventName, 1, 0)
-    })
-
-    socket.on('EVENT_TEACH_BY_IDENTIFIER', function(data){
-      winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
-      node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
     })
 
     socket.on('UPDATE_EVENT_VARIABLE', function(data){
