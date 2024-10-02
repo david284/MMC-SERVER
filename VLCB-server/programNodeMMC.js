@@ -16,7 +16,9 @@ const utils = require('./../VLCB-server/utilities.js');
 
 
 //
-//
+// This function takes a line from an intel formatted hex file
+// and builds a collection of arrays with the equivalent binary data
+// ready to downloaded to a node
 //
 function decodeLine(FIRMWARE, line, callback) {
     var MARK = line.substr(0,1)
@@ -25,13 +27,18 @@ function decodeLine(FIRMWARE, line, callback) {
     var RECTYP = parseInt(line.substr(7,2), 16) 
     var data = line.substr(9, line.length - 9 - 2)
     var CHKSUM = parseInt(line.substr(line.length - 2, 2), 16)
+    winston.debug({message: 'programNode: READ LINE: '
+      + ' RECLEN ' + RECLEN 
+      + ' OFFSET ' + utils.decToHex(OFFSET, 4) 
+      + ' RECTYP ' + RECTYP 
+      + ' data ' + data
+      + ' CHKSUM ' + CHKSUM});
     
     // test the checksum to see if the line is valid
     var linechecksum = 0x00
     for (var i = 1; i < line.length; i += 2) {
         linechecksum += parseInt(line.substr(i, 2), 16)
        linechecksum &= 0xFF
-      winston.debug({message: 'programNode: READ LINE: ' + i + ' ' + linechecksum});
         }
     if (linechecksum != 0) {
       winston.debug({message: 'programNode: READ LINE: checksum error ' + linechecksum});
@@ -40,66 +47,68 @@ function decodeLine(FIRMWARE, line, callback) {
     }
     
     // Check to see if the persistant variables has been initialized
+    // if there hasn't been an initial 'Extended Linear Address' then start at 0 (FLASH)
     if ( typeof decodeLine.index == 'undefined' ) { decodeLine.index = 0; }
-    if ( typeof decodeLine.area == 'undefined' ) { decodeLine.area = 'default'; }
+    if ( typeof decodeLine.area == 'undefined' ) { 
+      decodeLine.area = 'FLASH'
+      FIRMWARE[decodeLine.area] = []
+    }
     if ( typeof decodeLine.extAddressHex == 'undefined' ) { decodeLine.extAddressHex = '0000'; }
     if ( typeof decodeLine.startAddressHex == 'undefined' ) { decodeLine.startAddressHex = '00000000'; }
     
-      winston.debug({message: 'programNode: READ LINE: MARK ' + MARK + 
-      ' RECLEN ' + RECLEN + 
-      ' OFFSET ' + OFFSET + 
-      ' RECTYP ' + RECTYP + 
-      ' data ' + data + 
-      ' CHKSUM ' + CHKSUM });
-
     //
     // address of line start in the hex file is extAddressHex + OFFSET
-    // address of line start in the array is startAddressHex + index in array 
+    // starting address in the current array is startAddressHex in array
+    // next address to be written in the array is startAddressHex + index
     //
 
     if ( RECTYP == 0) { // Data Record:
-        // Read data into a contiguous array in 16 byte chunks, on 16 byte boundaries - prefilled with '0xFF'
-        // So, three choices - start new array, start new 'chunk' in existing array, or insert into existing 'chunk'
-        // so first work out the physical addresses & mask out for 16 byte boundary
-        var a = (parseInt(decodeLine.startAddressHex, 16) + decodeLine.index)>>4
-        var b = ((parseInt(decodeLine.extAddressHex, 16) << 16) + OFFSET) >>4
-        
-        if (a == b) { // same chunk
-            winston.debug({message: 'programNode: line decode: Data Record: Same chunk ' + a});
-            if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex] == undefined) {FIRMWARE[decodeLine.area][decodeLine.startAddressHex] = []}
-            if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex][0] == undefined) {
-                winston.debug({message: 'programNode: line decode: Data Record: Same chunk - prep array '});
-                for (var i = 0; i < 16; i++) { FIRMWARE[decodeLine.area][decodeLine.startAddressHex].push(255)}
-            }
-        } else if (a + 1 == b) { // next chunk
-            winston.debug({message: 'programNode: line decode: Data Record: Next chunk ' + a + ' ' + b});
-            decodeLine.index += 16
-            for (var i = 0; i < 16; i++) { FIRMWARE[decodeLine.area][decodeLine.startAddressHex].push(255)}
-        } else { // must be new array then
-            winston.debug({message: 'programNode: line decode: Data Record: New array ' + a + ' ' + b});
-            decodeLine.startAddressHex = decodeLine.extAddressHex + utils.decToHex(OFFSET & 0xFFE0, 4)
-            if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex] == undefined) {FIRMWARE[decodeLine.area][decodeLine.startAddressHex] = []}
-            decodeLine.index = 0
-            for (var i = 0; i < 16; i++) { FIRMWARE[decodeLine.area][decodeLine.startAddressHex].push(255)}
-        }
-        
-        // the above code assumes each 'line' fits into a 16 byte chunk, arranged on a 16 byte boundary
-        // so check if a line straddles a 16 byte boundary, and error if so
-        if ( (OFFSET % 16) + RECLEN > 16) {
-            winston.info({message: 'programNode: line decode: Data Record: *************************** ERROR - straddles boundary'});
-        }
-       
-      if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex] == undefined) {FIRMWARE[decodeLine.area][decodeLine.startAddressHex] = []}
-      for (var i = 0; i < RECLEN; i++) {
-        FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index + i + OFFSET%16] = (parseInt(data.substr(i*2, 2), 16))
+      // Need to check if the data in this new line follows on from previous line
+      // so check if next array address == line start address
+      // but if new line starts before end of padded line, then it does follow on
+      // if so, then add to existing array
+      // if not, then start new array
+      var arrayAddressPointer = parseInt(decodeLine.startAddressHex, 16) + decodeLine.index
+      var lineStartAddress =  ((parseInt(decodeLine.extAddressHex, 16) << 16) + OFFSET) 
+      
+      if (lineStartAddress > (arrayAddressPointer + decodeLine.paddingCount)){
+        // data doesn't follow on from last, so change startAddress & it'll force a new block a bit lower
+        winston.debug({message: 'programNode: line decode: Data Record: '+decodeLine.area+' Current addressPointer '+arrayAddressPointer+' Line startAddress: '+lineStartAddress});
+        decodeLine.startAddressHex = decodeLine.extAddressHex + utils.decToHex(OFFSET, 4)
       }
 
-      var chunkLine = []
-      for (var i = 0; i < 16; i++) { 
-        chunkLine.push(utils.decToHex(FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index + i], 2))
+      // check if block not set, will catch first time as well as change
+      if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex] == undefined) {
+        FIRMWARE[decodeLine.area][decodeLine.startAddressHex] = []
+        decodeLine.index = 0
+        decodeLine.paddingCount = 0
+        winston.debug({message: 'programNode: line decode: Data Record: ' + decodeLine.area + ' New block ' + decodeLine.startAddressHex});
       }
-      winston.debug({message: 'programNode: line decode: Chunk Line:  ' + decodeLine.area + ' ' + decodeLine.startAddressHex + ' ' + utils.decToHex(decodeLine.index, 4) + ' ' + chunkLine});
-    }
+
+      // if line start is not at the current pointer, need to reset current index
+      if(lineStartAddress != arrayAddressPointer)( decodeLine.index = (lineStartAddress - parseInt(decodeLine.startAddressHex, 16)))
+      
+      // now actually copy the program data
+      for (i=0; i < RECLEN; i++){
+        FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index++] = (parseInt(data.substr(i*2, 2), 16))
+      }
+
+      // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
+      // but don't increment decodeLine.index, as next line may not start on 8 byte boundary
+      // and may need to overwrite this padding
+      decodeLine.index % 16 ? decodeLine.paddingCount = 16 - (decodeLine.index % 16) : decodeLine.paddingCount = 0
+      for (var i = 0; i < decodeLine.paddingCount; i++) {
+        FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index + i] = 0xFF
+      }  
+      /*
+      var dump = ''
+      for (var i = 0 ; i < FIRMWARE[decodeLine.area][decodeLine.startAddressHex].length; i++){
+        if (i%8 == 0){dump += ' '}
+        dump += utils.decToHex(FIRMWARE[decodeLine.area][decodeLine.startAddressHex][i], 2) + ','
+      }
+      winston.debug({message: 'programNode: line decode: pad ' + decodeLine.paddingCount  + ' Dump: ' + dump });
+      */
+      }
 
     if ( RECTYP == 1) {
         winston.debug({message: 'programNode: line decode: End of File Record:'});
@@ -113,11 +122,11 @@ function decodeLine(FIRMWARE, line, callback) {
     }
 
     if ( RECTYP == 2) {
-      winston.debug({message: 'programNode: line decode: Extended Segment Address Record:'});
+      winston.warn({message: 'programNode: line decode: Extended Segment Address Record:'});
     }
 
     if ( RECTYP == 3) {
-      winston.debug({message: 'programNode: line decode: Start Segment Address Record:'});
+      winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
     }
 
     if ( RECTYP == 4) {
@@ -131,7 +140,7 @@ function decodeLine(FIRMWARE, line, callback) {
     }
 
     if ( RECTYP == 5) {
-      winston.debug({message: 'programNode: line decode: Start Linear Address Record:'});
+      winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
     }
     
     return true
@@ -153,7 +162,8 @@ class programNode extends EventEmitter  {
         this.FIRMWARE = {}
         this.nodeNumber = null
         this.ackReceived = false
-    }
+        this.sendingFirmware = false
+      }
     
     //  expose decodeLine for testing purposes
     decodeLine(array, line, callback) { decodeLine(array, line, callback)}
@@ -215,8 +225,10 @@ class programNode extends EventEmitter  {
                             }
                         if (cbusMsg.operation == 'RESPONSE') {
                             if (cbusMsg.response == 1) {
+                              this.ackReceived = true
+                              if (this.sendingFirmware == false){
                                 winston.debug({message: 'programNode: Check OK received: Sending reset'});
-                                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x0D, 0x01, 0, 0)
+                                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x01, 0, 0)
                                 await this.transmitCBUS(msg)
                                 // ok, can shutdown the connection now
                                 this.client.end();
@@ -225,6 +237,7 @@ class programNode extends EventEmitter  {
                                 // 'Success:' is a necessary string in the message to signal the client it's been successful
                                 this.sendSuccessToClient('Success: programing completed')
                                 this.client.removeAllListeners()
+                              }
                             }
                             if (cbusMsg.response == 2) {
                                 winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
@@ -239,7 +252,7 @@ class programNode extends EventEmitter  {
                     
                     // need to allow a small time for module to go into boot mode
                     await utils.sleep(100)
-                    var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x0D, 0x04, 0, 0)
+                    var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x04, 0, 0)
                     await this.transmitCBUS(msg)
                     
                     // ok, need to check if it's completed after a reasonable time, if not must have failed
@@ -310,8 +323,10 @@ class programNode extends EventEmitter  {
                         }
                     if (cbusMsg.operation == 'RESPONSE') {
                         if (cbusMsg.response == 1) {
+                          this.ackReceived = true
+                          if (this.sendingFirmware == false){
                             winston.debug({message: 'programBootMode: Check OK received: Sending reset'});
-                            var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x0D, 0x01, 0, 0)
+                            var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x01, 0, 0)
                             await this.transmitCBUS(msg)
                             // ok, can shutdown the connection now
                             this.client.end();
@@ -320,6 +335,7 @@ class programNode extends EventEmitter  {
                             // 'Success:' is a necessary string in the message to signal the client it's been successful
                             this.sendSuccessToClient('Success: programing completed')
                             this.client.removeAllListeners()
+                          }
                         }
                         if (cbusMsg.response == 2) {
                             winston.debug({message: 'programBootMode: WARNING - unexpected BOOT MODE Confirmed received:'});
@@ -358,11 +374,36 @@ class programNode extends EventEmitter  {
         var calculatedChecksum;
         // we want to indicate progress for each region, so we keep a counter that we can reset and then incrmeent for each region
         var progressCount = 0
+
+        this.sendingFirmware = true
         
         // always do FLASH area, but only starting from 00000800
-        var program = this.FIRMWARE['FLASH']['00000800']
+        for (const block in this.FIRMWARE['FLASH']) {
+          if (parseInt(block, 16) >= 0x800) {
+            var config = this.FIRMWARE['FLASH'][block]
+            //
+            winston.info({message: 'programNode: FLASH AREA : ' + block + ' length: ' + config.length});
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
+            await this.transmitCBUS(msgData)
+            //
+            for (let i = 0; i < config.length; i += 8) {
+              var chunk = config.slice(i, i + 8)
+              var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
+              await this.transmitCBUS(msgData)
+              calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+              winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+              // report progress on every message
+              var text = 'Progress: FLASH ' + Math.round(i/config.length * 100) + '%'
+              this.sendBootModeToClient(text)
+            }
+          }
+        }
+
+/*
+        var program = this.FIRMWARE['FLASH'][block]
         winston.debug({message: 'programNode: FLASH : 00000800 length: ' + program.length});
-        var msg = cbusLib.encode_EXT_PUT_CONTROL('000800', 0x0D, 0x02, 0, 0)
+        var msg = cbusLib.encode_EXT_PUT_CONTROL('000800', 0x1D, 0x02, 0, 0)
         await this.transmitCBUS(msg)
         
         for (let i = 0; i < program.length; i += 8) {
@@ -377,13 +418,13 @@ class programNode extends EventEmitter  {
               this.sendBootModeToClient(text)
           }
         }
-
+*/
         if (FLAGS & 0x1) {      // Program CONFIG area
             for (const block in this.FIRMWARE['CONFIG']) {
                 var config = this.FIRMWARE['CONFIG'][block]
                 //
                 winston.debug({message: 'programNode: CONFIG : ' + block + ' length: ' + config.length});
-                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x0D, 0x00, 0, 0)
+                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
                 winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
                 await this.transmitCBUS(msgData)
                 //
@@ -405,7 +446,7 @@ class programNode extends EventEmitter  {
                 var eeprom = this.FIRMWARE['EEPROM'][block]
                 //
                 winston.debug({message: 'programNode: EEPROM : ' + block + ' length: ' + eeprom.length});
-                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x0D, 0x00, 0, 0)
+                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
                 winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
                 await this.transmitCBUS(msgData)
                 //
@@ -421,11 +462,13 @@ class programNode extends EventEmitter  {
                 }
             }
         }
+
+        this.sendingFirmware = false
         
         // Verify Checksum
         // 00049272: Send: :X00080004N000000000D034122;
         winston.debug({message: 'programNode: Sending Check firmware'});
-        var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x0D, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
+        var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
         await this.transmitCBUS(msgData)
     }
     
@@ -434,7 +477,8 @@ class programNode extends EventEmitter  {
     //
     //
     arrayChecksum(array, start) {
-        var checksum = 0;
+      winston.debug({message: 'programNode: arrayChecksum: array length = ' + array.length});
+      var checksum = 0;
         if ( start != undefined) {
             checksum = (parseInt(start, 16) ^ 0xFFFF) + 1;
         }
@@ -456,7 +500,7 @@ class programNode extends EventEmitter  {
         var firmware = {}
 
         this.sendMessageToClient('Parsing file')
-        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
+//        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
 
         const lines = intelHexString.toString().split("\r\n");
         winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
@@ -506,7 +550,7 @@ class programNode extends EventEmitter  {
       this.client.write(JSON.stringify(jsonMessage))
       var startTime = Date.now()
       await utils.sleep(1)
-      while (((Date.now() - startTime) < 4) && (this.ackReceived == false)){
+      while (((Date.now() - startTime) < 50) && (this.ackReceived == false)){
         await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
         count++
       }       
