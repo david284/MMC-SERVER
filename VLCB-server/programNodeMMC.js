@@ -52,6 +52,8 @@ function decodeLine(FIRMWARE, line, callback) {
     if ( typeof decodeLine.area == 'undefined' ) { 
       decodeLine.area = 'FLASH'
       FIRMWARE[decodeLine.area] = []
+      decodeLine.index = 0
+      decodeLine.paddingCount = 0
     }
     if ( typeof decodeLine.extAddressHex == 'undefined' ) { decodeLine.extAddressHex = '0000'; }
     if ( typeof decodeLine.startAddressHex == 'undefined' ) { decodeLine.startAddressHex = '00000000'; }
@@ -96,7 +98,8 @@ function decodeLine(FIRMWARE, line, callback) {
       // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
       // but don't increment decodeLine.index, as next line may not start on 8 byte boundary
       // and may need to overwrite this padding
-      decodeLine.index % 16 ? decodeLine.paddingCount = 16 - (decodeLine.index % 16) : decodeLine.paddingCount = 0
+      const padLength = 32
+      decodeLine.index % padLength ? decodeLine.paddingCount = padLength - (decodeLine.index % padLength) : decodeLine.paddingCount = 0
       for (var i = 0; i < decodeLine.paddingCount; i++) {
         FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index + i] = 0xFF
       }  
