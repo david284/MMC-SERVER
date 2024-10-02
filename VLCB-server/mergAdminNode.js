@@ -1152,7 +1152,17 @@ class cbusAdmin extends EventEmitter {
       return output
   }
 
-  // 0x78 RQSD
+  // 0x73 RQNPN
+  //
+  CANID(nodeNumber, CAN_ID) {//Read Node Parameter
+    let output = {}
+    output['mnemonic'] = 'CANID'
+    output['nodeNumber'] = nodeNumber
+    output['CAN_ID'] = CAN_ID
+    return output
+}
+
+// 0x78 RQSD
   //
   RQSD(nodeNumber, service) { //Request Service Delivery
       let output = {}

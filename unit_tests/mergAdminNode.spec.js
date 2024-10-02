@@ -85,6 +85,24 @@ describe('mergAdminNode tests', function(){
 	});																										
 
 
+  function GetTestCase_nodeNumberAndOneByte() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = 0}
+        if (b == 2) {arg2 = 1}
+        if (b == 3) {arg2 = 255}
+        testCases.push({'nodeNumber':arg1, 'param1': arg2});
+      }
+    }
+    return testCases;
+  }
+
+  
+
   //****************************************************************************************** */
   //
   // Actual tests after here...
@@ -266,6 +284,19 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber);
     expect(result.parameterIndex).to.equal(value.parameterIndex);
     winston.info({message: 'unit_test: END RQNPN test'});
+  })
+
+
+  // 0x75 CANID
+  //
+  itParam("CANID test ${JSON.stringify(value)}", GetTestCase_nodeNumberAndOneByte(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN CANID test '});
+    var result = node.CANID(value.nodeNumber, value.param1)
+    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
+    expect(result.mnemonic).to.equal('CANID');
+    expect(result.nodeNumber).to.equal(value.nodeNumber);
+    expect(result.CAN_ID).to.equal(value.param1);
+    winston.info({message: 'unit_test: END CANID test'});
   })
 
 

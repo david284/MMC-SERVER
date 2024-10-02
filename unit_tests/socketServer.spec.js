@@ -329,6 +329,26 @@ describe('socketServer tests', function(){
   })
 
 
+  itParam("SET_CAN_ID test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN SET_CAN_ID test - nodeNumber ' + value.nodeNumber});
+    mock_jsonServer.messagesIn = []
+    var data = {
+      nodeNumber:value.nodeNumber,
+      CAN_ID: 1
+    }
+    socket.emit('SET_CAN_ID', data)
+
+    setTimeout(function(){
+      CbusMsg = mock_jsonServer.messagesIn[0]
+      winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
+      expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
+      expect(CbusMsg.CAN_ID).to.equal(1)
+      winston.info({message: 'unit_test: END SET_CAN_ID test'});
+			done();
+		}, 200);
+  })
+
+
   itParam("SET_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN SET_NODE_NUMBER test - nodeNumber ' + value.nodeNumber});
     mock_jsonServer.messagesIn = []

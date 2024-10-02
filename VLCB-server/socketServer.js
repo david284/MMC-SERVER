@@ -223,6 +223,11 @@ let node = new admin.cbusAdmin(config);
       config.writeBackup(data.layoutName, data.fileName, data.layout, node.nodeConfig)
     })
  
+    socket.on('SET_CAN_ID', function(data){
+      winston.info({message: `socketServer: SET_CAN_ID ` + data});
+      node.cbusSend(node.CANID(data.nodeNumber, data.CAN_ID))
+    })
+    
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
       node.cbusSend(node.SNN(nodeNumber))
