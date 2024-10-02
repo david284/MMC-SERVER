@@ -37,7 +37,8 @@ describe('programNode tests', async function(){
   	});
     
     beforeEach(function() {
-   		winston.debug({message: '  '});   // blank line to separate tests
+      winston.debug({message: '  '});   // blank line to separate tests
+      winston.debug({message: '  '});   // blank line to separate tests
       mock_jsonServer.messagesIn = []
     })
 
@@ -58,13 +59,14 @@ describe('programNode tests', async function(){
     //
     //
 	it('Checksum test', function() {
-		winston.debug({message: 'TEST: Checksum:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: Checksum:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     // expect to get two's compliment of 16 bit checksum returned
     var array = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00]
     // checksum of above is 06F9, so two's complement is F907
     var expected  = 'F907'
     expect(programNode.arrayChecksum(array)).to.equal(expected);
+		winston.info({message: 'TEST: <<<<<< END: Checksum:'});
 	});
 
 
@@ -72,7 +74,7 @@ describe('programNode tests', async function(){
     // Use real hex file to ensure correct operation
     //
 	it('Parse Hex short File test', function(done) {
-		winston.debug({message: 'TEST: Parse Hex short File test:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: Parse Hex short File test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
     var callbackInvoked = false
@@ -87,6 +89,7 @@ describe('programNode tests', async function(){
 		setTimeout(function(){
       expect(callbackInvoked).to.equal(true, 'callbackInvoked');
 			done();
+      winston.info({message: 'TEST: <<<<<< END: Parse Hex short File test:'});
 		}, 500);
 	});
 
@@ -95,11 +98,12 @@ describe('programNode tests', async function(){
     // Use real hex file to ensure correct operation
     //
     it('Parse Hex full File test', function(done) {
-      winston.info({message: 'TEST: BEGIN: Parse Hex full File test:'});
+      winston.info({message: 'TEST: >>>>>> BEGIN: Parse Hex full File test:'});
       const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
-      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3dBETA1-18F26K80-16MHz.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
+      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
       var callbackInvoked = false
       programNode.parseHexFile(intelHexString, 
         function(firmwareObject){ 
@@ -113,7 +117,7 @@ describe('programNode tests', async function(){
       setTimeout(function(){
         expect(callbackInvoked).to.equal(true, 'callbackInvoked');
         done();
-        winston.info({message: 'TEST: END: Parse Hex full File test:'});
+        winston.info({message: 'TEST: <<<<<< END: Parse Hex full File test:'});
       }, 3000);
     });
   
@@ -122,12 +126,13 @@ describe('programNode tests', async function(){
     // test callback works on decode line function
     //
 	it('decode line test', function() {
-		winston.debug({message: 'TEST: decode line:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: decode line:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     var callbackInvoked = false
     var firmware = {}
 		programNode.decodeLine(firmware, ':00000001FF', function(){ callbackInvoked = true;});
     expect(callbackInvoked).to.equal(true, 'callbackInvoked');
+		winston.info({message: 'TEST: <<<<<< END: decode line:'});
 	});
 
 
@@ -135,7 +140,7 @@ describe('programNode tests', async function(){
     // test line checksum works on decode line function
     //
 	it('decode line checksum test', function() {
-		winston.debug({message: 'TEST: decode line:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: decode line:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     var callbackInvoked = false
     var firmware = {}
@@ -146,6 +151,7 @@ describe('programNode tests', async function(){
     });
     expect(callbackInvoked).to.equal(true, 'callbackInvoked');
     expect(result).to.equal(null, 'callback result');
+		winston.info({message: 'TEST: <<<<<< END: decode line:'});
 	});
 
 
@@ -205,7 +211,7 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('Download full test', function(done) {
-		winston.info({message: 'TEST: full download:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: full download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
 			downloadData = data;
@@ -248,7 +254,7 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('Download corrupt file test', function(done) {
-		winston.debug({message: 'TEST: corrupt download:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: corrupt download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     var corruptFileData
     programNode.on('programNode', function (data) {
@@ -262,6 +268,7 @@ describe('programNode tests', async function(){
       expect(corruptFileData.status).to.equal("Failure", 'Download event');
       expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
       done();
+      winston.info({message: 'TEST: <<<<<< END: corrupt download:'});
 		}, 1000);
 	});
 
@@ -271,7 +278,7 @@ describe('programNode tests', async function(){
     // use wrong cpu type, and short file
     //
 	it('Download wrong file test', function(done) {
-		winston.debug({message: 'TEST: wrong file:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: wrong file:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
 			downloadData = data;
@@ -283,6 +290,7 @@ describe('programNode tests', async function(){
       expect(downloadData.status).to.equal('Failure', 'Download event');
       expect(downloadData.text).to.equal('CPU mismatch', 'Download event');
 			done();
+      winston.info({message: 'TEST: <<<<<< END: wrong file:'});
 		}, 1000);
 	});
 
@@ -291,7 +299,7 @@ describe('programNode tests', async function(){
     // use wrong cpu type, and short file
     //
 	it('Download ignore CPUTYPE test', function(done) {
-		winston.debug({message: 'TEST: ignore CPUTYPE:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: ignore CPUTYPE:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     downloadDataArray = []
     programNode.on('programNode', function (data) {
@@ -305,6 +313,7 @@ describe('programNode tests', async function(){
       expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
       expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
 			done();
+      winston.info({message: 'TEST: <<<<<< END: ignore CPUTYPE:'});
 		}, 1000);
 	});
 
@@ -319,7 +328,7 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('programBootMode short test', function(done) {
-		winston.debug({message: 'TEST: programBootMode:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode:'});
     mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
     mock_jsonServer.ackRequested = true
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
@@ -343,6 +352,7 @@ describe('programNode tests', async function(){
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
 			done();
+      winston.info({message: 'TEST: <<<<<< END: programBootMode:'});
 		}, 2000);
 	});
 
@@ -355,7 +365,7 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('programBootMode corrupt file test', function(done) {
-		winston.debug({message: 'TEST: programBootMode: corrupt file test:'});
+		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode: corrupt file test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     programNode.on('programNode', function (data) {
 			downloadData = data;
@@ -368,7 +378,8 @@ describe('programNode tests', async function(){
       expect(downloadData.status).to.equal("Failure", 'programBootMode: expected event');
       expect(downloadData.text).to.equal('Failed: file parsing failed', 'programBootMode: expected event');
 			done();
-		}, 200);
+			winston.info({message: 'TEST: <<<<<< END: programBootMode: corrupt file test:'});
+	}, 200);
 	});
 
 

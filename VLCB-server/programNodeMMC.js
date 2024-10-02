@@ -15,147 +15,6 @@ const utils = require('./../VLCB-server/utilities.js');
 //=============================================================================
 
 
-//
-// This function takes a line from an intel formatted hex file
-// and builds a collection of arrays with the equivalent binary data
-// ready to downloaded to a node
-//
-function decodeLine(FIRMWARE, line, callback) {
-    var MARK = line.substr(0,1)
-    var RECLEN = parseInt(line.substr(1,2), 16)
-    var OFFSET = parseInt(line.substr(3,4), 16)
-    var RECTYP = parseInt(line.substr(7,2), 16) 
-    var data = line.substr(9, line.length - 9 - 2)
-    var CHKSUM = parseInt(line.substr(line.length - 2, 2), 16)
-    winston.debug({message: 'programNode: READ LINE: '
-      + ' RECLEN ' + RECLEN 
-      + ' OFFSET ' + utils.decToHex(OFFSET, 4) 
-      + ' RECTYP ' + RECTYP 
-      + ' data ' + data
-      + ' CHKSUM ' + CHKSUM});
-    
-    // test the checksum to see if the line is valid
-    var linechecksum = 0x00
-    for (var i = 1; i < line.length; i += 2) {
-        linechecksum += parseInt(line.substr(i, 2), 16)
-       linechecksum &= 0xFF
-        }
-    if (linechecksum != 0) {
-      winston.debug({message: 'programNode: READ LINE: checksum error ' + linechecksum});
-      if(callback) {callback(null);}
-      return false;
-    }
-    
-    // Check to see if the persistant variables has been initialized
-    // if there hasn't been an initial 'Extended Linear Address' then start at 0 (FLASH)
-    if ( typeof decodeLine.index == 'undefined' ) { decodeLine.index = 0; }
-    if ( typeof decodeLine.area == 'undefined' ) { 
-      decodeLine.area = 'FLASH'
-      FIRMWARE[decodeLine.area] = []
-      decodeLine.index = 0
-      decodeLine.paddingCount = 0
-    }
-    if ( typeof decodeLine.extAddressHex == 'undefined' ) { decodeLine.extAddressHex = '0000'; }
-    if ( typeof decodeLine.startAddressHex == 'undefined' ) { decodeLine.startAddressHex = '00000000'; }
-    
-    //
-    // address of line start in the hex file is extAddressHex + OFFSET
-    // starting address in the current array is startAddressHex in array
-    // next address to be written in the array is startAddressHex + index
-    //
-
-    if ( RECTYP == 0) { // Data Record:
-      // Need to check if the data in this new line follows on from previous line
-      // so check if next array address == line start address
-      // but if new line starts before end of padded line, then it does follow on
-      // if so, then add to existing array
-      // if not, then start new array
-      var arrayAddressPointer = parseInt(decodeLine.startAddressHex, 16) + decodeLine.index
-      var lineStartAddress =  ((parseInt(decodeLine.extAddressHex, 16) << 16) + OFFSET) 
-      
-      if (lineStartAddress > (arrayAddressPointer + decodeLine.paddingCount)){
-        // data doesn't follow on from last, so change startAddress & it'll force a new block a bit lower
-        winston.debug({message: 'programNode: line decode: Data Record: '+decodeLine.area+' Current addressPointer '+arrayAddressPointer+' Line startAddress: '+lineStartAddress});
-        decodeLine.startAddressHex = decodeLine.extAddressHex + utils.decToHex(OFFSET, 4)
-      }
-
-      // check if block not set, will catch first time as well as change
-      if (FIRMWARE[decodeLine.area][decodeLine.startAddressHex] == undefined) {
-        FIRMWARE[decodeLine.area][decodeLine.startAddressHex] = []
-        decodeLine.index = 0
-        decodeLine.paddingCount = 0
-        winston.debug({message: 'programNode: line decode: Data Record: ' + decodeLine.area + ' New block ' + decodeLine.startAddressHex});
-      }
-
-      // if line start is not at the current pointer, need to reset current index
-      if(lineStartAddress != arrayAddressPointer)( decodeLine.index = (lineStartAddress - parseInt(decodeLine.startAddressHex, 16)))
-      
-      // now actually copy the program data
-      for (i=0; i < RECLEN; i++){
-        FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index++] = (parseInt(data.substr(i*2, 2), 16))
-      }
-
-      // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
-      // but don't increment decodeLine.index, as next line may not start on 8 byte boundary
-      // and may need to overwrite this padding
-      const padLength = 32
-      decodeLine.index % padLength ? decodeLine.paddingCount = padLength - (decodeLine.index % padLength) : decodeLine.paddingCount = 0
-      for (var i = 0; i < decodeLine.paddingCount; i++) {
-        FIRMWARE[decodeLine.area][decodeLine.startAddressHex][decodeLine.index + i] = 0xFF
-      }  
-      /*
-      var dump = ''
-      for (var i = 0 ; i < FIRMWARE[decodeLine.area][decodeLine.startAddressHex].length; i++){
-        if (i%8 == 0){dump += ' '}
-        dump += utils.decToHex(FIRMWARE[decodeLine.area][decodeLine.startAddressHex][i], 2) + ','
-      }
-      winston.debug({message: 'programNode: line decode: pad ' + decodeLine.paddingCount  + ' Dump: ' + dump });
-      */
-      }
-
-    if ( RECTYP == 1) {
-        winston.debug({message: 'programNode: line decode: End of File Record:'});
-        for (const area in FIRMWARE) {
-            for (const block in FIRMWARE[area]) {
-                winston.debug({message: 'programNode: line decode: FIRMWARE: ' + area + ': ' + block + ' length: ' + FIRMWARE[area][block].length});
-            }
-        }        
-        if(callback) {callback(FIRMWARE);}
-        else {winston.info({message: 'programNode: line decode: WARNING - No EOF callback'})}
-    }
-
-    if ( RECTYP == 2) {
-      winston.warn({message: 'programNode: line decode: Extended Segment Address Record:'});
-    }
-
-    if ( RECTYP == 3) {
-      winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
-    }
-
-    if ( RECTYP == 4) {
-      winston.debug({message: 'programNode: line decode: Extended Linear Address Record: ' + data});
-      if (data == '0000') {decodeLine.area = 'FLASH'}
-      else if (data == '0001') {decodeLine.area = 'FLASH'}
-      else if (data == '0030') {decodeLine.area = 'CONFIG'}
-      else if (data == '0038') {decodeLine.area = 'CONFIG'}
-      else if (data == '00F0') {decodeLine.area = 'EEPROM'}
-      else decodeLine.area = 'UNKNOWN ' + data
-      decodeLine.extAddressHex = data
-      decodeLine.startAddressHex = '00000000'
-      decodeLine.index = 0
-      decodeLine.paddingCount = 0
-      // don't overite an existing area
-      if (FIRMWARE[decodeLine.area] == undefined) {FIRMWARE[decodeLine.area] = []}
-      winston.debug({message: 'programNode: ******** NEW MEMORY AREA: ' + decodeLine.area + ' area address ' + data })
-    }
-
-    if ( RECTYP == 5) {
-      winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
-    }
-    
-    return true
-}
-
 
 //
 //
@@ -173,6 +32,7 @@ class programNode extends EventEmitter  {
         this.nodeNumber = null
         this.ackReceived = false
         this.sendingFirmware = false
+        this.decodeState = {}
       }
     
     //  expose decodeLine for testing purposes
@@ -508,6 +368,7 @@ class programNode extends EventEmitter  {
     //
     parseHexFile(intelHexString, CALLBACK) {
         var firmware = {}
+        this.decodeState = {}
 
         this.sendMessageToClient('Parsing file')
 //        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
@@ -518,7 +379,7 @@ class programNode extends EventEmitter  {
         for (var i = 0; i < lines.length - 1; i++) {
 //        winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
 
-            var result = decodeLine(firmware, lines[i], function (firmwareObject) {
+            var result = this.decodeLine(firmware, lines[i], function (firmwareObject) {
                 winston.debug({message: 'programNode: >>>>>>>>>>>>> end of file callback'})
                 if (firmwareObject == null) { 
                     winston.debug({message: 'programNode: parseFileHex:  firmware object is null'});
@@ -582,6 +443,152 @@ class programNode extends EventEmitter  {
         this.emit('programNode', data)
         winston.info({message: 'programNode: Emit: ' + JSON.stringify(data)})
     }
+
+
+  //
+  // This method takes a line from an intel formatted hex file
+  // and builds a collection of arrays with the equivalent binary data
+  // ready to downloaded to a node
+  //
+  decodeLine(FIRMWARE, line, callback) {
+    var MARK = line.substr(0,1)
+    var RECLEN = parseInt(line.substr(1,2), 16)
+    var OFFSET = parseInt(line.substr(3,4), 16)
+    var RECTYP = parseInt(line.substr(7,2), 16) 
+    var data = line.substr(9, line.length - 9 - 2)
+    var CHKSUM = parseInt(line.substr(line.length - 2, 2), 16)
+    winston.debug({message: 'programNode: READ LINE: '
+      + ' RECLEN ' + RECLEN 
+      + ' OFFSET ' + utils.decToHex(OFFSET, 4) 
+      + ' RECTYP ' + RECTYP 
+      + ' data ' + data
+      + ' CHKSUM ' + CHKSUM});
+    
+    // test the checksum to see if the line is valid
+    var linechecksum = 0x00
+    for (var i = 1; i < line.length; i += 2) {
+        linechecksum += parseInt(line.substr(i, 2), 16)
+      linechecksum &= 0xFF
+        }
+    if (linechecksum != 0) {
+      winston.debug({message: 'programNode: READ LINE: checksum error ' + linechecksum});
+      if(callback) {callback(null);}
+      return false;
+    }
+    
+    // Check to see if the persistant variables has been initialized
+    // if there hasn't been an initial 'Extended Linear Address' then start at 0 (FLASH)
+    if ( typeof this.decodeState.index == 'undefined' ) { this.decodeState['index'] = 0 }
+    if ( typeof this.decodeState.area == 'undefined' ) { 
+      this.decodeState.area = 'FLASH'
+      FIRMWARE[this.decodeState.area] = []
+      this.decodeState.index = 0
+      this.decodeState.paddingCount = 0
+    }
+    if ( typeof this.decodeState.extAddressHex == 'undefined' ) { this.decodeState.extAddressHex = '0000'; }
+    if ( typeof this.decodeState.startAddressHex == 'undefined' ) { this.decodeState.startAddressHex = '00000000'; }
+    
+    //
+    // address of line start in the hex file is extAddressHex + OFFSET
+    // starting address in the current array is startAddressHex in array
+    // next address to be written in the array is startAddressHex + index
+    //
+
+    if ( RECTYP == 0) { // Data Record:
+      // Need to check if the data in this new line follows on from previous line
+      // so check if next array address == line start address
+      // but if new line starts before end of padded line, then it does follow on
+      // if so, then add to existing array
+      // if not, then start new array
+      var arrayAddressPointer = parseInt(this.decodeState.startAddressHex, 16) + this.decodeState.index
+      var lineStartAddress =  ((parseInt(this.decodeState.extAddressHex, 16) << 16) + OFFSET) 
+      
+      if (lineStartAddress > (arrayAddressPointer + this.decodeState.paddingCount)){
+        // data doesn't follow on from last, so change startAddress & it'll force a new block a bit lower
+        winston.debug({message: 'programNode: line decode: Data Record: '+this.decodeState.area+' Current addressPointer '+arrayAddressPointer+' Line startAddress: '+lineStartAddress});
+        this.decodeState.startAddressHex = this.decodeState.extAddressHex + utils.decToHex(OFFSET, 4)
+      }
+
+      // check if block not set, will catch first time as well as change
+      if (FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex] == undefined) {
+        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex] = []
+        this.decodeState.index = 0
+        this.decodeState.paddingCount = 0
+        winston.debug({message: 'programNode: line decode: Data Record: ' + this.decodeState.area + ' New block ' + this.decodeState.startAddressHex});
+      }
+
+      // if line start is not at the current pointer, need to reset current index
+      if(lineStartAddress != arrayAddressPointer)( this.decodeState.index = (lineStartAddress - parseInt(this.decodeState.startAddressHex, 16)))
+      
+      // now actually copy the program data
+      for (i=0; i < RECLEN; i++){
+        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index++] = (parseInt(data.substr(i*2, 2), 16))
+      }
+
+      // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
+      // but don't increment this.decodeLineStore.index, as next line may not start on 8 byte boundary
+      // and may need to overwrite this padding
+      const padLength = 32
+      this.decodeState.index % padLength ? this.decodeState.paddingCount = padLength - (this.decodeState.index % padLength) : this.decodeState.paddingCount = 0
+      for (var i = 0; i < this.decodeState.paddingCount; i++) {
+        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index + i] = 0xFF
+      }  
+      /*
+      var dump = ''
+      for (var i = 0 ; i < FIRMWARE[this.decodeLineStore.area][this.decodeLineStore.startAddressHex].length; i++){
+        if (i%8 == 0){dump += ' '}
+        dump += utils.decToHex(FIRMWARE[this.decodeLineStore.area][this.decodeLineStore.startAddressHex][i], 2) + ','
+      }
+      winston.debug({message: 'programNode: line decode: pad ' + this.decodeLineStore.paddingCount  + ' Dump: ' + dump });
+      */
+      }
+
+    if ( RECTYP == 1) {
+        winston.debug({message: 'programNode: line decode: End of File Record:'});
+        for (const area in FIRMWARE) {
+            for (const block in FIRMWARE[area]) {
+                winston.debug({message: 'programNode: line decode: FIRMWARE: ' + area + ': ' + block + ' length: ' + FIRMWARE[area][block].length});
+            }
+        }        
+        if(callback) {callback(FIRMWARE);}
+        else {winston.info({message: 'programNode: line decode: WARNING - No EOF callback'})}
+    }
+
+    if ( RECTYP == 2) {
+      winston.warn({message: 'programNode: line decode: Extended Segment Address Record:'});
+    }
+
+    if ( RECTYP == 3) {
+      winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
+    }
+
+    if ( RECTYP == 4) {
+      winston.debug({message: 'programNode: line decode: Extended Linear Address Record: ' + data});
+      if (data == '0000') {this.decodeState.area = 'FLASH'}
+      else if (data == '0001') {this.decodeState.area = 'FLASH'}
+      else if (data == '0030') {this.decodeState.area = 'CONFIG'}
+      else if (data == '0038') {this.decodeState.area = 'CONFIG'}
+      else if (data == '00F0') {this.decodeState.area = 'EEPROM'}
+      else this.decodeState.area = 'UNKNOWN ' + data
+      this.decodeState.extAddressHex = data
+      this.decodeState.startAddressHex = '00000000'
+      this.decodeState.index = 0
+      this.decodeState.paddingCount = 0
+      // don't overite an existing area
+      if (FIRMWARE[this.decodeState.area] == undefined) {FIRMWARE[this.decodeState.area] = []}
+      winston.debug({message: 'programNode: ******** NEW MEMORY AREA: ' + this.decodeState.area + ' area address ' + data })
+    }
+
+    if ( RECTYP == 5) {
+      winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
+    }
+    
+    return true
+  }
+
+
+
+
 
 };
 
