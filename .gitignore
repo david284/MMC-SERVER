@@ -5,6 +5,7 @@ VLCB-server/config/nodeConfig.json
 VLCB-server/config/layouts
 unit_tests/logs
 unit_tests/test_output/config/config.json
+unit_tests/test_output/config/nodeConfig.json
 unit_tests/test_output/config/modules
 unit_tests/test_output/test_user
 ./unit_tests/test_output/
