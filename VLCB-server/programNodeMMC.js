@@ -135,11 +135,18 @@ function decodeLine(FIRMWARE, line, callback) {
     if ( RECTYP == 4) {
       winston.debug({message: 'programNode: line decode: Extended Linear Address Record: ' + data});
       if (data == '0000') {decodeLine.area = 'FLASH'}
-      if (data == '0030') {decodeLine.area = 'CONFIG'}
-      if (data == '00F0') {decodeLine.area = 'EEPROM'}
+      else if (data == '0001') {decodeLine.area = 'FLASH'}
+      else if (data == '0030') {decodeLine.area = 'CONFIG'}
+      else if (data == '0038') {decodeLine.area = 'CONFIG'}
+      else if (data == '00F0') {decodeLine.area = 'EEPROM'}
+      else decodeLine.area = 'UNKNOWN ' + data
       decodeLine.extAddressHex = data
-      winston.debug({message: 'programNode: ******** NEW MEMORY AREA: ' + decodeLine.area + ' area address ' + data })
+      decodeLine.startAddressHex = '00000000'
+      decodeLine.index = 0
+      decodeLine.paddingCount = 0
+      // don't overite an existing area
       if (FIRMWARE[decodeLine.area] == undefined) {FIRMWARE[decodeLine.area] = []}
+      winston.debug({message: 'programNode: ******** NEW MEMORY AREA: ' + decodeLine.area + ' area address ' + data })
     }
 
     if ( RECTYP == 5) {
@@ -509,7 +516,7 @@ class programNode extends EventEmitter  {
         winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
 
         for (var i = 0; i < lines.length - 1; i++) {
-        winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
+//        winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
 
             var result = decodeLine(firmware, lines[i], function (firmwareObject) {
                 winston.debug({message: 'programNode: >>>>>>>>>>>>> end of file callback'})

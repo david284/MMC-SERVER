@@ -80,7 +80,7 @@ describe('programNode tests', async function(){
       function(firmwareObject){ 
         winston.debug({message: 'TEST: Parse Hex short File Test: callback invoked: ' + JSON.stringify(firmwareObject)});
       // checksum 00 00 AF EF 07 F0 FF FF = 0499 two's complement = FB6D
-        expect(programNode.arrayChecksum(firmwareObject['FLASH']['00000800'])).to.equal('EC12','checksum');
+        expect(programNode.arrayChecksum(firmwareObject['FLASH']['00000800'])).to.equal('DC22','checksum');
         callbackInvoked = true
       }
     );
@@ -98,8 +98,8 @@ describe('programNode tests', async function(){
       winston.info({message: 'TEST: BEGIN: Parse Hex full File test:'});
       const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
       var callbackInvoked = false
       programNode.parseHexFile(intelHexString, 
         function(firmwareObject){ 
@@ -179,7 +179,7 @@ describe('programNode tests', async function(){
       // verify checksum when process is signalled as complete
       expect(downloadData.status).to.equal('Success', 'Download event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+      expect(mock_jsonServer.firmwareChecksum).to.equal('86CE', 'Checksum');
       //
       // check last message is a reset command
 			winston.info({message: 'TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
@@ -334,7 +334,7 @@ describe('programNode tests', async function(){
       // verify process is signalled as complete & checksum correct
       expect(downloadData.status).to.equal("Success", 'programBootMode: expected event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+      expect(mock_jsonServer.firmwareChecksum).to.equal('86CE', 'Checksum');
       //
       // check last message is a reset command
       var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
