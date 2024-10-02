@@ -97,6 +97,11 @@ let node = new admin.cbusAdmin(config);
       config.deleteLayoutFolder(data.layoutName)
     })
 
+    socket.on('EVENT_TEACH_BY_IDENTIFIER', function(data){
+      winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
+      node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+    })
+
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
       winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});
       config.writeModuleDescriptor(data)
