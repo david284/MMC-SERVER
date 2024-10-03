@@ -137,7 +137,7 @@ class cbusAdmin extends EventEmitter {
             },
             '59': async (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
-                this.process_WRACK(cbusMsg.nodeNumber)
+                this.process_WRACK(cbusMsg)
             },
             '60': async (cbusMsg) => {
                 let session = cbusMsg.session
@@ -562,8 +562,10 @@ class cbusAdmin extends EventEmitter {
       return moduleName
     }
 
-    process_WRACK(nodeNumber) {
-      winston.info({message: name + `: wrack : node ` + nodeNumber});
+    process_WRACK(cbusMsg) {
+      winston.info({message: name + `: wrack : node ` + cbusMsg.nodeNumber});
+      this.nodeConfig.nodes[cbusMsg.nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
+      this.saveNode(cbusMsg.nodeNumber)
     }
 
     async process_GRSP (data) {
