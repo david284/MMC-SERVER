@@ -26,13 +26,7 @@ class programNode extends EventEmitter  {
     super()
     this.net_address = NET_ADDRESS
     this.net_port = NET_PORT
-    this.client = new net.Socket()
-    
-    this.client.connect(this.net_port, this.net_address, function () {
-      winston.info({message: name + ': this Client Connected ' + this.net_address + ':' + this.net_port});
-      winston.info({message: name + ': this Client is port ' + this.client.localPort});
-    }.bind(this))
-    
+    this.client = new net.Socket()  
     this.FIRMWARE = {}
     this.nodeNumber = null
     this.ackReceived = false
@@ -59,6 +53,11 @@ class programNode extends EventEmitter  {
     this.success = false
     this.nodeNumber = NODENUMBER
 
+    this.client.connect(this.net_port, this.net_address, function () {
+      winston.info({message: name + ': this Client Connected ' + this.net_address + ':' + this.net_port});
+      winston.info({message: name + ': this Client is port ' + this.client.localPort});
+    }.bind(this))
+    
     await utils.sleep(10)    // allow time for connection
 
       try {
@@ -265,6 +264,7 @@ class programNode extends EventEmitter  {
         
         // always do FLASH area, but only starting from 00000800
         for (const block in this.FIRMWARE['FLASH']) {
+          progressCount = 0
           if (parseInt(block, 16) >= 0x800) {
             var program = this.FIRMWARE['FLASH'][block]
             //
@@ -280,75 +280,62 @@ class programNode extends EventEmitter  {
               calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
               winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
               if (progressCount <= i) {
-                progressCount += 128    // report progress every 16 messages
-                var text = 'Progress: FLASH ' + Math.round(i/program.length * 100) + '%'
+                progressCount += 32    // report progress every 4 messages
+                var text = 'Progress:   FLASH ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/program.length * 100) + '%'
                 this.sendBootModeToClient(text)
               }
             }
           }
         }
 
-/*
-        var program = this.FIRMWARE['FLASH'][block]
-        winston.debug({message: 'programNode: FLASH : 00000800 length: ' + program.length});
-        var msg = cbusLib.encode_EXT_PUT_CONTROL('000800', 0x1D, 0x02, 0, 0)
-        await this.transmitCBUS(msg)
-        
-        for (let i = 0; i < program.length; i += 8) {
-          var chunk = program.slice(i, i + 8)
-          var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-          await this.transmitCBUS(msgData)
-          calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-          winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-          if (progressCount <= i) {
-              progressCount += 128    // report every 16 messages
-              var text = 'Progress: FLASH ' + Math.round(i/program.length * 100) + '%'
-              this.sendBootModeToClient(text)
-          }
-        }
-*/
         if (FLAGS & 0x1) {      // Program CONFIG area
-            for (const block in this.FIRMWARE['CONFIG']) {
-                var config = this.FIRMWARE['CONFIG'][block]
-                //
-                winston.debug({message: 'programNode: CONFIG : ' + block + ' length: ' + config.length});
-                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
-                winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
-                await this.transmitCBUS(msgData)
-                //
-                for (let i = 0; i < config.length; i += 8) {
-                  var chunk = config.slice(i, i + 8)
-                  var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-                  await this.transmitCBUS(msgData)
-                  calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-                  winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-                  // report progress on every message
-                  var text = 'Progress: CONFIG ' + Math.round(i/config.length * 100) + '%'
-                  this.sendBootModeToClient(text)
-                }
+          for (const block in this.FIRMWARE['CONFIG']) {
+            progressCount = 0
+            var config = this.FIRMWARE['CONFIG'][block]
+            //
+            winston.debug({message: 'programNode: CONFIG : ' + block + ' length: ' + config.length});
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
+            await this.transmitCBUS(msgData)
+            //
+            for (let i = 0; i < config.length; i += 8) {
+              var chunk = config.slice(i, i + 8)
+              var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
+              await this.transmitCBUS(msgData)
+              calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+              winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+              if (progressCount <= i) {
+                progressCount += 32    // report progress every 4 messages
+                var text = 'Progress: CONFIG ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/config.length * 100) + '%'
+                this.sendBootModeToClient(text)
+              }
             }
+          }
         }
         
         if (FLAGS & 0x2) {      // Program EEPROM area
-            for (const block in this.FIRMWARE['EEPROM']) {
-                var eeprom = this.FIRMWARE['EEPROM'][block]
-                //
-                winston.debug({message: 'programNode: EEPROM : ' + block + ' length: ' + eeprom.length});
-                var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
-                winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
-                await this.transmitCBUS(msgData)
-                //
-                for (let i = 0; i < eeprom.length; i += 8) {
-                  var chunk = eeprom.slice(i, i + 8)
-                  var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-                  await this.transmitCBUS(msgData)
-                  calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-                  winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-                  // report progress on every message
-                  var text = 'Progress: EEPROM ' + Math.round(i/eeprom.length * 100) + '%  ' +  + i/eeprom.length
-                  this.sendBootModeToClient(text)
-                }
+          for (const block in this.FIRMWARE['EEPROM']) {
+            progressCount = 0
+            var eeprom = this.FIRMWARE['EEPROM'][block]
+            //
+            winston.debug({message: 'programNode: EEPROM : ' + block + ' length: ' + eeprom.length});
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
+            await this.transmitCBUS(msgData)
+            //
+            for (let i = 0; i < eeprom.length; i += 8) {
+              var chunk = eeprom.slice(i, i + 8)
+              var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
+              await this.transmitCBUS(msgData)
+              calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+              winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+              if (progressCount <= i) {
+                progressCount += 32    // report progress every 4 messages
+                var text = 'Progress: EEPROM ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/eeprom.length * 100) + '%  '
+                this.sendBootModeToClient(text)
+              }
             }
+          }
         }
 
         this.sendingFirmware = false
@@ -457,7 +444,7 @@ class programNode extends EventEmitter  {
 			"status": status,
 			"nodeNumber": this.nodeNumber,
 			"text": text }
-        this.emit('programNode', data)
+        this.emit('programNode_progress', data)
         winston.debug({message: 'programNode: Emit: ' + JSON.stringify(data)})
     }
 

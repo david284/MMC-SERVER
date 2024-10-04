@@ -16,12 +16,6 @@ const io = require('socket.io')(server, {
 
 exports.socketServer = function(config, status) {
   let node = new admin.cbusAdmin(config);
-  const programNode = require('../VLCB-server/programNodeMMC.js')(config.getServerAddress(), config.getJsonServerPort())
-
-  programNode.on('programNode', function (data) {
-    downloadData = data;
-    winston.info({message: name + ': programNode event: ' + downloadData.text});
-  });	        
 
 
   io.on('connection', function(socket){
@@ -406,6 +400,21 @@ exports.socketServer = function(config, status) {
     winston.info({message: `socketServer: no_bus_connection received`});
     status.busConnection.state = state
   })
+
+
+  //*************************************************************************************** */
+  //
+  // events from jsonServer
+  //
+  //*************************************************************************************** */
+
+  const programNode = require('../VLCB-server/programNodeMMC.js')(config.getServerAddress(), config.getJsonServerPort())
+
+  programNode.on('programNode_progress', function (data) {
+    downloadData = data;
+    winston.info({message: name + ': programNode event: ' + downloadData.text});
+    io.emit('PROGRAM_NODE_PROGRESS', downloadData.text)
+  });	        
 
 }
 
