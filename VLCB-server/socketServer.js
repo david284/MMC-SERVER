@@ -18,6 +18,12 @@ exports.socketServer = function(config, status) {
   let node = new admin.cbusAdmin(config);
   const programNode = require('../VLCB-server/programNodeMMC.js')(config.getServerAddress(), config.getJsonServerPort())
 
+  programNode.on('programNode', function (data) {
+    downloadData = data;
+    winston.info({message: name + ': programNode event: ' + downloadData.text});
+  });	        
+
+
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
     node.query_all_nodes()
@@ -115,10 +121,10 @@ exports.socketServer = function(config, status) {
     })
 
     socket.on('PROGRAM_NODE', function(data){
-      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.nodeNumber});
+      winston.info({message: 'socketServer:  PROGRAM_NODE: data ' + JSON.stringify(data)});
+      winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
       winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.hexFile});
-      winston.info({message: 'socketServer:  PROGRAM_NODE ' + JSON.stringify(data)});
-//      programNode.program(data.nodeNumber, 1, 3, intelHexString)
+      programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
     })
 
     socket.on('QUERY_ALL_NODES', function(){
@@ -329,7 +335,7 @@ exports.socketServer = function(config, status) {
 
   node.on('cbusTraffic', function (data) {
     winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
-    winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
+//    winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
     io.emit('CBUS_TRAFFIC', data);
   })
 

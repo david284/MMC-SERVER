@@ -33,7 +33,7 @@ exports.jsonServer = function (config) {
           let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
           clients.forEach(function (client) {
               let output = JSON.stringify(cbusLibMsg);
-              winston.debug({message: name + ': Output to Client : ' + output})
+              winston.debug({message: name + ': Output to ' + client.remotePort + ' : ' + output})
               client.write(output);
           });
         }
@@ -49,7 +49,7 @@ exports.jsonServer = function (config) {
     const server = net.createServer(function (socket) {
         socket.setKeepAlive(true, 60000);
         clients.push(socket);
-        winston.info({message: name + `: Connection to jsonServer`})
+        winston.info({message: name + `: Connection to jsonServer from ` + socket.remotePort})
 
         socket.on('data', function (data) {
             winston.debug({message:`jsonServer: Data Received : ${data}`})
@@ -74,18 +74,18 @@ exports.jsonServer = function (config) {
         });
 
         async function broadcast(data, sender) {
-            winston.debug({message:`jsonServer: broadcast : ${data} `})
+//            winston.debug({message:`jsonServer: broadcast : ${data} `})
             let input = JSON.parse(data)
             let cbusMsg = cbusLib.encode(input)
             let outMsg = cbusLib.decode(cbusMsg.encoded)
-//            await utils.sleep(100);
             clients.forEach(function (client) {
                 // Don't want to send it to sender
-                if (client === sender)
-                    return;
-                client.write(outMsg);
-            });
-            cbusClient.write(cbusMsg.encoded);
+                if (client === sender) return;
+                client.write(JSON.stringify(outMsg));
+                winston.debug({message:`jsonServer: json broadcast to ` + client.remotePort + `: ${JSON.stringify(outMsg)} `})
+              });
+              winston.debug({message:`jsonServer: cbus broadcast : ${JSON.stringify(outMsg)} `})
+              cbusClient.write(cbusMsg.encoded);
         }
     })
 

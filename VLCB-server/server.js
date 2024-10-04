@@ -1,5 +1,7 @@
 'use strict';
+
 const winston = require('winston');
+
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 

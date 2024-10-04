@@ -1,3 +1,7 @@
+const fs = require('fs');
+// let ensure the logs folder is empty
+fs.rmSync("logs", { recursive: true }) 
+
 let path = require('path')
 const winston = require(path.join(process.cwd(), 'config/winston.js'));
 const name = "main"
@@ -5,6 +9,7 @@ winston.info({message: name + ': Starting'});
 winston.info({message: name + ': current working directory ' + process.cwd()});
 winston.info({message: name + ': file location ' + __dirname});
 const fork = require('child_process').fork;
+
 
 /*
 try {
