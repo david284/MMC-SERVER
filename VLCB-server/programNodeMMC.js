@@ -25,9 +25,11 @@ class programNode extends EventEmitter  {
         this.net_address = NET_ADDRESS
         this.net_port = NET_PORT
         this.client = new net.Socket()
+        /*
         this.client.connect(this.net_port, this.net_address, function () {
           winston.info({message: 'programNode: this Client Connected ' + this.net_address + ':' + this.net_port});
         }.bind(this))
+        */
         this.FIRMWARE = {}
         this.nodeNumber = null
         this.ackReceived = false

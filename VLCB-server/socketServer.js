@@ -5,6 +5,7 @@ const packageInfo = require(process.cwd()+'/package.json')
 
 const admin = require('./mergAdminNode.js')
 const server = require('http').createServer()
+
 const io = require('socket.io')(server, {
     cors: {
         origin: "*",
@@ -13,9 +14,9 @@ const io = require('socket.io')(server, {
 });
 
 
-
 exports.socketServer = function(config, status) {
-let node = new admin.cbusAdmin(config);
+  let node = new admin.cbusAdmin(config);
+  const programNode = require('../VLCB-server/programNodeMMC.js')(config.getServerAddress(), config.getJsonServerPort())
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -65,6 +66,11 @@ let node = new admin.cbusAdmin(config);
       }
     })
 
+    socket.on('CANID_ENUM', function(nodeNumber){
+      winston.info({message: name + `:  CANID_ENUM ${nodeNumber}`});
+      node.cbusSend(node.ENUM(nodeNumber))
+    })
+
     socket.on('CHANGE_LAYOUT', function(data){
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
       config.setCurrentLayoutFolder(data)
@@ -108,6 +114,18 @@ let node = new admin.cbusAdmin(config);
       node.query_all_nodes()  // force refresh of nodeDescriptors
     })
 
+    socket.on('PROGRAM_NODE', function(data){
+      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.nodeNumber});
+      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.hexFile});
+      winston.info({message: 'socketServer:  PROGRAM_NODE ' + JSON.stringify(data)});
+//      programNode.program(data.nodeNumber, 1, 3, intelHexString)
+    })
+
+    socket.on('QUERY_ALL_NODES', function(){
+      winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
+      node.query_all_nodes()
+    })
+
     socket.on('REMOVE_EVENT', function(data){
       winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
       node.remove_event(data.nodeNumber, data.eventName)
@@ -128,11 +146,6 @@ let node = new admin.cbusAdmin(config);
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
       node.requestEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
-    })
-
-    socket.on('QUERY_ALL_NODES', function(){
-      winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
-      node.query_all_nodes()
     })
 
     socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
@@ -211,6 +224,11 @@ let node = new admin.cbusAdmin(config);
       }
       io.emit('VERSION', version)
       winston.info({message: `socketServer: sent VERSION ${JSON.stringify(version)}`});
+    })
+
+    socket.on('RESET_NODE', function(nodeNumber){
+      winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
+      node.cbusSend(node.NNRST(nodeNumber))
     })
 
     socket.on('RQNPN', function(data){ //Request Node Parameter

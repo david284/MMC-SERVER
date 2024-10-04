@@ -1134,7 +1134,25 @@ class cbusAdmin extends EventEmitter {
       return output;
   }
 
-  // 0x72 NENRD
+  // 0x5D ENUM
+  //
+  ENUM(nodeNumber) {
+    let output = {}
+    output['mnemonic'] = 'ENUM'
+    output['nodeNumber'] = nodeNumber
+    return output;
+}
+
+  // 0x5E NNRST
+  //
+  NNRST(nodeNumber) {
+    let output = {}
+    output['mnemonic'] = 'NNRST'
+    output['nodeNumber'] = nodeNumber
+    return output;
+}
+
+// 0x72 NENRD
   //
   NENRD(nodeNumber, eventNumber) { //Request specific event
       let output = {}
