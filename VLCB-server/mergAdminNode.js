@@ -582,48 +582,58 @@ class cbusAdmin extends EventEmitter {
 
 
     async action_message(cbusMsg) {
+      if (cbusMsg.ID_TYPE == "S"){
         winston.info({message: "mergAdminNode: " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode + ' processed'});
         if (this.actions[cbusMsg.opCode]) {
             await this.actions[cbusMsg.opCode](cbusMsg);
         } else {
             await this.actions['DEFAULT'](cbusMsg);
         }
+      }
+      else if (cbusMsg.ID_TYPE = "X"){
+        // currently ignoring extended messages - programNode class uses them instead
+      }
+      else {
+        winston.warn({message: name + ": unexpected cbus message " + JSON.stringify(cbusMsg)});
+      }
     }
 
     isMessageValid(cbusMsg){
       var result = false
       if ((cbusMsg.encoded[0] == ':') && (cbusMsg.encoded[cbusMsg.encoded.length-1] == ';')){
-        // example encoding :S1234NFF12345678; - 8 data hex chars, 4 data bytes
-        //                  123456789--------0 - non-data bytes = 10
-        var dataLength = (cbusMsg.encoded.length - 10) / 2
-        // get numeric version of opCode, so we can test for 
-        var opCode = parseInt(cbusMsg.opCode, 16)
-        if (opCode <= 0x1F){
-          if (dataLength == 0){ result = true}
-        }
-        if ((opCode >= 0x20) && (opCode <= 0x3F)){
-          if (dataLength == 1){ result = true}
-        }
-        if ((opCode >= 0x40) && (opCode <= 0x5F)){
-          if (dataLength == 2){ result = true}
-        }
-        if ((opCode >= 0x60) && (opCode <= 0x7F)){
-          if (dataLength == 3){ result = true}
-        }
-        if ((opCode >= 0x80) && (opCode <= 0x9F)){
-          if (dataLength == 4){ result = true}
-        }
-        if ((opCode >= 0xA0) && (opCode <= 0xBF)){
-          if (dataLength == 5){ result = true}
-        }
-        if ((opCode >= 0xC0) && (opCode <= 0xDF)){
-          if (dataLength == 6){ result = true}
-        }
-        if ((opCode >= 0xE0) && (opCode <= 0xFF)){
-          if (dataLength == 7){ result = true}
-        }
-        if (result == false){
-          winston.error({message: name + `: isMessageValid: opCode ` + cbusMsg.opCode + ` wrong data length: ` + dataLength});
+        if (cbusMsg.ID_TYPE == 'S'){
+          // example encoding :S1234NFF12345678; - 8 data hex chars, 4 data bytes
+          //                  123456789--------0 - non-data bytes = 10
+          var dataLength = (cbusMsg.encoded.length - 10) / 2
+          // get numeric version of opCode, so we can test for 
+          var opCode = parseInt(cbusMsg.opCode, 16)
+          if (opCode <= 0x1F){
+            if (dataLength == 0){ result = true}
+          }
+          if ((opCode >= 0x20) && (opCode <= 0x3F)){
+            if (dataLength == 1){ result = true}
+          }
+          if ((opCode >= 0x40) && (opCode <= 0x5F)){
+            if (dataLength == 2){ result = true}
+          }
+          if ((opCode >= 0x60) && (opCode <= 0x7F)){
+            if (dataLength == 3){ result = true}
+          }
+          if ((opCode >= 0x80) && (opCode <= 0x9F)){
+            if (dataLength == 4){ result = true}
+          }
+          if ((opCode >= 0xA0) && (opCode <= 0xBF)){
+            if (dataLength == 5){ result = true}
+          }
+          if ((opCode >= 0xC0) && (opCode <= 0xDF)){
+            if (dataLength == 6){ result = true}
+          }
+          if ((opCode >= 0xE0) && (opCode <= 0xFF)){
+            if (dataLength == 7){ result = true}
+          }
+          if (result == false){
+            winston.error({message: name + `: isMessageValid: opCode ` + cbusMsg.opCode + ` wrong data length: ` + dataLength});
+          }
         }
       } else {
         winston.error({message: name + `: isMessageValid: wrongly formed ` + cbusMsg.encoded });

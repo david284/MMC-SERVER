@@ -16,7 +16,15 @@ const name = 'programNode'
 //
 //=============================================================================
 
-
+// bit weights
+const CTLBT_WRITE_UNLOCK = 1
+const CTLBT_ERASE_ONLY = 2
+const CTLBT_AUTO_ERASE = 4
+const CTLBT_AUTO_INC = 8
+const CTLBT_ACK = 16
+//normal mode = CTLBT_WRITE_UNLOCK + CTLBT_AUTO_ERASE + CTLBT_AUTO_INC + CTLBT_ACK
+// = 1+4+8+16
+const CONTROL_BITS = CTLBT_WRITE_UNLOCK + CTLBT_AUTO_ERASE + CTLBT_AUTO_INC + CTLBT_ACK
 
 //
 //
@@ -89,13 +97,11 @@ class programNode extends EventEmitter  {
           })
 
           this.client.on('data', async function (message) {
-//            winston.info({message: 'programNode: <<<< client receive: ' + message});
             let tmp = message.toString().replace(/}{/g, "}|{")
             const inMsg = tmp.toString().split("|")
             for (let i = 0; i < inMsg.length; i++) {
               try {
                 var cbusMsg = JSON.parse(inMsg[i])
-    //            var cbusMsg = cbusLib.decode(message.toString())
                 if (cbusMsg.ID_TYPE == "X"){
                   winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
                     if (cbusMsg.response == 0) {
@@ -107,7 +113,7 @@ class programNode extends EventEmitter  {
                       this.ackReceived = true
                       if (this.sendingFirmware == false){
                         winston.debug({message: 'programNode: Check OK received: Sending reset'});
-                        var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x01, 0, 0)
+                        var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
                         await this.transmitCBUS(msg)
                         // ok, can shutdown the connection now
                         this.client.end();
@@ -136,7 +142,7 @@ class programNode extends EventEmitter  {
           
           // need to allow a small time for module to go into boot mode
           await utils.sleep(100)
-          var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x04, 0, 0)
+          var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x04, 0, 0)
           await this.transmitCBUS(msg)
           
           // ok, need to check if it's completed after a reasonable time, if not must have failed
@@ -185,8 +191,6 @@ class programNode extends EventEmitter  {
           }
         }
 
-        /*
-
         this.client.on('error', (err) => {
           var msg = 'TCP ERROR: ' + err.code
           winston.debug({message: 'programBootMode: ' + msg});
@@ -209,7 +213,7 @@ class programNode extends EventEmitter  {
               this.ackReceived = true
               if (this.sendingFirmware == false){
                 winston.debug({message: 'programBootMode: Check OK received: Sending reset'});
-                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x01, 0, 0)
+                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
                 await this.transmitCBUS(msg)
                 // ok, can shutdown the connection now
                 this.client.end();
@@ -225,8 +229,6 @@ class programNode extends EventEmitter  {
             }
           }
         }.bind(this))
-
-        */
 
         // ok, alreay in boot mode, so can immediately start downloading firmware
         this.sendFirmware(FLAGS)
@@ -269,7 +271,7 @@ class programNode extends EventEmitter  {
             var program = this.FIRMWARE['FLASH'][block]
             //
             winston.info({message: 'programNode: FLASH AREA : ' + block + ' length: ' + program.length});
-            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
             winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
             await this.transmitCBUS(msgData)
             //
@@ -294,7 +296,7 @@ class programNode extends EventEmitter  {
             var config = this.FIRMWARE['CONFIG'][block]
             //
             winston.debug({message: 'programNode: CONFIG : ' + block + ' length: ' + config.length});
-            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
             winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
             await this.transmitCBUS(msgData)
             //
@@ -319,7 +321,7 @@ class programNode extends EventEmitter  {
             var eeprom = this.FIRMWARE['EEPROM'][block]
             //
             winston.debug({message: 'programNode: EEPROM : ' + block + ' length: ' + eeprom.length});
-            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), 0x1D, 0x00, 0, 0)
+            var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
             winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
             await this.transmitCBUS(msgData)
             //
@@ -343,7 +345,7 @@ class programNode extends EventEmitter  {
         // Verify Checksum
         // 00049272: Send: :X00080004N000000000D034122;
         winston.debug({message: 'programNode: Sending Check firmware'});
-        var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', 0x1D, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
+        var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
         await this.transmitCBUS(msgData)
     }
     
