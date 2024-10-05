@@ -131,7 +131,7 @@ class programNode extends EventEmitter  {
                   }
                 }
               } catch (err){
-                winston.debug({message: name + ': extended message:' + err});
+                winston.debug({message: name + ': program on data: ' + err});
               }
             }
           }.bind(this))
@@ -169,6 +169,11 @@ class programNode extends EventEmitter  {
     this.success = false
     this.nodeNumber = 0
 
+    this.client.connect(this.net_port, this.net_address, function () {
+      winston.info({message: name + ': this Client Connected ' + this.net_address + ':' + this.net_port});
+      winston.info({message: name + ': this Client is port ' + this.client.localPort});
+    }.bind(this))
+    
     await utils.sleep(10)    // allow time for connection
 
     try {
@@ -202,30 +207,40 @@ class programNode extends EventEmitter  {
         })
 
         this.client.on('data', async function (message) {
-          var cbusMsg = cbusLib.decode(message.toString())
-          winston.info({message: 'programBootMode: CBUS Receive  <<<: ' + cbusMsg.text});
-              if (cbusMsg.response == 0) {
-                  winston.debug({message: 'programBootMode: Check NOT OK received: download failed'});
-                  this.sendFailureToClient('Check NOT OK received: download failed')
+          let tmp = message.toString().replace(/}{/g, "}|{")
+          const inMsg = tmp.toString().split("|")
+          for (let i = 0; i < inMsg.length; i++) {
+            try {
+              var cbusMsg = JSON.parse(inMsg[i])
+              if (cbusMsg.ID_TYPE == "X"){
+                winston.info({message: 'programBootMode: CBUS Receive  <<<: ' + cbusMsg.text});
+                if (cbusMsg.response == 0) {
+                    winston.debug({message: 'programBootMode: Check NOT OK received: download failed'});
+                    this.sendFailureToClient('Check NOT OK received: download failed')
+                }
+                if (cbusMsg.operation == 'RESPONSE') {
+                  if (cbusMsg.response == 1) {
+                    this.ackReceived = true
+                    if (this.sendingFirmware == false){
+                      winston.debug({message: 'programBootMode: Check OK received: Sending reset'});
+                      var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
+                      await this.transmitCBUS(msg)
+                      // ok, can shutdown the connection now
+                      this.client.end();
+                      winston.debug({message: 'programBootMode: Client closed normally'});
+                      this.success = true
+                      // 'Success:' is a necessary string in the message to signal the client it's been successful
+                      this.sendSuccessToClient('Success: programing completed')
+                      this.client.removeAllListeners()
+                    }
+                  }
+                  if (cbusMsg.response == 2) {
+                    winston.debug({message: 'programBootMode: WARNING - unexpected BOOT MODE Confirmed received:'});
+                  }
+                }
               }
-          if (cbusMsg.operation == 'RESPONSE') {
-            if (cbusMsg.response == 1) {
-              this.ackReceived = true
-              if (this.sendingFirmware == false){
-                winston.debug({message: 'programBootMode: Check OK received: Sending reset'});
-                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
-                await this.transmitCBUS(msg)
-                // ok, can shutdown the connection now
-                this.client.end();
-                winston.debug({message: 'programBootMode: Client closed normally'});
-                this.success = true
-                // 'Success:' is a necessary string in the message to signal the client it's been successful
-                this.sendSuccessToClient('Success: programing completed')
-                this.client.removeAllListeners()
-              }
-            }
-            if (cbusMsg.response == 2) {
-                winston.debug({message: 'programBootMode: WARNING - unexpected BOOT MODE Confirmed received:'});
+            } catch (err){
+              winston.debug({message: name + ': programBootMode on data: ' + err});
             }
           }
         }.bind(this))

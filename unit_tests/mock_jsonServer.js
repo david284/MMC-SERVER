@@ -46,7 +46,7 @@ class mock_jsonServer{
       }.bind(this));
 
       socket.on('data', function (data) {
-          winston.debug({message:`mock_jsonServer: data received : ${data}`})
+          winston.debug({message:`mock_jsonServer: on data received start: ${data}`})
           try{
             let indata = data.toString().replace(/}{/g, "}|{")
             const outMsg = indata.toString().split("|")
@@ -149,10 +149,11 @@ class mock_jsonServer{
   }
 
   outputExtResponse(value) {
-		var msgData = cbusLib.encode_EXT_RESPONSE(value)
-		winston.info({message: 'mock_jsonServer: Network OUT >>>  ' + msgData + " >>> "});
+		var cbusMsg = cbusLib.encode_EXT_RESPONSE(value)
+    var msgData = cbusLib.decode(cbusMsg)
+		winston.info({message: 'mock_jsonServer: Network OUT >>>  ' + msgData.text + " >>> "});
     this.clients.forEach(function (client) {
-      client.write(msgData);
+      client.write(JSON.stringify(msgData));
   });
 }
 

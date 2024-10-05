@@ -168,7 +168,7 @@ describe('programNode tests', async function(){
 	it('Download short test', function(done) {
 		winston.info({message: 'TEST: BEGIN short download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
     	downloadData = data;
 	    winston.warn({message: 'TEST: short download: ' + JSON.stringify(downloadData)});
 		});	        
@@ -213,7 +213,7 @@ describe('programNode tests', async function(){
 	it('Download full test', function(done) {
 		winston.info({message: 'TEST: >>>>>> BEGIN: full download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: full download: ' + JSON.stringify(downloadData)});
     });	        
@@ -257,7 +257,7 @@ describe('programNode tests', async function(){
 		winston.info({message: 'TEST: >>>>>> BEGIN: corrupt download:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     var corruptFileData
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
       corruptFileData = data;
 		  winston.warn({message: 'TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
 		});	        
@@ -280,7 +280,7 @@ describe('programNode tests', async function(){
 	it('Download wrong file test', function(done) {
 		winston.info({message: 'TEST: >>>>>> BEGIN: wrong file:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: wrong file: ' + JSON.stringify(downloadData)});
     });	        
@@ -302,7 +302,7 @@ describe('programNode tests', async function(){
 		winston.info({message: 'TEST: >>>>>> BEGIN: ignore CPUTYPE:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
     downloadDataArray = []
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
 			downloadDataArray.push(data);
 			winston.warn({message: 'TEST: ignore CPUTYPE: ' + JSON.stringify(data)});
     });	        
@@ -332,7 +332,7 @@ describe('programNode tests', async function(){
     mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
     mock_jsonServer.ackRequested = true
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: programBootMode: ' + JSON.stringify(downloadData)});
     });	        
@@ -367,7 +367,7 @@ describe('programNode tests', async function(){
 	it('programBootMode corrupt file test', function(done) {
 		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode: corrupt file test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode', function (data) {
+    programNode.on('programNode_progress', function (data) {
 			downloadData = data;
 			winston.warn({message: 'TEST: programBootMode: corrupt file test: ' + JSON.stringify(downloadData)});
     });	        
