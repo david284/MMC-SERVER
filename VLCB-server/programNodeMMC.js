@@ -16,15 +16,55 @@ const name = 'programNode'
 //
 //=============================================================================
 
-// bit weights
+
+// control bit weights
 const CTLBT_WRITE_UNLOCK = 1
 const CTLBT_ERASE_ONLY = 2
 const CTLBT_AUTO_ERASE = 4
 const CTLBT_AUTO_INC = 8
 const CTLBT_ACK = 16
 //normal mode = CTLBT_WRITE_UNLOCK + CTLBT_AUTO_ERASE + CTLBT_AUTO_INC + CTLBT_ACK
-// = 1+4+8+16
+// = 1+4+8+16      erase only disabled
 const CONTROL_BITS = CTLBT_WRITE_UNLOCK + CTLBT_AUTO_ERASE + CTLBT_AUTO_INC + CTLBT_ACK
+
+// Special Commands (SPCMD)
+const SPCMD_NOP       = 0
+const SPCMD_RESET     = 1
+const SPCMD_INIT_CHK  = 2
+const SPCMD_CHK_RUN   = 3
+const SPCMD_BOOT_TEST = 4
+
+// RESPONSE codes
+// 0 - not ok
+// 1 - ok acknowledge
+// 2 - confirm boot mode
+
+
+// Sequence of operation
+//
+//  put into bootmode
+//  send check_boot - SPCMD_BOOT_TEST (4)
+//  expect response 2 - start send firmware process (||)
+//
+//  || set sendingFirmware = true
+//  || send intial control message SPCMD_INIT_CHK (2) with address 0000 & CONTROL_BITS
+//  || then for each block.... always starting at block 000800
+//  || send control message SPCMD_NOP (0) with block address & CONTROL_BITS
+//  || send all data messages for that block
+//  || if more blocks, send control with new block address & then data...
+//  || when all data sent...
+//  || set sendingFirmware = false
+//  || send control message SPCMD_CHK_RUN with check sum 
+//
+//  expect response message to SPCMD_CHK_RUN (now sendingFirmware == false)
+//    if response 1 - download succeeded, send control message SPCMD_RESET to start firmware
+//    if response 0 - download failed...
+//
+//  A response 1 at any time will also set ackReceived flag,
+//  so the wait on transmit can be terminated early
+
+
+
 
 //
 //
@@ -56,6 +96,9 @@ class programNode extends EventEmitter  {
   * 2 = Program EEPROM
   * 4 = Ignore CPUTYPE
   */
+
+
+
   async program (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
     winston.info({message: 'programNode: Started'})
     this.success = false
@@ -104,11 +147,11 @@ class programNode extends EventEmitter  {
                 var cbusMsg = JSON.parse(inMsg[i])
                 if (cbusMsg.ID_TYPE == "X"){
                   winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
-                    if (cbusMsg.response == 0) {
-                        winston.debug({message: 'programNode: Check NOT OK received: download failed'});
-                        this.sendFailureToClient('Check NOT OK received: download failed')
-                    }
                   if (cbusMsg.operation == 'RESPONSE') {
+                    if (cbusMsg.response == 0) {
+                      winston.debug({message: 'programNode: Check NOT OK received: download failed'});
+                      this.sendFailureToClient('Check NOT OK received: download failed')
+                    }
                     if (cbusMsg.response == 1) {
                       this.ackReceived = true
                       if (this.sendingFirmware == false){
@@ -214,11 +257,11 @@ class programNode extends EventEmitter  {
               var cbusMsg = JSON.parse(inMsg[i])
               if (cbusMsg.ID_TYPE == "X"){
                 winston.info({message: 'programBootMode: CBUS Receive  <<<: ' + cbusMsg.text});
-                if (cbusMsg.response == 0) {
+                if (cbusMsg.operation == 'RESPONSE') {
+                  if (cbusMsg.response == 0) {
                     winston.debug({message: 'programBootMode: Check NOT OK received: download failed'});
                     this.sendFailureToClient('Check NOT OK received: download failed')
-                }
-                if (cbusMsg.operation == 'RESPONSE') {
+                  }
                   if (cbusMsg.response == 1) {
                     this.ackReceived = true
                     if (this.sendingFirmware == false){
@@ -278,6 +321,12 @@ class programNode extends EventEmitter  {
         var progressCount = 0
 
         this.sendingFirmware = true
+
+        // start with SPCMD_INIT_CHK
+        var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
+        winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
+        await this.transmitCBUS(msgData)
+
         
         // always do FLASH area, but only starting from 00000800
         for (const block in this.FIRMWARE['FLASH']) {
@@ -366,19 +415,23 @@ class programNode extends EventEmitter  {
     
 
     //
-    //
+    // function to add the contents of an inp0ut array to an existing two's complement checksum
+    // this is so we can build up a single checksum from multiple arrays of data
     //
     arrayChecksum(array, start) {
       winston.debug({message: 'programNode: arrayChecksum: array length = ' + array.length});
       var checksum = 0;
         if ( start != undefined) {
+          // convert back from two's complement in hexadecimal..
             checksum = (parseInt(start, 16) ^ 0xFFFF) + 1;
         }
+        // add contents of the array to the checksum
         for (var i = 0; i <array.length; i++) {
             checksum += array[i]
             checksum = checksum & 0xFFFF        // trim to 16 bits
         }
-        var checksum2C = utils.decToHex((checksum ^ 0xFFFF) + 1, 4)    // checksum as two's complement in hexadecimal
+        // and convert resulting checksum back to two's complement in hexadecimal
+        var checksum2C = utils.decToHex((checksum ^ 0xFFFF) + 1, 4)
         winston.debug({message: 'programNode: arrayChecksum: ' + checksum2C});
         return checksum2C
     }
@@ -549,7 +602,7 @@ class programNode extends EventEmitter  {
       // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
       // but don't increment this.decodeLineStore.index, as next line may not start on 8 byte boundary
       // and may need to overwrite this padding
-      const padLength = 32
+      const padLength = 16
       this.decodeState.index % padLength ? this.decodeState.paddingCount = padLength - (this.decodeState.index % padLength) : this.decodeState.paddingCount = 0
       for (var i = 0; i < this.decodeState.paddingCount; i++) {
         FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index + i] = 0xFF

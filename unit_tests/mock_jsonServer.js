@@ -113,6 +113,7 @@ class mock_jsonServer{
                 break;
             case 2:
                 winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
+                this.firmware = []
                 break;
             case 3:
                 winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
