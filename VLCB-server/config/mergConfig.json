@@ -33,14 +33,56 @@
     "A50B": {
       "name": "CANSERVO"
     },
+    "A50C": {
+      "name": "CANBC"
+    },
+    "A50D": {
+      "name": "CANRPI"
+    },
+    "A50E": {
+      "name": "CANTTCA"
+    },
+    "A50F": {
+      "name": "CANTTCB"
+    },
+    "A510": {
+      "name": "CANHS"
+    },
     "A511": {
       "name": "CANTOTI"
+    },
+    "A512": {
+      "name": "CAN8I8O"
     },
     "A513": {
       "name": "CANSERVO8C"
     },
+    "A514": {
+      "name": "CANRFID"
+    },
+    "A515": {
+      "name": "CANTC4"
+    },
+    "A516": {
+      "name": "CANACE16C"
+    },
+    "A517": {
+      "name": "CANIO8"
+    },
+    "A518": {
+      "name": "CANSNDX"
+    },
     "A519": {
       "name": "CANETHER"
+    },
+    "A51A": {
+      "name": "CANSIG64"
+    },
+    "A51B": {
+      "name": "CANSIG8"
+    },
+    "A51C": {
+      "name": "CANCOND8C"
     },
     "A51D": {
       "name": "CANPAN"
@@ -60,6 +102,51 @@
     "A522": {
       "name": "CANSOL"
     },
+    "A523": {
+      "name": "CANBIP"
+    },
+    "A524": {
+      "name": "CANCDU"
+    },
+    "A525": {
+      "name": "CANACC4CDU"
+    },
+    "A526": {
+      "name": "CANWiBase"
+    },
+    "A527": {
+      "name": "WiCAB"
+    },
+    "A528": {
+      "name": "CANWiFi"
+    },
+    "A529": {
+      "name": "CANFTT"
+    },
+    "A52A": {
+      "name": "CANHNDST"
+    },
+    "A52B": {
+      "name": "CANTCHNDST"
+    },
+    "A52C": {
+      "name": "CANRFID8"
+    },
+    "A52D": {
+      "name": "CANmchRFID"
+    },
+    "A52E": {
+      "name": "CANPiWi"
+    },
+    "A52F": {
+      "name": "CAN4DC"
+    },
+    "A530": {
+      "name": "CANELEV"
+    },
+    "A531": {
+      "name": "CANSCAN"
+    },
     "A532": {
       "name": "CANMIO-SVO"
     },
@@ -72,11 +159,29 @@
     "A535": {
       "name": "CANBIP-OUT"
     },
+    "A536": {
+      "name": "CANASTOP"
+    },
+    "A537": {
+      "name": "CANCSB"
+    },
+    "A538": {
+      "name": "CANMAG"
+    },
+    "A539": {
+      "name": "CANACE16CMIO"
+    },
     "A53A": {
       "name": "CANPiNODE"
     },
     "A53B": {
       "name": "CANDISP"
+    },
+    "A53C": {
+      "name": "CANCOMPUTE"
+    },
+    "A53D": {
+      "name": "CANRC522"
     },
     "A53E": {
       "name": "CANINP"
@@ -86,6 +191,51 @@
     },
     "A540": {
       "name": "CANXIO"
+    },
+    "A541": {
+      "name": "CANCABDC"
+    },
+    "A542": {
+      "name": "CANRCOM"
+    },
+    "A543": {
+      "name": "CANMP3"
+    },
+    "A544": {
+      "name": "XMAS"
+    },
+    "A545": {
+      "name": "CANSVOSET"
+    },
+    "A546": {
+      "name": "CANCMDDC"
+    },
+    "A547": {
+      "name": "CANTEXT"
+    },
+    "A548": {
+      "name": "CANASIGNAL"
+    },
+    "A549": {
+      "name": "CANSLIDER"
+    },
+    "A54A": {
+      "name": "CANDCATC"
+    },
+    "A54B": {
+      "name": "CANGATE"
+    },
+    "A54C": {
+      "name": "CANSINP"
+    },
+    "A54D": {
+      "name": "CANSOUT"
+    },
+    "A54E": {
+      "name": "CANSBIP"
+    },
+    "A54F": {
+      "name": "CANBUFFER"
     },
     "A550": {
       "name": "CANLEVER"
