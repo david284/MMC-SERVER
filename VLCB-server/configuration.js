@@ -4,6 +4,7 @@ const fs = require('fs');
 const jsonfile = require('jsonfile')
 var path = require('path');
 const EventEmitter = require('events').EventEmitter;
+const name = 'configuration'
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -54,6 +55,7 @@ class configuration {
 		this.createDirectory(this.systemConfigPath)
     this.createConfigFile(this.systemConfigPath)
     this.config = jsonfile.readFileSync(this.systemConfigPath + '/config.json')
+    winston.debug({message:  name + ': config: '+ JSON.stringify(this.config)});
     // create a user directory - will set userConfigPath
     this.createUserDirectory()
     if (this.userConfigPath){
@@ -416,6 +418,15 @@ class configuration {
   getServerAddress(){return this.config.serverAddress}
   setServerAddress(address){  
     this.config.serverAddress = address
+    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+  }
+
+
+  //
+  //
+  getRemoteAddress(){return this.config.remoteAddress}
+  setRemoteAddress(address){  
+    this.config.remoteAddress = address
     jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
   }
 
