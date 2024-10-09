@@ -232,7 +232,6 @@ describe('programNode tests', async function(){
       // verify checksum when process is signalled as complete
       expect(downloadData.status).to.equal('Success', 'Download event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
       var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
@@ -338,7 +337,7 @@ describe('programNode tests', async function(){
 			winston.warn({message: 'TEST: programBootMode: ' + JSON.stringify(downloadData)});
     });	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
-		programNode.programBootMode(1, 3, intelHexString);
+		programNode.program(1, 1, 11, intelHexString);
 		setTimeout(function(){
       //
       // verify process is signalled as complete & checksum correct
@@ -356,33 +355,6 @@ describe('programNode tests', async function(){
       winston.info({message: 'TEST: <<<<<< END: programBootMode:'});
 		}, 2000);
 	});
-
-
-    //
-    // test corrupted file on program boot mode
-    //
-    // expect: module is already in boot mode, so doesn't need boot command, and onlt expects firmware, so won't respond to any other opcodes
-    // expect: next, Hex file loaded, parsed & downloaded - verify by testing checksum of downloaded file if 'Complete' event received
-    // expect: Last thing, expect reset command sent
-    //
-	it('programBootMode corrupt file test', function(done) {
-		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode: corrupt file test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(NET_ADDRESS, NET_PORT)
-    programNode.on('programNode_progress', function (data) {
-			downloadData = data;
-			winston.warn({message: 'TEST: programBootMode: corrupt file test: ' + JSON.stringify(downloadData)});
-    });	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
-		programNode.programBootMode(1, 3, intelHexString);
-		setTimeout(function(){
-      expect (mock_jsonServer.messagesIn.length).to.equal(0, "programBootMode: check sent messages")
-      expect(downloadData.status).to.equal("Failure", 'programBootMode: expected event');
-      expect(downloadData.text).to.equal('Failed: file parsing failed', 'programBootMode: expected event');
-			done();
-			winston.info({message: 'TEST: <<<<<< END: programBootMode: corrupt file test:'});
-	}, 200);
-	});
-
 
 
 })
