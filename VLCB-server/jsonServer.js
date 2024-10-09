@@ -11,15 +11,16 @@ const utils = require('./utilities.js');
 
 const name = 'jsonserver'
 
-exports.jsonServer = function (config) {
+exports.jsonServer = function (remoteAddress, cbusPort, JsonPort, eventBus) {
 
     let clients = [];
 
     let cbusClient = new net.Socket();
 
+    // connect to remote socket for CBUS messages
     try{
-      cbusClient.connect(config.getCbusServerPort(), config.getServerAddress(), function () {
-        winston.info({message:name + ': Connected to ' + config.getServerAddress() + ' on ' + config.getCbusServerPort()})
+      cbusClient.connect(cbusPort, remoteAddress, function () {
+        winston.info({message:name + ': Connected to ' + remoteAddress + ' on ' + cbusPort})
       });
     } catch(e){
       winston.info({message:name + ': cbusClient connection failed: ' + e})
@@ -42,10 +43,12 @@ exports.jsonServer = function (config) {
 
     cbusClient.on('error', async function (err) {
       winston.error({message: name + `: Client error: ` + err.stack});
-      config.eventBus.emit ('bus_connection_state', false)
+      eventBus.emit ('bus_connection_state', false)
     })
 
 
+    // creates socket on this machine
+    // for JSON encoded messages
     const server = net.createServer(function (socket) {
         socket.setKeepAlive(true, 60000);
         clients.push(socket);
@@ -89,7 +92,7 @@ exports.jsonServer = function (config) {
         }
     })
 
-    server.listen(config.getJsonServerPort())
+    server.listen(JsonPort)
 
     return
 }

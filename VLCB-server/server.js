@@ -85,7 +85,7 @@ exports.run = async function run(){
   winston.info({message: name + ': status' + JSON.stringify(status)});
   
 
-  jsonServer.jsonServer(config)
+  jsonServer.jsonServer(config.getRemoteAddress(), config.getCbusServerPort(), config.getJsonServerPort(), config.eventBus)
   socketServer.socketServer(config, status)
 
 
