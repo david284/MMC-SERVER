@@ -1,10 +1,10 @@
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const winston = require('./config/winston_test.js')
-const cbusLib = require('cbuslibrary')
-const admin = require('./../VLCB-server/mergAdminNode.js')
-const utils = require('./../VLCB-server/utilities.js');
 
+const cbusLib = require('cbuslibrary')
+const utils = require('./../VLCB-server/utilities.js');
+const admin = require('./../VLCB-server/mergAdminNode.js')
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -28,7 +28,8 @@ config.setCurrentLayoutFolder() // use default layout
 const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 
 const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
-const node = new admin.cbusAdmin(config)
+let node = new admin.cbusAdmin(config);
+node.connect('localhost', config.getJsonServerPort())
 
 function stringToHex(string) {
   // expects UTF-8 string
@@ -60,15 +61,14 @@ node.on('cbusTraffic', function (data) {
 describe('mergAdminNode tests', function(){
 
 
-	before(function(done) {
+	before(async function() {
 		winston.info({message: ' '});
 		winston.info({message: '================================================================================'});
     //                      12345678901234567890123456789012345678900987654321098765432109876543210987654321
 		winston.info({message: '----------------------------- mergAdminNode tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
-        
-		done();
+    await utils.sleep(1000)    
 	});
 
 	beforeEach(function() {

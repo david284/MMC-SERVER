@@ -10,8 +10,10 @@ const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
 const cbusServer = require('./cbusServer')
 const socketServer = require('./socketServer')
-const jsonServer = require('./jsonServer')
 const utils = require('./utilities.js');
+const JsonServer = require('./jsonServer')
+const mergAdminNode = require('./mergAdminNode.js')
+
 
 // look for the config folder based on the directory of this module
 const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
@@ -83,10 +85,10 @@ exports.run = async function run(){
   await utils.sleep(2000);   // allow time for connection to establish
 
   winston.info({message: name + ': status' + JSON.stringify(status)});
-  
 
-  jsonServer.jsonServer(config.getRemoteAddress(), config.getCbusServerPort(), config.getJsonServerPort(), config.eventBus)
-  socketServer.socketServer(config, status)
+  let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
+  let node = new mergAdminNode.cbusAdmin(config);
+  socketServer.socketServer(config, node, jsonServer, status)
 
 
 }

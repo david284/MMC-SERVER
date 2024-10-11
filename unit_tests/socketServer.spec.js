@@ -8,7 +8,7 @@ const { io } = require("socket.io-client")
 const cbusLib = require('cbuslibrary')
 
 const socketServer = require('../VLCB-server/socketServer.js')
-
+const mergAdminNode = require('../VLCB-server/mergAdminNode.js')
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -36,7 +36,9 @@ let status = {"busConnection":{
   }
 }
 
-socketServer.socketServer(config, status)
+let node = new mergAdminNode.cbusAdmin(config);
+node.connect('localhost', config.getJsonServerPort())
+socketServer.socketServer(config, node, mock_jsonServer, status)
 
 
 function stringToHex(string) {

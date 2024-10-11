@@ -3,6 +3,8 @@ const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
 const utils = require('./../VLCB-server/utilities.js');
 
+const name = 'mock_jsonServer'
+
 // bit weights
 const CTLBT_WRITE_UNLOCK = 0
 const CTLBT_ERASE_ONLY = 1
@@ -67,6 +69,13 @@ class mock_jsonServer{
 
     server.listen(JSON_SERVER_PORT)
   }
+
+
+  connect(remoteAddress, cbusPort){
+    winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
+    // connect to remote socket for CBUS messages
+  }
+
 
   // this accept gridconnect data
   inject(outMsg){

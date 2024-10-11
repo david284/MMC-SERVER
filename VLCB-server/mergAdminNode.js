@@ -33,9 +33,12 @@ class cbusAdmin extends EventEmitter {
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
+
+        /*
         this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
             winston.info({message: `mergAdminNode: Connected - ${config.getServerAddress()} on ${config.getJsonServerPort()}`});
         })
+            */
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -58,7 +61,7 @@ class cbusAdmin extends EventEmitter {
         }.bind(this))
 
         this.client.on('error', (err) => {
-            winston.debug({message: 'mergAdminNode: TCP ERROR ${err.code}'});
+            winston.debug({message: 'mergAdminNode: TCP ERROR ' + err});
         })
 
         //
@@ -539,7 +542,14 @@ class cbusAdmin extends EventEmitter {
                 this.emit('cbusNoSupport', this.cbusNoSupport)
             }
         }
-        this.cbusSend(this.QNN())
+//        this.cbusSend(this.QNN())
+    }
+
+    connect(host, port){
+      winston.info({message: `mergAdminNode: connect - ${host} on port ${port}`});
+      this.client.connect(port, host, function () {
+        winston.info({message: `mergAdminNode: Connected - ${host} on port ${port}`});
+      })
     }
 
     getModuleName(moduleIdentifier){

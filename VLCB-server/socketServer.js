@@ -3,8 +3,9 @@ const name = 'socketServer'
 const jsonfile = require('jsonfile')
 const packageInfo = require(process.cwd()+'/package.json')
 
-const admin = require('./mergAdminNode.js')
 const server = require('http').createServer()
+
+
 
 const io = require('socket.io')(server, {
     cors: {
@@ -14,13 +15,10 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, status) {
-  let node = new admin.cbusAdmin(config);
-
+exports.socketServer = function(config, node, jsonServer, status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
-    node.query_all_nodes()
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
       winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
@@ -75,7 +73,7 @@ exports.socketServer = function(config, status) {
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
       config.setCurrentLayoutFolder(data)
       io.emit('LAYOUT_DATA', config.readLayoutData())
-      node.query_all_nodes()  // refresh all node data to fill new layout
+//      node.query_all_nodes()  // refresh all node data to fill new layout
     })
 
     socket.on('CLEAR_CBUS_ERRORS', function(){
@@ -266,6 +264,19 @@ exports.socketServer = function(config, status) {
       node.update_event_variable(data)
     })
 
+    socket.on('UPDATE_CONNECTION_DETAILS', function(data){
+      winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS ${JSON.stringify(data)}`});
+      if (data.mode == 'Network'){
+        winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using Network `});
+        jsonServer.connect(data.host, data.hostPort)
+      } else {
+        // using local address
+        winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using local `});
+        jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
+      }
+      node.connect(config.getServerAddress(), config.getJsonServerPort());
+    })
+
     socket.on('UPDATE_NODE_VARIABLE', function(data){
       node.cbusSend(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
@@ -288,22 +299,6 @@ exports.socketServer = function(config, status) {
       io.emit('LAYOUT_DATA', data)    // hack to refresh client
     })
       
-/*    
-    socket.on('PROGRAM_NODE', function(data){
-      let buff = Buffer.from(data.encodedIntelHex, 'base64');
-      let intelhexString = buff.toString('ascii');
-      winston.info({message: `socketServer: PROGRAM_NODE; intel hex ` + intelhexString});
-      programNode.program(data.nodeNumber, data.cpuType, data.flags, intelhexString);
-    })
-          
-    socket.on('PROGRAM_BOOT_MODE', function(data){
-      let buff = Buffer.from(data.encodedIntelHex, 'base64');
-      let intelhexString = buff.toString('ascii');
-      winston.info({message: `socketServer: PROGRAM_BOOT_MODE; intel hex ` + intelhexString});
-      programNode.programBootMode(data.cpuType, data.flags, intelhexString);
-    })
-*/
-
   });
     
   server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
@@ -384,11 +379,6 @@ exports.socketServer = function(config, status) {
     io.emit('REQUEST_NODE_NUMBER', nodeNumber)
   })
 
-
-  /*programNode.on('programNode', function (data) {
-  winston.info({message: `WSSERVER: 'programNode' : ` + data});
-      io.emit('PROGRAM_NODE', data);
-  })*/
 
   //*************************************************************************************** */
   //
