@@ -25,6 +25,7 @@ module.exports = class cbusServer {
       this.clients.push(socket)
       winston.info({message: name + `: Client Connection received`})
       //console.log(name + `: Client Connected to Server')
+      
       socket.on('data', function (data) {
           let outMsg = data.toString().split(";");
           for (let i = 0; i < outMsg.length - 1; i++) {
@@ -40,11 +41,13 @@ module.exports = class cbusServer {
       }.bind(this))
 
       socket.on("error", function (err) {
-          this.clients.splice(clients.indexOf(socket), 1)
+//          this.clients.splice(clients.indexOf(socket), 1)
           //console.log("Caught flash policy server socket error: ")
           //console.log(err.stack)
-          winston.info({message: name + `: socket error:   : ${err.stack}`})
+          winston.info({message: name + `: socket error:`})
+//          winston.info({message: name + `: socket error:   : ${err.stack}`})
       }.bind(this))
+
 
     }.bind(this)) //end create server
 
@@ -57,9 +60,10 @@ module.exports = class cbusServer {
   async connect(CbusServerPort, targetSerial){
     var result = false
     // now start the listner...
-    winston.info({message: name + ': starting listner '});
-    this.server.listen(CbusServerPort)
+    winston.info({message: name + ': connect: starting listner '});
 
+    this.server.listen(CbusServerPort)
+    
     // use target serial port if it exists
     // otherwise look for a CANUSBx
     winston.info({message: name + ': trying serialport.list '});

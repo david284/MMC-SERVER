@@ -69,12 +69,12 @@ class jsonServer{
       }.bind(this));
 
       socket.on('end', function () {
-          this.clients.splice(clients.indexOf(socket), 1);
+          this.clients.splice(this.clients.indexOf(socket), 1);
           winston.info({message:`jsonServer: Client Disconnected`});
       }.bind(this));
 
       socket.on("error", function (err) {
-          this.clients.splice(clients.indexOf(socket), 1);
+          this.clients.splice(this.clients.indexOf(socket), 1);
           winston.error({message:`jsonServer: ` + err.stack});
       }.bind(this));
 

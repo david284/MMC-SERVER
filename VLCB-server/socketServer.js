@@ -249,6 +249,31 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
       node.cbusSend(node.SNN(nodeNumber))
     })
     
+    socket.on('START_CONNECTION', async function(data){
+      winston.info({message: name + `: START_CONNECTION ${JSON.stringify(data)}`});
+      if (data.mode == 'Network'){
+        winston.info({message: name + `: START_CONNECTION: connect JsonServer using Network `});
+        await jsonServer.connect(data.host, data.hostPort)
+      } else {
+        if(data.mode == 'SerialPort'){
+          if(await cbusServer.connect(5550, data.serialPort) == false){
+            status.busConnection.state = false
+            winston.info({message: name + `: START_CONNECTION: failed `});
+          }
+        } else {
+          // assume it's Auto mode
+          if(await cbusServer.connect(5550, '') == false){
+            status.busConnection.state = false
+            winston.info({message: name + `: START_CONNECTION: failed `});
+          }
+        }
+        // using local address
+        winston.info({message: name + `: START_CONNECTION: connect JsonServer using local `});
+        await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
+      }
+      await node.connect(config.getServerAddress(), config.getJsonServerPort());
+    })
+
     socket.on('STOP_SERVER', function(){
       winston.info({message: `socketServer: STOP_SERVER`});
       process.exit();
@@ -262,31 +287,6 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
     socket.on('UPDATE_EVENT_VARIABLE', function(data){
       winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
       node.update_event_variable(data)
-    })
-
-    socket.on('UPDATE_CONNECTION_DETAILS', async function(data){
-      winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS ${JSON.stringify(data)}`});
-      if (data.mode == 'Network'){
-        winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using Network `});
-        await jsonServer.connect(data.host, data.hostPort)
-      } else {
-        if(data.mode == 'SerialPort'){
-          if(await cbusServer.connect(5550, data.serialPort) == false){
-            status.busConnection.state = false
-            winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: failed `});
-          }
-        } else {
-          // assume it's Auto mode
-          if(await cbusServer.connect(5550, '') == false){
-            status.busConnection.state = false
-            winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: failed `});
-          }
-        }
-        // using local address
-        winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using local `});
-        await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
-      }
-      await node.connect(config.getServerAddress(), config.getJsonServerPort());
     })
 
     socket.on('UPDATE_NODE_VARIABLE', function(data){
