@@ -570,4 +570,4 @@ class programNode extends EventEmitter  {
 
 };
 
-module.exports = () => { return new programNode() }
+module.exports = new programNode() 

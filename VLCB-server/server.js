@@ -45,7 +45,7 @@ exports.run = async function run(){
   const cbusServer = require('./cbusServer')
   const jsonServer = require('./jsonServer')(config.getJsonServerPort(), config.eventBus)
   const mergAdminNode = require('./mergAdminNode.js')(config)
-  const programNode = require('../VLCB-server/programNodeMMC.js')()
+  const programNode = require('../VLCB-server/programNodeMMC.js')
   socketServer.socketServer(config, mergAdminNode, jsonServer, cbusServer, programNode, status)
 
 }
