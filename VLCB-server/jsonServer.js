@@ -4,9 +4,10 @@ const winston = require('winston');		// use config from root instance
 const utils = require('./utilities.js');
 
 //
-// JSON Server
-// listens from data from mergAdminNode (as server) - socket
-// Connects to CAN via serial or network (as client) - cbusClient
+// JSON Server - a many to one interface
+// listens for JSON messages from multiple clients - server (socket)
+// Connects to a cbusServer to send MGC messages to CAN - cbusClient
+// MGC = 'Modified Grid Connect'
 //
 
 const name = 'jsonServer'
@@ -18,6 +19,12 @@ class jsonServer{
     this.clients = [];
     this.cbusClient = new net.Socket()
     this.eventBus = eventBus
+    this.JsonPort = JsonPort
+
+    //
+    // Setup the handlers for cbusClient events
+    // but doesn't actually connect to cbusServer yet
+    //
 
     this.cbusClient.on('data', function (data) {
       this.cbusClient.setKeepAlive(true, 60000);
@@ -38,9 +45,13 @@ class jsonServer{
       this.eventBus.emit ('bus_connection_state', false)
     }.bind(this))
 
-    // creates socket on this machine
+    //
+    // creates socket on this machine, but doesn't start listening yet
     // for JSON encoded messages
-    const server = net.createServer(function (socket) {
+    // and all the handlers
+    //
+
+    this.server = net.createServer(function (socket) {
       socket.setKeepAlive(true, 60000);
       this.clients.push(socket);
       winston.info({message: name + `: Connection to jsonServer from ` + socket.remotePort})
@@ -69,10 +80,12 @@ class jsonServer{
 
     }.bind(this))
 
-    server.listen(JsonPort)
-
   }
 
+  //
+  // method to actually connect to cbusServer
+  // and start listening for json messages from multiple sources
+  //
 
   connect(remoteAddress, cbusPort){
     winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
@@ -81,6 +94,9 @@ class jsonServer{
       this.cbusClient.connect(cbusPort, remoteAddress, function () {
         winston.info({message:name + ': Connected to ' + remoteAddress + ' on ' + cbusPort})
       });
+
+      this.server.listen(this.JsonPort)
+
     } catch(e){
       winston.info({message:name + ': cbusClient connection failed: ' + e})
     }    

@@ -51,7 +51,7 @@ exports.run = async function run(){
   // if all else fails try plain network connection
   winston.info({message: name + ': trying serialport.list '});
   var serialPorts = await getSerialPorts()
-  winston.info({message: name + ': serialports ' + JSON.stringify(serialPorts)});
+  winston.debug({message: name + ': serialports ' + JSON.stringify(serialPorts)});
   
   status.busConnection["serialPortList"] = serialPorts
   var targetSerial = config.getSerialPort()
@@ -65,7 +65,6 @@ exports.run = async function run(){
         } else {
       //await terminateApp('serial port ' +try targetSerial + ' not found \n');
       winston.info({message: name + ': serial port ' + targetSerial + ' not found \n'});
-      winston.info({message: name + ': trying network connection'});
       status.busConnection.state = true // assume true until network fails
     }
   } else {
@@ -84,7 +83,7 @@ exports.run = async function run(){
 
   await utils.sleep(2000);   // allow time for connection to establish
 
-  winston.info({message: name + ': status' + JSON.stringify(status)});
+  winston.debug({message: name + ': status' + JSON.stringify(status)});
 
   let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
   let node = new mergAdminNode.cbusAdmin(config);
