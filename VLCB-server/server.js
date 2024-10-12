@@ -8,7 +8,7 @@ winston.info({message: name + ': Loaded'});
 //const SerialPort = require("chrome-apps-serialport").SerialPort;
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
-const cbusServer = require('./cbusServer')
+const CbusServer = require('./cbusServer')
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
 const JsonServer = require('./jsonServer')
@@ -45,6 +45,9 @@ let status = {"busConnection":{
 exports.run = async function run(){
 // async function run(){
 
+  let cbusServer = new CbusServer(config);
+
+
 
   // use config to get target serial port if it exists
   // otherwise look for a CANUSBx
@@ -59,7 +62,7 @@ exports.run = async function run(){
     winston.info({message: name + ': Using serial port ' + targetSerial});
     if (serialPorts.find(({ path }) => path === targetSerial) ){
       canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
-      cbusServer.cbusServer(config)
+      cbusServer.connect(config.getCbusServerPort())
       status.busConnection.state = true
       winston.info({message: 'Starting cbusServer...\n'});
         } else {
@@ -70,7 +73,7 @@ exports.run = async function run(){
   } else {
     winston.info({message: 'Finding CANUSBx...'});
     if ( await connectCANUSBx() ) {
-      cbusServer.cbusServer(config)
+      cbusServer.connect(config.getCbusServerPort())
       winston.info({message: name + ': Starting cbusServer...\n'});
       status.busConnection.state = true
     } else {
