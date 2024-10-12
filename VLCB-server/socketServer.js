@@ -15,7 +15,7 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
+exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -113,9 +113,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
     })
 
     socket.on('PROGRAM_NODE', function(data){
-      winston.info({message: 'socketServer:  PROGRAM_NODE: data ' + JSON.stringify(data)});
+//      winston.info({message: 'socketServer:  PROGRAM_NODE: data ' + JSON.stringify(data)});
       winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
-      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.hexFile});
+//      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.hexFile});
       programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
     })
 
@@ -272,6 +272,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
         await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
       }
       await node.connect(config.getServerAddress(), config.getJsonServerPort());
+      programNode.setConnection(config.getServerAddress(), config.getJsonServerPort());
     })
 
     socket.on('STOP_SERVER', function(){
@@ -406,11 +407,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
 
   //*************************************************************************************** */
   //
-  // events from jsonServer
+  // events from programNode
   //
   //*************************************************************************************** */
-
-  const programNode = require('../VLCB-server/programNodeMMC.js')(config.getServerAddress(), config.getJsonServerPort())
 
   programNode.on('programNode_progress', function (data) {
     downloadData = data;

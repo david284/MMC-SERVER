@@ -70,10 +70,8 @@ const SPCMD_BOOT_TEST = 4
 //
 //
 class programNode extends EventEmitter  {
-  constructor(NET_ADDRESS, NET_PORT) {
+  constructor() {
     super()
-    this.net_address = NET_ADDRESS
-    this.net_port = NET_PORT
     this.client = new net.Socket()  
     this.FIRMWARE = {}
     this.nodeNumber = null
@@ -82,6 +80,15 @@ class programNode extends EventEmitter  {
     this.decodeState = {}
   }
     
+  //
+  //
+  //
+  setConnection(host, port){
+    this.net_address = host
+    this.net_port = port
+  }
+
+
   //  expose decodeLine for testing purposes
   decodeLine(array, line, callback) { decodeLine(array, line, callback)}
 
@@ -563,4 +570,4 @@ class programNode extends EventEmitter  {
 
 };
 
-module.exports = ( NET_ADDRESS, NET_PORT ) => { return new programNode( NET_ADDRESS, NET_PORT ) }
+module.exports = () => { return new programNode() }

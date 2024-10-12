@@ -48,7 +48,8 @@ exports.run = async function run(){
   let cbusServer = new CbusServer();
   let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
   let node = new mergAdminNode.cbusAdmin(config);
-  socketServer.socketServer(config, node, jsonServer, cbusServer, status)
+  const programNode = require('../VLCB-server/programNodeMMC.js')()
+  socketServer.socketServer(config, node, jsonServer, cbusServer, programNode, status)
 
 }
 
