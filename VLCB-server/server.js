@@ -5,9 +5,6 @@ const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 
-//const SerialPort = require("chrome-apps-serialport").SerialPort;
-const {SerialPort} = require("serialport");
-const canUSB = require('./canUSB')
 const CbusServer = require('./cbusServer')
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
@@ -45,94 +42,14 @@ let status = {"busConnection":{
 exports.run = async function run(){
 // async function run(){
 
-  let cbusServer = new CbusServer(config);
-
-
-
-  // use config to get target serial port if it exists
-  // otherwise look for a CANUSBx
-  // if all else fails try plain network connection
-  winston.info({message: name + ': trying serialport.list '});
-  var serialPorts = await getSerialPorts()
-  winston.debug({message: name + ': serialports ' + JSON.stringify(serialPorts)});
-  
-  status.busConnection["serialPortList"] = serialPorts
-  var targetSerial = config.getSerialPort()
-  if (targetSerial){
-    winston.info({message: name + ': Using serial port ' + targetSerial});
-    if (serialPorts.find(({ path }) => path === targetSerial) ){
-      canUSB.canUSB(targetSerial, config.getCbusServerPort(), config.getServerAddress())
-      cbusServer.connect(config.getCbusServerPort())
-      status.busConnection.state = true
-      winston.info({message: 'Starting cbusServer...\n'});
-        } else {
-      //await terminateApp('serial port ' +try targetSerial + ' not found \n');
-      winston.info({message: name + ': serial port ' + targetSerial + ' not found \n'});
-      status.busConnection.state = true // assume true until network fails
-    }
-  } else {
-    winston.info({message: 'Finding CANUSBx...'});
-    if ( await connectCANUSBx() ) {
-      cbusServer.connect(config.getCbusServerPort())
-      winston.info({message: name + ': Starting cbusServer...\n'});
-      status.busConnection.state = true
-    } else {
-      winston.info({message: name + ': Failed to find CANUSBx...'});
-      winston.info({message: name + ': trying network connection'});
-      status.busConnection.state = true // assume true until network fails
-    }
-  }
-
-
-  await utils.sleep(2000);   // allow time for connection to establish
-
-  winston.debug({message: name + ': status' + JSON.stringify(status)});
-
+  // instantiate objects and pass to socketServer
+  // this is so we can use mocks for unit testing
+  //
+  let cbusServer = new CbusServer();
   let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
   let node = new mergAdminNode.cbusAdmin(config);
-  socketServer.socketServer(config, node, jsonServer, status)
+  socketServer.socketServer(config, node, jsonServer, cbusServer, status)
 
-
-}
-
-async function connectCANUSBx(){
-	return new Promise(function (resolve, reject) {
-    SerialPort.list().then(ports => {
-      ports.forEach(function(port) {
-        if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
-          // CANUSB4
-          winston.info({message: 'CANUSB4 : ' + port.path});
-          canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
-          resolve(true);
-        } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
-          // Old CANUSB
-          winston.info({message: 'CANUSB : ' + port.path});
-          canUSB.canUSB(port.path, config.getCbusServerPort(), config.getServerAddress())
-          resolve(true);
-        }
-      })
-      resolve(false);
-    })
-  })
-}
-
-async function getSerialPorts() {
-	return new Promise(function (resolve, reject) {
-    var serialports= [];
-    var portIndex = 0;
-    SerialPort.list().then(ports => {
-      ports.forEach(function(port) {
-        serialports[portIndex] = port
-        winston.info({message: 'serial port ' + portIndex + ': ' + serialports[portIndex].path});
-        winston.debug({message: 'serial port ' + portIndex + ': ' + JSON.stringify(serialports[portIndex])});
-        portIndex++
-      })
-      if (portIndex == 0){
-        winston.info({message: 'No active serial ports found...\n'});
-      }
-      resolve(serialports);
-    })
-  })
 }
 
 

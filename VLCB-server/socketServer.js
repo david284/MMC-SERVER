@@ -15,7 +15,7 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, node, jsonServer, status) {
+exports.socketServer = function(config, node, jsonServer, cbusServer,status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -270,6 +270,12 @@ exports.socketServer = function(config, node, jsonServer, status) {
         winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using Network `});
         jsonServer.connect(data.host, data.hostPort)
       } else {
+        if(data.mode == 'serialPort'){
+          cbusServer.connect(5550, data.serialPort)
+        } else {
+          // assume it's Auto mode
+          cbusServer.connect(5550, '')
+        }
         // using local address
         winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using local `});
         jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
