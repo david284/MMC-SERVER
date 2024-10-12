@@ -55,6 +55,10 @@ module.exports = class cbusServer {
   // and the connection made later when the parameters are known
   //
   async connect(CbusServerPort, targetSerial){
+    var result = false
+    // now start the listner...
+    winston.info({message: name + ': starting listner '});
+    this.server.listen(CbusServerPort)
 
     // use target serial port if it exists
     // otherwise look for a CANUSBx
@@ -66,23 +70,25 @@ module.exports = class cbusServer {
       winston.info({message: name + ': Using serial port ' + targetSerial});
       if (serialPorts.find(({ path }) => path === targetSerial) ){
         canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
+        result = true
       } else {
         winston.info({message: name + ': serial port ' + targetSerial + ' not found'});
+        // close server - should raise error on clients
+        this.close()
+        result = false
       } 
     } else {
       winston.info({message: 'Finding CANUSBx...'});
       if ( await this.connectCANUSBx(CbusServerPort, 'localhost') ) {
+        result = true
       } else {
         winston.info({message: name + ': Failed to find CANUSBx...'});
+        // close server - should raise error on clients
+        this.close()
+        result = false
       }
     }
-
-    await utils.sleep(1000);   // allow time for connection to establish
-
-    // now start the listner...
-    winston.info({message: name + ': starting listner '});
-    this.server.listen(CbusServerPort)
-
+    return result
   } // end connect
 
   //

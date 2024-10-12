@@ -7,6 +7,7 @@ const net = require('net')
 const { io } = require("socket.io-client")
 const cbusLib = require('cbuslibrary')
 
+const CbusServer = require('../VLCB-server/cbusServer')
 const socketServer = require('../VLCB-server/socketServer.js')
 const mergAdminNode = require('../VLCB-server/mergAdminNode.js')
 
@@ -36,9 +37,11 @@ let status = {"busConnection":{
   }
 }
 
+
+let cbusServer = new CbusServer();
 let node = new mergAdminNode.cbusAdmin(config);
 node.connect('localhost', config.getJsonServerPort())
-socketServer.socketServer(config, node, mock_jsonServer, status)
+socketServer.socketServer(config, node, mock_jsonServer, cbusServer, status)
 
 
 function stringToHex(string) {
@@ -112,7 +115,7 @@ describe('socketServer tests', function(){
   //****************************************************************************************** */  
 
   function GetTestCase_boolean() {
-    var arg1, testCases = [];
+    var testCases = [];
     testCases.push({'boolean':true});
     testCases.push({'boolean':false});
     return testCases;

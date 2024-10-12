@@ -15,7 +15,7 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, node, jsonServer, cbusServer,status) {
+exports.socketServer = function(config, node, jsonServer, cbusServer, status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -264,23 +264,29 @@ exports.socketServer = function(config, node, jsonServer, cbusServer,status) {
       node.update_event_variable(data)
     })
 
-    socket.on('UPDATE_CONNECTION_DETAILS', function(data){
+    socket.on('UPDATE_CONNECTION_DETAILS', async function(data){
       winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS ${JSON.stringify(data)}`});
       if (data.mode == 'Network'){
         winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using Network `});
-        jsonServer.connect(data.host, data.hostPort)
+        await jsonServer.connect(data.host, data.hostPort)
       } else {
-        if(data.mode == 'serialPort'){
-          cbusServer.connect(5550, data.serialPort)
+        if(data.mode == 'SerialPort'){
+          if(await cbusServer.connect(5550, data.serialPort) == false){
+            status.busConnection.state = false
+            winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: failed `});
+          }
         } else {
           // assume it's Auto mode
-          cbusServer.connect(5550, '')
+          if(await cbusServer.connect(5550, '') == false){
+            status.busConnection.state = false
+            winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: failed `});
+          }
         }
         // using local address
         winston.info({message: `socketServer: UPDATE_CONNECTION_DETAILS: connect JsonServer using local `});
-        jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
+        await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
       }
-      node.connect(config.getServerAddress(), config.getJsonServerPort());
+      await node.connect(config.getServerAddress(), config.getJsonServerPort());
     })
 
     socket.on('UPDATE_NODE_VARIABLE', function(data){
@@ -393,7 +399,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer,status) {
   //*************************************************************************************** */
 
   config.eventBus.on('bus_connection_state', function (state) {
-    winston.info({message: `socketServer: no_bus_connection received`});
+    winston.info({message: `socketServer: bus_connection_state: ` + state});
     status.busConnection.state = state
   })
 
