@@ -15,7 +15,7 @@ const canUSB = require('./canUSB')
 //
 
 
-module.exports = class cbusServer {
+class cbusServer {
   constructor() {
     winston.info({message: name + ': Constructor'});
     this.clients = []
@@ -157,3 +157,4 @@ module.exports = class cbusServer {
   
 }
 
+module.exports = () => { return new cbusServer() }

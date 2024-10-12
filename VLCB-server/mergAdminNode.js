@@ -1344,8 +1344,4 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-module.exports = {
-    cbusAdmin: cbusAdmin
-}
-
-
+module.exports = (config) => { return new cbusAdmin(config) }

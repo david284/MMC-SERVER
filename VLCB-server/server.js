@@ -5,11 +5,9 @@ const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 
-const CbusServer = require('./cbusServer')
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
 const JsonServer = require('./jsonServer')
-const mergAdminNode = require('./mergAdminNode.js')
 
 
 // look for the config folder based on the directory of this module
@@ -45,11 +43,11 @@ exports.run = async function run(){
   // instantiate objects and pass to socketServer
   // this is so we can use mocks for unit testing
   //
-  let cbusServer = new CbusServer();
+  const cbusServer = require('./cbusServer')
   let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
-  let node = new mergAdminNode.cbusAdmin(config);
+  const mergAdminNode = require('./mergAdminNode.js')(config)
   const programNode = require('../VLCB-server/programNodeMMC.js')()
-  socketServer.socketServer(config, node, jsonServer, cbusServer, programNode, status)
+  socketServer.socketServer(config, mergAdminNode, jsonServer, cbusServer, programNode, status)
 
 }
 
