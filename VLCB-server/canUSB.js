@@ -5,7 +5,7 @@ const net = require('net');
 
 //const SerialPort = require("chrome-apps-serialport").SerialPort;
 const { SerialPort } = require("serialport");
-//const MockBinding = require('@serialport/binding-mock')
+const { MockBinding } = require('@serialport/binding-mock')
 let cbusLib = require('cbuslibrary')
 
 
@@ -21,24 +21,24 @@ let cbusLib = require('cbuslibrary')
 */
 
 
-exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
+exports.canUSB = async function (targetSerialPort, NET_PORT, NET_ADDRESS) {
 
-  winston.info({message: name + `: starting on  ${USB_PORT}`})
+  winston.info({message: name + `: starting on ${targetSerialPort}`})
 
-
+/*
   // 'standard' serialport
   const serialPort = new SerialPort({
-        path: USB_PORT,
+        path: targetSerialPort,
         baudRate: 115200,
         dataBits: 8,
         parity: 'none',
         stopBits: 1
     })
-
+*/
 
 /*
     // chrome-apps-serialport
-    const serialPort = new SerialPort(USB_PORT, {
+    const serialPort = new SerialPort(targetSerialPort, {
       baudRate: 115200,
       dataBits: 8,
       parity: 'none',
@@ -46,18 +46,23 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
   })
 */
 
-  
+  let serialPort = undefined
     
-    /*if(USB_PORT == "MOCK_PORT"){
+  if(targetSerialPort == "MOCK_PORT"){
         MockBinding.createPort('MOCK_PORT', { echo: false, record: true })
-        serialport.Binding = MockBinding;
-        let serialPort = new serialport('MOCK_PORT');
-    }
+        serialPort = new SerialPort({binding: MockBinding, path:'MOCK_PORT', baudRate: 115200});
+      }
     else 
-    {*/
-        //winston.info({message: `canUSB4 : Client Connected to ${USB_PORT}`})
-
-    // }
+    {
+      // 'standard' serialport
+      serialPort = new SerialPort({
+        path: targetSerialPort,
+        baudRate: 115200,
+        dataBits: 8,
+        parity: 'none',
+        stopBits: 1
+    })
+  }
 
     
     
@@ -66,7 +71,7 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
     const client = new net.Socket()
 
     client.connect(NET_PORT, NET_ADDRESS, function () {
-        winston.info({message: name + `: Client Connected to ${USB_PORT}`})
+        winston.info({message: name + `: Client Connected to ${targetSerialPort}`})
     })
 
     client.on('data', function (data) {
@@ -75,9 +80,9 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
             let message = getValidMessage(outMsg[i]);    // rebuild message as string
             if (message) {
                 let cbusMsg = cbusLib.decode(message)
-                winston.info({message: name + `: ${USB_PORT} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+                winston.info({message: name + `: ${targetSerialPort} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
                 serialPort.write(message)
-                winston.debug({message: name + `: ${USB_PORT} Tx ${message}`})
+                winston.debug({message: name + `: ${targetSerialPort} Tx ${message}`})
               }
         }
     })
@@ -87,7 +92,7 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
     });
   
   serialPort.on("open", function () {
-        winston.info({message: name + `: Serial port: ${USB_PORT} Open`})
+        winston.info({message: name + `: Serial port: ${targetSerialPort} Open`})
       })
     
     serialPort.on("data", function (data) {
@@ -95,11 +100,11 @@ exports.canUSB = function (USB_PORT, NET_PORT, NET_ADDRESS) {
       messageArray = RxBuffer.split(';')
       if (messageArray.length > 1){
         for (var i=0; i < messageArray.length-1; i++ ){
-          winston.debug({message: name + `: ${USB_PORT} Rx ${messageArray[i]};`})
+          winston.debug({message: name + `: ${targetSerialPort} Rx ${messageArray[i]};`})
           let message = getValidMessage(messageArray[i]);    // rebuild message as string
           if (message) {
               let cbusMsg = cbusLib.decode(message)
-              winston.info({message: name + `: ${USB_PORT} <- Receive : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+              winston.info({message: name + `: ${targetSerialPort} <- Receive : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
               client.write(message)
           }
         }

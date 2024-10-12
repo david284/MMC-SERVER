@@ -68,7 +68,7 @@ module.exports = class cbusServer {
 
     if (targetSerial){
       winston.info({message: name + ': Using serial port ' + targetSerial});
-      if (serialPorts.find(({ path }) => path === targetSerial) ){
+      if ((serialPorts.find(({ path }) => path === targetSerial)) || (targetSerial == 'MOCK_PORT') ){
         canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
         result = true
       } else {
