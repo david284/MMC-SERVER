@@ -120,4 +120,5 @@ class jsonServer{
 
 }
 
-module.exports = jsonServer;
+module.exports = (JsonPort, eventBus) => { return new jsonServer(JsonPort, eventBus) }
+

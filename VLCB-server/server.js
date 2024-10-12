@@ -7,7 +7,6 @@ winston.info({message: name + ': Loaded'});
 
 const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
-const JsonServer = require('./jsonServer')
 
 
 // look for the config folder based on the directory of this module
@@ -44,7 +43,7 @@ exports.run = async function run(){
   // this is so we can use mocks for unit testing
   //
   const cbusServer = require('./cbusServer')
-  let jsonServer = new JsonServer(config.getJsonServerPort(), config.eventBus)
+  const jsonServer = require('./jsonServer')(config.getJsonServerPort(), config.eventBus)
   const mergAdminNode = require('./mergAdminNode.js')(config)
   const programNode = require('../VLCB-server/programNodeMMC.js')()
   socketServer.socketServer(config, mergAdminNode, jsonServer, cbusServer, programNode, status)
