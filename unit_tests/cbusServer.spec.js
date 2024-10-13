@@ -9,13 +9,11 @@ const winston = require('./config/winston_test.js')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const CbusServer = require('../VLCB-server/cbusServer')
+const cbusServer = require('../VLCB-server/cbusServer')
 
 const name = 'unit_test: cbusServer'
-
+  
 describe('cbusServer tests', function(){
-
-  let cbusServer = new CbusServer();
 
 
 	before(function(done) {

@@ -157,4 +157,4 @@ class cbusServer {
   
 }
 
-module.exports = () => { return new cbusServer() }
+module.exports = new cbusServer()

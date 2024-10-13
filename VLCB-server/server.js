@@ -41,7 +41,7 @@ exports.run = async function run(){
 
   // instantiate objects and pass to socketServer
   // this is so we can use mocks for unit testing
-  //
+  // a technique sometimes called dependancy injection
   const cbusServer = require('./cbusServer')
   const jsonServer = require('./jsonServer')(config.getJsonServerPort(), config.eventBus)
   const mergAdminNode = require('./mergAdminNode.js')(config)

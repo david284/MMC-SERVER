@@ -4,7 +4,6 @@ const winston = require('./config/winston_test.js')
 
 const cbusLib = require('cbuslibrary')
 const utils = require('./../VLCB-server/utilities.js');
-const admin = require('./../VLCB-server/mergAdminNode.js')
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -28,7 +27,8 @@ config.setCurrentLayoutFolder() // use default layout
 const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 
 const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
-let node = new admin.cbusAdmin(config);
+const node = require('./../VLCB-server/mergAdminNode.js')(config)
+//let node = new admin.cbusAdmin(config);
 node.connect('localhost', config.getJsonServerPort())
 
 function stringToHex(string) {
