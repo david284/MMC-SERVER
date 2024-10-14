@@ -31,9 +31,11 @@ if (!config.getSocketServerPort()){
 
 //run()
 
-let status = {"busConnection":{
+let status = {
+  "busConnection":{
   "state":true
-  }
+  },
+  mode: 'STARTUP'
 }
 
 exports.run = async function run(){

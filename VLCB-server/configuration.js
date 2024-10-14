@@ -220,17 +220,25 @@ class configuration {
         }
       }
     }
-    // ensure change has been applied
-    if (file.layoutDetails.baseNodeNumber == undefined){
-      file.layoutDetails.baseNodeNumber = 256
+    if (file.layoutDetails == undefined){
+      // essential element missing, so rebuild data
+      file["layoutDetails"] = defaultLayoutData.layoutDetails
+      file.layoutDetails.title = this.config.currentLayoutFolder
+      file.layoutDetails.subTitle = "rebuilt data"
+      file["eventDetails"] = {}
+      file["nodeDetails"] = {}
     }
     return file
   }
   writeLayoutData(data){
-    if(this.userConfigPath){
-      var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutData.json"
-      winston.info({message: className + `: writeLayoutData: ` + filePath});
-      jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    try{
+      if(this.userConfigPath){
+        var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutData.json"
+        winston.info({message: className + `: writeLayoutData: ` + filePath});
+        jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+      }
+    } catch (err){
+      winston.info({message: className + `: writeLayoutData: ` + err });
     }
   }
 
@@ -458,15 +466,20 @@ class configuration {
       winston.info({message: className + ': Platform: ' + os.platform()});
       winston.info({message: className + ': User home directory: ' + homePath});
 
-      //
-      if (os.platform() == "win32"){
-        this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
+      switch (os.platform()) {
+        case 'win32':
+          this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
+          break;
+        case 'linux':
+          this.userConfigPath = homePath + "/MMC-SERVER"
+          break;
+        case 'darwin':    // MAC O/S
+          this.userConfigPath = homePath + "/MMC-SERVER"
+          break;
+        default:
+          this.userConfigPath = homePath + "/MMC-SERVER"
+        }
         this.createDirectory(this.userConfigPath)
-      }
-      if (os.platform() == "linux"){
-        this.userConfigPath = homePath + "/MMC-SERVER"
-        this.createDirectory(this.userConfigPath)
-      }
     }
     winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
   }

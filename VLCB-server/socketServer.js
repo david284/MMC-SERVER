@@ -19,6 +19,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
+    io.emit('STATUS', status)
+    if (status.mode == "RUNNING"){
+      // let the client know the current layout as we're already running
+      io.emit('LAYOUT_DATA', config.readLayoutData())
+    }
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
       winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
@@ -73,7 +78,6 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
       config.setCurrentLayoutFolder(data)
       io.emit('LAYOUT_DATA', config.readLayoutData())
-//      node.query_all_nodes()  // refresh all node data to fill new layout
     })
 
     socket.on('CLEAR_CBUS_ERRORS', function(){
@@ -113,9 +117,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('PROGRAM_NODE', function(data){
-//      winston.info({message: 'socketServer:  PROGRAM_NODE: data ' + JSON.stringify(data)});
       winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
-//      winston.info({message: 'socketServer:  PROGRAM_NODE ' + data.hexFile});
       programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
     })
 
@@ -196,6 +198,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.cbusSend(node.REVAL(data.nodeNumber, data.eventIndex, data.eventVariableId))
     })
 
+    socket.on('REQUEST_LAYOUT_DATA', function(){
+      winston.info({message: `socketServer: REQUEST_LAYOUT_DATA`});
+      io.emit('LAYOUT_DATA', config.readLayoutData())
+    })
+
     socket.on('REQUEST_LAYOUTS_LIST', function(){
       winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
       const layout_list = config.getListOfLayouts()
@@ -211,6 +218,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
       winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
       node.cbusSend(node.RQSD(data.nodeNumber, 0))
+    })
+
+    socket.on('REQUEST_STATUS', function(){
+      winston.debug({message: `socketServer: REQUEST_STATUS`});
+      io.emit('STATUS', status)
+
+      winston.debug({message: `socketServer: sent STATUS`});
     })
 
     socket.on('REQUEST_VERSION', function(){
@@ -252,27 +266,31 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('START_CONNECTION', async function(data){
       winston.info({message: name + `: START_CONNECTION ${JSON.stringify(data)}`});
       if (data.mode == 'Network'){
-        winston.info({message: name + `: START_CONNECTION: connect JsonServer using Network `});
+        winston.info({message: name + `: START_CONNECTION: Network mode `});
         await jsonServer.connect(data.host, data.hostPort)
       } else {
         if(data.mode == 'SerialPort'){
+          winston.info({message: name + `: START_CONNECTION: SerialPort mode `});
           if(await cbusServer.connect(5550, data.serialPort) == false){
             status.busConnection.state = false
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
         } else {
+          winston.info({message: name + `: START_CONNECTION: Auto mode `});
           // assume it's Auto mode
           if(await cbusServer.connect(5550, '') == false){
             status.busConnection.state = false
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
         }
+
         // using local address
         winston.info({message: name + `: START_CONNECTION: connect JsonServer using local `});
         await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
       }
       await node.connect(config.getServerAddress(), config.getJsonServerPort());
       programNode.setConnection(config.getServerAddress(), config.getJsonServerPort());
+      status.mode = 'RUNNING'
     })
 
     socket.on('STOP_SERVER', function(){
@@ -309,7 +327,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
       winston.debug({message: `socketServer: UPDATE_LAYOUT_DATA ${JSON.stringify(data)}`});
       config.writeLayoutData(data)
-      io.emit('LAYOUT_DATA', data)    // hack to refresh client
+      io.emit('LAYOUT_DATA', data)    // refresh client, so pages can respond
     })
       
   });
