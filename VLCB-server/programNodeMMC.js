@@ -209,7 +209,8 @@ class programNode extends EventEmitter  {
     } // end if parseHexFileA...
 
     var startDate = Date.now()
-    while(startDate + 100000 > Date.now()){
+    // abort if not completed by 5 minutes (300,000)
+    while(startDate + 300000 > Date.now()){
       await utils.sleep(10)
       // terminate early if quit
       if(this.programState == STATE_QUIT) {break}
