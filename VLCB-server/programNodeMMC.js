@@ -64,7 +64,10 @@ const SPCMD_BOOT_TEST = 4
 //  so the wait on transmit can be terminated early
 
 
-
+const STATE_NULL = 0
+const STATE_START = 1
+const STATE_FIRMWARE = 2
+const STATE_QUIT = 3
 
 //
 //
@@ -78,6 +81,7 @@ class programNode extends EventEmitter  {
     this.ackReceived = false
     this.sendingFirmware = false
     this.decodeState = {}
+    this.programState = STATE_NULL
   }
     
   //
@@ -106,6 +110,120 @@ class programNode extends EventEmitter  {
   */
 
   async program (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
+    this.success = false
+    this.nodeNumber = NODENUMBER
+    this.programState = STATE_START
+
+
+    this.client.connect(this.net_port, this.net_address, function () {
+      winston.info({message: name + ': this Client Connected ' + this.net_address + ':' + this.net_port});
+      winston.info({message: name + ': this Client is port ' + this.client.localPort});
+    }.bind(this))
+    await utils.sleep(10)    // allow time for connection
+    
+    this.client.on('close', function () {
+      winston.debug({message: 'programNode: Connection Closed'});
+      this.programState = STATE_QUIT
+    }.bind(this))
+
+    this.client.on('error', function (err) {
+      var msg = 'TCP ERROR: ' + err.code
+      winston.debug({message: 'programNode: ' + msg});
+      this.sendFailureToClient(msg)
+      this.programState = STATE_QUIT
+    }.bind(this))
+
+    this.client.on('data', async function (message) {
+      let tmp = message.toString().replace(/}{/g, "}|{")
+      const inMsg = tmp.toString().split("|")
+      for (let i = 0; i < inMsg.length; i++) {
+        try {
+          var cbusMsg = JSON.parse(inMsg[i])
+          if (cbusMsg.ID_TYPE == "X"){
+            winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
+            if (cbusMsg.operation == 'RESPONSE') {
+              if (cbusMsg.response == 0) {
+                winston.debug({message: 'programNode: Check NOT OK received: download failed'});
+                this.sendFailureToClient('Check NOT OK received: download failed')
+                this.programState = STATE_QUIT
+              }
+              if (cbusMsg.response == 1) {
+                this.ackReceived = true
+                if (this.sendingFirmware == false){
+                  winston.debug({message: 'programNode: Check OK received: Sending reset'});
+                  var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
+                  await this.transmitCBUS(msg)
+                  this.success = true
+                  // 'Success:' is a necessary string in the message to signal the client it's been successful
+                  this.sendSuccessToClient('Success: programing completed')
+                  this.programState = STATE_QUIT
+                }
+              }
+              if (cbusMsg.response == 2) {
+                  winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
+                  this.sendFirmware(FLAGS)
+              }
+            }
+          }
+        } catch (err){
+          winston.debug({message: name + ': program on data: ' + err});
+        }
+      }
+    }.bind(this))
+
+    if (this.parseHexFile(INTEL_HEX_STRING)){
+
+      if (FLAGS & 0x4) {
+        this.sendMessageToClient('CPUTYPE ignored')
+      } else {
+        if (this.checkCPUTYPE (CPUTYPE, this.FIRMWARE) != true) {
+          winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: FAILED'})
+          this.sendFailureToClient('CPU mismatch')
+          this.programState = STATE_QUIT
+        }
+      }
+
+      if (this.programState != STATE_QUIT){
+        // not quiting, so proceed...
+        if (FLAGS & 0x8) {
+          // already in boot mode, so proceed with download
+          winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
+          this.sendFirmware(FLAGS)
+        } else {
+          // set boot mode
+          var msg = cbusLib.encodeBOOTM(NODENUMBER)
+          await this.transmitCBUS(msg)
+          
+          // need to allow a small time for module to go into boot mode
+          await utils.sleep(100)
+          var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x04, 0, 0)
+          await this.transmitCBUS(msg)
+        }
+      }    
+
+    } else {
+      // failed parseHexFile
+      winston.warn({message: name + ': parseFileHex failed:'});
+      this.sendFailureToClient('Failed: file parsing failed')
+      this.programState = STATE_QUIT
+    } // end if parseHexFileA...
+
+    var startDate = Date.now()
+    while(startDate + 100000 > Date.now()){
+      await utils.sleep(10)
+      // terminate early if quit
+      if(this.programState == STATE_QUIT) {break}
+    }
+    await utils.sleep(300)  // allow time for last messages to be sent
+    this.client.end()
+    await utils.sleep(100)  // allow time for connection to end
+    this.client.removeAllListeners()
+
+  }
+  
+/*
+
+  async programB (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
     winston.info({message: 'programNode: Started'})
     this.success = false
     this.nodeNumber = NODENUMBER
@@ -221,12 +339,13 @@ class programNode extends EventEmitter  {
     }
 
   }
-    
+*/    
 
   //
   //
   //
   async sendFirmware(FLAGS) {
+      this.programState = STATE_FIRMWARE
       winston.debug({message: 'programNode: Started sending firmware - FLAGS ' + FLAGS});
       // sending the firmware needs to be done in 8 byte messages
 
@@ -352,11 +471,57 @@ class programNode extends EventEmitter  {
   }
 
 
+  //
+  // returns true or false
+  // will populate this.FIRMWARE
+  //
+  parseHexFile(intelHexString) {
+    var firmware = {}       // ???
+    this.decodeState = {}   // keeps state between calls to decodeLine
+    var result = false      // end result
+    var firmwareObject = undefined
 
+    this.sendMessageToClient('Parsing file')
+//        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
+
+    const lines = intelHexString.toString().split("\r\n");
+    winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
+
+    for (var i = 0; i < lines.length - 1; i++) {
+    //winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
+      result = this.decodeLine(firmware, lines[i], function (firmwareObject) {
+        winston.debug({message: 'programNode: >>>>>>>>>>>>> end of file callback'})
+        if (firmwareObject == null) { 
+          winston.debug({message: 'programNode: parseFileHex:  firmware object is null'});
+        }
+        for (const area in firmwareObject) {
+          for (const block in firmwareObject[area]) {
+            winston.debug({message: name + ': parseHexFileA: FIRMWARE: ' + area + ': ' + block + ' length: ' + firmwareObject[area][block].length});
+          }
+        } 
+        this.FIRMWARE = firmwareObject
+      }.bind(this))
+      if (result == false) {break}
+    }
+
+    winston.debug({message: name + ': parseHexFileA: result: ' + result});
+    winston.debug({message: name + ': parseHexFileA: firmwareObject: ' + JSON.stringify(this.FIRMWARE)});
+    if (result){
+      for (const area in this.FIRMWARE) {
+        for (const block in this.FIRMWARE[area]) {
+          winston.debug({message: 'programNode: EOF callback: FIRMWARE: ' + area + ': ' + block + ' length: ' + this.FIRMWARE[area][block].length});
+        }
+      } 
+    }
+    return result
+  }
+
+
+/*
   //
   //
   //
-  parseHexFile(intelHexString, CALLBACK) {
+  parseHexFileB(intelHexString, CALLBACK) {
     var firmware = {}
     this.decodeState = {}
 
@@ -384,7 +549,7 @@ class programNode extends EventEmitter  {
       if (result == false) {break}
     }
   }
-
+*/
 
   //
   //
@@ -517,7 +682,7 @@ class programNode extends EventEmitter  {
       // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
       // but don't increment this.decodeLineStore.index, as next line may not start on 8 byte boundary
       // and may need to overwrite this padding
-      const padLength = 16
+      const padLength = 64
       this.decodeState.index % padLength ? this.decodeState.paddingCount = padLength - (this.decodeState.index % padLength) : this.decodeState.paddingCount = 0
       for (var i = 0; i < this.decodeState.paddingCount; i++) {
         FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index + i] = 0xFF
