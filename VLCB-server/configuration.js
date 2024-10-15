@@ -201,28 +201,35 @@ class configuration {
   //
   readLayoutData(){
     var file = defaultLayoutData // preload with default in case read fails
+    // does folder exist?
     if (this.config.currentLayoutFolder == undefined) {
       winston.info({message: className + `: readLayoutData: currentLayoutFolder undefined`});
       this.config.currentLayoutFolder = defaultLayoutData.layoutDetails.title
       this.writeConfig()
     }
-    var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
     if(this.userConfigPath){
+      var filePath = path.join( this.userConfigPath, "layouts", this.config.currentLayoutFolder)
+      // does layoutData filse exist?
+      if (!fs.existsSync(path.join(filePath, "layoutData.json"))){
+        // doesn't exist, so create
+        this.createLayoutFile(this.config.currentLayoutFolder)
+      }
+      // ok, folder & file should now exist - read it
       try{
-        winston.info({message: className + `: readLayoutData: reading ` + filePath + "layoutData.json"});
-        file = jsonfile.readFileSync(filePath + "layoutData.json")
+        winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
+        file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
       } catch(e){
-        winston.info({message: className + `: readLayoutData: Error reading ` + filePath + "layoutData.json"});
-        // couldn't find the layout, so get the default layout...
+        winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
+        // couldn't read the layout, so get the default layout instead...
         this.config.currentLayoutFolder = defaultLayoutData.layoutDetails.title
         this.writeConfig()
-        filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/"
+        filePath = path.join(this.userConfigPath, 'layouts', this.config.currentLayoutFolder)
         try {
-          winston.info({message: className + `: readLayoutData: reading ` + filePath + "layoutData.json"});
-          file = jsonfile.readFileSync(filePath + "layoutData.json")
+          winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
+          file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
         } catch(e){
           // ok, totally failed, so load with defaults
-          winston.info({message: className + `: readLayoutData: Error reading ` + filePath + "layoutData.json"});
+          winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
           winston.info({message: className + `: readLayoutData: defaults loaded`});
           file = defaultLayoutData
         }
@@ -238,6 +245,7 @@ class configuration {
     }
     return file
   }
+  
   writeLayoutData(data){
     try{
       if(this.userConfigPath){
