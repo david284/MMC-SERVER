@@ -14,12 +14,19 @@ const io = require('socket.io')(server, {
     }
 });
 
+function send_STATUS(config, status){
+  status["userDirectory"] = config.userConfigPath
+  status["systemDirectory"] = config.systemConfigPath
+//  winston.debug({message: name + ': send STATUS ' + JSON.stringify(status)});
+  io.emit('STATUS', status)
+}
 
 exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
-    io.emit('STATUS', status)
+    send_STATUS(config, status)
+    //    io.emit('STATUS', status)
     if (status.mode == "RUNNING"){
       // let the client know the current layout as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
@@ -176,10 +183,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('REQUEST_BUS_CONNECTION', function(){
-      winston.debug({message: `socketServer: REQUEST_BUS_CONNECTION`});
+//      winston.debug({message: `socketServer: REQUEST_BUS_CONNECTION`});
       io.emit('BUS_CONNECTION', status.busConnection)
-
-      winston.debug({message: `socketServer: sent BUS_CONNECTION`});
+//      winston.debug({message: `socketServer: sent BUS_CONNECTION`});
     })
 
     socket.on('REQUEST_BUS_EVENTS', function(){
@@ -221,10 +227,10 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('REQUEST_STATUS', function(){
-      winston.debug({message: `socketServer: REQUEST_STATUS`});
-      io.emit('STATUS', status)
-
-      winston.debug({message: `socketServer: sent STATUS`});
+//      winston.debug({message: `socketServer: REQUEST_STATUS`});
+      send_STATUS(config, status)
+      //      io.emit('STATUS', status)
+//      winston.debug({message: `socketServer: sent STATUS`});
     })
 
     socket.on('REQUEST_VERSION', function(){
@@ -331,6 +337,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
       
   });
+
+
     
   server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
