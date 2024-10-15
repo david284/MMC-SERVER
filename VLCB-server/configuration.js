@@ -147,13 +147,21 @@ class configuration {
   //
   getListOfBackups(layoutName){
     winston.debug({message: className + `: getListOfBackups:`});
-    if (this.userConfigPath){
-      var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
-      var list = fs.readdirSync(backupFolder).filter(function (file) {
-        return fs.statSync(path.join(backupFolder, file)).isFile();
-      },(this));
-      winston.debug({message: className + `: getListOfBackups: ` + list});
-      return list
+    try{
+      if (this.userConfigPath){
+        var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
+        if (!fs.existsSync(backupFolder)){
+          // doesn't exist, so create
+          this.createDirectory(backupFolder)      
+        }
+        var list = fs.readdirSync(backupFolder).filter(function (file) {
+          return fs.statSync(path.join(backupFolder, file)).isFile();
+        },(this));
+        winston.debug({message: className + `: getListOfBackups: ` + list});
+        return list
+      }
+    } catch (err){
+      winston.error({message: className + `: getListOfBackups: ` + err});
     }
   }
 
