@@ -14,19 +14,18 @@ const io = require('socket.io')(server, {
     }
 });
 
-function send_STATUS(config, status){
+function send_SERVER_STATUS(config, status){
   status["userDirectory"] = config.userConfigPath
   status["systemDirectory"] = config.systemConfigPath
-//  winston.debug({message: name + ': send STATUS ' + JSON.stringify(status)});
-  io.emit('STATUS', status)
+//  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
+  io.emit('SERVER_STATUS', status)
 }
 
 exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
-    send_STATUS(config, status)
-    //    io.emit('STATUS', status)
+    send_SERVER_STATUS(config, status)
     if (status.mode == "RUNNING"){
       // let the client know the current layout as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
@@ -226,14 +225,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.cbusSend(node.RQSD(data.nodeNumber, 0))
     })
 
-    socket.on('REQUEST_STATUS', function(){
-//      winston.debug({message: `socketServer: REQUEST_STATUS`});
-      send_STATUS(config, status)
-      //      io.emit('STATUS', status)
-//      winston.debug({message: `socketServer: sent STATUS`});
+    socket.on('REQUEST_SERVER_STATUS', function(){
+    //      winston.debug({message: `socketServer: REQUEST_SERVER_STATUS`});
+      send_SERVER_STATUS(config, status)
     })
-
-    socket.on('REQUEST_VERSION', function(){
+      
+          socket.on('REQUEST_VERSION', function(){
       winston.info({message: `socketServer: REQUEST_VERSION`});
       let version = {
         'App': packageInfo.version,
