@@ -46,7 +46,7 @@ var options = {
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
-    maxFiles: 5,
+    maxFiles: 30,
 	  format: timeStampFirst
   },
   error: {
@@ -64,7 +64,7 @@ var options = {
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
-    maxFiles: 5,
+    maxFiles: 10,
 	  format: timeStampFirst
   },
   warn: {

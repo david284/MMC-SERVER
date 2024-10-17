@@ -253,12 +253,12 @@ class programNode extends EventEmitter  {
           winston.info({message: 'programNode: FLASH AREA : ' + block + ' length: ' + program.length});
           var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
-          await this.transmitCBUS(msgData, 10)
+          await this.transmitCBUS(msgData, 30)
           //
           for (let i = 0; i < program.length; i += 8) {
             var chunk = program.slice(i, i + 8)
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 10)
+            await this.transmitCBUS(msgData, 30)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
             winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
             if (progressCount <= i) {
@@ -326,7 +326,7 @@ class programNode extends EventEmitter  {
       // 00049272: Send: :X00080004N000000000D034122;
       winston.debug({message: 'programNode: Sending Check firmware'});
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
-      await this.transmitCBUS(msgData, 10)
+      await this.transmitCBUS(msgData, 30)
   }
     
 
@@ -430,7 +430,7 @@ class programNode extends EventEmitter  {
     // need to add a delay between write to the module
     //
     var startTime = Date.now()
-    await utils.sleep(1)
+    await utils.sleep(10) // always allow at least 10mSecs anyway
     while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
       await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
       count++
