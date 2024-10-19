@@ -22,6 +22,8 @@ The following is needed to run the application from the github project
 
 ## Node.js
 This application requires Node.js (& npm) to run   
+Useful guide to installing NodeJS ->https://www.pluralsight.com/resources/blog/guides/getting-started-with-nodejs
+
 Get Node.js from -> https://nodejs.org/en/download/package-manager/
 
 ## Installation:
@@ -36,33 +38,19 @@ On windows, once installed, if you then get npm failing to run (I get mixed '\' 
 Original source for this fix -> https://digipie.github.io/digidocs/nodejs/set-npm-run-shell/
 
 ## Connection
-By default, the application will attempt to automatically find a CANUSB or CANUSB4 device connected via USB,
-and then use that to connect to the CANBUS network
-A specific serial port can be selected using the 'serialPort=<xxxx>' option - see 'command line options' below
-This would be used for a serial port that doesn't use a CANUSB4
+A startup dialog will expect a layout to be selected before the 'proceed' option can be clicked 
+By default, the application will attempt to automatically find a CANUSB or CANUSB4 device connected via USB, and then use that to connect to the CANBUS network
+There is an INFO button on the startup dialog that provides more information
 
-Alternatively, a network connection can be used, using an optional command line parameter 'network', so that applications like 'cbusServer' can be used, typically on a remote machine
-The cbusServer service here -> See https://www.merg.org.uk/merg_wiki/doku.php?id=cbus_server:cbus_server&s[]=cbusserver   
-See details on cbusServer on setting up the serial port   
-
-The default IP settings should work 'out the box'   
-But the ip & port settings are in the server.js file, and can easily changed for a remote IP connection or a different port if required   
-
-Alternatively, there is a software simulation of a CBUS network available, again using the 'network' option, 
+For testing purposes, there is a software simulation of a CBUS network available, again using the 'network' option, 
 which avoids the need for any other physical hardware   
 This application provides a simulation of multiple modules on a VLCB network, and has been used to test operation of this conformance test   
 https://github.com/david284/CbusNetworkSimulator.git
 
 ## Execution:
 To run the app, use 'npm start' at the command line
-or  'npm start [command line options]' - see below for command line options
 The program will open a web page using the default web browser
 
-## Command line options
-use 'npm start [command line options]'
-   auto             - (or just 'npm start') attempts to automatically find CANUSB4
-   network          - uses tcp connection
-   serialPort=<XXX> - selects specific serial port (e.g. COM3)
 
 # Pre-Built version of MMC
 There was a pre-built version of MMC for windows only, using NW.js (previously known as node-webkit)
