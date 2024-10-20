@@ -34,11 +34,8 @@ class cbusAdmin extends EventEmitter {
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
 
-        /*
-        this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
-            winston.info({message: `mergAdminNode: Connected - ${config.getServerAddress()} on ${config.getJsonServerPort()}`});
-        })
-            */
+        this.scanQueue = []
+        setInterval(this.scanNodesIntervalFunc.bind(this),500);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -392,7 +389,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
                 this.nodeConfig.nodes[ref].status = true
-                await this.cbusSend((this.RQEVN(cbusMsg.nodeNumber)))
+                this.scanQueue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
                 this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
@@ -545,11 +542,23 @@ class cbusAdmin extends EventEmitter {
 //        this.cbusSend(this.QNN())
     }
 
-    connect(host, port){
+    scanNodesIntervalFunc(){
+      if (this.scanQueue.length > 0){
+        var nodeNumber = this.scanQueue.shift()
+        winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
+//        this.request_all_node_events(nodeNumber)
+        this.cbusSend(this.NERD(nodeNumber))
+      }
+    }
+      
+
+    async connect(host, port){
       winston.info({message: `mergAdminNode: connect - ${host} on port ${port}`});
       this.client.connect(port, host, function () {
         winston.info({message: `mergAdminNode: Connected - ${host} on port ${port}`});
       })
+      await utils.sleep(100)
+      this.query_all_nodes()
     }
 
     getModuleName(moduleIdentifier){
@@ -956,11 +965,14 @@ class cbusAdmin extends EventEmitter {
 
 
   async request_all_node_events(nodeNumber){
-    winston.debug({message: 'mergAdminNode: request_all_node_events: node ' + nodeNumber});
+    winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     // don't start this if we already have an event variable read in progress
 //    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
 //    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
+    this.scanQueue.push(nodeNumber)
+
+    /*
     if(true){
       winston.debug({message: 'mergAdminNode: request_all_node_events: start process '});
       this.nodeConfig.nodes[nodeNumber].eventReadBusy=true
@@ -968,14 +980,24 @@ class cbusAdmin extends EventEmitter {
       this.removeNodeEvents(nodeNumber)
       await this.cbusSend(this.NERD(nodeNumber))
       var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
-      await sleep(delay)  // give it some time to complete
+      await utils.sleep(delay)  // give it some time to complete
       this.nodeConfig.nodes[nodeNumber].eventReadBusy=false
       this.emit('events', this.nodeConfig.events)
     } else {
       winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
     }
+      */
 
   }
+
+  async read_all_stored_events(nodeNumber, eventCount){
+    await this.cbusSend(this.NERD(nodeNumber))
+    var delay = 50 * eventCount
+    await utils.sleep(delay)  // give it some time to complete
+    this.emit('events', this.nodeConfig.events)
+  }
+
+
 
   async request_all_node_parameters(nodeNumber){
     await this.cbusSend(this.RQNPN(nodeNumber, 0))    // get number of node parameters

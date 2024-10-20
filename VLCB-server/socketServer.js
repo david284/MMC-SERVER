@@ -27,8 +27,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     winston.info({message: 'socketServer:  a user connected'});
     send_SERVER_STATUS(config, status)
     if (status.mode == "RUNNING"){
-      // let the client know the current layout as we're already running
+      // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
+      io.emit('NODES', node.nodeConfig.nodes);
     }
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
