@@ -389,6 +389,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
                 this.nodeConfig.nodes[ref].status = true
+                await this.cbusSend((this.RQEVN(cbusMsg.nodeNumber))) // get number of events for each node
                 this.scanQueue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
