@@ -554,6 +554,7 @@ class cbusAdmin extends EventEmitter {
         var nodeNumber = this.scanQueue.shift()
         winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
 //        this.request_all_node_events(nodeNumber)
+        this.removeNodeEvents(nodeNumber) // clear events before we re-read them
         this.cbusSend(this.NERD(nodeNumber))
       }
     }
@@ -967,8 +968,9 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.NNCLR(nodeNumber))
-    await sleep(50); // allow a bit more time after NNCLR
+    await sleep(500); // allow a bit more time after NNCLR
     await this.cbusSend(this.NNULN(nodeNumber))
+    await sleep(100); // allow a bit more time after NNULN
     await this.request_all_node_events(nodeNumber)
   }
 
