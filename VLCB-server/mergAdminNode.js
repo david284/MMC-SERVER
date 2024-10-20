@@ -35,7 +35,7 @@ class cbusAdmin extends EventEmitter {
         this.client = new net.Socket()
 
         this.scanQueue = []
-        setInterval(this.scanNodesIntervalFunc.bind(this),500);
+        setInterval(this.scanNodesIntervalFunc.bind(this),400);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -542,6 +542,12 @@ class cbusAdmin extends EventEmitter {
 //        this.cbusSend(this.QNN())
     }
 
+    //
+    // Function to read all events from nodes one at a time
+    // node numbers are pushed onto a queue
+    // node number taken from queue and NERD sent to get all events for that node
+    // Function called on a frequent basis
+    //
     scanNodesIntervalFunc(){
       if (this.scanQueue.length > 0){
         var nodeNumber = this.scanQueue.shift()
@@ -950,9 +956,11 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+
   addNodeToConfig(nodeNumber){
     this.nodeConfig.nodes[nodeNumber] = {eventVariableReadBusy:false}
   }
+
 
   async delete_all_events(nodeNumber) {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
@@ -963,32 +971,16 @@ class cbusAdmin extends EventEmitter {
     await this.request_all_node_events(nodeNumber)
   }
 
-
+  //
+  // Adds node number to scan queue so that multiple requests can be dealt with in order
+  // so that it doesn't overload the CANBUS
+  //
   async request_all_node_events(nodeNumber){
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
-    // don't start this if we already have an event variable read in progress
-//    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy)
-//    if(this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy==false){
     this.scanQueue.push(nodeNumber)
-
-    /*
-    if(true){
-      winston.debug({message: 'mergAdminNode: request_all_node_events: start process '});
-      this.nodeConfig.nodes[nodeNumber].eventReadBusy=true
-      await this.cbusSend(this.RQEVN(nodeNumber))
-      this.removeNodeEvents(nodeNumber)
-      await this.cbusSend(this.NERD(nodeNumber))
-      var delay = 50 * this.nodeConfig.nodes[nodeNumber].eventCount
-      await utils.sleep(delay)  // give it some time to complete
-      this.nodeConfig.nodes[nodeNumber].eventReadBusy=false
-      this.emit('events', this.nodeConfig.events)
-    } else {
-      winston.info({message: 'mergAdminNode: request_all_node_events: blocked '});
-    }
-      */
-
   }
+
 
   async read_all_stored_events(nodeNumber, eventCount){
     await this.cbusSend(this.NERD(nodeNumber))
@@ -1009,6 +1001,7 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+
   async request_all_node_variables(nodeNumber, start){
     // get number of node variables - but wait till it exists
     while (1){
@@ -1021,6 +1014,7 @@ class cbusAdmin extends EventEmitter {
       await sleep(50); // allow time between requests
     }
   }
+
 
   // teach_event not only creates a new event, but needs to refresh the events
   // as the indexs for events for that node may have changed once a new event has been created
