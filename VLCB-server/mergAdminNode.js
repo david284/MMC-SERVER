@@ -979,6 +979,7 @@ class cbusAdmin extends EventEmitter {
   async request_all_node_events(nodeNumber){
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
+    await this.cbusSend((this.RQEVN(nodeNumber))) // get number of events for each node
     this.scanQueue.push(nodeNumber)
   }
 
