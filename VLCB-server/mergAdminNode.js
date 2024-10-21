@@ -35,7 +35,8 @@ class cbusAdmin extends EventEmitter {
         this.client = new net.Socket()
 
         this.scanQueue = []
-        setInterval(this.scanNodesIntervalFunc.bind(this),400);
+        this.scanQueueCount = 0;
+        setInterval(this.scanNodesIntervalFunc.bind(this), 20);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -551,11 +552,21 @@ class cbusAdmin extends EventEmitter {
     //
     scanNodesIntervalFunc(){
       if (this.scanQueue.length > 0){
-        var nodeNumber = this.scanQueue.shift()
-        winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
-//        this.request_all_node_events(nodeNumber)
-        this.removeNodeEvents(nodeNumber) // clear events before we re-read them
-        this.cbusSend(this.NERD(nodeNumber))
+        var nodeNumber = this.scanQueue[0]
+        // if first time for this node, then send it...
+        if (this.scanQueueCount == 0) {
+          winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
+          this.removeNodeEvents(nodeNumber) // clear events before we re-read them
+          this.cbusSend(this.NERD(nodeNumber))
+        }
+        // count passes for this node
+        this.scanQueueCount++
+        var loops = (this.nodeConfig.nodes[nodeNumber].eventCount) ? this.nodeConfig.nodes[nodeNumber].eventCount / 5 : 1
+        if (this.scanQueueCount > loops){
+          // reset for next node
+          var nodeNumber = this.scanQueue.shift()
+          this.scanQueueCount = 0
+        }
       }
     }
       

@@ -29,7 +29,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     if (status.mode == "RUNNING"){
       // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
-      io.emit('NODES', node.nodeConfig.nodes);
+      node.query_all_nodes()
+//      io.emit('NODES', node.nodeConfig.nodes);
     }
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
