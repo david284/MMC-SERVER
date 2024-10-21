@@ -722,9 +722,15 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIdentifier} ${eventVariableIndex} ${eventVariableValue}`});
       try {
         var node = this.nodeConfig.nodes[nodeNumber]
-        if (eventIdentifier){
-          node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        // might be new event, so check it exists, and create if it doesn't
+        if (node.storedEventsNI[eventIdentifier] == undefined){
+          node.storedEventsNI[eventIdentifier] = {
+            "eventIdentifier": eventIdentifier,
+            "variables": {}
+          }
         }
+        node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+//        winston.debug({message: name + `: storeEventVariableByIdentifier: ` + JSON.stringify(node.storedEventsNI)});
       } catch (err) {
         winston.debug({message: name + `: storeEventVariableByIdentifier: error ${err}`});
       }
@@ -1037,28 +1043,22 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name +': update_event_variable: data ' + JSON.stringify(data)});
     await this.cbusSend(this.NNLRN(data.nodeNumber))
     await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
-    await sleep(50); // allow a bit more time after EVLRN
+    await sleep(500); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
     await this.requestEventVariablesByIdentifier(data.nodeNumber, data.eventName)
   }
 
   async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
-    //var refreshEvents = !this.eventIdentifierExists(nodeNumber, eventIdentifier)
-    var refreshEvents = false
     if (utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
-      refreshEvents = true
+      // must be new event, so add to config
+      this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
     } 
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
-    await sleep(50); // allow a bit more time after EVLRN
+    await sleep(400); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
-    if (refreshEvents){
-      winston.debug({message: name + ": event_teach_by_identity: event didn't exist, so refresh all events"})
-      await this.request_all_node_events(nodeNumber)
-    } else {
-      winston.debug({message: name + ": event_teach_by_identity: event already existed, so don't refresh all events"})
-    }
+    await sleep(100); // allow a bit more time after NNULN
     await this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
   }
 
@@ -1068,6 +1068,9 @@ class cbusAdmin extends EventEmitter {
 
     // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
     // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
+    // but need to refresh all events to get updated event indexes
+    await this.cbusSend(this.NERD(nodeNumber))
+    await sleep(300); // allow a bit more time after NERD
     try{
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex){
