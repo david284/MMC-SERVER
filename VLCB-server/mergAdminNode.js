@@ -929,7 +929,9 @@ class cbusAdmin extends EventEmitter {
   async remove_event(nodeNumber, eventName) {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVULN(eventName))
+    await sleep(300); // allow a bit more time after NNCLR
     await this.cbusSend(this.NNULN(nodeNumber))
+    await sleep(100); // allow a bit more time after NNCLR
     await this.request_all_node_events(nodeNumber)
   }
 
@@ -999,6 +1001,7 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     await this.cbusSend((this.RQEVN(nodeNumber))) // get number of events for each node
+    await sleep(100); // wait for a bit before trying to use it
     this.scanQueue.push(nodeNumber)
   }
 
@@ -1042,9 +1045,10 @@ class cbusAdmin extends EventEmitter {
   async teach_event(nodeNumber, eventIdentifier, variableId, value) {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, variableId, value))
-    await sleep(50); // allow a bit more time after EVLRN
+    await sleep(300); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
     await this.cbusSend(this.NNULN(nodeNumber))   // do we really need this 2nd NNULN?
+    await sleep(100); // allow a bit more time after NNULN
     await this.request_all_node_events(nodeNumber)
   }
 
@@ -1054,8 +1058,9 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name +': update_event_variable: data ' + JSON.stringify(data)});
     await this.cbusSend(this.NNLRN(data.nodeNumber))
     await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
-    await sleep(500); // allow a bit more time after EVLRN
+    await sleep(300); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
+    await sleep(100); // allow a bit more time after NNULN
     await this.requestEventVariablesByIdentifier(data.nodeNumber, data.eventName)
   }
 
