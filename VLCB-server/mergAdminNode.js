@@ -10,6 +10,7 @@ const name = 'mergAdminNode'
 class cbusAdmin extends EventEmitter {
     constructor(config) {
         super();
+        this.inUnitTest = false;
         winston.info({message: `mergAdminNode: Constructor`});
         this.config = config
         this.nodeConfig = {}
@@ -989,8 +990,6 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.NNCLR(nodeNumber))
     await sleep(500); // allow a bit more time after NNCLR
     await this.cbusSend(this.NNULN(nodeNumber))
-    await sleep(100); // allow a bit more time after NNULN
-    await this.request_all_node_events(nodeNumber)
   }
 
   //
@@ -1001,7 +1000,8 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     await this.cbusSend((this.RQEVN(nodeNumber))) // get number of events for each node
-    await sleep(100); // wait for a bit before trying to use it
+    var timeOut = (this.inUnitTest) ? 1 : 100
+    await sleep(timeOut); // allow a bit more time after EVLRN
     this.scanQueue.push(nodeNumber)
   }
 
@@ -1045,23 +1045,32 @@ class cbusAdmin extends EventEmitter {
   async teach_event(nodeNumber, eventIdentifier, variableId, value) {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, variableId, value))
-    await sleep(300); // allow a bit more time after EVLRN
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
     await this.cbusSend(this.NNULN(nodeNumber))   // do we really need this 2nd NNULN?
-    await sleep(100); // allow a bit more time after NNULN
-    await this.request_all_node_events(nodeNumber)
   }
 
-  // update_event_variable not only updates the variable, but refreshes all the variables for that event
+  // update_event_variable only updates the variable
   // This is why it's different to 'teach_event'
   async update_event_variable(data){
     winston.info({message: name +': update_event_variable: data ' + JSON.stringify(data)});
     await this.cbusSend(this.NNLRN(data.nodeNumber))
     await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
-    await sleep(300); // allow a bit more time after EVLRN
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(data.nodeNumber))
-    await sleep(100); // allow a bit more time after NNULN
-    await this.requestEventVariablesByIdentifier(data.nodeNumber, data.eventName)
+  }
+
+  // updateEventVariableByIdentifier only updates the variable
+  // This is why it's different to 'teach_event'
+  async updateEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
+    winston.debug({message: name +': update_event_variable_by_identifier: node: ' + nodeNumber});
+    await this.cbusSend(this.NNLRN(nodeNumber))
+    await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after EVLRN
+    await this.cbusSend(this.NNULN(nodeNumber))
   }
 
   async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
@@ -1072,10 +1081,28 @@ class cbusAdmin extends EventEmitter {
     } 
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
-    await sleep(400); // allow a bit more time after EVLRN
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
-    await sleep(100); // allow a bit more time after NNULN
-    await this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+  }
+
+
+  async requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex){
+    winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+
+    // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
+    // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
+    // should not need to refresh event Indexes, as just asking for one variable
+    try{
+      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+      if (eventIndex){
+        this.cbusSend(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
+      } else {
+        winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
+      }
+    } catch (err){
+      winston.error({message: name + ': requestEventVariableByIdentifier: failed to get eventIndex: ' + err});
+    }
   }
 
 
@@ -1086,7 +1113,8 @@ class cbusAdmin extends EventEmitter {
     // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
     // but need to refresh all events to get updated event indexes
     await this.cbusSend(this.NERD(nodeNumber))
-    await sleep(300); // allow a bit more time after NERD
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after EVLRN
     try{
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex){

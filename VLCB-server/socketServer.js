@@ -103,9 +103,10 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.removeNodeEvents(data.nodeNumber);
     })
 
-    socket.on('DELETE_ALL_EVENTS', function(data){
+    socket.on('DELETE_ALL_EVENTS', async function(data){
       winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
-      node.delete_all_events(data.nodeNumber)
+      await node.delete_all_events(data.nodeNumber)
+      await this.request_all_node_events(nodeNumber)
     })
 
     socket.on('DELETE_LAYOUT', function(data){
@@ -113,9 +114,10 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       config.deleteLayoutFolder(data.layoutName)
     })
 
-    socket.on('EVENT_TEACH_BY_IDENTIFIER', function(data){
+    socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
-      node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+      await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+      await node.request_all_node_events(data.nodeNumber)
     })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
@@ -303,14 +305,22 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       process.exit();
     })
     
-    socket.on('TEACH_EVENT', function(data){
+    socket.on('TEACH_EVENT', async function(data){
       winston.info({message: `socketServer: TEACH_EVENT ${JSON.stringify(data)}`});
-      node.teach_event(data.nodeNumber, data.eventName, 1, 0)
+      await node.teach_event(data.nodeNumber, data.eventName, 1, 0)
+      await node.request_all_node_events(data.nodeNumber)
     })
 
-    socket.on('UPDATE_EVENT_VARIABLE', function(data){
+    socket.on('UPDATE_EVENT_VARIABLE', async function(data){
       winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE ${JSON.stringify(data)}`});
-      node.update_event_variable(data)
+      await node.update_event_variable(data)
+      await node.requestEventVariableByIdentifier(data.nodeNumber, data.eventName, data.eventVariableIndex)
+    })
+
+    socket.on('UPDATE_EVENT_VARIABLE_BY_IDENTIFIER', async function(data){
+      winston.info({message: `socketServer: UPDATE_EVENT_VARIABLE_BY_IDENTIFIER ${JSON.stringify(data)}`});
+      await node.updateEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+      await node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex)
     })
 
     socket.on('UPDATE_NODE_VARIABLE', function(data){

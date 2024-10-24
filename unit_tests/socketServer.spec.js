@@ -6,6 +6,8 @@ const net = require('net')
 //import io from 'socket.io-client'
 const { io } = require("socket.io-client")
 const cbusLib = require('cbuslibrary')
+const utils = require('./../VLCB-server/utilities.js');
+
 
 const socketServer = require('../VLCB-server/socketServer.js')
 
@@ -40,6 +42,7 @@ const node = require('./../VLCB-server/mergAdminNode.js')(config)
 const programNode = require('../VLCB-server/programNodeMMC.js')
 
 node.connect('localhost', config.getJsonServerPort())
+node.inUnitTest = true
 socketServer.socketServer(config, node, mock_jsonServer, cbusServer, programNode, status)
 
 
@@ -63,7 +66,8 @@ function hexToString(hex) {
 
 const name = 'unit_test: socketServer'
 
-describe('socketServer tests', function(){
+describe('socketServer tests', async function(){
+
 
   const socket = io(`http://${config.getServerAddress()}:${config.getSocketServerPort()}`)
 
@@ -78,7 +82,7 @@ describe('socketServer tests', function(){
 //    winston.debug({message: ' layoutData : ' + JSON.stringify(layoutData)});
     });	
 
-	before(function(done) {
+	before(async function() {
 		winston.info({message: ' '});
 		winston.info({message: '================================================================================'});
     //                      12345678901234567890123456789012345678900987654321098765432109876543210987654321
@@ -86,10 +90,10 @@ describe('socketServer tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
         
+    await utils.sleep(200)
     //
     // Use local 'user' directory for tests...
     config.userConfigPath = "./unit_tests/test_output/test_user"
-		done();
 	});
 
 	beforeEach(function() {
@@ -472,7 +476,33 @@ describe('socketServer tests', function(){
       expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
-		}, 500);
+		}, 250);
+  })
+
+
+  itParam("UPDATE_EVENT_VARIABLE_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN UPDATE_EVENT_VARIABLE_BY_IDENTIFIER test: ' + JSON.stringify(value)});
+    mock_jsonServer.messagesIn = []
+    var data = {"nodeNumber": value.nodeNumber,
+      "eventIdentifier": value.eventIdentifier,
+      "eventVariableIndex": value.eventVariableIndex,
+      "eventVariableValue": value.eventVariableValue
+    }
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
+    socket.emit('UPDATE_EVENT_VARIABLE_BY_IDENTIFIER', data)
+
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
+      winston.info({message: 'unit_test: END UPDATE_EVENT_VARIABLE_BY_IDENTIFIER test'});
+			done();
+		}, 150);
+
   })
 
 

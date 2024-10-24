@@ -69,6 +69,9 @@ describe('mergAdminNode tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
     await utils.sleep(1000)    
+
+    node.inUnitTest = true
+
 	});
 
 	beforeEach(function() {
@@ -514,18 +517,34 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
-/*
-function GetTestCase_teach_event() {
-  var argA = 1, argB = "00000002", argC = 3, argD = 4, testCases = [];
-  testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
-  return testCases;
-}
-*/
+  function GetTestCase_event_read() {
+    var argA, argB, argC, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = "00000000"}
+        if (b == 2) {argB = "00000001"}
+        if (b == 3) {argB = "FFFFFFFF"}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+            testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC});
+        }
+      }
+    }
+    return testCases;
+  }
 
-  itParam("teach_event test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+  //
+  //
+  //
+  itParam("teach_event test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN teach_event test '});
     mock_jsonServer.messagesIn = []
-    node.teach_event(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
+    await node.teach_event(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -534,14 +553,15 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("RQEVN")
-      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END teach_event test'});
 			done();
-		}, 300);
+		}, 10);
   })
 
-  itParam("update_event_variable test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+  //
+  //
+  //
+  itParam("update_event_variable test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN update_event_variable test '});
     mock_jsonServer.messagesIn = []
     var data = {"nodeNumber": value.nodeNumber,
@@ -551,7 +571,7 @@ function GetTestCase_teach_event() {
       "eventVariableValue": value.eventVariableValue
     }
     node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
-    node.update_event_variable(data) 
+    await node.update_event_variable(data) 
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -559,18 +579,47 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END update_event_variable test'});
 			done();
-		}, 400);
+		}, 10);
   })
 
-  itParam("event_teach_by_identifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+  //
+  //
+  //
+  itParam("updateEventVariableByIdentifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN updateEventVariableByIdentifier test ' + JSON.stringify (value)});
+    mock_jsonServer.messagesIn = []
+    node.nodeConfig.nodes = {}          // start with clean slate
+    var data = {"nodeNumber": value.nodeNumber,
+      "eventName": value.eventIdentifier,
+      "eventIndex": 1,
+      "eventVariableId": value.eventVariableIndex,
+      "eventVariableValue": value.eventVariableValue
+    }
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
+    await node.updateEventVariableByIdentifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue) 
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      winston.info({message: 'unit_test: END updateEventVariableByIdentifier test'});
+			done();
+		}, 10);
+  })
+
+  //
+  //
+  //
+  itParam("event_teach_by_identifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN event_teach_by_identifier test '});
     mock_jsonServer.messagesIn = []
     // ensure event doesn't exist, so should always refresh all events
     node.nodeConfig.nodes[value.nodeNumber] = {storedEvents:{0:{}}}
-    node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
+    await node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -578,65 +627,20 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
-      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
 //      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
-		}, 450);
+		}, 10);
   })
 
-  function GetTestCase_teach_event2() {
-    var argA, argB, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {argA = 0, argB = 0}
-      if (a == 2) {argA = 1, argB = 2}
-      if (a == 3) {argA = 2, argB = 3}
-      testCases.push({'test':argA, 'numberOfVariables': argB});
-    }
-    return testCases;
-  }
-  //
-  // Test that if the event already exists, then the read all events isn't executed
-  //
-  itParam("event_teach_by_identifier2 test ${JSON.stringify(value)}", GetTestCase_teach_event2(), function (done, value) {
-//    it("event_teach_by_identity2 test", function (done) {
-    winston.info({message: 'unit_test: BEGIN event_teach_by_identifier2 test '});
-    mock_jsonServer.messagesIn = []
-    // create event so that it already exists
-    node.nodeConfig.nodes[1] = {storedEvents:{0:{}}}
-    node.nodeConfig.nodes[1].storedEvents[1] = {eventIdentifier: "00000002"}
-    if(value.test == 1){
-      // lets set the node parameter for number of event variables
-      node.nodeConfig.nodes[1]["parameters"]={}
-      node.nodeConfig.nodes[1].parameters[5] = value.numberOfVariables
-    }
-    if(value.test == 2){
-      // lets set EV0 with the number of event variables      
-      node.nodeConfig.nodes[1].storedEvents[1]["variables"] = {}
-      node.nodeConfig.nodes[1].storedEvents[1].variables[0] = value.numberOfVariables
-    }
-    node.event_teach_by_identifier(1, "00000002", 1, 1 )
-    setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
-      }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-//      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("NNLRN")
-//      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("REQEV")
-//      expect(mock_jsonServer.messagesIn[5 + value.numberOfVariables].mnemonic).to.equal("NNULN")
-//      expect(mock_jsonServer.messagesIn.length).to.equal(6 + value.numberOfVariables)    // check events read wasn't triggered
-      winston.info({message: 'unit_test: END event_teach_by_identifier2 test'});
-			done();
-		}, 450);
-  })
 
-  itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+  //
+  //
+  //
+  itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN delete_all_events test '});
     mock_jsonServer.messagesIn = []
-    node.delete_all_events(value.nodeNumber)
+    await node.delete_all_events(value.nodeNumber)
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -646,8 +650,39 @@ function GetTestCase_teach_event() {
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END delete_all_events test'});
 			done();
-		}, 200);
+		}, 10);
   })
+
+
+
+  //
+  //
+  //
+  itParam("requestEventVariableByIdentifier test ${JSON.stringify(value)}", GetTestCase_event_read(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestEventVariableByIdentifier test: ' + JSON.stringify(value) });
+    
+    mock_jsonServer.messagesIn = []
+    node.nodeConfig.nodes = {}          // start with clean slate
+    var data = {"nodeNumber": value.nodeNumber,
+      "eventName": value.eventIdentifier,
+      "eventIndex": 1,
+      "eventVariableId": value.eventVariableIndex,
+      "eventVariableValue": 255
+    }
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
+    await node.requestEventVariableByIdentifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex) 
+  
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("REVAL")
+      winston.info({message: 'unit_test: END requestEventVariableByIdentifier test'});
+			done();
+		}, 10);
+
+  })
+
 
   function GetTestCase_events() {
     var arg1, arg2, arg3, testCases = [];
@@ -684,5 +719,4 @@ function GetTestCase_teach_event() {
 
 
 })
-
 
