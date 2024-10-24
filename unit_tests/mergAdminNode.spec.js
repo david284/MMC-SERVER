@@ -88,6 +88,18 @@ describe('mergAdminNode tests', function(){
 	});																										
 
 
+  function GetTestCase_nodeNumber() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      testCases.push({'nodeNumber':arg1});
+    }
+    return testCases;
+  }
+
+
   function GetTestCase_nodeNumberAndOneByte() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -680,6 +692,29 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: END requestEventVariableByIdentifier test'});
 			done();
 		}, 10);
+
+  })
+
+
+  //
+  //
+  //
+  itParam("request_all_node_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN request_all_node_events test: ' + JSON.stringify(value) });
+    
+    mock_jsonServer.messagesIn = []
+
+    await node.request_all_node_events(value.nodeNumber) 
+  
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("RQEVN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NERD")
+      winston.info({message: 'unit_test: END request_all_node_events test'});
+			done();
+		}, 100);
 
   })
 

@@ -458,11 +458,13 @@ describe('socketServer tests', async function(){
   itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTIFIER test '});
     mock_jsonServer.messagesIn = []
+    node.nodeConfig.nodes = {}          // start with clean slate
     var data = {"nodeNumber": value.nodeNumber,
       "eventIdentifier": value.eventIdentifier,
       "eventVariableIndex": value.eventVariableIndex,
       "eventVariableValue": value.eventVariableValue
     }
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
     socket.emit('EVENT_TEACH_BY_IDENTIFIER', data)
 
     setTimeout(function(){
@@ -472,8 +474,7 @@ describe('socketServer tests', async function(){
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
-      expect(mock_jsonServer.messagesIn[4].mnemonic).to.equal("NERD")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
 		}, 250);

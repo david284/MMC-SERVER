@@ -117,7 +117,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
       await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
-      await node.request_all_node_events(data.nodeNumber)
+      await node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex)
     })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
