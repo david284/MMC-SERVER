@@ -350,10 +350,10 @@ class cbusAdmin extends EventEmitter {
                         if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
                             winston.debug({message: `mergAdminNode: Event Variable ${cbusMsg.variable} Value has Changed `});
                             this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
-                            this.saveNode(cbusMsg.nodeNumber)
                         } else {
                             winston.debug({message: `mergAdminNode: NEVAL: Event Variable ${cbusMsg.eventVariableIndex} Value has not Changed `});
                         }
+                        this.saveNode(cbusMsg.nodeNumber)
                     } else {
                         winston.debug({message: `mergAdminNode: NEVAL: Event Variable ${cbusMsg.variable} Does not exist on config - adding`});
                         this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
@@ -557,7 +557,8 @@ class cbusAdmin extends EventEmitter {
         // if first time for this node, then send it...
         if (this.scanQueueCount == 0) {
           winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
-          this.removeNodeEvents(nodeNumber) // clear events before we re-read them
+          // clear events before we re-read them (but don't send to client yet)
+          this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
           this.cbusSend(this.NERD(nodeNumber))
         }
         // count passes for this node
@@ -838,6 +839,7 @@ class cbusAdmin extends EventEmitter {
 
     saveNode(nodeNumber) {
       winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
+      winston.debug({message: 'mergAdminNode: Save Node : ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
         this.nodeConfig.nodes[nodeNumber] = {
           "nodeNumber": nodeNumber,
@@ -1040,50 +1042,25 @@ class cbusAdmin extends EventEmitter {
   }
 
 
-  // teach_event not only creates a new event, but needs to refresh the events
-  // as the indexs for events for that node may have changed once a new event has been created
-  async teach_event(nodeNumber, eventIdentifier, variableId, value) {
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, variableId, value))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after EVLRN
-    await this.cbusSend(this.NNULN(nodeNumber))
-    await this.cbusSend(this.NNULN(nodeNumber))   // do we really need this 2nd NNULN?
-  }
-
-  // update_event_variable only updates the variable
-  // This is why it's different to 'teach_event'
-  async update_event_variable(data){
-    winston.info({message: name +': update_event_variable: data ' + JSON.stringify(data)});
-    await this.cbusSend(this.NNLRN(data.nodeNumber))
-    await this.cbusSend(this.EVLRN(data.nodeNumber, data.eventName, data.eventVariableId, data.eventVariableValue))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after EVLRN
-    await this.cbusSend(this.NNULN(data.nodeNumber))
-  }
-
-  // updateEventVariableByIdentifier only updates the variable
-  // This is why it's different to 'teach_event'
-  async updateEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue){
-    winston.debug({message: name +': update_event_variable_by_identifier: node: ' + nodeNumber});
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after EVLRN
-    await this.cbusSend(this.NNULN(nodeNumber))
-  }
-
   async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
+    var isNewEvent = false
     if (utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
-      // must be new event, so add to config
-      this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
+      isNewEvent = true
     } 
+    // updated variable, so add to config
+    this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
     var timeOut = (this.inUnitTest) ? 1 : 250
     await sleep(timeOut); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
+    if (isNewEvent){
+      // adding new event may change event indexes, so need to refresh with a NERD
+      await this.cbusSend(this.NERD(nodeNumber))
+      var timeOut = (this.inUnitTest) ? 1 : 1000
+      await sleep(timeOut);           // allow plenty of time for NERD responses
+    }
   }
 
 
