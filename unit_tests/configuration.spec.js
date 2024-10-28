@@ -1,6 +1,7 @@
+const winston = require('./config/winston_test.js')
+winston.info({message: 'FILE: configuration.spec.js'});
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
-const winston = require('./config/winston_test.js')
 const fs = require('fs');
 const jsonfile = require('jsonfile')
 var path = require('path');

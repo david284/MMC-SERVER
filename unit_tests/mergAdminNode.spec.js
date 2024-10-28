@@ -1,6 +1,7 @@
+const winston = require('./config/winston_test.js')
+winston.info({message: 'FILE: mergAdminNode.spec.js'});
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
-const winston = require('./config/winston_test.js')
 
 const cbusLib = require('cbuslibrary')
 const utils = require('./../VLCB-server/utilities.js');

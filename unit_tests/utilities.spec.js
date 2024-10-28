@@ -1,6 +1,7 @@
+const winston = require('./config/winston_test.js')
+winston.info({message: 'FILE: utilities.spec.js'});
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
-const winston = require('./config/winston_test.js')
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only

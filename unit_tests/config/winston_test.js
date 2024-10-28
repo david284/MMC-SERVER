@@ -40,7 +40,7 @@ var options = {
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
-    maxFiles: 5,
+    maxFiles: 30,
 	  format: timeStampFirst
   },
   fileError: {
@@ -58,7 +58,7 @@ var options = {
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
-    maxFiles: 5,
+    maxFiles: 20,
 	  format: timeStampFirst
   },
   fileWarn: {

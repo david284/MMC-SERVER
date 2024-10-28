@@ -93,9 +93,6 @@ class programNode extends EventEmitter  {
   }
 
 
-  //  expose decodeLine for testing purposes
-  decodeLine(array, line, callback) { decodeLine(array, line, callback)}
-
 
   /** actual download function
   * @param NODENUMBER
@@ -161,7 +158,7 @@ class programNode extends EventEmitter  {
               }
               if (cbusMsg.response == 2) {
                   winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
-                  this.sendFirmware(FLAGS)
+                  this.sendFirmwareNG(FLAGS)
               }
             }
           }
@@ -172,6 +169,7 @@ class programNode extends EventEmitter  {
     }.bind(this))
 
     if (this.parseHexFile(INTEL_HEX_STRING)){
+      winston.debug({message: 'programNode: parseHexFile success'})
 
       if (FLAGS & 0x4) {
         this.sendMessageToClient('CPUTYPE ignored')
@@ -182,13 +180,14 @@ class programNode extends EventEmitter  {
           this.programState = STATE_QUIT
         }
       }
+      winston.debug({message: 'programNode: parseHexFile success 2'})
 
       if (this.programState != STATE_QUIT){
         // not quiting, so proceed...
         if (FLAGS & 0x8) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
-          this.sendFirmware(FLAGS)
+          this.sendFirmwareNG(FLAGS)
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
@@ -226,13 +225,14 @@ class programNode extends EventEmitter  {
   //
   //
   //
-  async sendFirmware(FLAGS) {
+  async sendFirmwareNG(FLAGS) {
       this.programState = STATE_FIRMWARE
       winston.debug({message: 'programNode: Started sending firmware - FLAGS ' + FLAGS});
       // sending the firmware needs to be done in 8 byte messages
 
       // we need to keep a running checksum of all the data we send, so we can include it in the check message at the end
-      var calculatedChecksum;
+      var calculatedChecksum = 0;
+      var fullArray = []
       // we want to indicate progress for each region, so we keep a counter that we can reset and then incrmeent for each region
       var progressCount = 0
 
@@ -246,24 +246,26 @@ class programNode extends EventEmitter  {
       
       // always do FLASH area, but only starting from 00000800
       for (const block in this.FIRMWARE['FLASH']) {
-        progressCount = 0
-        if (parseInt(block, 16) >= 0x800) {
+        if (block >= 0x800) {
           var program = this.FIRMWARE['FLASH'][block]
           //
-          winston.info({message: 'programNode: FLASH AREA : ' + block + ' length: ' + program.length});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
+          winston.info({message: name + ': sendFirmwareNG: FLASH AREA : ' + utils.decToHex(block, 8) + ' length: ' + program.length});
+          winston.info({message: name + ': sendFirmwareNG: FLASH AREA : ' + utils.decToHex(block, 6)});
+          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
           await this.transmitCBUS(msgData, 30)
           //
+          progressCount = 0
           for (let i = 0; i < program.length; i += 8) {
             var chunk = program.slice(i, i + 8)
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
             await this.transmitCBUS(msgData, 30)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
             if (progressCount <= i) {
-              progressCount += 32    // report progress every 4 messages
-              var text = 'Progress:   FLASH ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/program.length * 100) + '%'
+              progressCount += 128    // report progress every 16 messages
+              var text = 'Progress:   FLASH ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/program.length * 100) + '%'
               this.sendBootModeToClient(text)
             }
           }
@@ -275,8 +277,8 @@ class programNode extends EventEmitter  {
           progressCount = 0
           var config = this.FIRMWARE['CONFIG'][block]
           //
-          winston.debug({message: 'programNode: CONFIG : ' + block + ' length: ' + config.length});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
+          winston.debug({message: 'programNode: CONFIG : ' + utils.decToHex(block, 8) + ' length: ' + config.length});
+          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
           await this.transmitCBUS(msgData, 50)
           //
@@ -285,10 +287,11 @@ class programNode extends EventEmitter  {
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
             await this.transmitCBUS(msgData, 50)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
             if (progressCount <= i) {
               progressCount += 32    // report progress every 4 messages
-              var text = 'Progress: CONFIG ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/config.length * 100) + '%'
+              var text = 'Progress: CONFIG ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/config.length * 100) + '%'
               this.sendBootModeToClient(text)
             }
           }
@@ -300,8 +303,8 @@ class programNode extends EventEmitter  {
           progressCount = 0
           var eeprom = this.FIRMWARE['EEPROM'][block]
           //
-          winston.debug({message: 'programNode: EEPROM : ' + block + ' length: ' + eeprom.length});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(block.substr(2), CONTROL_BITS, 0x00, 0, 0)
+          winston.debug({message: 'programNode: EEPROM : ' + utils.decToHex(block, 8) + ' length: ' + eeprom.length});
+          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
           await this.transmitCBUS(msgData, 50)
           //
@@ -310,10 +313,11 @@ class programNode extends EventEmitter  {
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
             await this.transmitCBUS(msgData, 50)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
             if (progressCount <= i) {
               progressCount += 32    // report progress every 4 messages
-              var text = 'Progress: EEPROM ' + block + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/eeprom.length * 100) + '%  '
+              var text = 'Progress: EEPROM ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/eeprom.length * 100) + '%  '
               this.sendBootModeToClient(text)
             }
           }
@@ -325,12 +329,18 @@ class programNode extends EventEmitter  {
       // Verify Checksum
       // 00049272: Send: :X00080004N000000000D034122;
       winston.debug({message: 'programNode: Sending Check firmware'});
+      winston.info({message: 'programNode: calculatedChecksum ' + calculatedChecksum
+        + ' fullChecksum ' + this.arrayChecksum(fullArray, 0)
+        + ' length ' + fullArray.length
+      });
+//      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
+
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
       await this.transmitCBUS(msgData, 30)
   }
-    
+      
 
-  //
+//
   // function to add the contents of an inp0ut array to an existing two's complement checksum
   // this is so we can build up a single checksum from multiple arrays of data
   //
@@ -358,10 +368,10 @@ class programNode extends EventEmitter  {
   // will populate this.FIRMWARE
   //
   parseHexFile(intelHexString) {
-    var firmware = {}       // ???
+//    var firmware = {}       // ???
+    this.FIRMWARE = {}
     this.decodeState = {}   // keeps state between calls to decodeLine
     var result = false      // end result
-    var firmwareObject = undefined
 
     this.sendMessageToClient('Parsing file')
 //        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
@@ -371,27 +381,17 @@ class programNode extends EventEmitter  {
 
     for (var i = 0; i < lines.length - 1; i++) {
     //winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
-      result = this.decodeLine(firmware, lines[i], function (firmwareObject) {
-        winston.debug({message: 'programNode: >>>>>>>>>>>>> end of file callback'})
-        if (firmwareObject == null) { 
-          winston.debug({message: 'programNode: parseFileHex:  firmware object is null'});
-        }
-        for (const area in firmwareObject) {
-          for (const block in firmwareObject[area]) {
-            winston.debug({message: name + ': parseHexFileA: FIRMWARE: ' + area + ': ' + block + ' length: ' + firmwareObject[area][block].length});
-          }
-        } 
-        this.FIRMWARE = firmwareObject
-      }.bind(this))
+
+      result = this.decodeLineNG(lines[i])
+
       if (result == false) {break}
     }
 
-    winston.debug({message: name + ': parseHexFileA: result: ' + result});
-    winston.debug({message: name + ': parseHexFileA: firmwareObject: ' + JSON.stringify(this.FIRMWARE)});
+    winston.info({message: name + ': parseHexFile: result: ' + result});
     if (result){
       for (const area in this.FIRMWARE) {
         for (const block in this.FIRMWARE[area]) {
-          winston.debug({message: 'programNode: EOF callback: FIRMWARE: ' + area + ': ' + block + ' length: ' + this.FIRMWARE[area][block].length});
+          winston.info({message: 'programNode: parseHexFile: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 8) + ' length: ' + this.FIRMWARE[area][block].length});
         }
       } 
     }
@@ -407,7 +407,7 @@ class programNode extends EventEmitter  {
     // parameters start at offset 0x820 in the firmware download
     // cpu type is a byte value at 0x828
     //
-    var targetCPU = FIRMWARE['FLASH']['00000800'][0x28]
+    var targetCPU = FIRMWARE['FLASH'][0x800][0x28]
     winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: selected target: ' + nodeCPU + ' firmware target: ' + targetCPU})
     if (nodeCPU == targetCPU) {return true}
     else {return false}    
@@ -454,13 +454,26 @@ class programNode extends EventEmitter  {
     winston.debug({message: 'programNode: Emit: ' + JSON.stringify(data)})
   }
 
-
   //
   // This method takes a line from an intel formatted hex file
   // and builds a collection of arrays with the equivalent binary data
   // ready to downloaded to a node
+  // returns true on success, false on failure
   //
-  decodeLine(FIRMWARE, line, callback) {
+  decodeLineNG(line){
+
+    // check if the persistent values are intialised, if not then do it first
+    if ( typeof this.decodeState.area == 'undefined' ) { 
+      this.decodeState.area = 'FLASH'             // set current area in FIRMWARE structure
+      this.decodeState.LBA = 0                    // Linear Block Address of input file
+      this.decodeState.blockAddress = 0           // absolute address for block of data in FIRMWARE    
+      this.decodeState.blockAddressPtr = 0        // current pointer into block address
+      this.decodeState.blockPaddingPtr = 0        // where the padding of the current block ends
+      this.FIRMWARE[this.decodeState.area] = {}   // initialise starting area
+    }
+
+    // now lets look at the line we're given
+    //
     var MARK = line.substr(0,1)
     var RECLEN = parseInt(line.substr(1,2), 16)
     var OFFSET = parseInt(line.substr(3,4), 16)
@@ -473,121 +486,158 @@ class programNode extends EventEmitter  {
       + ' RECTYP ' + RECTYP 
       + ' data ' + data
       + ' CHKSUM ' + CHKSUM});
-    
-    // test the checksum to see if the line is valid
-    var linechecksum = 0x00
+
+          // test the checksum to see if the line is valid
+    var lineChecksum = 0x00
     for (var i = 1; i < line.length; i += 2) {
-      linechecksum += parseInt(line.substr(i, 2), 16)
-      linechecksum &= 0xFF
+      lineChecksum += parseInt(line.substr(i, 2), 16)
+      lineChecksum &= 0xFF
     }
-    if (linechecksum != 0) {
-      winston.debug({message: 'programNode: READ LINE: checksum error ' + linechecksum});
-      if(callback) {callback(null);}
+    if (lineChecksum != 0) {
+      winston.debug({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
       return false;
     }
-    
-    // Check to see if the persistant variables has been initialized
-    // if there hasn't been an initial 'Extended Linear Address' then start at 0 (FLASH)
-    if ( typeof this.decodeState.index == 'undefined' ) { this.decodeState['index'] = 0 }
-    if ( typeof this.decodeState.area == 'undefined' ) { 
-      this.decodeState.area = 'FLASH'
-      FIRMWARE[this.decodeState.area] = []
-      this.decodeState.index = 0
-      this.decodeState.paddingCount = 0
-    }
-    if ( typeof this.decodeState.extAddressHex == 'undefined' ) { this.decodeState.extAddressHex = '0000'; }
-    if ( typeof this.decodeState.startAddressHex == 'undefined' ) { this.decodeState.startAddressHex = '00000000'; }
-    
+
+    // ok, line is valid so start processing it
+
     //
-    // address of line start in the hex file is extAddressHex + OFFSET
-    // starting address in the current array is startAddressHex in array
-    // next address to be written in the array is startAddressHex + index
+    // Area's are used to describe the type of content, and have no effect on addressing
+    // Blocks are continuous 'runs' of data, if there's a gap, then start a new block
+    // but the output array is padded out to a pre-defined size
+    // so if the gap is small, and within the padded area (or +1), then treat as continuous
     //
 
-    if ( RECTYP == 0) { // Data Record:
-      // Need to check if the data in this new line follows on from previous line
-      // so check if next array address == line start address
-      // but if new line starts before end of padded line, then it does follow on
-      // if so, then add to existing array
-      // if not, then start new array
-      var arrayAddressPointer = parseInt(this.decodeState.startAddressHex, 16) + this.decodeState.index
-      var lineStartAddress =  ((parseInt(this.decodeState.extAddressHex, 16) << 16) + OFFSET) 
-      
-      if (lineStartAddress > (arrayAddressPointer + this.decodeState.paddingCount)){
-        // data doesn't follow on from last, so change startAddress & it'll force a new block a bit lower
-        winston.debug({message: 'programNode: line decode: Data Record: '+this.decodeState.area+' Current addressPointer '+arrayAddressPointer+' Line startAddress: '+lineStartAddress});
-        this.decodeState.startAddressHex = this.decodeState.extAddressHex + utils.decToHex(OFFSET, 4)
-      }
-
-      // check if block not set, will catch first time as well as change
-      if (FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex] == undefined) {
-        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex] = []
-        this.decodeState.index = 0
-        this.decodeState.paddingCount = 0
-        winston.debug({message: 'programNode: line decode: Data Record: ' + this.decodeState.area + ' New block ' + this.decodeState.startAddressHex});
-      }
-
-      // if line start is not at the current pointer, need to reset current index
-      if(lineStartAddress != arrayAddressPointer)( this.decodeState.index = (lineStartAddress - parseInt(this.decodeState.startAddressHex, 16)))
-      
-      // now actually copy the program data
-      for (i=0; i < RECLEN; i++){
-        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index++] = (parseInt(data.substr(i*2, 2), 16))
-      }
-
-      // now lets make sure the firmware array is padded out to an 16 byte boundary with 'FF'
-      // but don't increment this.decodeLineStore.index, as next line may not start on 8 byte boundary
-      // and may need to overwrite this padding
-      const padLength = 64
-      this.decodeState.index % padLength ? this.decodeState.paddingCount = padLength - (this.decodeState.index % padLength) : this.decodeState.paddingCount = 0
-      for (var i = 0; i < this.decodeState.paddingCount; i++) {
-        FIRMWARE[this.decodeState.area][this.decodeState.startAddressHex][this.decodeState.index + i] = 0xFF
-      }  
-    }
-
-    if ( RECTYP == 1) {
-      winston.debug({message: 'programNode: line decode: End of File Record:'});
-      for (const area in FIRMWARE) {
-        for (const block in FIRMWARE[area]) {
-          winston.debug({message: 'programNode: line decode: FIRMWARE: ' + area + ': ' + block + ' length: ' + FIRMWARE[area][block].length});
+    switch (RECTYP){
+      case 0:
+        //winston.debug({message: 'programNode: line decode: Data Record: '});
+        for (let i =0; i < data.length/2; i++){
+          var absoluteAddress = this.decodeState.LBA + OFFSET + i
+          var dataByte = parseInt(data[i*2]+data[i*2+1], 16)
+          this.processDataByte(absoluteAddress, dataByte)
         }
-      }        
-      if(callback) {callback(FIRMWARE);}
-      else {winston.info({message: 'programNode: line decode: WARNING - No EOF callback'})}
+        //winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
+        break;
+      case 1:
+        winston.debug({message: 'programNode: line decode: End of File Record:'});
+        break;
+      case 2:
+        winston.warn({message: 'programNode: line decode: Extended Segment Address Record:'});
+        break;
+      case 3:
+        winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
+        break;
+      case 4:
+        winston.debug({message: 'programNode: line decode: Extended Linear Address Record:'});
+        this.decodeState.LBA = parseInt(data, 16)<<16 + OFFSET
+        if      (this.decodeState.LBA >= 0x00F00000) { this.decodeState.area = 'EEPROM' }
+        else if (this.decodeState.LBA >= 0x00300000) { this.decodeState.area = 'CONFIG' }
+        else    { this.decodeState.area = 'FLASH' }
+        // don't overite an existing area
+        if (this.FIRMWARE[this.decodeState.area] == undefined) {
+          this.FIRMWARE[this.decodeState.area] = {} 
+        }
+        this.decodeState.blockAddress = this.decodeState.LBA       // reset block address
+        this.decodeState.blockAddressPtr = 0                        // reset pointer
+
+        winston.debug({message: 'programNode: line decode: LBA: ' 
+          + utils.decToHex(this.decodeState.LBA,8)
+          + ' area ' + this.decodeState.area
+        });
+        break;
+      case 5:
+        winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
+        break;
+      default:
     }
 
-    if ( RECTYP == 2) {
-      winston.warn({message: 'programNode: line decode: Extended Segment Address Record:'});
-    }
+    //winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
 
-    if ( RECTYP == 3) {
-      winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
-    }
+  /*
+    for (const area in this.FIRMWARE) {
+      for (const block in this.FIRMWARE[area]) {
+        winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 6) + ' length: ' + this.FIRMWARE[area][block].length});
+      }
+    } 
+  */
 
-    if ( RECTYP == 4) {
-      winston.debug({message: 'programNode: line decode: Extended Linear Address Record: ' + data});
-      if (data == '0000') {this.decodeState.area = 'FLASH'}
-      else if (data == '0001') {this.decodeState.area = 'FLASH'}
-      else if (data == '0030') {this.decodeState.area = 'CONFIG'}
-      else if (data == '0038') {this.decodeState.area = 'CONFIG'}
-      else if (data == '00F0') {this.decodeState.area = 'EEPROM'}
-      else this.decodeState.area = 'UNKNOWN ' + data
-      this.decodeState.extAddressHex = data
-      this.decodeState.startAddressHex = '00000000'
-      this.decodeState.index = 0
-      this.decodeState.paddingCount = 0
-      // don't overite an existing area
-      if (FIRMWARE[this.decodeState.area] == undefined) {FIRMWARE[this.decodeState.area] = []}
-      winston.debug({message: 'programNode: ******** NEW MEMORY AREA: ' + this.decodeState.area + ' area address ' + data })
-    }
-
-    if ( RECTYP == 5) {
-      winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
-    }
-    
     return true
   }
 
+  processDataByte(absoluteAddress, dataByte){
+//    winston.debug({message: 'programNode: processDataByte: ' + utils.decToHex(absoluteAddress, 8) + ':' + utils.decToHex(dataByte, 2) }) 
+
+    this.setCurrentBlock(absoluteAddress)
+    // pointer may have changed, so check padding
+    this.checkPadding()
+
+    //
+    // now lets write the data into the FIRMWARE array
+    // we want to write it into the firmware block, at an offset from the block start
+    // so we need to subtract the block address from the input data absolute address
+    // and set the pointer to that value
+    // pointer will have changed, so check padding
+    //
+    this.decodeState.blockAddressPtr = absoluteAddress - this.decodeState.blockAddress
+    this.checkPadding()
+    this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][this.decodeState.blockAddressPtr] = dataByte
+
+/*    
+    winston.debug({message: 'programNode: write DataByte: ' + utils.decToHex(dataByte, 2) 
+      + ' absolute ' + utils.decToHex(absoluteAddress, 8)
+      + ' to block  ' + utils.decToHex(this.decodeState.blockAddress, 8)
+      + ' + ptr ' + utils.decToHex(this.decodeState.blockAddressPtr, 8)
+    }) 
+*/
+
+  }
+
+  //
+  // Need to check if input absoluteAddress is within the scope of the current block
+  // or do we need to start a new block
+  // we set 32 bytes of padding, on a 32 bvyte boundary
+  // scope of block is this set of padding, and next set of padding, hence adding 63 bytes
+  // special case when 0x800 boundary is reached
+  //
+  setCurrentBlock(absoluteAddress){
+    var targetAbsoluteAddress = this.decodeState.blockAddress + this.decodeState.blockAddressPtr
+    var targetChunk = (targetAbsoluteAddress & 0xFFFFFFF0) + 63
+
+    if ((targetAbsoluteAddress < 0x800) & (absoluteAddress >= 0x800)){
+      // need new block starting at 0x800
+      this.decodeState.blockAddress = 0x800
+      this.decodeState.blockAddressPtr = 0
+      winston.debug({message: 'programNode: line decode: New block at 0x800 : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
+    } 
+    else if (absoluteAddress > targetChunk) {
+      // need new block
+      this.decodeState.blockAddress = absoluteAddress & 0xFFFFFFF0
+      this.decodeState.blockAddressPtr = 0
+      winston.debug({message: 'programNode: line decode: New block : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
+    }
+
+    // ensure block exists in FIRMWARE structure, it may be a new one
+    if (this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] == undefined) {
+      this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] = [] 
+    }
+
+  }
+
+  //
+  // Need to check that we've padded out for where the pointer currently is
+  // we'll call this everytime the pointer is changed to ensure we're upto date
+  // with the padding, and don't overwrite anything already written 
+  //
+  checkPadding(){
+    if((this.decodeState.blockAddressPtr > this.decodeState.blockPaddingPtr)
+    || (this.decodeState.blockAddressPtr == 0)) {
+      var startIndex = this.decodeState.blockAddressPtr & 0xFFFFFFF0
+      for (let i =0; i < 64; i++){
+        this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][startIndex + i] = 0xFF 
+      }
+      // set pointer to last padded entry
+      this.decodeState.blockPaddingPtr = startIndex + 15
+    }
+  }
 
 };
 

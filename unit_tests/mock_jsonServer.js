@@ -126,8 +126,10 @@ class mock_jsonServer{
                 break;
             case 3:
                 winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
-                this.firmwareChecksum = arrayChecksum(this.firmware)
-                winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
+                this.firmwareChecksum = arrayChecksum(this.firmware, 0)
+                winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum
+                  + ' length ' + this.firmware.length
+                  + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
                 if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
                     this.outputExtResponse(1)   // 1 = ok
                 } else {
