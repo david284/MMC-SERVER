@@ -340,8 +340,8 @@ class programNode extends EventEmitter  {
   }
       
 
-//
-  // function to add the contents of an inp0ut array to an existing two's complement checksum
+  //
+  // function to add the contents of an input array to an existing two's complement checksum
   // this is so we can build up a single checksum from multiple arrays of data
   //
   arrayChecksum(array, start) {

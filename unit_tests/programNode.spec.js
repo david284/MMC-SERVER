@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 var itParam = require('mocha-param');
 const fs = require('fs');
 const jsonfile = require('jsonfile')
+const utils = require('../VLCB-server/utilities.js');
 
 const cbusLib = require('cbuslibrary')
 
@@ -248,12 +249,13 @@ describe('programNode tests', async function(){
         downloadData = data;
         winston.warn({message: 'TEST: full download: ' + JSON.stringify(downloadData)});
       });	        
-      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACE8C_v2q.HEX');
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.HEX');
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
-      await programNode.program(300, 1, 3, intelHexString);
+      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+      await programNode.program(300, 1, 4, intelHexString);
+      var FIRMWARE = programNode.FIRMWARE
       programNode.removeAllListeners()
     //
       // expect first message to be BOOTM
@@ -273,7 +275,17 @@ describe('programNode tests', async function(){
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
       //
-      winston.info({message: 'TEST: END programfull download:'});
+
+      for (const block in FIRMWARE.FLASH) {
+        winston.debug({message: 'TEST: full download: FLASH: ' + utils.decToHex(block, 6) + ' '})
+        for (var i = 0; i<FIRMWARE.FLASH[block].length; i+=16){
+          var output = utils.decToHex(parseInt(block) + i, 6) + ' '
+          for (var j = 0; j<16; j++){output += utils.decToHex(FIRMWARE['FLASH'][block][i+j], 2) + ' ' }
+          winston.debug({message: 'FLASH Data: ' + output})
+        }
+      }
+
+      winston.info({message: 'TEST: END program full download:'});
     });
   
   
