@@ -407,7 +407,23 @@ class programNode extends EventEmitter  {
     // parameters start at offset 0x820 in the firmware download
     // cpu type is a byte value at 0x828
     //
-    var targetCPU = FIRMWARE['FLASH'][0x800][0x28]
+    var result = false
+    var targetCPU =null
+    if ( 0x800 in FIRMWARE['FLASH']){
+      if (FIRMWARE['FLASH'][0x800].length > 0x28){
+        targetCPU = FIRMWARE['FLASH'][0x800][0x28]
+      }
+    }
+    if ( 0x810 in FIRMWARE['FLASH']){
+      if (FIRMWARE['FLASH'][0x810].length > 0x18){
+        targetCPU = FIRMWARE['FLASH'][0x810][0x18]
+      }
+    }
+    if ( 0x820 in FIRMWARE['FLASH']){
+      if (FIRMWARE['FLASH'][0x820].length > 0x8){
+        targetCPU = FIRMWARE['FLASH'][0x820][0x8]
+      }
+    }
     winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: selected target: ' + nodeCPU + ' firmware target: ' + targetCPU})
     if (nodeCPU == targetCPU) {return true}
     else {return false}    
@@ -464,7 +480,7 @@ class programNode extends EventEmitter  {
 
     // check if the persistent values are intialised, if not then do it first
     if ( typeof this.decodeState.area == 'undefined' ) { 
-      this.decodeState.area = 'FLASH'             // set current area in FIRMWARE structure
+      this.decodeState.area = 'BOOT'              // set initial area in FIRMWARE structure
       this.decodeState.LBA = 0                    // Linear Block Address of input file
       this.decodeState.blockAddress = 0           // absolute address for block of data in FIRMWARE    
       this.decodeState.blockAddressPtr = 0        // current pointer into block address
@@ -531,14 +547,15 @@ class programNode extends EventEmitter  {
         this.decodeState.LBA = parseInt(data, 16)<<16 + OFFSET
         if      (this.decodeState.LBA >= 0x00F00000) { this.decodeState.area = 'EEPROM' }
         else if (this.decodeState.LBA >= 0x00300000) { this.decodeState.area = 'CONFIG' }
-        else    { this.decodeState.area = 'FLASH' }
+        else if (this.decodeState.LBA >= 0x00000800) { this.decodeState.area = 'FLASH' }
+        else    { this.decodeState.area = 'BOOT' }
         // don't overite an existing area
         if (this.FIRMWARE[this.decodeState.area] == undefined) {
           this.FIRMWARE[this.decodeState.area] = {} 
         }
         this.decodeState.blockAddress = this.decodeState.LBA       // reset block address
         this.decodeState.blockAddressPtr = 0                        // reset pointer
-
+        this.decodeState.blockPaddingPtr = 0
         winston.debug({message: 'programNode: line decode: LBA: ' 
           + utils.decToHex(this.decodeState.LBA,8)
           + ' area ' + this.decodeState.area
@@ -550,7 +567,7 @@ class programNode extends EventEmitter  {
       default:
     }
 
-    //winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
+//    winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
 
   /*
     for (const area in this.FIRMWARE) {
@@ -579,7 +596,7 @@ class programNode extends EventEmitter  {
     //
     this.decodeState.blockAddressPtr = absoluteAddress - this.decodeState.blockAddress
     this.checkPadding()
-    this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][this.decodeState.blockAddressPtr] = dataByte
+    this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][this.decodeState.blockAddressPtr++] = dataByte
 
 /*    
     winston.debug({message: 'programNode: write DataByte: ' + utils.decToHex(dataByte, 2) 
@@ -594,28 +611,34 @@ class programNode extends EventEmitter  {
   //
   // Need to check if input absoluteAddress is within the scope of the current block
   // or do we need to start a new block
-  // we set 32 bytes of padding, on a 32 bvyte boundary
-  // scope of block is this set of padding, and next set of padding, hence adding 63 bytes
+  // we set 16 bytes of padding, on a 16 byte boundary
+  // scope of block is this set of padding, and next set of padding, hence adding 31 bytes
   // special case when 0x800 boundary is reached
   //
   setCurrentBlock(absoluteAddress){
     var targetAbsoluteAddress = this.decodeState.blockAddress + this.decodeState.blockAddressPtr
-    var targetChunk = (targetAbsoluteAddress & 0xFFFFFFF0) + 63
+    var targetChunk = (targetAbsoluteAddress & 0xFFFFFFF0) + 31
 
-    if ((targetAbsoluteAddress < 0x800) & (absoluteAddress >= 0x800)){
-      // need new block starting at 0x800
+    if ((targetAbsoluteAddress <= 0x800) & (absoluteAddress >= 0x800)){
+      // need new area & block starting at 0x800
+      this.decodeState.area = 'FLASH'
       this.decodeState.blockAddress = 0x800
       this.decodeState.blockAddressPtr = 0
+      this.decodeState.blockPaddingPtr = 0
       winston.debug({message: 'programNode: line decode: New block at 0x800 : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
     } 
     else if (absoluteAddress > targetChunk) {
       // need new block
       this.decodeState.blockAddress = absoluteAddress & 0xFFFFFFF0
       this.decodeState.blockAddressPtr = 0
+      this.decodeState.blockPaddingPtr = 0
       winston.debug({message: 'programNode: line decode: New block : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
     }
 
     // ensure block exists in FIRMWARE structure, it may be a new one
+    if (this.FIRMWARE[this.decodeState.area] == undefined) {
+      this.FIRMWARE[this.decodeState.area] = {} 
+    }
     if (this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] == undefined) {
       this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] = [] 
     }
@@ -623,19 +646,23 @@ class programNode extends EventEmitter  {
   }
 
   //
-  // Need to check that we've padded out for where the pointer currently is
+  // Need to check if we need to add anymore padding
+  // The block should already have been set, so we only need to worry about the pointers
+  // blockAddressPtr points to the next index to be written
+  // blockPaddingPtr points to the next index after the end of the paddding
+  // if blockAddressPtr < blockPaddingPtr, we're going to write inside the padding, so all good
+  // if blockAddressPtr >= blockPaddingPtr, we need to extedn the padding
   // we'll call this everytime the pointer is changed to ensure we're upto date
   // with the padding, and don't overwrite anything already written 
   //
   checkPadding(){
-    if((this.decodeState.blockAddressPtr > this.decodeState.blockPaddingPtr)
-    || (this.decodeState.blockAddressPtr == 0)) {
+    if(this.decodeState.blockAddressPtr >= this.decodeState.blockPaddingPtr) {
       var startIndex = this.decodeState.blockAddressPtr & 0xFFFFFFF0
-      for (let i =0; i < 64; i++){
+      for (let i =0; i < 16; i++){
         this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][startIndex + i] = 0xFF 
       }
-      // set pointer to last padded entry
-      this.decodeState.blockPaddingPtr = startIndex + 15
+      // set pointer to next index after padding
+      this.decodeState.blockPaddingPtr = startIndex + 16
     }
   }
 

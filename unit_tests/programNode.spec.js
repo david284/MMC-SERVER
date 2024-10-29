@@ -253,7 +253,7 @@ describe('programNode tests', async function(){
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.HEX');
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
 //      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
-      await programNode.program(300, 1, 7, intelHexString);
+      await programNode.program(300, 1, 3, intelHexString);
       programNode.removeAllListeners()
     //
       // expect first message to be BOOTM
