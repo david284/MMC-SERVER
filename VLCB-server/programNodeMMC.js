@@ -149,7 +149,7 @@ class programNode extends EventEmitter  {
                 if (this.sendingFirmware == false){
                   winston.debug({message: 'programNode: Check OK received: Sending reset'});
                   var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
-                  await this.transmitCBUS(msg, 50)
+                  await this.transmitCBUS(msg, 80)
                   this.success = true
                   // 'Success:' is a necessary string in the message to signal the client it's been successful
                   this.sendSuccessToClient('Success: programing completed')
@@ -191,12 +191,12 @@ class programNode extends EventEmitter  {
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
-          await this.transmitCBUS(msg, 50)
+          await this.transmitCBUS(msg, 80)
           
           // need to allow a small time for module to go into boot mode
           await utils.sleep(100)
           var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x04, 0, 0)
-          await this.transmitCBUS(msg, 50)
+          await this.transmitCBUS(msg, 80)
         }
       }    
 
@@ -241,7 +241,7 @@ class programNode extends EventEmitter  {
       // start with SPCMD_INIT_CHK
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
       winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
-      await this.transmitCBUS(msgData, 50)
+      await this.transmitCBUS(msgData, 80)
 
       
       // always do FLASH area, but only starting from 00000800
@@ -253,13 +253,13 @@ class programNode extends EventEmitter  {
           winston.info({message: name + ': sendFirmwareNG: FLASH AREA : ' + utils.decToHex(block, 6)});
           var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
-          await this.transmitCBUS(msgData, 30)
+          await this.transmitCBUS(msgData, 60)
           //
           progressCount = 0
           for (let i = 0; i < program.length; i += 8) {
             var chunk = program.slice(i, i + 8)
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 30)
+            await this.transmitCBUS(msgData, 60)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
             for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
@@ -280,12 +280,12 @@ class programNode extends EventEmitter  {
           winston.debug({message: 'programNode: CONFIG : ' + utils.decToHex(block, 8) + ' length: ' + config.length});
           var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
-          await this.transmitCBUS(msgData, 50)
+          await this.transmitCBUS(msgData, 80)
           //
           for (let i = 0; i < config.length; i += 8) {
             var chunk = config.slice(i, i + 8)
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 50)
+            await this.transmitCBUS(msgData, 80)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
             for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
@@ -306,12 +306,12 @@ class programNode extends EventEmitter  {
           winston.debug({message: 'programNode: EEPROM : ' + utils.decToHex(block, 8) + ' length: ' + eeprom.length});
           var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
           winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
-          await this.transmitCBUS(msgData, 50)
+          await this.transmitCBUS(msgData, 80)
           //
           for (let i = 0; i < eeprom.length; i += 8) {
             var chunk = eeprom.slice(i, i + 8)
             var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 50)
+            await this.transmitCBUS(msgData, 80)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
             for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
@@ -337,7 +337,7 @@ class programNode extends EventEmitter  {
       //      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
 
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
-      await this.transmitCBUS(msgData, 30)
+      await this.transmitCBUS(msgData, 60)
   }
       
 
