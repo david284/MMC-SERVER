@@ -333,7 +333,8 @@ class programNode extends EventEmitter  {
         + ' fullChecksum ' + this.arrayChecksum(fullArray, 0)
         + ' length ' + fullArray.length
       });
-//      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
+      this.sendMessageToClient('FIRMWARE: checksum: 0x' + calculatedChecksum + ' length: ' + fullArray.length)
+      //      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
 
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
       await this.transmitCBUS(msgData, 30)

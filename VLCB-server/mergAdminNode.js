@@ -29,6 +29,7 @@ class cbusAdmin extends EventEmitter {
         this.dccSessions = {}
         this.heartbeats = {}
         this.saveConfig()
+        this.setNodeNumberIssued = false
         this.nodeNumberInLearnMode = null
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
@@ -133,9 +134,13 @@ class cbusAdmin extends EventEmitter {
               this.emit('requestNodeNumber', cbusMsg.nodeNumber)
             },
             '52': async (cbusMsg) => {
-              // NNACK - acknowledge for set node number
+              // NNACK - acknowledge
                 winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
-                this.query_all_nodes()   // force refresh of nodes
+                // if acknowledge for set node number then query all nodes
+                if (this.setNodeNumberIssued){
+                  this.setNodeNumberIssued = false
+                  this.query_all_nodes()   // force refresh of nodes
+                }
             },
             '59': async (cbusMsg) => {
                 winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});

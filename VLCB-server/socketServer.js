@@ -268,6 +268,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
       node.cbusSend(node.SNN(nodeNumber))
+      node.setNodeNumberIssued = true
     })
     
     socket.on('START_CONNECTION', async function(data){
