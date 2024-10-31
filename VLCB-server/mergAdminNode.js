@@ -310,15 +310,15 @@ class cbusAdmin extends EventEmitter {
             'AC': async (cbusMsg) => {//Service Discovery
                 winston.info({message: `mergAdminNode: SD ${cbusMsg.nodeNumber} ${cbusMsg.text}`})
                 const ref = cbusMsg.nodeNumber
-                if (cbusMsg.ServiceIndex > 0) {
-                  // all valid service indexes start from 1 - service index 0 returns count of services
-                  if (ref in this.nodeConfig.nodes) {
-                    if (this.nodeConfig.nodes[ref]["services"]) {
+                // all valid service indexes start from 1 - service index 0 returns count of services
+                if (ref in this.nodeConfig.nodes) {
+                  if (this.nodeConfig.nodes[ref]["services"]) {
+                    if (cbusMsg.ServiceIndex > 0) {
                       let output = {
-                          "ServiceIndex": cbusMsg.ServiceIndex,
-                          "ServiceType": cbusMsg.ServiceType,
-                          "ServiceVersion": cbusMsg.ServiceVersion,
-                          "diagnostics": {}
+                        "ServiceIndex": cbusMsg.ServiceIndex,
+                        "ServiceType": cbusMsg.ServiceType,
+                        "ServiceVersion": cbusMsg.ServiceVersion,
+                        "diagnostics": {}
                       }
                       if (this.ServiceDefs[cbusMsg.ServiceType]) {
                         output["ServiceName"] = this.ServiceDefs[cbusMsg.ServiceType]['name']
@@ -330,13 +330,17 @@ class cbusAdmin extends EventEmitter {
                       this.saveNode(cbusMsg.nodeNumber)
                     }
                     else {
-                          winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${cbusMsg.nodeNumber}`});
+                      // service index is zero, so count returned
+                      this.nodeConfig.nodes[ref]['serviceCount'] = cbusMsg.ServiceVersion
                     }
                   }
                   else {
-                          winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
+                    winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${cbusMsg.nodeNumber}`});
                   }
                 }
+                else {
+                  winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
+                } // if ref
             },
             'AF': async (cbusMsg) => {//GRSP
                 winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
