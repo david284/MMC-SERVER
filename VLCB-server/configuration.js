@@ -33,6 +33,9 @@ const defaultLayoutData = {
   "eventDetails": {}
   }
 
+  const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
+
+
   // In normal use, the userConfigPath is NOT supplied - i.e. only supply systemConfigPath
   // the code will create a system specific user directory
   //
@@ -46,6 +49,7 @@ class configuration {
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemConfigPath});
 		winston.debug({message:  '--- user path: ' + userConfigPath});
+    this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.config= {}
     this.systemConfigPath = systemConfigPath
@@ -165,6 +169,14 @@ class configuration {
     }
   }
 
+  writeBusTraffic(data){
+    // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
+    var time = new Date()
+    var timeStamp = String(time.getMinutes()).padStart(2, '0') + ':' 
+      + String(time.getSeconds()).padStart(2, '0') + '.' 
+      + String(time.getMilliseconds()).padStart(3, '0')
+    this.busTrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
+  }
 
   //
   //

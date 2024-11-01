@@ -45,7 +45,7 @@ exports.run = async function run(){
   // this is so we can use mocks for unit testing
   // a technique sometimes called dependancy injection
   const cbusServer = require('./cbusServer')
-  const jsonServer = require('./jsonServer')(config.getJsonServerPort(), config.eventBus)
+  const jsonServer = require('./jsonServer')(config.getJsonServerPort(), config)
   const mergAdminNode = require('./mergAdminNode.js')(config)
   const programNode = require('../VLCB-server/programNodeMMC.js')
   socketServer.socketServer(config, mergAdminNode, jsonServer, cbusServer, programNode, status)

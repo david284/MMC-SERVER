@@ -14,11 +14,12 @@ const name = 'jsonServer'
 
 class jsonServer{
 
-  constructor(JsonPort, eventBus) {
+  constructor(JsonPort, configuration) {
     winston.info({message: name + ':  Constructor:'});
     this.clients = [];
     this.cbusClient = new net.Socket()
-    this.eventBus = eventBus
+    this.config = configuration
+    this.eventBus = configuration.eventBus
     this.JsonPort = JsonPort
 
     //
@@ -32,6 +33,7 @@ class jsonServer{
       for (let i = 0; i < outMsg.length - 1; i++) {
         // restore terminating ';' lost due to split & then decode
         let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
+        this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.text)
         this.clients.forEach(function (client) {
             let output = JSON.stringify(cbusLibMsg);
             winston.debug({message: name + ': Output to ' + client.remotePort + ' : ' + output})
@@ -108,6 +110,7 @@ class jsonServer{
     let input = JSON.parse(data)
     let cbusMsg = cbusLib.encode(input)
     let outMsg = cbusLib.decode(cbusMsg.encoded)
+    this.config.writeBusTraffic('OUT>> ' + outMsg.text)
     this.clients.forEach(function (client) {
       // Don't want to send it to sender
       if (client === sender) return;
@@ -120,5 +123,5 @@ class jsonServer{
 
 }
 
-module.exports = (JsonPort, eventBus) => { return new jsonServer(JsonPort, eventBus) }
+module.exports = (JsonPort, configuration) => { return new jsonServer(JsonPort, configuration) }
 

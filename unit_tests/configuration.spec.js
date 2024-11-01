@@ -89,6 +89,21 @@ describe('configuration tests', function(){
 
 
   //
+  // test writeBusTraffic
+  //
+  it("writeBusTraffic test", function (done) {
+    winston.info({message: 'unit_test: BEGIN writeBusTraffic test '})
+    config.writeBusTraffic("test data 1")
+    config.writeBusTraffic("test data 2")
+    config.writeBusTraffic("test data 3")
+    setTimeout(function(){
+      done();
+      winston.info({message: 'unit_test: END writeBusTraffic test '})
+		}, 50);
+  })
+
+
+  //
   // test createDirectory
   //
   it("createDirectory test", function (done) {
