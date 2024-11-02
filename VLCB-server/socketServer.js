@@ -106,7 +106,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('DELETE_ALL_EVENTS', async function(data){
       winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
       await node.delete_all_events(data.nodeNumber)
-      await this.request_all_node_events(nodeNumber)
+      await node.request_all_node_events(data.nodeNumber)
     })
 
     socket.on('DELETE_LAYOUT', function(data){
