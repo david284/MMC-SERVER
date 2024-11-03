@@ -106,7 +106,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('DELETE_ALL_EVENTS', async function(data){
       winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
       await node.delete_all_events(data.nodeNumber)
-      await node.request_all_node_events(data.nodeNumber)
+      node.removeNodeEvents(data.nodeNumber)                   // clear node structure of events
+      await node.request_all_node_events(data.nodeNumber) // now refresh
     })
 
     socket.on('DELETE_LAYOUT', function(data){
@@ -136,9 +137,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.query_all_nodes()
     })
 
-    socket.on('REMOVE_EVENT', function(data){
+    socket.on('REMOVE_EVENT', async function(data){
       winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
-      node.remove_event(data.nodeNumber, data.eventName)
+      await node.event_unlearn(data.nodeNumber, data.eventName)
+      node.removeNodeEvent(data.nodeNumber, data.eventName)
+      await node.request_all_node_events(data.nodeNumber) // now refresh
     })
 
     socket.on('REMOVE_NODE', function(nodeNumber){

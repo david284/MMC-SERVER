@@ -780,10 +780,15 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-    removeEvent(eventNumber) {
-        delete this.nodeConfig.events[eventNumber]
+    removeNodeEvent(nodeNumber, eventIdentifier) {
+      winston.info({message: name + `: removeNodeEvent ${nodeNumber} ${eventIdentifier}`})
+      if(this.nodeConfig.nodes[nodeNumber]){
+        // delete this.nodeConfig.nodes[nodeNumber].storedEvents[]
+        delete this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier]
         this.saveConfig()
+      }
     }
+
 
     clearCbusErrors() {
         this.cbusErrors = {}
@@ -939,7 +944,7 @@ class cbusAdmin extends EventEmitter {
     await this.cbusSend(this.QNN())
   }
 
-  async remove_event(nodeNumber, eventName) {
+  async event_unlearn(nodeNumber, eventName) {
     await this.cbusSend(this.NNLRN(nodeNumber))
     await this.cbusSend(this.EVULN(eventName))
     await sleep(300); // allow a bit more time after NNCLR
