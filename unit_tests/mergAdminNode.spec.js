@@ -69,7 +69,7 @@ describe('mergAdminNode tests', function(){
 		winston.info({message: '----------------------------- mergAdminNode tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
-    await utils.sleep(1000)    
+    await utils.sleep(100)    
 
     node.inUnitTest = true
 

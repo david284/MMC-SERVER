@@ -5,6 +5,8 @@ const itParam = require('mocha-param');
 const fs = require('fs');
 const jsonfile = require('jsonfile')
 var path = require('path');
+const utils = require('../VLCB-server/utilities.js');
+
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -25,6 +27,19 @@ winston.info({message: 'Deleting user path ' + testUserConfigPath});
 fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
+
+// ensure 'system' modules directory exists
+config.createDirectory(path.join(config.systemConfigPath, "modules"))
+// write test files
+var testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-1q.json")
+jsonfile.writeFileSync(testFilePath, "testPattern")
+testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-2q.json")
+jsonfile.writeFileSync(testFilePath, "testPattern")
+testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-3q.json")
+jsonfile.writeFileSync(testFilePath, "testPattern")
+testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-4q.json")
+jsonfile.writeFileSync(testFilePath, "testPattern")
+
 
 describe('configuration tests', function(){
 
@@ -373,6 +388,43 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+
+  it("getUserModuleDescriptorFileList test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getUserModuleDescriptorFileList test '})
+    // user files
+    var testFilePath = path.join(config.userConfigPath, "modules/CANABC-AAFF-1q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    testFilePath = path.join(config.userConfigPath, "modules/CAN-ABC-AAFF-3q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    testFilePath = path.join(config.userConfigPath, "modules/CANABC-CCFF-4q.json")
+    jsonfile.writeFileSync(testFilePath, "testPattern")
+    //
+    var result = config.getUserModuleDescriptorFileList()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect (result.length).to.be.equal(4)
+      winston.info({message: 'unit_test: END getUserModuleDescriptorFileList test'})
+      done();
+		}, 100);
+  })
+
+  //
+  // Relies on at least 3 files already written to system module folder
+  // There could be more files due to other tests
+  //
+  it("getSystemModuleDescriptorFileList test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getSystemModuleDescriptorFileList test '})
+    //
+    var result = config.getSystemModuleDescriptorFileList()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect (result.length).to.be.above(3)
+      winston.info({message: 'unit_test: END getSystemModuleDescriptorFileList test'})
+      done();
+    }, 100);
+  })
 
 
   //
