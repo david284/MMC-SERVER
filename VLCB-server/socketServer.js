@@ -21,6 +21,8 @@ function send_SERVER_STATUS(config, status){
   io.emit('SERVER_STATUS', status)
 }
 
+
+
 exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
 
   io.on('connection', function(socket){
@@ -237,7 +239,19 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       send_SERVER_STATUS(config, status)
     })
       
-          socket.on('REQUEST_VERSION', function(){
+    socket.on('REQUEST_SYSTEM_MDF_LIST', async function(data){
+      winston.info({message: `socketServer:  REQUEST_SYSTEM_MDF_LIST`})
+      // uses synchronous file system calls
+      io.emit('SYSTEM_MDF_LIST', config.getSystemModuleDescriptorFileList())
+    })
+
+    socket.on('REQUEST_USER_MDF_LIST', function(data){
+      winston.info({message: `socketServer:  REQUEST_USER_MDF_LIST`})
+      // uses synchronous file system calls
+      io.emit('USER_MDF_LIST', config.getUserModuleDescriptorFileList())
+    })
+
+    socket.on('REQUEST_VERSION', function(){
       winston.info({message: `socketServer: REQUEST_VERSION`});
       let version = {
         'App': packageInfo.version,

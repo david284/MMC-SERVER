@@ -389,7 +389,7 @@ describe('configuration tests', function(){
   })
 
 
-  it("getUserModuleDescriptorFileList test", function (done) {
+  it("getUserModuleDescriptorFileList test", function () {
     winston.info({message: 'unit_test: BEGIN getUserModuleDescriptorFileList test '})
     // user files
     var testFilePath = path.join(config.userConfigPath, "modules/CANABC-AAFF-1q.json")
@@ -402,28 +402,22 @@ describe('configuration tests', function(){
     jsonfile.writeFileSync(testFilePath, "testPattern")
     //
     var result = config.getUserModuleDescriptorFileList()
-    setTimeout(function(){
-      winston.info({message: 'result: ' + JSON.stringify(result)})
-      expect (result.length).to.be.equal(4)
-      winston.info({message: 'unit_test: END getUserModuleDescriptorFileList test'})
-      done();
-		}, 100);
+    winston.info({message: 'result: ' + JSON.stringify(result)})
+    expect (result.length).to.be.equal(4)
+    winston.info({message: 'unit_test: END getUserModuleDescriptorFileList test'})
   })
 
   //
   // Relies on at least 3 files already written to system module folder
   // There could be more files due to other tests
   //
-  it("getSystemModuleDescriptorFileList test", function (done) {
+  it("getSystemModuleDescriptorFileList test", function () {
     winston.info({message: 'unit_test: BEGIN getSystemModuleDescriptorFileList test '})
     //
     var result = config.getSystemModuleDescriptorFileList()
-    setTimeout(function(){
-      winston.info({message: 'result: ' + JSON.stringify(result)})
-      expect (result.length).to.be.above(3)
-      winston.info({message: 'unit_test: END getSystemModuleDescriptorFileList test'})
-      done();
-    }, 100);
+    winston.info({message: 'result: ' + JSON.stringify(result)})
+    expect (result.length).to.be.above(3)
+    winston.info({message: 'unit_test: END getSystemModuleDescriptorFileList test'})
   })
 
 
