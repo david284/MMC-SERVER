@@ -417,44 +417,34 @@ class configuration {
   }
 
 
-  getUserModuleDescriptorFileList(){
-    winston.info({message: className + ': getUserModuleDescriptorFileList '})
-    var result =[]
-    try{
-      if (this.userConfigPath){
-        if (this.userModuleDescriptorFileList.length == 0){
-          this.userModuleDescriptorFileList = fs.readdirSync(path.join(this.userConfigPath, 'modules'))
-          winston.debug({message: className + ': getUserModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
-        }
-      }
-    } catch (e) {
-      winston.error({message: className + ': ERROR getUserModuleDescriptorFileList: ' + e})
+  getMatchingMDFList(location, match){
+    var folder
+    if (location.toUpperCase() == "SYSTEM"){
+      folder = path.join(this.systemConfigPath, 'modules')
+    } else {
+      folder = path.join(this.userConfigPath, 'modules')
     }
-    this.userModuleDescriptorFileList.forEach(item => {
-      result.push(item)
-    })
-    winston.debug({message: className + ': getUserModuleDescriptorFileList: result: ' + JSON.stringify(result)})
-    return result
-  }
-
-
-  getSystemModuleDescriptorFileList(){
-    winston.info({message: className + ': getSystemModuleDescriptorFileList '})
+    winston.info({message: className + ': getMatchingMDFList: ' + folder + ' ' + match})
     var result =[]
+    var fileList
     try{
-      if (this.systemConfigPath){
-        if (this.systemModuleDescriptorFileList.length == 0){
-          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemConfigPath, 'modules'))
-          winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
-        }
-      }
+      fileList = fs.readdirSync(folder)
+      winston.debug({message: className + ': getMatchingMDFList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
     } catch (e) {
-      winston.error({message: className + ': ERROR getSystemModuleDescriptorFileList: ' + e})
+      winston.error({message: className + ': ERROR getMatchingMDFList: ' + e})
     }
-    this.systemModuleDescriptorFileList.forEach(item => {
-      result.push(item)
-    })
-    winston.debug({message: className + ': getUserModuleDescriptorFileList: result: ' + JSON.stringify(result)})
+    try {
+      fileList.forEach(item => {
+        if (item.includes(match)){
+          var filePath = path.join(folder, item)
+          var moduleDescriptor = jsonfile.readFileSync(filePath)
+          result.push([item, moduleDescriptor.version])
+        }
+      })
+    } catch(err){
+          
+    }
+    winston.debug({message: className + ': getMatchingMDFList: result: ' + JSON.stringify(result)})
     return result
   }
 

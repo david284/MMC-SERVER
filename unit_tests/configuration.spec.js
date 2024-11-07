@@ -28,18 +28,23 @@ fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
+var testContent = {"version":"202411071435"}
+
 // ensure 'system' modules directory exists
 config.createDirectory(path.join(config.systemConfigPath, "modules"))
 // write test files
-var testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-1q.json")
-jsonfile.writeFileSync(testFilePath, "testPattern")
-testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-2q.json")
-jsonfile.writeFileSync(testFilePath, "testPattern")
-testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-3q.json")
-jsonfile.writeFileSync(testFilePath, "testPattern")
-testFilePath = path.join(config.systemConfigPath, "modules", "CANSYS-XXXX-4q.json")
-jsonfile.writeFileSync(testFilePath, "testPattern")
+var testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-1q.json")
+jsonfile.writeFileSync(testFilePath, "{}")
+testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-2q.json")
+jsonfile.writeFileSync(testFilePath, testContent)
 
+// ensure 'user' modules directory exists
+config.createDirectory(path.join(config.userConfigPath, "modules"))
+// write test files
+var testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-3q.json")
+jsonfile.writeFileSync(testFilePath, "{}")
+testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-4q.json")
+jsonfile.writeFileSync(testFilePath, testContent)
 
 describe('configuration tests', function(){
 
@@ -389,35 +394,28 @@ describe('configuration tests', function(){
   })
 
 
-  it("getUserModuleDescriptorFileList test", function () {
-    winston.info({message: 'unit_test: BEGIN getUserModuleDescriptorFileList test '})
-    // user files
-    var testFilePath = path.join(config.userConfigPath, "modules/CANABC-AAFF-1q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.userConfigPath, "modules/CAN-ABC-AAFF-3q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.userConfigPath, "modules/CANABC-CCFF-4q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    //
-    var result = config.getUserModuleDescriptorFileList()
-    winston.info({message: 'result: ' + JSON.stringify(result)})
-    expect (result.length).to.be.equal(4)
-    winston.info({message: 'unit_test: END getUserModuleDescriptorFileList test'})
-  })
+  function GetTestCase_getMatchingMDFList() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 2; a++) {
+      if (a == 1) {arg1 = "system"}
+      if (a == 2) {arg1 = "user"}
+      testCases.push({'location':arg1});
+    }
+    return testCases;
+  }
+
 
   //
   // Relies on at least 3 files already written to system module folder
   // There could be more files due to other tests
   //
-  it("getSystemModuleDescriptorFileList test", function () {
-    winston.info({message: 'unit_test: BEGIN getSystemModuleDescriptorFileList test '})
+  itParam("getMatchingMDFList test ${JSON.stringify(value)}", GetTestCase_getMatchingMDFList(), function (value) {
+    winston.info({message: 'unit_test: BEGIN getMatchingMDFList test ' + JSON.stringify(value)})
     //
-    var result = config.getSystemModuleDescriptorFileList()
+    var result = config.getMatchingMDFList(value.location, "CANTEST-XXXX")
     winston.info({message: 'result: ' + JSON.stringify(result)})
-    expect (result.length).to.be.above(3)
-    winston.info({message: 'unit_test: END getSystemModuleDescriptorFileList test'})
+    expect (result.length).to.be.above(0)
+    winston.info({message: 'unit_test: END getMatchingMDFList test'})
   })
 
 

@@ -239,16 +239,16 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       send_SERVER_STATUS(config, status)
     })
       
-    socket.on('REQUEST_SYSTEM_MDF_LIST', async function(data){
-      winston.info({message: `socketServer:  REQUEST_SYSTEM_MDF_LIST`})
+    socket.on('REQUEST_SYSTEM_MATCHING_MDF_LIST', function(stringData){
+      winston.info({message: `socketServer:  REQUEST_SYSTEM_MATCHING_MDF_LIST`})
       // uses synchronous file system calls
-      io.emit('SYSTEM_MDF_LIST', config.getSystemModuleDescriptorFileList())
+      io.emit('SYSTEM_MDF_LIST', config.getMatchingMDFList("SYSTEM", stringData))
     })
 
-    socket.on('REQUEST_USER_MDF_LIST', function(data){
-      winston.info({message: `socketServer:  REQUEST_USER_MDF_LIST`})
+    socket.on('REQUEST_USER_MATCHING_MDF_LIST', function(stringData){
+      winston.info({message: `socketServer:  REQUEST_MATCHING_MDF_LIST`})
       // uses synchronous file system calls
-      io.emit('USER_MDF_LIST', config.getUserModuleDescriptorFileList())
+      io.emit('USER_MDF_LIST', config.getMatchingMDFList("USER", stringData))
     })
 
     socket.on('REQUEST_VERSION', function(){
