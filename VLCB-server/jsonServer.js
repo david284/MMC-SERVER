@@ -21,6 +21,11 @@ class jsonServer{
     this.config = configuration
     this.eventBus = configuration.eventBus
     this.JsonPort = JsonPort
+    setInterval(this.connectIntervalFunction.bind(this), 5000);
+    this.enableReconnect = false
+    this.connected = false
+    this.clientHost = null
+    this.clientPort = null
 
     //
     // Setup the handlers for cbusClient events
@@ -28,6 +33,7 @@ class jsonServer{
     //
 
     this.cbusClient.on('data', function (data) {
+      this.connected = true
       this.cbusClient.setKeepAlive(true, 60000);
       let outMsg = data.toString().split(";");
       for (let i = 0; i < outMsg.length - 1; i++) {
@@ -45,6 +51,7 @@ class jsonServer{
     this.cbusClient.on('error', async function (err) {
       winston.error({message: name + `: Client error: ` + err.stack});
       this.eventBus.emit ('bus_connection_state', false)
+      this.connected = false
     }.bind(this))
 
     //
@@ -82,6 +89,8 @@ class jsonServer{
 
     }.bind(this))
 
+//    this.server.listen(this.JsonPort)
+
   }
 
   //
@@ -90,18 +99,37 @@ class jsonServer{
   //
 
   connect(remoteAddress, cbusPort){
+    this.clientHost = remoteAddress
+    this.clientPort = cbusPort
     winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
     // connect to remote socket for CBUS messages
     try{
       this.cbusClient.connect(cbusPort, remoteAddress, function () {
         winston.info({message:name + ': Connected to ' + remoteAddress + ' on ' + cbusPort})
-      });
+        this.eventBus.emit ('bus_connection_state', true)
+        this.connected = true
+      }.bind(this));
 
-      this.server.listen(this.JsonPort)
-
+      if(this.enableReconnect == false){
+        this.server.listen(this.JsonPort)
+      }
+      this.enableReconnect = true
     } catch(e){
       winston.info({message:name + ': cbusClient connection failed: ' + e})
     }    
+  }
+
+  connectIntervalFunction(){
+    winston.info({message:name + ': cbusClient check connection:'})
+    if(this.enableReconnect){
+      winston.info({message:name + ': cbusClient reconnect enabled:'})
+      if(this.connected){
+        winston.info({message:name + ': cbusClient still connected:'})
+      } else {
+        winston.info({message:name + ': cbusClient not connected:'})
+        this.connect(this.clientHost, this.clientPort)
+      }
+    }
   }
 
 
@@ -117,8 +145,8 @@ class jsonServer{
       client.write(JSON.stringify(outMsg));
       winston.debug({message:`jsonServer: json broadcast to ` + client.remotePort + `: ${JSON.stringify(outMsg)} `})
     });
-    winston.debug({message:`jsonServer: cbus broadcast : ${JSON.stringify(outMsg)} `})
-    this.cbusClient.write(cbusMsg.encoded);
+      winston.debug({message:`jsonServer: cbus broadcast : ${JSON.stringify(outMsg)} `})
+      this.cbusClient.write(cbusMsg.encoded);
   }
 
 }
