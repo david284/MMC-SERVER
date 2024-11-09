@@ -36,9 +36,12 @@ class cbusAdmin extends EventEmitter {
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
 
-        this.scanQueue = []
-        this.scanQueueCount = 0;
-        setInterval(this.scanNodesIntervalFunc.bind(this), 20);
+        this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
+        this.NERD_Queue = []
+        this.NERD_Queue_Count = 0;
+        setInterval(this.sendNERDIntervalFunc.bind(this), 20);
+        this.RQEVN_Queue = []
+        setInterval(this.sendRQEVNIntervalFunc.bind(this), 30);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -215,7 +218,7 @@ class cbusAdmin extends EventEmitter {
                 }
                 this.emit('cbusError', this.cbusErrors)
             },
-            '74': async (cbusMsg) => { // NUMEV
+            '74': async (cbusMsg) => { // NUMEV - response to REQEVN
                 //winston.info({message: 'mergAdminNode: 74: ' + JSON.stringify(this.nodeConfig.nodes[cbusMsg.nodeNumber])})
                 if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != cbusMsg.eventCount) {
@@ -228,6 +231,7 @@ class cbusAdmin extends EventEmitter {
                     this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
                     this.saveNode(cbusMsg.nodeNumber)
                 }
+                this.NERD_Queue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
                 //winston.info({message: 'mergAdminNode:  NUMEV: ' + JSON.stringify(this.nodeConfig.nodes[cbusMsg.nodeNumber])});
             },
             '90': async (cbusMsg) => {//Accessory On Long Event
@@ -400,8 +404,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
                 this.nodeConfig.nodes[ref].status = true
-                await this.cbusSend((this.RQEVN(cbusMsg.nodeNumber))) // get number of events for each node
-                this.scanQueue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
+                this.RQEVN_Queue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
                 this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
@@ -551,7 +554,6 @@ class cbusAdmin extends EventEmitter {
                 this.emit('cbusNoSupport', this.cbusNoSupport)
             }
         }
-//        this.cbusSend(this.QNN())
     }
 
     //
@@ -559,24 +561,49 @@ class cbusAdmin extends EventEmitter {
     // node numbers are pushed onto a queue
     // node number taken from queue and NERD sent to get all events for that node
     // Function called on a frequent basis
+    // If QNN has been sent recently, then wait until a time has elapsed to allow the nodes
+    // to send their PNN responses
     //
-    scanNodesIntervalFunc(){
-      if (this.scanQueue.length > 0){
-        var nodeNumber = this.scanQueue[0]
-        // if first time for this node, then send it...
-        if (this.scanQueueCount == 0) {
-          winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
-          // clear events before we re-read them (but don't send to client yet)
-          this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
-          this.cbusSend(this.NERD(nodeNumber))
+    sendNERDIntervalFunc(){
+      if ( Date.now() > this.QNN_sent_time + 1000){
+        if (this.NERD_Queue.length > 0){
+          var nodeNumber = this.NERD_Queue[0]
+          // if first time for this node, then send it...
+          if (this.NERD_Queue_Count == 0) {
+            winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
+            // clear events before we re-read them (but don't send to client yet)
+            this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
+            this.cbusSend(this.NERD(nodeNumber))
+          }
+          // count passes for this node
+          this.NERD_Queue_Count++
+          var loops = (this.nodeConfig.nodes[nodeNumber].eventCount) ? this.nodeConfig.nodes[nodeNumber].eventCount / 5 : 1
+          if (this.NERD_Queue_Count > loops){
+            // reset for next node
+            var nodeNumber = this.NERD_Queue.shift()
+            this.NERD_Queue_Count = 0
+          }
         }
-        // count passes for this node
-        this.scanQueueCount++
-        var loops = (this.nodeConfig.nodes[nodeNumber].eventCount) ? this.nodeConfig.nodes[nodeNumber].eventCount / 5 : 1
-        if (this.scanQueueCount > loops){
-          // reset for next node
-          var nodeNumber = this.scanQueue.shift()
-          this.scanQueueCount = 0
+      }
+    }
+      
+
+    //
+    // Function to read number of events from nodes one at a time
+    // node numbers are pushed onto a queue
+    // node number taken from queue and RQEVN sent to get number for that node
+    // Function called on a frequent basis
+    // If QNN has been sent recently, then wait until a time has elapsed to allow the nodes
+    // to send their PNN responses
+    //
+    sendRQEVNIntervalFunc(){
+      if ( Date.now() > this.QNN_sent_time + 500){
+        if (this.RQEVN_Queue.length > 0){
+          // get first out of queue
+          var nodeNumber = this.RQEVN_Queue[0]
+          this.cbusSend(this.RQEVN(nodeNumber))
+          // remove the one we've used from queue
+          this.RQEVN_Queue.shift()
         }
       }
     }
@@ -941,6 +968,7 @@ class cbusAdmin extends EventEmitter {
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.saveConfig()
+    this.QNN_sent_time = Date.now()   // gets milliseconds now
     await this.cbusSend(this.QNN())
   }
 
@@ -1017,19 +1045,19 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
     await this.cbusSend((this.RQEVN(nodeNumber))) // get number of events for each node
+    // response to RQEVN will trigger a NERD command as well
     var timeOut = (this.inUnitTest) ? 1 : 100
     await sleep(timeOut); // allow a bit more time after EVLRN
-    this.scanQueue.push(nodeNumber)
   }
 
-
+/*
   async read_all_stored_events(nodeNumber, eventCount){
     await this.cbusSend(this.NERD(nodeNumber))
     var delay = 50 * eventCount
     await utils.sleep(delay)  // give it some time to complete
     this.emit('events', this.nodeConfig.events)
   }
-
+*/
 
 
   async request_all_node_parameters(nodeNumber){
@@ -1071,8 +1099,8 @@ class cbusAdmin extends EventEmitter {
     await sleep(timeOut); // allow a bit more time after EVLRN
     await this.cbusSend(this.NNULN(nodeNumber))
     if (isNewEvent){
-      // adding new event may change event indexes, so need to refresh with a NERD
-      await this.cbusSend(this.NERD(nodeNumber))
+      // adding new event may change event indexes, so need to refresh
+      request_all_node_events(nodeNumber)
       var timeOut = (this.inUnitTest) ? 1 : 1000
       await sleep(timeOut);           // allow plenty of time for NERD responses
     }
