@@ -39,9 +39,9 @@ class cbusAdmin extends EventEmitter {
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
         this.NERD_Queue = []
         this.NERD_Queue_Count = 0;
-        setInterval(this.sendNERDIntervalFunc.bind(this), 20);
+        setInterval(this.sendNERDIntervalFunc.bind(this), 50);
         this.RQEVN_Queue = []
-        setInterval(this.sendRQEVNIntervalFunc.bind(this), 30);
+        setInterval(this.sendRQEVNIntervalFunc.bind(this), 50);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -597,7 +597,7 @@ class cbusAdmin extends EventEmitter {
     // to send their PNN responses
     //
     sendRQEVNIntervalFunc(){
-      if ( Date.now() > this.QNN_sent_time + 500){
+      if ( Date.now() > this.QNN_sent_time + 1000){
         if (this.RQEVN_Queue.length > 0){
           // get first out of queue
           var nodeNumber = this.RQEVN_Queue[0]

@@ -21,7 +21,7 @@ class jsonServer{
     this.config = configuration
     this.eventBus = configuration.eventBus
     this.JsonPort = JsonPort
-    setInterval(this.connectIntervalFunction.bind(this), 5000);
+    setInterval(this.connectIntervalFunction.bind(this), 2000);
     this.enableReconnect = false
     this.connected = false
     this.clientHost = null
