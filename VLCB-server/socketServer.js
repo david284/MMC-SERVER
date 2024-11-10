@@ -336,7 +336,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     socket.on('UPDATE_LAYOUT_DATA', function(data){
       winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
-      winston.debug({message: `socketServer: UPDATE_LAYOUT_DATA ${JSON.stringify(data)}`});
+//      winston.debug({message: `socketServer: UPDATE_LAYOUT_DATA ${JSON.stringify(data)}`});
       config.writeLayoutData(data)
       io.emit('LAYOUT_DATA', data)    // refresh client, so pages can respond
     })

@@ -438,7 +438,7 @@ class configuration {
         if (item.includes(match)){
           var filePath = path.join(folder, item)
           var moduleDescriptor = jsonfile.readFileSync(filePath)
-          result.push([item, moduleDescriptor.version])
+          result.push([item, moduleDescriptor.timestamp])
         }
       })
     } catch(err){
