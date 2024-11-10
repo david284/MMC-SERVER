@@ -124,7 +124,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
-      winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR'});
+      winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR ${data.moduleDescriptorFilename}'});
       config.writeModuleDescriptor(data)
       node.query_all_nodes()  // force refresh of nodeDescriptors
     })
@@ -244,6 +244,21 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer:  REQUEST_MATCHING_MDF_LIST: ` + data.location})
       // uses synchronous file system calls
       io.emit('MATCHING_MDF_LIST', data.location, data.nodeNumber, config.getMatchingMDFList(data.location, data.match))
+    })
+
+    socket.on('REQUEST_MDF_EXPORT', function(data){
+      winston.info({message: `socketServer:  REQUEST_MDF_EXPORT: ` + data.location + ' ' + data.filename})
+      // uses synchronous file system calls
+      var mdf = config.getMDF(data.location, data.filename)
+      io.emit('MDF_EXPORT', data.location, data.filename, mdf)
+      winston.info({message: name + `: emit MDF_EXPORT ${data.location} ${data.filename}`});
+    })
+
+
+    socket.on('REQUEST_MDF_DELETE', function(data){
+      winston.info({message: `socketServer:  REQUEST_MDF_DELETE: ` + data.filename})
+      // uses synchronous file system calls
+      config.deleteMDF(data.filename)
     })
 
 

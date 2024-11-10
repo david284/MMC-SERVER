@@ -363,7 +363,7 @@ class configuration {
           if (this.createDirectory(path.join(this.userConfigPath, 'modules')))
           winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename})
           var filePath = path.join(this.userConfigPath, "modules", data.moduleDescriptorFilename)
-          jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+          jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n', flag:'w'})
           // clear cached file list so it gets re-read next time accessed
           this.userModuleDescriptorFileList = []
         } catch(e){
@@ -374,6 +374,37 @@ class configuration {
       }
     }
   }
+
+
+  deleteMDF(filename){
+    var filePath = this.userConfigPath + "/modules/" + filename
+    winston.debug({message: className + `: deleteMDF: ` + filePath});
+    try {
+      fs.rmSync(filePath) 
+    } catch(err){
+      winston.info({message: className + `: deleteMDF: ` + err});
+    }     
+  }
+
+
+  getMDF(location, filename){
+    var moduleDescriptor
+    var filePath = undefined
+    if (location == 'SYSTEM'){
+      filePath = this.systemConfigPath + "/modules/" + filename
+    }
+    else if (location == 'USER'){
+      filePath = this.userConfigPath + "/modules/" + filename
+    }
+    try {
+      winston.debug({message: className + `: getMDF: ` + filePath});
+      moduleDescriptor =  jsonfile.readFileSync(filePath) 
+    } catch(err){
+      winston.info({message: className + `: getMDF: ` + err});
+    }     
+    return moduleDescriptor
+  }
+
 
   getModuleDescriptorFileList(moduleDescriptor){
     winston.info({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})

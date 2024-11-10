@@ -1,7 +1,7 @@
 {
-  "version":"202411081124",
+  "timestamp": "202411081124",
   "moduleName": "TestFixture",
-  "nodeVariableInformation":"You can place any text here to help explain the context of the node variables...",
+  "nodeVariableInformation": "You can place any text here to help explain the context of the node variables...",
   "nodeVariables": [
     {
       "type": "NodeVariableBitSingle",
@@ -941,7 +941,7 @@
       ]
     }
   ],
-  "eventVariableInformation":"You can place any text here to help explain the context of the event variables...",
+  "eventVariableInformation": "You can place any text here to help explain the context of the event variables...",
   "eventVariables": [
     {
       "type": "EventVariableBitArray",
