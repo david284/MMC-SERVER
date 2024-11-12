@@ -124,9 +124,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
-      winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR ${data.moduleDescriptorFilename}'});
-      config.writeModuleDescriptor(data)
-      node.query_all_nodes()  // force refresh of nodeDescriptors
+      var filename = data.moduleDescriptor.moduleDescriptorFilename
+      winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR ' + data.nodeNumber + ' ' + filename});
+      config.writeModuleDescriptor(data.moduleDescriptor)
+      node.refreshNodeDescriptors()   // force refresh of nodeDescriptors
+      // refresh matching list, if there's an associated nodeNumber
+      if (data.nodeNumber != undefined){
+        var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
+        io.emit('MATCHING_MDF_LIST', "USER", data.nodeNumber, config.getMatchingMDFList("USER", match))
+      }
     })
 
     socket.on('PROGRAM_NODE', function(data){
@@ -243,8 +249,10 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('REQUEST_MATCHING_MDF_LIST', function(data){
       winston.info({message: `socketServer:  REQUEST_MATCHING_MDF_LIST: ` + data.location})
       // uses synchronous file system calls
-      io.emit('MATCHING_MDF_LIST', data.location, data.nodeNumber, config.getMatchingMDFList(data.location, data.match))
+      var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
+      io.emit('MATCHING_MDF_LIST', data.location, data.nodeNumber, config.getMatchingMDFList(data.location, match))
     })
+
 
     socket.on('REQUEST_MDF_EXPORT', function(data){
       winston.info({message: `socketServer:  REQUEST_MDF_EXPORT: ` + data.location + ' ' + data.filename})
@@ -259,6 +267,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer:  REQUEST_MDF_DELETE: ` + data.filename})
       // uses synchronous file system calls
       config.deleteMDF(data.filename)
+      node.refreshNodeDescriptors()   // force refresh
+    })
+
+
+    socket.on('REQUEST_NODE_DESCRIPTOR', function(data){
+      winston.info({message: `socketServer:  REQUEST_NODE_DESCRIPTOR: ` + data.nodeNumber})
+      // uses synchronous file system calls
     })
 
 

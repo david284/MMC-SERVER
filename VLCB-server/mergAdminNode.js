@@ -893,10 +893,14 @@ class cbusAdmin extends EventEmitter {
       this.emit('node', this.nodeConfig.nodes[nodeNumber])
     }
 
+    refreshNodeDescriptors(){
+      Object.keys(this.nodeDescriptors).forEach(nodeNumber => {
+        this.checkNodeDescriptor(nodeNumber, true)
+      })
+    }
 
-
-    checkNodeDescriptor(nodeNumber){
-      if (this.nodeDescriptors[nodeNumber] == undefined) {
+    checkNodeDescriptor(nodeNumber, force){
+      if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         if (this.nodeConfig.nodes[nodeNumber]){
           var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
