@@ -98,5 +98,63 @@ exports.getMaxNumberOfEventVariables = function getMaxNumberOfEventVariables(nod
 }
 
 
+exports.createServiceEntry = function createServiceEntry(nodeConfig, nodeNumber, ServiceIndex, ServiceType, ServiceVersion, ServiceDefs){
 
+  // all valid service indexes start from 1 - service index 0 returns count of services
+  if (nodeNumber in nodeConfig.nodes) {
+    if (nodeConfig.nodes[nodeNumber]["services"]) {
+      if (ServiceIndex > 0) {
+        let output = {
+          "ServiceIndex": ServiceIndex,
+          "ServiceType": ServiceType,
+          "ServiceVersion": ServiceVersion,
+          "diagnostics": {},
+          "ESD":{1:{}, 2:{}, 3:{}}
+        }
 
+        try {
+          if (ServiceDefs[ServiceType]) {
+            output["ServiceName"] = ServiceDefs[ServiceType]['name']
+            if (ServiceDefs[ServiceType].version){
+              winston.debug({message: name + `: createServiceEntry: version `});
+              // there is an entry for this version
+              if (ServiceDefs[ServiceType].version[ServiceVersion]){
+                winston.debug({message: name + `: createServiceEntry: version ` + ServiceVersion});
+                // there are ESD bytes defined
+                for (let key of Object.keys(ServiceDefs[ServiceType].version[ServiceVersion].ESD)){
+                  output.ESD[key] = {"name": ServiceDefs[ServiceType].version[ServiceVersion].ESD[key].name}
+                }
+              }
+            }
+          }
+          else {
+            output["ServiceName"] = "service type not found in ServiceDefs"
+          }
+        } catch (err) {
+          winston.debug({message: name + `: createServiceEntry: ` + err});
+        }
+        nodeConfig.nodes[nodeNumber]["services"][ServiceIndex] = output
+      }
+      else {
+        // service index is zero, so count returned
+        nodeConfig.nodes[nodeNumber]['serviceCount'] = ServiceVersion
+      }
+    }
+    else {
+      winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${nodeNumber}`});
+    }
+  }
+  else {
+    winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${nodeNumber}`});
+  }
+}
+
+exports.addESDvalue = function addESDvalue(nodeConfig, nodeNumber, ServiceIndex, ESDIndex, value){
+  if(nodeConfig.nodes[nodeNumber]["services"][ServiceIndex].ESD == undefined){
+    nodeConfig.nodes[nodeNumber]["services"][ServiceIndex]["ESD"] = {}
+  }
+  if(nodeConfig.nodes[nodeNumber]["services"][ServiceIndex].ESD[ESDIndex] == undefined){
+    nodeConfig.nodes[nodeNumber]["services"][ServiceIndex].ESD[ESDIndex] = {}
+  }
+  nodeConfig.nodes[nodeNumber]["services"][ServiceIndex].ESD[ESDIndex].value = value
+}

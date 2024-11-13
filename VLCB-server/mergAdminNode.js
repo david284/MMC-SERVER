@@ -43,6 +43,9 @@ class cbusAdmin extends EventEmitter {
         this.RQEVN_Queue = []
         setInterval(this.sendRQEVNIntervalFunc.bind(this), 50);
 
+        this.CBUS_Queue = []
+        setInterval(this.sendCBUSIntervalFunc.bind(this), 50);
+
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
             //const outMsg = data.toString().split(";")
@@ -313,38 +316,17 @@ class cbusAdmin extends EventEmitter {
             },
             'AC': async (cbusMsg) => {//Service Discovery
                 winston.info({message: `mergAdminNode: SD ${cbusMsg.nodeNumber} ${cbusMsg.text}`})
-                const ref = cbusMsg.nodeNumber
-                // all valid service indexes start from 1 - service index 0 returns count of services
-                if (ref in this.nodeConfig.nodes) {
-                  if (this.nodeConfig.nodes[ref]["services"]) {
-                    if (cbusMsg.ServiceIndex > 0) {
-                      let output = {
-                        "ServiceIndex": cbusMsg.ServiceIndex,
-                        "ServiceType": cbusMsg.ServiceType,
-                        "ServiceVersion": cbusMsg.ServiceVersion,
-                        "diagnostics": {}
-                      }
-                      if (this.ServiceDefs[cbusMsg.ServiceType]) {
-                        output["ServiceName"] = this.ServiceDefs[cbusMsg.ServiceType]['name']
-                      }
-                      else {
-                        output["ServiceName"] = "service type not found in ServiceDefs"
-                      }
-                      this.nodeConfig.nodes[ref]["services"][cbusMsg.ServiceIndex] = output
-                      this.saveNode(cbusMsg.nodeNumber)
-                    }
-                    else {
-                      // service index is zero, so count returned
-                      this.nodeConfig.nodes[ref]['serviceCount'] = cbusMsg.ServiceVersion
-                    }
-                  }
-                  else {
-                    winston.warn({message: `mergAdminNode - SD: node config services does not exist for node ${cbusMsg.nodeNumber}`});
-                  }
+                utils.createServiceEntry(this.nodeConfig, 
+                  cbusMsg.nodeNumber,
+                  cbusMsg.ServiceIndex,
+                  cbusMsg.ServiceType,
+                  cbusMsg.ServiceVersion,
+                  this.ServiceDefs
+                )
+                this.saveNode(cbusMsg.nodeNumber)
+                if (cbusMsg.ServiceIndex > 0){
+                  this.CBUS_Queue.push(this.RQSD(cbusMsg.nodeNumber, cbusMsg.ServiceIndex))
                 }
-                else {
-                  winston.warn({message: `mergAdminNode - SD: node config does not exist for node ${cbusMsg.nodeNumber}`});
-                } // if ref
             },
             'AF': async (cbusMsg) => {//GRSP
                 winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
@@ -512,11 +494,19 @@ class cbusAdmin extends EventEmitter {
                 this.emit('dccSessions', this.dccSessions)
                 winston.debug({message: `mergAdminNode: PLOC (E1) ` + JSON.stringify(this.dccSessions[session])})
             },
-            'E7': async (cbusMsg) => {//Service Discovery
+            'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
                 // mode
-                winston.debug({message: `mergAdminNode: Service Delivery ${JSON.stringify(cbusMsg)}`})
-                this.nodeConfig.nodes[cbusMsg.nodeNumber]["services"][cbusMsg.ServiceNumber] = [cbusMsg.Data1, cbusMsg.Data2, cbusMsg.Data3, cbusMsg.Data4]
-            },
+                winston.debug({message: name + `: Extended Service Discovery ${JSON.stringify(cbusMsg)}`})
+                utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 1, cbusMsg.Data1)
+                utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 2, cbusMsg.Data2)
+                utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 3, cbusMsg.Data3)
+                /*
+                this.nodeConfig.nodes[cbusMsg.nodeNumber]["services"][cbusMsg.ServiceIndex].ESD[1].value = cbusMsg.Data1
+                this.nodeConfig.nodes[cbusMsg.nodeNumber]["services"][cbusMsg.ServiceIndex].ESD[2].value = cbusMsg.Data2
+                this.nodeConfig.nodes[cbusMsg.nodeNumber]["services"][cbusMsg.ServiceIndex].ESD[3].value = cbusMsg.Data3
+                */
+                this.saveNode(cbusMsg.nodeNumber)
+              },
             'EF': async (cbusMsg) => {//Request Node Parameter in setup
                 // mode
                 //winston.debug({message: `mergAdminNode: PARAMS (EF) Received`});
@@ -605,6 +595,19 @@ class cbusAdmin extends EventEmitter {
           // remove the one we've used from queue
           this.RQEVN_Queue.shift()
         }
+      }
+    }
+      
+    //
+    // Function to send CBUS messages one at a time, ensuring a gap between them
+    //
+    sendCBUSIntervalFunc(){
+      if (this.CBUS_Queue.length > 0){
+        // get first out of queue
+        var msg = this.CBUS_Queue[0]
+        this.cbusSend(msg)
+        // remove the one we've used from queue
+        this.CBUS_Queue.shift()
       }
     }
       

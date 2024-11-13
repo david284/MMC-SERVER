@@ -181,7 +181,23 @@
 		"name":"Event Acknowledge Service"
 	},
 	"10":{
-		"name":"Boot Service"
+		"name":"Boot Service",
+		"version":{ 
+			"0": {
+				"ESD":{
+					"1":{"name":"Bootloader Type"},
+					"2":{"name":"Bootloader Version"},
+					"3":{"name":"Unused"}
+				}
+			},
+			"2": {
+				"ESD":{
+					"1":{"name":"Bootloader Type"},
+					"2":{"name":"Bootloader Version"},
+					"3":{"name":"Unused"}
+				}
+			}
+    }
 	},
 	"11":{
 		"name":"Boot2 Service"
