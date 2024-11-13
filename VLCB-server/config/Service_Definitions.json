@@ -13,6 +13,11 @@
 					"4":{"name":"Memory Fault Indicator"},
 					"5":{"name":"Node ID change count"},
 					"6":{"name":"Message Processed Count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
@@ -23,6 +28,11 @@
 					"4":{"name":"Memory Fault Indicator"},
 					"5":{"name":"Node ID change count"},
 					"6":{"name":"Message Processed Count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -34,12 +44,22 @@
 				"diagnostics":{
 					"1":{"name":"Access Count"},
 					"2":{"name":"Failure Count"}
+				},
+        "ESD":{
+					"1":{"name":"Number of NVs"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
 				"diagnostics":{
 					"1":{"name":"Access Count"},
 					"2":{"name":"Failure Count"}
+				},
+        "ESD":{
+					"1":{"name":"Number of NVs"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -65,6 +85,11 @@
 					"14":{"name":"CANID conflict count"},
 					"15":{"name":"CANID change count"},
 					"16":{"name":"CANID enumeration failure count"}
+				},
+        "ESD":{
+					"1":{"name":"Hardware Type"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
@@ -85,6 +110,11 @@
 					"14":{"name":"CANID conflict count"},
 					"15":{"name":"CANID change count"},
 					"16":{"name":"CANID enumeration failure count"}
+				},
+        "ESD":{
+					"1":{"name":"Hardware Type"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"2": {
@@ -107,6 +137,11 @@
 					"16":{"name":"CANID enumeration failure count"},
 					"17":{"name":"Transmit buffers used high watermark"},
 					"18":{"name":"Receive buffers used high watermark"}
+				},
+        "ESD":{
+					"1":{"name":"Hardware Type"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -117,11 +152,21 @@
 			"0": {
 				"diagnostics":{
 					"1":{"name":"Events taught count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
 				"diagnostics":{
 					"1":{"name":"Events taught count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -132,11 +177,21 @@
 			"0": {
 				"diagnostics":{
 					"1":{"name":"Events produced count"}
+				},
+        "ESD":{
+					"1":{"name":"EV Usage"},
+					"2":{"name":"Additional data"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
 				"diagnostics":{
 					"1":{"name":"Events produced count"}
+				},
+        "ESD":{
+					"1":{"name":"EV Usage"},
+					"2":{"name":"Additional data"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -147,11 +202,21 @@
 			"0": {
 				"diagnostics":{
 					"1":{"name":"Events consumed count"}
+				},
+        "ESD":{
+					"1":{"name":"EV Usage"},
+					"2":{"name":"Additional data"},
+					"3":{"name":"Unused"}
 				}
 			},
 			"1": {
 				"diagnostics":{
 					"1":{"name":"Events consumed count"}
+				},
+        "ESD":{
+					"1":{"name":"EV Usage"},
+					"2":{"name":"Additional data"},
+					"3":{"name":"Unused"}
 				}
 			}
 		}
@@ -161,8 +226,24 @@
 		"name":"New Event Teaching Service",
 		"version":{ 
 			"0": {
-			},
+				"diagnostics":{
+					"1":{"name":"Events taught count"}
+				},
+        "ESD":{
+					"1":{"name":"maximum number of events"},
+					"2":{"name":"maximum number of EVs per event"},
+					"3":{"name":"Unused"}
+				}
+      },
 			"1": {
+				"diagnostics":{
+					"1":{"name":"Events taught count"}
+				},
+        "ESD":{
+					"1":{"name":"maximum number of events"},
+					"2":{"name":"maximum number of EVs per event"},
+					"3":{"name":"Unused"}
+				}
 			}
 		}
 
@@ -171,14 +252,46 @@
 		"name":"Consume Own Events Service",
 		"version":{ 
 			"0": {
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
 			},
 			"1": {
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
 			}
 		}
 
 	},
 	"9":{
-		"name":"Event Acknowledge Service"
+		"name":"Event Acknowledge Service",
+    "version":{ 
+			"0": {
+				"diagnostics":{
+					"1":{"name":"Events acknowledged count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
+      },
+			"1": {
+				"diagnostics":{
+					"1":{"name":"Events acknowledged count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
+			}
+    }
 	},
 	"10":{
 		"name":"Boot Service",
