@@ -39,7 +39,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
       if (data) { 
         if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
-          node.cbusSend(node.ACOF(data.nodeNumber, data.eventNumber))
+          node.CBUS_Queue.push(node.ACOF(data.nodeNumber, data.eventNumber))
         } else { winston.warn({message: name + `: ACCESSORY_LONG_OFF - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_LONG_OFF - missing arguments`});
@@ -50,7 +50,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: name + `: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
       if (data) { 
         if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
-          node.cbusSend(node.ACON(data.nodeNumber, data.eventNumber))
+          node.CBUS_Queue.push(node.ACON(data.nodeNumber, data.eventNumber))
         } else { winston.warn({message: name + `: ACCESSORY_LONG_ON - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_LONG_ON - missing arguments`});
@@ -61,7 +61,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: ACCESSORY_SHORT_OFF ${JSON.stringify(data)}`});
       if (data) { 
         if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
-          node.cbusSend(node.ASOF(data.nodeNumber, data.deviceNumber))
+          node.CBUS_Queue.push(node.ASOF(data.nodeNumber, data.deviceNumber))
         } else { winston.warn({message: name + `: ACCESSORY_SHORT_OFF - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_SHORT_OFF - missing arguments`});
@@ -72,7 +72,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: ACCESSORY_SHORT_ON ${JSON.stringify(data)}`});
       if (data) { 
         if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
-          node.cbusSend(node.ASON(data.nodeNumber, data.deviceNumber))
+          node.CBUS_Queue.push(node.ASON(data.nodeNumber, data.deviceNumber))
         } else { winston.warn({message: name + `: ACCESSORY_SHORT_ON - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_SHORT_ON - missing arguments`});
@@ -81,7 +81,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     socket.on('CANID_ENUM', function(nodeNumber){
       winston.info({message: name + `:  CANID_ENUM ${nodeNumber}`});
-      node.cbusSend(node.ENUM(nodeNumber))
+      node.CBUS_Queue.push(node.ENUM(nodeNumber))
     })
 
     socket.on('CHANGE_LAYOUT', function(data){
@@ -120,7 +120,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
       await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
-      await node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex)
+//      await node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex)
     })
 
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
@@ -210,12 +210,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('REQUEST_DIAGNOSTICS', function(data){
       winston.info({message: `socketServer:  REQUEST_DIAGNOSTICS ${JSON.stringify(data)}`});
       if (data.serviceIndex == undefined){data.serviceIndex = 0;}
-      node.cbusSend(node.RDGN(data.nodeNumber, data.serviceIndex, 0))
+      node.CBUS_Queue.push(node.RDGN(data.nodeNumber, data.serviceIndex, 0))
     })
 
     socket.on('REQUEST_EVENT_VARIABLE', function(data){
       winston.info({message: `socketServer: REQUEST_EVENT_VARIABLE ${JSON.stringify(data)}`});
-      node.cbusSend(node.REVAL(data.nodeNumber, data.eventIndex, data.eventVariableId))
+      node.CBUS_Queue.push(node.REVAL(data.nodeNumber, data.eventIndex, data.eventVariableId))
     })
 
     socket.on('REQUEST_LAYOUT_DATA', function(){
@@ -232,12 +232,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     socket.on('REQUEST_NODE_VARIABLE', function(data){
       winston.info({message: `socketServer:  REQUEST_NODE_VARIABLE ${JSON.stringify(data)}`});
-        node.cbusSend(node.NVRD(data.nodeNumber, data.variableId))
+      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
     })
 
     socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
       winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
-      node.cbusSend(node.RQSD(data.nodeNumber, 0))
+      node.CBUS_Queue.push(node.RQSD(data.nodeNumber, 0))
     })
 
     socket.on('REQUEST_SERVER_STATUS', function(){
@@ -290,12 +290,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     socket.on('RESET_NODE', function(nodeNumber){
       winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
-      node.cbusSend(node.NNRST(nodeNumber))
+      node.CBUS_Queue.push(node.NNRST(nodeNumber))
     })
 
     socket.on('RQNPN', function(data){ //Request Node Parameter
       winston.info({message: `socketServer:  RQNPN ${JSON.stringify(data)}`});
-      node.cbusSend(node.RQNPN(data.nodeNumber, data.parameter))
+      node.CBUS_Queue.push(node.RQNPN(data.nodeNumber, data.parameter))
     })
 
     socket.on('SAVE_BACKUP', function(data){ //save backup
@@ -305,12 +305,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
  
     socket.on('SET_CAN_ID', function(data){
       winston.info({message: `socketServer: SET_CAN_ID ` + data});
-      node.cbusSend(node.CANID(data.nodeNumber, data.CAN_ID))
+      node.CBUS_Queue.push(node.CANID(data.nodeNumber, data.CAN_ID))
     })
     
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
-      node.cbusSend(node.SNN(nodeNumber))
+      node.CBUS_Queue.push(node.SNN(nodeNumber))
       node.setNodeNumberIssued = true
     })
     
@@ -350,18 +350,18 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
     
     socket.on('UPDATE_NODE_VARIABLE', function(data){
-      node.cbusSend(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
+      node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
-        setTimeout(function() {node.cbusSend(node.NVRD(data.nodeNumber, data.variableId))},50)
+        setTimeout(function() {node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))},50)
     })
 
     socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
-      node.cbusSend(node.NNLRN(data.nodeNumber))
-      node.cbusSend(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
-      node.cbusSend(node.NNULN(data.nodeNumber))
-      node.cbusSend(node.NVRD(data.nodeNumber, data.variableId))
-      node.cbusSend(node.NNULN(data.nodeNumber))
+      node.CBUS_Queue.push(node.NNLRN(data.nodeNumber))
+      node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
+      node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
+      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+      node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
     })
 
     socket.on('UPDATE_LAYOUT_DATA', function(data){

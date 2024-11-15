@@ -36,6 +36,8 @@ class cbusAdmin extends EventEmitter {
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
 
+        this.lastReceiveTime = Date.now()   // put valid milliseconds in to start
+        this.lastMessageWasQNN = false
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
         this.NERD_Queue = []
         this.NERD_Queue_Count = 0;
@@ -48,7 +50,8 @@ class cbusAdmin extends EventEmitter {
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
-            //const outMsg = data.toString().split(";")
+          this.lastReceiveTime = Date.now()     // store this time stamp
+          //const outMsg = data.toString().split(";")
             let indata = data.toString().replace(/}{/g, "}|{")
             //winston.info({message: `mergAdminNode: CBUS Receive <<<  ${indata}`})
             const outMsg = indata.toString().split("|")
@@ -96,7 +99,7 @@ class cbusAdmin extends EventEmitter {
                     this.dccSessions[session] = {}
                     this.dccSessions[session].count = 1
                     this.dccSessions[session].status = 'In Active'
-                    await this.cbusSend(this.QLOC(session))
+                    this.CBUS_Queue.push(this.QLOC(session))
                 }
                 this.emit('dccSessions', this.dccSessions)
             },
@@ -115,7 +118,7 @@ class cbusAdmin extends EventEmitter {
                     this.dccSessions[session] = {}
                     this.dccSessions[session].count = 1
                     this.dccSessions[session].status = 'Active'
-                    await this.cbusSend(this.QLOC(session))
+                    this.CBUS_Queue.push(this.QLOC(session))
                 }
                 this.emit('dccSessions', this.dccSessions)
             },
@@ -555,7 +558,7 @@ class cbusAdmin extends EventEmitter {
     // to send their PNN responses
     //
     sendNERDIntervalFunc(){
-      if ( Date.now() > this.QNN_sent_time + 1000){
+      if ( Date.now() > this.lastReceiveTime + 100){
         if (this.NERD_Queue.length > 0){
           var nodeNumber = this.NERD_Queue[0]
           // if first time for this node, then send it...
@@ -587,7 +590,10 @@ class cbusAdmin extends EventEmitter {
     // to send their PNN responses
     //
     sendRQEVNIntervalFunc(){
-      if ( Date.now() > this.QNN_sent_time + 1000){
+      // allow larger gap if we've just sent QNN
+      var timeGap = this.lastMessageWasQNN ? 500 : 100
+      if ( Date.now() > this.lastReceiveTime + timeGap){
+        this.lastMessageWasQNN = false
         if (this.RQEVN_Queue.length > 0){
           // get first out of queue
           var nodeNumber = this.RQEVN_Queue[0]
@@ -602,12 +608,14 @@ class cbusAdmin extends EventEmitter {
     // Function to send CBUS messages one at a time, ensuring a gap between them
     //
     sendCBUSIntervalFunc(){
-      if (this.CBUS_Queue.length > 0){
-        // get first out of queue
-        var msg = this.CBUS_Queue[0]
-        this.cbusSend(msg)
-        // remove the one we've used from queue
-        this.CBUS_Queue.shift()
+      if ( Date.now() > this.lastReceiveTime + 50){
+        if (this.CBUS_Queue.length > 0){
+          // get first out of queue
+          var msg = this.CBUS_Queue[0]
+          this.cbusSend(msg)
+          // remove the one we've used from queue
+          this.CBUS_Queue.shift()
+        }
       }
     }
       
@@ -905,42 +913,46 @@ class cbusAdmin extends EventEmitter {
     checkNodeDescriptor(nodeNumber, force){
       if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
-        if (this.nodeConfig.nodes[nodeNumber]){
-          var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
-          var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
-          if ((moduleName == "Unknown") || (moduleName == undefined)) {
-            // we can't handle a module we don't know about, so just warn & skip rest
-            winston.info({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
-          } else {
-            // build filename
-            var filename = moduleName + "-" + moduleIdentifier               
-            // need major & minor version numbers, and cpu type
-            // to complete building of filename
-            if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
-            {
-              // get & store the version
-              this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
-              filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
-              filename += "--P" + this.nodeConfig.nodes[nodeNumber].parameters[9]  // cpu type
-              filename += ".json"
-              // but don't store the filename in nodeConfig until we're tried to read the file
-              try {
-                const moduleDescriptor = this.config.readModuleDescriptor(filename)
-                this.nodeDescriptors[nodeNumber] = moduleDescriptor
-                // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
-                // and the client can check for filename, and if no data, then fileload failed
-                if (moduleDescriptor){
-                  this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
+        try {
+          if (this.nodeConfig.nodes[nodeNumber]){
+            var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
+            var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
+            if ((moduleName == "Unknown") || (moduleName == undefined)) {
+              // we can't handle a module we don't know about, so just warn & skip rest
+              winston.info({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
+            } else {
+              // build filename
+              var filename = moduleName + "-" + moduleIdentifier               
+              // need major & minor version numbers, and cpu type
+              // to complete building of filename
+              if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
+              {
+                // get & store the version
+                this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
+                filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
+                filename += "--P" + this.nodeConfig.nodes[nodeNumber].parameters[9]  // cpu type
+                filename += ".json"
+                // but don't store the filename in nodeConfig until we're tried to read the file
+                try {
+                  const moduleDescriptor = this.config.readModuleDescriptor(filename)
+                  this.nodeDescriptors[nodeNumber] = moduleDescriptor
+                  // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
+                  // and the client can check for filename, and if no data, then fileload failed
+                  if (moduleDescriptor){
+                    this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
+                  }
+                  this.config.writeNodeDescriptors(this.nodeDescriptors)
+                  winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+                  var payload = {[nodeNumber]:moduleDescriptor}
+                  this.emit('nodeDescriptor', payload);
+                }catch(err) {
+                  winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
                 }
-                this.config.writeNodeDescriptors(this.nodeDescriptors)
-                winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
-                var payload = {[nodeNumber]:moduleDescriptor}
-                this.emit('nodeDescriptor', payload);
-              }catch(err) {
-                winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
               }
             }
           }
+        } catch (err){
+          winston.error({message: name + ': checkNodeDescriptor: ' + err});        
         }
       }
     }
@@ -977,13 +989,14 @@ class cbusAdmin extends EventEmitter {
     this.saveConfig()
     this.QNN_sent_time = Date.now()   // gets milliseconds now
     await this.cbusSend(this.QNN())
+    this.lastMessageWasQNN = true
   }
 
   async event_unlearn(nodeNumber, eventName) {
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    await this.cbusSend(this.EVULN(eventName))
+    this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.CBUS_Queue.push(this.EVULN(eventName))
     await sleep(300); // allow a bit more time after NNCLR
-    await this.cbusSend(this.NNULN(nodeNumber))
+    this.CBUS_Queue.push(this.NNULN(nodeNumber))
     await sleep(100); // allow a bit more time after NNCLR
     await this.request_all_node_events(nodeNumber)
   }
@@ -1011,7 +1024,7 @@ class cbusAdmin extends EventEmitter {
         // let clear out existing event variables...
 //        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
         // now try reading EV0 - should return number of event variables
-        await this.cbusSend(this.REVAL(nodeNumber, eventIndex, 0))
+        this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
         await sleep(300); // wait for a response before trying to use it
         // now assume number of variables from param 5, but use the value in EV0 if it exists
         var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
@@ -1020,8 +1033,8 @@ class cbusAdmin extends EventEmitter {
         }
         // now read event variables
         for (let i = 1; i <= numberOfVariables; i++) {
-          await sleep(50); // allow time between requests
-          await this.cbusSend(this.REVAL(nodeNumber, eventIndex, i))
+//          await sleep(50); // allow time between requests
+          this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
         }
       }
       this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=false
@@ -1038,10 +1051,10 @@ class cbusAdmin extends EventEmitter {
 
   async delete_all_events(nodeNumber) {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    await this.cbusSend(this.NNCLR(nodeNumber))
+    this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.CBUS_Queue.push(this.NNCLR(nodeNumber))
     await sleep(500); // allow a bit more time after NNCLR
-    await this.cbusSend(this.NNULN(nodeNumber))
+    this.CBUS_Queue.push(this.NNULN(nodeNumber))
   }
 
   //
@@ -1051,32 +1064,21 @@ class cbusAdmin extends EventEmitter {
   async request_all_node_events(nodeNumber){
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.addNodeToConfig(nodeNumber)}
-    await this.cbusSend((this.RQEVN(nodeNumber))) // get number of events for each node
+    this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
     // response to RQEVN will trigger a NERD command as well
     var timeOut = (this.inUnitTest) ? 1 : 100
     await sleep(timeOut); // allow a bit more time after EVLRN
   }
 
-/*
-  async read_all_stored_events(nodeNumber, eventCount){
-    await this.cbusSend(this.NERD(nodeNumber))
-    var delay = 50 * eventCount
-    await utils.sleep(delay)  // give it some time to complete
-    this.emit('events', this.nodeConfig.events)
-  }
-*/
-
 
   async request_all_node_parameters(nodeNumber){
-    await this.cbusSend(this.RQNPN(nodeNumber, 0))    // get number of node parameters
+    this.CBUS_Queue.push(this.RQNPN(nodeNumber, 0))     // get number of node parameters
     await sleep(400); // wait for a response before trying to use it
     let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
     for (let i = 1; i <= nodeParameterCount; i++) {
-      await this.cbusSend(this.RQNPN(nodeNumber, i))
-      await sleep(50); // allow time between requests
+      this.CBUS_Queue.push(this.RQNPN(nodeNumber, i))
     }
   }
-
 
   async request_all_node_variables(nodeNumber, start){
     // get number of node variables - but wait till it exists
@@ -1086,7 +1088,7 @@ class cbusAdmin extends EventEmitter {
     }
     let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
     for (let i = start; i <= nodeVariableCount; i++) {
-      await this.cbusSend(this.NVRD(nodeNumber, i))
+      this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
       await sleep(50); // allow time between requests
     }
   }
@@ -1100,17 +1102,19 @@ class cbusAdmin extends EventEmitter {
     } 
     // updated variable, so add to config
     this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
-    await this.cbusSend(this.NNLRN(nodeNumber))
-    await this.cbusSend(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
+    this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.CBUS_Queue.push(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
     var timeOut = (this.inUnitTest) ? 1 : 250
     await sleep(timeOut); // allow a bit more time after EVLRN
-    await this.cbusSend(this.NNULN(nodeNumber))
+    this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    /*
     if (isNewEvent){
       // adding new event may change event indexes, so need to refresh
-      request_all_node_events(nodeNumber)
+      this.request_all_node_events(nodeNumber)
       var timeOut = (this.inUnitTest) ? 1 : 1000
       await sleep(timeOut);           // allow plenty of time for NERD responses
     }
+      */
   }
 
 
@@ -1123,7 +1127,7 @@ class cbusAdmin extends EventEmitter {
     try{
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex){
-        this.cbusSend(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
+        this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
       } else {
         winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
       }
@@ -1139,7 +1143,7 @@ class cbusAdmin extends EventEmitter {
     // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
     // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
     // but need to refresh all events to get updated event indexes
-    await this.cbusSend(this.NERD(nodeNumber))
+    this.CBUS_Queue.push(this.NERD(nodeNumber))
     var timeOut = (this.inUnitTest) ? 1 : 250
     await sleep(timeOut); // allow a bit more time after EVLRN
     try{
