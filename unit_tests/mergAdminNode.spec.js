@@ -606,9 +606,11 @@ describe('mergAdminNode tests', function(){
   itParam("event_teach_by_identifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN event_teach_by_identifier test '});
     mock_jsonServer.messagesIn = []
-    // ensure event doesn't exist, so should always refresh all events
-    node.nodeConfig.nodes[value.nodeNumber] = {storedEvents:{0:{}}}
-    await node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
+    // ensure event does exist, so shouldn't refresh events
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].storedEvents = {}
+    node.nodeConfig.nodes[value.nodeNumber].storedEvents[1] ={"eventIndex":1, "eventIdentifier":value.eventIdentifier}
+    node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -616,10 +618,33 @@ describe('mergAdminNode tests', function(){
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-//      expect(mock_jsonServer.messagesIn[5].mnemonic).to.equal("REVAL")
+      expect(mock_jsonServer.messagesIn.length).to.equal(3)
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
-		}, 10);
+		}, 150);
+  })
+
+
+  //
+  //
+  //
+  it("new_event_teach#2_by_identifier test", function (done) {
+    winston.info({message: 'unit_test: BEGIN new_event_teach_by_identifier test'});
+    mock_jsonServer.messagesIn = []
+    // ensure event doesn't exist, so should always refresh all events
+    node.nodeConfig.nodes[1] = {storedEventsNI:{0:{}}}
+    node.event_teach_by_identifier(1, "12345678", 1, 0 )
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
+      winston.info({message: 'unit_test: END new_event_teach_by_identifier test'});
+			done();
+		}, 150);
   })
 
 

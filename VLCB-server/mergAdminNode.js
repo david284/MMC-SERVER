@@ -413,15 +413,7 @@ class cbusAdmin extends EventEmitter {
                       let output = {
                           "DiagnosticCode": cbusMsg.DiagnosticCode,
                           "DiagnosticValue": cbusMsg.DiagnosticValue
-                      }/*
-                      if (this.ServiceDefs[ServiceType]) {
-                        if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]){
-                          if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
-                            output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
-                          }
-                        }
-                      }*/
-
+                      }
                       try{
                         if(this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]){
                           output["DiagnosticName"] = this.ServiceDefs[ServiceType]['version'][ServiceVersion]['diagnostics'][cbusMsg.DiagnosticCode]['name']
@@ -429,7 +421,6 @@ class cbusAdmin extends EventEmitter {
                       } catch (err){
                         winston.warn({message: name + `: DGN: failed to get diagnostic name for diagnostic code ${cbusMsg.DiagnosticCode} ` + err});
                       }
-
                       this.nodeConfig.nodes[ref]["services"][cbusMsg.ServiceIndex]['diagnostics'][cbusMsg.DiagnosticCode] = output
                       this.saveNode(cbusMsg.nodeNumber)
                     }
@@ -1105,6 +1096,7 @@ class cbusAdmin extends EventEmitter {
     var isNewEvent = false
     if (utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
       isNewEvent = true
+      winston.info({message: name + ': event_teach_by_identifier - New event'});
     } 
     // updated variable, so add to config
     this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
@@ -1112,10 +1104,10 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
     var timeOut = (this.inUnitTest) ? 1 : 250
     await sleep(timeOut); // allow a bit more time after EVLRN
+    winston.debug({message: name +': event_teach_by_identity: timeOut ' + timeOut})
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
 
     if (isNewEvent){
-      winston.info({message: name + ': event_teach_by_identifier - New event'});
       // adding new event may change event indexes, so need to refresh
       this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
       await sleep(500); // allow a bit more time after RQEVN as it'll trigger a NERD
