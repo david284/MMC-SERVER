@@ -89,7 +89,7 @@ describe('utilities tests', function(){
         if (b == 2) {argB = "00000001"}
         if (b == 3) {argB = "FFFFFFFF"}
         for (var c = 1; c<= 2; c++) {
-          if (c == 1) {argC = '1'}
+          if (c == 1) {argC = 1}
           if (c == 2) {argC = undefined}
             testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "result":argC});
         }
@@ -97,6 +97,20 @@ describe('utilities tests', function(){
     }
     return testCases;
   }
+
+  itParam("getEventTableIndexNI test ${JSON.stringify(value)}", GetTestCase_getEventTableIndex(), function (value) {
+    winston.info({message: 'unit_test: BEGIN getEventTableIndexNI test '});
+    // create node with no matching events
+    var node = {storedEventsNI:{}}
+    if (value.result == 1){
+      // event should exist, so populate it
+      node.storedEventsNI[value.eventIdentifier] = {eventIndex: 1}
+    }
+    result = utils.getEventTableIndexNI(node, value.eventIdentifier )
+    expect(result).to.equal(value.result)
+    winston.info({message: 'unit_test: END getEventTableIndexNI test'});
+  })
+
 
   itParam("getEventTableIndex test ${JSON.stringify(value)}", GetTestCase_getEventTableIndex(), function (value) {
     winston.info({message: 'unit_test: BEGIN getEventTableIndex test '});

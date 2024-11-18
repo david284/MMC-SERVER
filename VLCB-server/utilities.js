@@ -85,6 +85,18 @@ exports.getEventTableIndex = function getEventTableIndex(node, eventIdentifier){
   winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
   return tableIndex
 }
+
+
+exports.getEventTableIndexNI = function getEventTableIndexNI(node, eventIdentifier){
+  var tableIndex = undefined
+  try{
+    tableIndex = node.storedEventsNI[eventIdentifier].eventIndex
+  } catch (err) {}
+  winston.debug({message: name + ': getEventTableIndexNI:  result ' + tableIndex})
+  return tableIndex
+}
+
+
 exports.getMaxNumberOfEventVariables = function getMaxNumberOfEventVariables(nodeConfig, nodeNumber){
   winston.debug({message: name + ': getMaxNumberOfEventVariables: ' + nodeNumber + ' ' + JSON.stringify(nodeConfig)});
   var number = 0
