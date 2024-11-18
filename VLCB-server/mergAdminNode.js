@@ -671,7 +671,7 @@ class cbusAdmin extends EventEmitter {
 
     async action_message(cbusMsg) {
       if (cbusMsg.ID_TYPE == "S"){
-        winston.info({message: "mergAdminNode: " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode + ' processed'});
+        winston.info({message: "mergAdminNode: Standard message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
         if (this.actions[cbusMsg.opCode]) {
             await this.actions[cbusMsg.opCode](cbusMsg);
         } else {

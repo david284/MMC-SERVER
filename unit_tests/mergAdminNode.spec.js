@@ -409,6 +409,27 @@ describe('mergAdminNode tests', function(){
   })
 
 
+  // 0x74 NUMEV
+  // should be received ok
+  // and then should trigger a NERD to be sent, as no event count set for target nodeNumber
+  //
+  itParam("NUMEV test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN NUMEV test ' + JSON.stringify(value)});
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    var testMessage = cbusLib.encodeNUMEV(value.nodeNumber, 1)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("NUMEV")
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NERD")
+      winston.info({message: 'unit_test: END NUMEV test'});
+			done();
+		}, 200);
+  })
+
+
   function GetTestCase_GRSP() {
     var argA, argB, argC, argD, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -450,6 +471,33 @@ describe('mergAdminNode tests', function(){
 			done();
 		}, 30);
   })
+
+
+  // 0xB6 PNN
+  // PNN should be received ok
+  // then should trigger a RQEVN command for that node
+  //
+  itParam("PNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN PNN test '});
+    var testMessage = cbusLib.encodePNN(value.nodeNumber, 2, 3, 4)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("PNN")
+      winston.info({message: 'unit_test: output ' + JSON.stringify(mock_jsonServer.messagesIn)});
+      if (value.nodeNumber > 0){
+        expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("RQEVN")
+      } else {
+        // node 0 should be ignored
+        expect(mock_jsonServer.messagesIn.length).to.equal(0)
+      }
+      winston.info({message: 'unit_test: END PNN test'});
+			done();
+		}, 100);
+  })
+
 
   function GetTestCase_DGN() {
     var argA, argB, argC, argD, testCases = [];

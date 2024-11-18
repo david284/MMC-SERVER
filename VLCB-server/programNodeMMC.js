@@ -192,6 +192,7 @@ class programNode extends EventEmitter  {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
           await this.transmitCBUS(msg, 80)
+          this.sendBootModeToClient("BootMode requested...")
           
           // need to allow a small time for module to go into boot mode
           await utils.sleep(100)
