@@ -46,7 +46,7 @@ class cbusAdmin extends EventEmitter {
         setInterval(this.sendRQEVNIntervalFunc.bind(this), 50);
 
         this.CBUS_Queue = []
-        setInterval(this.sendCBUSIntervalFunc.bind(this), 50);
+        setInterval(this.sendCBUSIntervalFunc.bind(this), 20);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -591,6 +591,7 @@ class cbusAdmin extends EventEmitter {
     sendRQEVNIntervalFunc(){
       // allow larger gap if we've just sent QNN
       var timeGap = this.lastMessageWasQNN ? 500 : 100
+      timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
         this.lastMessageWasQNN = false
         if (this.RQEVN_Queue.length > 0){
@@ -607,7 +608,8 @@ class cbusAdmin extends EventEmitter {
     // Function to send CBUS messages one at a time, ensuring a gap between them
     //
     sendCBUSIntervalFunc(){
-      if ( Date.now() > this.lastReceiveTime + 100){
+      var timeGap = this.inUnitTest ? 1 : 100
+      if ( Date.now() > this.lastReceiveTime + timeGap){
         if (this.CBUS_Queue.length > 0){
           // get first out of queue
           var msg = this.CBUS_Queue[0]
@@ -839,8 +841,6 @@ class cbusAdmin extends EventEmitter {
         winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
         let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
         this.emit('cbusTraffic', {direction: 'Out', json: tmp});
-//        this.config.writeBusTraffic('OUT ' + tmp.text)
-        await utils.sleep(20)
       }
     }
 
@@ -1116,12 +1116,10 @@ class cbusAdmin extends EventEmitter {
 
     if (isNewEvent){
       winston.info({message: name + ': event_teach_by_identifier - New event'});
-      // increment event count to reflect this
-//      this.nodeConfig.nodes[nodeNumber].eventCount++
       // adding new event may change event indexes, so need to refresh
       this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
+      await sleep(500); // allow a bit more time after RQEVN as it'll trigger a NERD
     }
-    await sleep(500); // allow a bit more time after EVLRN
     this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
   }
 

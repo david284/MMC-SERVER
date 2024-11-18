@@ -182,7 +182,7 @@ describe('socketServer tests', async function(){
       }
       winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
 			done();
-		}, 20);
+		}, 50);
   })
 
 
@@ -213,7 +213,7 @@ describe('socketServer tests', async function(){
       }
       winston.info({message: name +': END ACCESSORY_LONG_ON test'});
 			done();
-		}, 20);
+		}, 50);
   })
 
 
@@ -244,7 +244,7 @@ describe('socketServer tests', async function(){
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
 			done();
-		}, 20);
+		}, 50);
   })
 
 
@@ -275,7 +275,7 @@ describe('socketServer tests', async function(){
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
 			done();
-		}, 20);
+		}, 50);
   })
 
 
@@ -478,7 +478,7 @@ describe('socketServer tests', async function(){
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
-		}, 250);
+		}, 300);
   })
 
 
