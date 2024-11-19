@@ -343,25 +343,6 @@ class cbusAdmin extends EventEmitter {
             },
             'B5': async (cbusMsg) => {// NEVAL -Read of EV value Response REVAL
               this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
-              
-                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] != null) {
-                    if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != null) {
-                        if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
-                            winston.debug({message: `mergAdminNode: Event Variable ${cbusMsg.variable} Value has Changed `});
-                            this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
-                        } else {
-                            winston.debug({message: `mergAdminNode: NEVAL: Event Variable ${cbusMsg.eventVariableIndex} Value has not Changed `});
-                        }
-                        this.saveNode(cbusMsg.nodeNumber)
-                    } else {
-                        winston.debug({message: `mergAdminNode: NEVAL: Event Variable ${cbusMsg.variable} Does not exist on config - adding`});
-                        this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
-                        this.saveNode(cbusMsg.nodeNumber)
-                    }
-                } else {
-                    winston.debug({message: `mergAdminNode: NEVAL: Event Index ${cbusMsg.eventIndex} Does not exist on config - skipping`});
-                }
-
             },
             'B6': async (cbusMsg) => { //PNN Received from Node
               const ref = cbusMsg.nodeNumber
@@ -793,22 +774,35 @@ class cbusAdmin extends EventEmitter {
     //
     // Function used when NEVAL is returned, to store variable by eventIdentifier
     // but NEVAL uses eventIndex, not eventIdentifier,
-    // so need to find which eventidentifier has that eventIndex
+    // so need to find which eventIdentifier has that eventIndex
     // eventIdentifier must already exist in storedEventsNI, with the right eventIndex
     //
     storeEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue){
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIndex} ${eventVariableIndex} ${eventVariableValue}`});
       try {
+        var match = false
         var node = this.nodeConfig.nodes[nodeNumber]
         for (let eventIdentifier in node.storedEventsNI){
           if (node.storedEventsNI[eventIdentifier].eventIndex == eventIndex){
+            // ok, we've found the matching eventIdentifier
+            match = true
             winston.debug({message: name + ': storeEventVariableByIndex: eventIdentifier ' + JSON.stringify(node.storedEventsNI[eventIdentifier])})
-            if(node.storedEventsNI[eventIdentifier].variables == undefined) {node.storedEventsNI[eventIdentifier].variables = {}}
-            node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+            if(node.storedEventsNI[eventIdentifier].variables == undefined) {
+              node.storedEventsNI[eventIdentifier].variables = {}
+            }
+            if (node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] != eventVariableValue){
+              node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+              this.saveNode(nodeNumber)
+            } else {
+              // stored event variable is the same value, so do nothing
+            }
           }
         }
+        if (match == false){
+          winston.info({message: name + `: storeEventVariableByIndex: eventIdentifier not found with eventIndex ${eventIndex}`});
+        }
       } catch (err) {
-        winston.debug({message: name + `: storeEventVariableByIndex: error ${err}`});
+        winston.info({message: name + `: storeEventVariableByIndex: error ${err}`});
       }
     }
 

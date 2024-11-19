@@ -347,7 +347,9 @@ describe('mergAdminNode tests', function(){
 
 
   //****************************************************************************************** */
+  //****************************************************************************************** */
   // incoming messages
+  //****************************************************************************************** */
   //****************************************************************************************** */
 
 
@@ -468,6 +470,34 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
       winston.info({message: 'unit_test: END GRSP test'});
+			done();
+		}, 30);
+  })
+
+
+
+
+  // 0xB5 NEVAL
+  //
+  itParam("NEVAL test ${JSON.stringify(value)}", GetTestCase_event_by_index(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN NEVAL test '});
+    // ensure event does exist with correct eventIndex
+    var eventidentifier = "00000001"
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":eventidentifier}
+
+    var testMessage = cbusLib.encodeNEVAL(value.nodeNumber, value.eventIndex, value.eventVariableIndex, value.eventVariableValue)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("NEVAL")
+      winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber])});
+      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].eventIndex).to.equal(value.eventIndex)
+      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
+        winston.info({message: 'unit_test: END NEVAL test'});
 			done();
 		}, 30);
   })
