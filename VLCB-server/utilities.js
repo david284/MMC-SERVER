@@ -54,7 +54,7 @@ exports.sleep = function sleep(timeout) {
 // nodeConfig based functions
 //
 
-exports.getEventIdentifier = function getEventTableIndex(node, eventIndex){
+exports.getEventIdentifier = function getEventIdentifier(node, eventIndex){
   var result = undefined
   try{
 //    winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(node) + ' ' + eventIdentifier});

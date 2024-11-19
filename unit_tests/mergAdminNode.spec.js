@@ -549,7 +549,62 @@ describe('mergAdminNode tests', function(){
   })
 
   //****************************************************************************************** */
+  //****************************************************************************************** */
+  // Internal functions
+  //****************************************************************************************** */
+  //****************************************************************************************** */
+  function GetTestCase_event_by_index() {
+    var argA, argB, argC, argD, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = 0}
+        if (b == 2) {argB = 1}
+        if (b == 3) {argB = 255}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          for (var d = 1; d<= 3; d++) {
+            if (d == 1) {argD = 0}
+            if (d == 2) {argD = 1}
+            if (d == 3) {argD = 255}
+              testCases.push({'nodeNumber':argA, 'eventIndex': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
+          }
+        }
+      }
+    }
+    return testCases;
+  }
+
+
+  // Function used when NEVAL is returned
+  // NEVAL uses eventIndex, not eventIdentifier
+  // So event must already exist in storedEventsNI, so it can find it
+  //
+  itParam("storeEventVariableByIndex test ${JSON.stringify(value)}", GetTestCase_event_by_index(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN storeEventVariableByIndex test ' + JSON.stringify(value)});
+    // ensure event does exist with correct eventIndex
+    var eventidentifier = "00000001"
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":eventidentifier}
+  
+    node.storeEventVariableByIndex(value.nodeNumber, value.eventIndex, value.eventVariableIndex, value.eventVariableValue)
+    winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber])});
+    expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].eventIndex).to.equal(value.eventIndex)
+    expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
+    winston.info({message: 'unit_test: END storeEventVariableByIndex test '});
+  })
+
+
+
+  //****************************************************************************************** */
+  //****************************************************************************************** */
   // functions called by socket server
+  //****************************************************************************************** */
   //****************************************************************************************** */
 
   function GetTestCase_teach_event() {

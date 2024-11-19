@@ -343,6 +343,7 @@ class cbusAdmin extends EventEmitter {
             },
             'B5': async (cbusMsg) => {// NEVAL -Read of EV value Response REVAL
               this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
+              
                 if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex] != null) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != null) {
                         if (this.nodeConfig.nodes[cbusMsg.nodeNumber].storedEvents[cbusMsg.eventIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
@@ -360,6 +361,7 @@ class cbusAdmin extends EventEmitter {
                 } else {
                     winston.debug({message: `mergAdminNode: NEVAL: Event Index ${cbusMsg.eventIndex} Does not exist on config - skipping`});
                 }
+
             },
             'B6': async (cbusMsg) => { //PNN Received from Node
               const ref = cbusMsg.nodeNumber
@@ -788,17 +790,25 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+    //
+    // Function used when NEVAL is returned, to store variable by eventIdentifier
+    // but NEVAL uses eventIndex, not eventIdentifier,
+    // so need to find which eventidentifier has that eventIndex
+    // eventIdentifier must already exist in storedEventsNI, with the right eventIndex
+    //
     storeEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue){
       winston.debug({message: name + `: storeEventVariable: ${nodeNumber} ${eventIndex} ${eventVariableIndex} ${eventVariableValue}`});
       try {
         var node = this.nodeConfig.nodes[nodeNumber]
-        var eventIdentifier = utils.getEventIdentifier(node, eventIndex)
-        winston.debug({message: name + `: storeEventVariable: eventIdentifier ${eventIdentifier}`});
-        if (eventIdentifier){
-          node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        for (let eventIdentifier in node.storedEventsNI){
+          if (node.storedEventsNI[eventIdentifier].eventIndex == eventIndex){
+            winston.debug({message: name + ': storeEventVariableByIndex: eventIdentifier ' + JSON.stringify(node.storedEventsNI[eventIdentifier])})
+            if(node.storedEventsNI[eventIdentifier].variables == undefined) {node.storedEventsNI[eventIdentifier].variables = {}}
+            node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+          }
         }
       } catch (err) {
-        winston.debug({message: name + `: storeEventVariable: error ${err}`});
+        winston.debug({message: name + `: storeEventVariableByIndex: error ${err}`});
       }
     }
 

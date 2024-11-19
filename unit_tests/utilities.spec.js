@@ -78,7 +78,7 @@ describe('utilities tests', function(){
   })
 
 
-  function GetTestCase_getEventTableIndex() {
+  function GetTestCase_getEventTableIndexNI() {
     var argA, argB, argC, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {argA = 0}
@@ -98,7 +98,7 @@ describe('utilities tests', function(){
     return testCases;
   }
 
-  itParam("getEventTableIndexNI test ${JSON.stringify(value)}", GetTestCase_getEventTableIndex(), function (value) {
+  itParam("getEventTableIndexNI test ${JSON.stringify(value)}", GetTestCase_getEventTableIndexNI(), function (value) {
     winston.info({message: 'unit_test: BEGIN getEventTableIndexNI test '});
     // create node with no matching events
     var node = {storedEventsNI:{}}
@@ -112,6 +112,26 @@ describe('utilities tests', function(){
   })
 
 
+  function GetTestCase_getEventTableIndex() {
+    var argA, argB, argC, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = "00000000"}
+        if (b == 2) {argB = "00000001"}
+        if (b == 3) {argB = "FFFFFFFF"}
+        for (var c = 1; c<= 2; c++) {
+          if (c == 1) {argC = '1'}
+          if (c == 2) {argC = undefined}
+            testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "result":argC});
+        }
+      }
+    }
+    return testCases;
+  }
+
   itParam("getEventTableIndex test ${JSON.stringify(value)}", GetTestCase_getEventTableIndex(), function (value) {
     winston.info({message: 'unit_test: BEGIN getEventTableIndex test '});
     // create node with no matching events
@@ -121,6 +141,7 @@ describe('utilities tests', function(){
       node.storedEvents[1] = {eventIdentifier: value.eventIdentifier}
     }
     result = utils.getEventTableIndex(node, value.eventIdentifier )
+    winston.debug({message: 'unit_test: getEventTableIndex: result ' + result});
     expect(result).to.equal(value.result)
     winston.info({message: 'unit_test: END getEventTableIndex test'});
   })
