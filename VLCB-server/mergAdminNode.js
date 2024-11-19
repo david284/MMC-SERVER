@@ -817,7 +817,6 @@ class cbusAdmin extends EventEmitter {
     removeNodeEvent(nodeNumber, eventIdentifier) {
       winston.info({message: name + `: removeNodeEvent ${nodeNumber} ${eventIdentifier}`})
       if(this.nodeConfig.nodes[nodeNumber]){
-        // delete this.nodeConfig.nodes[nodeNumber].storedEvents[]
         delete this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier]
         this.saveConfig()
       }
@@ -1338,7 +1337,6 @@ class cbusAdmin extends EventEmitter {
   }
 
   update_event(nodeNumber, eventIdentifier, variableId, value){
-//      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[variableId] = value
       return this.EVLRN(nodeNumber, eventIdentifier, variableId, value)
   }
 
