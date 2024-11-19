@@ -475,17 +475,15 @@ describe('mergAdminNode tests', function(){
   })
 
 
-
-
   // 0xB5 NEVAL
   //
   itParam("NEVAL test ${JSON.stringify(value)}", GetTestCase_event_by_index(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN NEVAL test '});
+    winston.info({message: 'unit_test: BEGIN NEVAL test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
-    var eventidentifier = "00000001"
+    var eventIdentifier = "00000001"
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
-    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":eventidentifier}
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":eventIdentifier}
 
     var testMessage = cbusLib.encodeNEVAL(value.nodeNumber, value.eventIndex, value.eventVariableIndex, value.eventVariableValue)
     mock_jsonServer.messagesIn = []
@@ -495,8 +493,8 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("NEVAL")
       winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber])});
-      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].eventIndex).to.equal(value.eventIndex)
-      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
+      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier].eventIndex).to.equal(value.eventIndex)
+      expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
         winston.info({message: 'unit_test: END NEVAL test'});
 			done();
 		}, 30);
@@ -578,6 +576,62 @@ describe('mergAdminNode tests', function(){
 		}, 30);
   })
 
+
+  function GetTestCase_event_by_identifier() {
+    var argA, argB, argC, argD, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = 0}
+        if (b == 2) {argB = 1}
+        if (b == 3) {argB = 65535}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          for (var d = 1; d<= 3; d++) {
+            if (d == 1) {argD = 0}
+            if (d == 2) {argD = 1}
+            if (d == 3) {argD = 255}
+              testCases.push({'nodeNumber':argA, 'eventNumber': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
+          }
+        }
+      }
+    }
+    return testCases;
+  }
+
+
+  // 0xD3 EVANS
+  // syntax:  encodeEVANS(nodeNumber, eventNumber, eventVariableIndex, eventVariableValue) 
+  //
+  itParam("EVANS test ${JSON.stringify(value)}", GetTestCase_event_by_identifier(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN EVANS test ' + JSON.stringify(value)});
+    var nodeUnderTest = 1
+    node.createNodeConfig(nodeUnderTest)    // create node config for node we're testing
+    node.nodeConfig.nodes[nodeUnderTest].storedEventsNI = {}
+
+    node.nodeNumberInLearnMode = nodeUnderTest    // tell MMC that nodeUnderTest is in learn mode
+
+    var testMessage = cbusLib.encodeEVANS(value.nodeNumber, value.eventNumber, value.eventVariableIndex, value.eventVariableValue)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    mock_jsonServer.inject(testMessage)
+    const eventIdentifier = utils.decToHex(value.nodeNumber, 4) + utils.decToHex(value.eventNumber, 4)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("EVANS")
+      winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[nodeUnderTest])});
+      expect(node.nodeConfig.nodes[nodeUnderTest].storedEventsNI[eventIdentifier].eventIndex).to.equal(value.eventIndex)
+      expect(node.nodeConfig.nodes[nodeUnderTest].storedEventsNI[eventIdentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
+        winston.info({message: 'unit_test: END EVANS test'});
+			done();
+		}, 30);
+  })
+
+
   //****************************************************************************************** */
   //****************************************************************************************** */
   // Internal functions
@@ -627,6 +681,55 @@ describe('mergAdminNode tests', function(){
     expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].eventIndex).to.equal(value.eventIndex)
     expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventidentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
     winston.info({message: 'unit_test: END storeEventVariableByIndex test '});
+  })
+
+
+  function GetTestCase_event_variables_by_index() {
+    var argA, argB, argC, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {argA = 0}
+      if (a == 2) {argA = 1}
+      if (a == 3) {argA = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {argB = '00000000'}
+        if (b == 2) {argB = '00000001'}
+        if (b == 3) {argB = 'FFFFFFFF'}
+        for (var c = 1; c<= 3; c++) {
+          if (c == 1) {argC = 0}
+          if (c == 2) {argC = 1}
+          if (c == 3) {argC = 255}
+          testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventIndex":argC});
+        }
+      }
+    }
+    return testCases;
+  }
+
+  //
+  // Test to check requesting EV's by index
+  // initial REVAL should return number of subsequent EV's which should then be requested
+  // so check the number of REVAL's is correct - should be 3 in total
+  // response to REVAL - NEVAL is tested elsewhere
+  //
+  itParam("requestEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestEventVariablesByIndex test ' + JSON.stringify(value)});
+    // ensure event does exist with correct eventIndex
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    node.requestEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal('REVAL')
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal('REVAL')
+      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal('REVAL')
+      winston.info({message: 'unit_test: END requestEventVariablesByIndex test '});
+      done();
+    }, 200);
   })
 
 

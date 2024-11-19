@@ -89,76 +89,93 @@ class mock_jsonServer{
   }
 
   processMessagesIn(message){
-    if (message.ID_TYPE == 'S'){
-      winston.info({message:`mock_jsonServer: processMessagesIn ` + message.mnemonic})
-      switch(message.mnemonic){
-        case "EVLRN":
-          winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
-          var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
-          winston.debug({message:`mock_jsonServer: processMessagesIn - WRACK ` + cbusMsg})
-          this.inject(cbusMsg)
-          break
-        case "NNLRN":
-          winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
-          this.learnNodeNumber = message.nodeNumber
-          break
-        case "NNULN":
-          winston.debug({message:`mock_jsonServer: processMessagesIn` + JSON.stringify(message)})
-          this.learnNodeNumber = null
-          break
-        default:
-      }
-    }
     if (message.ID_TYPE == 'X'){
-      winston.info({message:`mock_jsonServer: processMessagesIn: Extended header message`})
-      if (message.type == 'CONTROL') {
-        switch (message.SPCMD) {
-            case 0:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_NOP <<< '});
-                break;
-            case 1:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RESET  <<< '});
-                this.firmware = []
-                break;
-            case 2:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
-                this.firmware = []
-                break;
-            case 3:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
-                this.firmwareChecksum = arrayChecksum(this.firmware, 0)
-                winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum
-                  + ' length ' + this.firmware.length
-                  + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
-                if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
-                    this.outputExtResponse(1)   // 1 = ok
-                } else {
-                    this.outputExtResponse(0)   // 0 = not ok
-                }
-                break;
-            case 4:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_BOOT_TEST <<< '});
-                this.outputExtResponse(2)   // 2 = confirm boot load
-                this.firmware = []
-                break;
-            default:
-                winston.debug({message: 'mock_jsonServer: <<< Received control message UNKNOWN COMMAND ' + message.text});
-                break
-          }
-          if(message.CTLBT & (2**CTLBT_ACK))  {
-            winston.info({message: 'mock_jsonServer: ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
-            this.ackRequested = true
-          }
-      }
-      if (message.type == 'DATA') {
-        for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
-        winston.debug({message: 'mock_jsonServer: <<< Received DATA - new length ' + this.firmware.length});
-          if(this.ackRequested){
-            this.outputExtResponse(1)   // 1 = ok          
-          }
-      }
+      this.processExtended(message)
+    } else {
+      this.processStandard(message)
     }
   }
+
+  processStandard(message){
+    switch(message.mnemonic){
+      case "EVLRN":
+        winston.debug({message:name + `: processMessagesIn: EVLRN` + JSON.stringify(message)})
+        var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
+        winston.debug({message:name + `: processMessagesIn: WRACK ` + cbusMsg})
+        this.inject(cbusMsg)
+        break
+      case "NNLRN":
+        winston.debug({message:name + `: processMessagesIn: NNLRN ` + JSON.stringify(message)})
+        this.learnNodeNumber = message.nodeNumber
+        break
+      case "NNULN":
+        winston.debug({message:name + `: processMessagesIn: NNULN ` + JSON.stringify(message)})
+        this.learnNodeNumber = null
+        break
+      case "REVAL":
+        winston.debug({message:name + `: processMessagesIn: REVAL ` + JSON.stringify(message)})
+        if (message.eventVariableIndex == 0){
+          // reply with number of event variables used - for test purposes, just 2
+          var cbusMsg = cbusLib.encodeNEVAL(message.nodeNumber, message.eventIndex, message.eventVariableIndex, 2)
+          this.inject(cbusMsg)
+        }
+        break
+      default:
+        winston.debug({message:name + `: processMessagesIn: default ` + JSON.stringify(message)})
+    }
+  }
+
+  processExtended(message){
+    winston.info({message:`mock_jsonServer: processMessagesIn: Extended header message`})
+    if (message.type == 'CONTROL') {
+      switch (message.SPCMD) {
+          case 0:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_NOP <<< '});
+              break;
+          case 1:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RESET  <<< '});
+              this.firmware = []
+              break;
+          case 2:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
+              this.firmware = []
+              break;
+          case 3:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
+              this.firmwareChecksum = arrayChecksum(this.firmware, 0)
+              winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum
+                + ' length ' + this.firmware.length
+                + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
+              if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
+                  this.outputExtResponse(1)   // 1 = ok
+              } else {
+                  this.outputExtResponse(0)   // 0 = not ok
+              }
+              break;
+          case 4:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_BOOT_TEST <<< '});
+              this.outputExtResponse(2)   // 2 = confirm boot load
+              this.firmware = []
+              break;
+          default:
+              winston.debug({message: 'mock_jsonServer: <<< Received control message UNKNOWN COMMAND ' + message.text});
+              break
+        }
+        if(message.CTLBT & (2**CTLBT_ACK))  {
+          winston.info({message: 'mock_jsonServer: ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
+          this.ackRequested = true
+        }
+    }
+    if (message.type == 'DATA') {
+      for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
+      winston.debug({message: 'mock_jsonServer: <<< Received DATA - new length ' + this.firmware.length});
+        if(this.ackRequested){
+          this.outputExtResponse(1)   // 1 = ok          
+        }
+    }
+
+  }
+
 
   outputExtResponse(value) {
 		var cbusMsg = cbusLib.encode_EXT_RESPONSE(value)

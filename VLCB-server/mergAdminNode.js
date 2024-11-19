@@ -428,25 +428,7 @@ class cbusAdmin extends EventEmitter {
               var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
               this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
               winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
-              var tableIndex = utils.getEventTableIndex( this.nodeConfig.nodes[nodeNumber], eventIdentifier)
-              winston.debug({message: name + `: EVANS(D3): tableIndex ${tableIndex}`});              
-              if (tableIndex != null) {
-                if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] != null) {
-                    if (this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] != cbusMsg.eventVariableValue) {
-                        winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.variable} Value has Changed `});
-                        this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
-                        this.saveNode(nodeNumber)
-                    } else {
-                        winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.eventVariableIndex} Value has not Changed `});
-                    }
-                } else {
-                    winston.debug({message: name + `: EVANS(D3): Event Variable ${cbusMsg.variable} Does not exist on config - adding`});
-                    this.nodeConfig.nodes[nodeNumber].storedEvents[tableIndex].variables[cbusMsg.eventVariableIndex] = cbusMsg.eventVariableValue
-                    this.saveNode(nodeNumber)
-                }
-              } else {
-                  winston.debug({message: name + `: EVANS(D3): Event Identifier ${eventIdentifier} Does not exist on config - skipping`});
-              }
+
             },
             'D8': async (cbusMsg) => {//Accessory On Short Event 2
                 this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
@@ -764,7 +746,13 @@ class cbusAdmin extends EventEmitter {
             "variables": {}
           }
         }
-        node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        if (node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] != eventVariableValue){
+          // variable has changed
+          node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+          this.saveNode(nodeNumber)
+        } else{
+          // variable hasn't changed, so do nothing
+        }
 //        winston.debug({message: name + `: storeEventVariableByIdentifier: ` + JSON.stringify(node.storedEventsNI)});
       } catch (err) {
         winston.debug({message: name + `: storeEventVariableByIdentifier: error ${err}`});
@@ -796,6 +784,7 @@ class cbusAdmin extends EventEmitter {
             } else {
               // stored event variable is the same value, so do nothing
             }
+            winston.debug({message: name + ': storeEventVariableByIndex: eventIdentifier ' + JSON.stringify(node.storedEventsNI[eventIdentifier])})
           }
         }
         if (match == false){
@@ -950,7 +939,7 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-
+/*
     async holdIfBusy(busyFlag){
       var count = 0;
       while(busyFlag){
@@ -964,7 +953,7 @@ class cbusAdmin extends EventEmitter {
       }
 //      winston.info({message: 'mergAdminNode: busy hold released at count ' + count});
     }
-
+*/
 
 //************************************************************************ */
 //
@@ -1005,35 +994,26 @@ class cbusAdmin extends EventEmitter {
     this.saveConfig()
   }
 
+
   // need to use event index here, as used outside of learn mode
-  async requestEventVariablesByIndex(nodeNumber, eventIndex, variableCount){
-    // don't start if already being read
-    this.holdIfBusy(this.nodeConfig.nodes[nodeNumber].eventReadBusy)
-    if(this.nodeConfig.nodes[nodeNumber].eventReadBusy==false){
-      // need to prevent all events being refreshed whilst we're doing this
-      this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=true
-      // check event still exists first, as some events are dynamic on the module
-      if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex]){
-        // let clear out existing event variables...
-//        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables = {}
-        // now try reading EV0 - should return number of event variables
-        this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
-        await sleep(300); // wait for a response before trying to use it
-        // now assume number of variables from param 5, but use the value in EV0 if it exists
-        var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
-        if (this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0] > 0 ){
-          numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].variables[0]
-        }
-        // now read event variables
-        for (let i = 1; i <= numberOfVariables; i++) {
-//          await sleep(50); // allow time between requests
-          this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
-        }
-      }
-      this.nodeConfig.nodes[nodeNumber].eventVariableReadBusy=false
-    } else {
-      winston.info({message: 'mergAdminNode: requestEventVariablesByIndex: blocked '});
+  async requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
+    winston.debug({message: name + ': requestEventVariablesByIndex: '});
+
+    // try reading EV0 - should return number of event variables
+    this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
+    var timeGap = this.inUnitTest ? 100 : 300
+    await sleep(timeGap); // wait for a response before trying to use it
+    // now assume number of variables from param 5, but use the value in EV0 if it exists
+    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+    if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
+      numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
+      winston.debug({message: name + ': requestEventVariablesByIndex: EV0 ' + numberOfVariables});
     }
+    // now read all the rest of the event variables
+    for (let i = 1; i <= numberOfVariables; i++) {
+      this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
+    }
+
   }
 
 
@@ -1150,7 +1130,7 @@ class cbusAdmin extends EventEmitter {
     try{
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex){
-        this.requestEventVariablesByIndex(nodeNumber, eventIndex, 0)
+        await this.requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
       } else {
         winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
       }
