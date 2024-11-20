@@ -872,39 +872,32 @@ class cbusAdmin extends EventEmitter {
           "eventVariableReadBusy": false
         } 
       }
-      this.checkNodeDescriptor(nodeNumber); // do before emit node
+      this.checkNodeDescriptorNG(nodeNumber); // do before emit node
       this.config.writeNodeConfig(this.nodeConfig)
       this.emit('node', this.nodeConfig.nodes[nodeNumber])
     }
 
     refreshNodeDescriptors(){
       Object.keys(this.nodeDescriptors).forEach(nodeNumber => {
-        this.checkNodeDescriptor(nodeNumber, true)
+        this.checkNodeDescriptorNG(nodeNumber, true)
       })
     }
 
-    checkNodeDescriptor(nodeNumber, force){
+
+    checkNodeDescriptorNG(nodeNumber, force){
       if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         try {
           if (this.nodeConfig.nodes[nodeNumber]){
-            var moduleName = this.nodeConfig.nodes[nodeNumber].moduleName;                  // should be populated by PNN
             var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
-            if ((moduleName == "Unknown") || (moduleName == undefined)) {
-              // we can't handle a module we don't know about, so just warn & skip rest
-              winston.info({message: 'mergAdminNode: checkNodeDescriptor : module unknown'});
-            } else {
-              // build filename
-              var filename = moduleName + "-" + moduleIdentifier               
-              // need major & minor version numbers, and cpu type
-              // to complete building of filename
+
               if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
               {
                 // get & store the version
                 this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
-                filename += "-" + this.nodeConfig.nodes[nodeNumber].moduleVersion
-                filename += "--P" + this.nodeConfig.nodes[nodeNumber].parameters[9]  // cpu type
-                filename += ".json"
+                var processorType = "P" + this.nodeConfig.nodes[nodeNumber].parameters[9]
+                // now get matching filename
+                var filename = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, this.nodeConfig.nodes[nodeNumber].moduleVersion, processorType)
                 // but don't store the filename in nodeConfig until we're tried to read the file
                 try {
                   const moduleDescriptor = this.config.readModuleDescriptor(filename)
@@ -915,20 +908,21 @@ class cbusAdmin extends EventEmitter {
                     this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
                   }
                   this.config.writeNodeDescriptors(this.nodeDescriptors)
-                  winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + filename});
+                  winston.info({message: 'mergAdminNode: checkNodeDescriptorNG: loaded file ' + filename});
                   var payload = {[nodeNumber]:moduleDescriptor}
                   this.emit('nodeDescriptor', payload);
                 }catch(err) {
-                  winston.error({message: 'mergAdminNode: checkNodeDescriptor: error loading file ' + filename + ' ' + err});
+                  winston.error({message: 'mergAdminNode: checkNodeDescriptorNG: error loading file ' + filename + ' ' + err});
                 }
               }
-            }
           }
         } catch (err){
-          winston.error({message: name + ': checkNodeDescriptor: ' + err});        
+          winston.error({message: name + ': checkNodeDescriptorNG: ' + err});        
         }
       }
     }
+
+
 
 
 //************************************************************************ */

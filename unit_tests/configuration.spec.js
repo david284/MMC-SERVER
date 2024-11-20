@@ -487,10 +487,21 @@ describe('configuration tests', function(){
 
   function GetTestCase_MDF() {
     var arg1, arg2, arg3, arg4, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = "XXXX", arg2 = "2Q", arg3 = "P13", arg4 = "CANTEST-XXXX-2q--P13.json"}
-      if (a == 2) {arg1 = "XXXX", arg2 = "2u", arg3 = "P13", arg4 = undefined}
-      if (a == 3) {arg1 = "XXXX", arg2 = "4Q", arg3 = "P15", arg4 = "CANTEST-XXXX-4q.json"}
+    for (var a = 1; a<= 6; a++) {
+      // complete match
+      if (a == 1) {arg1 = "YYYY", arg2 = "1a", arg3 = "P11", arg4 = "MDFTEST-YYYY-1a--P11.json"}
+      // filename, no processorType - version case wrong
+      if (a == 2) {arg1 = "YYYY", arg2 = "1Q", arg3 = "P13", arg4 = "MDFTEST-YYYY-1q.json"}
+      // filename, no processorType - version case wrong
+      if (a == 3) {arg1 = "YYYY", arg2 = "1u", arg3 = "P13", arg4 = "MDFTEST-YYYY-1U.json"}
+      // processor type lower case p
+      if (a == 4) {arg1 = "YYYY", arg2 = "2q", arg3 = "P21", arg4 = "MDFTEST-YYYY-2q--p21.json"}
+      // processor type lower case p - version case wrong
+      if (a == 4) {arg1 = "YYYY", arg2 = "3a", arg3 = "P31", arg4 = "MDFTEST-YYYY-3A--p31.json"}
+      // processor type lower case p - version case wrong
+      if (a == 5) {arg1 = "YYYY", arg2 = "4A", arg3 = "P31", arg4 = "MDFTEST-YYYY-4a--p31.json"}
+      // no file found
+      if (a == 6) {arg1 = "YYYY", arg2 = "9u", arg3 = "P13", arg4 = undefined}
       testCases.push({'moduleIdentifier':arg1, 'version':arg2, 'processorType':arg3, 'result':arg4});
     }
     return testCases;
@@ -498,9 +509,17 @@ describe('configuration tests', function(){
 
 
   //
-  itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), function (value) {
-//    it("getMatchingModuleDescriptorFile test}", function () {
+  itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
     winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFile test '});
+    // user files
+    if (value.result != undefined){
+      var testFilePath = path.join(config.userConfigPath, "modules", value.result)
+      jsonfile.writeFileSync(testFilePath, "testPattern")
+    }
+
+    // allow a bit for file to be written
+    await utils.sleep(50)
+
     result = config.getMatchingModuleDescriptorFile(value.moduleIdentifier, value.version, value.processorType);
     winston.info({message: 'result: ' + result});
     expect(result).to.equal(value.result);

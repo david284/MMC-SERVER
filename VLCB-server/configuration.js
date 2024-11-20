@@ -382,25 +382,6 @@ class configuration {
         winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
       }
     }
-    if(moduleDescriptor == undefined){
-      // remove CPU type option
-      filename = filename.slice(0, filename.indexOf("--P")) + '.json'
-      try{
-        // try to read user directory first
-        var filePath = this.userConfigPath + "/modules/" + filename
-        winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
-        moduleDescriptor =  jsonfile.readFileSync(filePath)
-      } catch(e1){
-        try{
-          // fall back to project directory if not in user directory
-          var filePath = this.systemConfigPath + "/modules/" + filename
-          winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
-          moduleDescriptor =  jsonfile.readFileSync(filePath)
-        } catch(e2) {
-          winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
-        }
-      }
-    }
     // store the filename actually used
     if (moduleDescriptor){
       moduleDescriptor['moduleDescriptorFilename'] = filename
@@ -533,24 +514,26 @@ class configuration {
     return result
   }
 
+  //
+  // Get a matching filename from either USER or SYSTEM locations
+  // Not concerned with which location, just want the matching filename
+  // tries with the processor type option first
+  // but if no success, tries for match with files with no processor type
+  // note conversions to uppercase so tolerant of lowercase in either supplied arguments or filename
+  // returns either filename or undefined
+  //
   getMatchingModuleDescriptorFile(moduleIdentifier, version, processorType){
-    // create a merged list of mtaching files from both locations
+    // create a merged list of matching files from both locations
     var fileList = this.getMatchingMDFList('SYSTEM', moduleIdentifier).concat(this.getMatchingMDFList('USER', moduleIdentifier))
     winston.debug({message: className + ': getMatchingModuleDescriptorFile: list: ' + JSON.stringify(fileList)})
     var filename = undefined
-    let versionU = version.toUpperCase()
-    let versionL = version.toLowerCase()
     winston.debug({message: className + ': processorType ' + '--' + processorType})
     for (let i=0; i< fileList.length; i++){
       // check for file with matching processor type first
       // note we convert both to upper case, so will match any combination
       if (fileList[i][0].toUpperCase().includes('--' + processorType.toUpperCase())){
         winston.debug({message: className + ': with processorType ' + JSON.stringify(fileList[i])})
-        if (fileList[i][0].includes(moduleIdentifier + '-' + versionU)){
-          filename = fileList[i][0]
-          break
-        }
-        if (fileList[i][0].includes(moduleIdentifier + '-' + versionL)){
+        if (fileList[i][0].toUpperCase().includes(moduleIdentifier + '-' + version.toUpperCase())){
           filename = fileList[i][0]
           break
         }
@@ -559,11 +542,7 @@ class configuration {
       // note that we turn the filename to upper case, so checks absence of both --p and --P
       if (!fileList[i][0].toUpperCase().includes('--P')){
         winston.debug({message: className + ': without processorType ' + JSON.stringify(fileList[i])})
-        if (fileList[i][0].includes(moduleIdentifier + '-' + versionU)){
-          filename = fileList[i][0]
-          break
-        }
-        if (fileList[i][0].includes(moduleIdentifier + '-' + versionL)){
+        if (fileList[i][0].toUpperCase().includes(moduleIdentifier + '-' + version.toUpperCase())){
           filename = fileList[i][0]
           break
         }
