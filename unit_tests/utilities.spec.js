@@ -132,21 +132,6 @@ describe('utilities tests', function(){
     return testCases;
   }
 
-  itParam("getEventTableIndex test ${JSON.stringify(value)}", GetTestCase_getEventTableIndex(), function (value) {
-    winston.info({message: 'unit_test: BEGIN getEventTableIndex test '});
-    // create node with no matching events
-    var node = {storedEvents:{0:{}}}
-    if (value.result == 1){
-      // event should exist, so populate it
-      node.storedEvents[1] = {eventIdentifier: value.eventIdentifier}
-    }
-    result = utils.getEventTableIndex(node, value.eventIdentifier )
-    winston.debug({message: 'unit_test: getEventTableIndex: result ' + result});
-    expect(result).to.equal(value.result)
-    winston.info({message: 'unit_test: END getEventTableIndex test'});
-  })
-
-
 
 
 

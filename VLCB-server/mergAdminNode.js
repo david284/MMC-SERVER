@@ -716,21 +716,23 @@ class cbusAdmin extends EventEmitter {
       }
       if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents)) {
         this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex] = {
-            "eventIndex": eventIndex,
-            "variables": {}
+          "nodeNumber": nodeNumber,
+          "eventIndex": eventIndex,
+          "variables": {}
         }
       }
+      // this may change even if it already exists
       this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier = eventIdentifier
-      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].nodeNumber = nodeNumber
       //
       if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
         this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
-            "eventIdentifier": eventIdentifier,
-            "variables": {}
+          "nodeNumber": nodeNumber,
+          "eventIdentifier": eventIdentifier,
+          "variables": {}
         }
       }
+      // this may change even if it already exists
       this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
-      this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].nodeNumber = nodeNumber
       //
       this.saveConfig()      
     }
@@ -939,21 +941,6 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
-/*
-    async holdIfBusy(busyFlag){
-      var count = 0;
-      while(busyFlag){
-        await sleep(10);
-        count++
-        // check to ensure it doesn't lock up in this routine
-        if (count > 1000){
-          winston.info({message: 'mergAdminNode: busy hold break...... '});
-          break
-        }
-      }
-//      winston.info({message: 'mergAdminNode: busy hold released at count ' + count});
-    }
-*/
 
 //************************************************************************ */
 //
@@ -1077,7 +1064,7 @@ class cbusAdmin extends EventEmitter {
   async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
     var isNewEvent = false
-    if (utils.getEventTableIndex(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
+    if (utils.getEventTableIndexNI(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
       isNewEvent = true
       winston.info({message: name + ': event_teach_by_identifier - New event'});
     } 

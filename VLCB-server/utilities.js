@@ -57,9 +57,7 @@ exports.sleep = function sleep(timeout) {
 exports.getEventIdentifier = function getEventIdentifier(node, eventIndex){
   var result = undefined
   try{
-//    winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(node) + ' ' + eventIdentifier});
     for (let eventIdentifier in node.storedEventsNI){
-//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(node.storedEvents[eventIndex])})
       if (node.storedEventsNI[eventIdentifier].eventIndex == eventIndex){
         result = eventIdentifier
       }
@@ -69,21 +67,6 @@ exports.getEventIdentifier = function getEventIdentifier(node, eventIndex){
   }
   winston.debug({message: name + ': getEventIdentifier:  result ' + result})
   return result
-}
-
-exports.getEventTableIndex = function getEventTableIndex(node, eventIdentifier){
-  var tableIndex = undefined
-  try{
-//    winston.debug({message: name +': getEventTableIndex: data ' + JSON.stringify(node) + ' ' + eventIdentifier});
-    for (let eventIndex in node.storedEvents){
-//        winston.debug({message: name + ': getEventTableIndex: event ' + JSON.stringify(node.storedEvents[eventIndex])})
-      if (node.storedEvents[eventIndex].eventIdentifier == eventIdentifier){
-        tableIndex = eventIndex
-      }
-    }
-  } catch (err) {}
-  winston.debug({message: name + ': getEventTableIndex:  result ' + tableIndex})
-  return tableIndex
 }
 
 
