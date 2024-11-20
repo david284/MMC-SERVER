@@ -697,7 +697,6 @@ class cbusAdmin extends EventEmitter {
           "moduleVersion": "",
           "parameters": [],
           "nodeVariables": [],
-          "storedEvents": {},
           "storedEventsNI": {},
           "status": true,
           "eventCount": 0,
@@ -714,15 +713,6 @@ class cbusAdmin extends EventEmitter {
       if (this.nodeConfig.nodes[nodeNumber] == undefined) {
         this.createNodeConfig(nodeNumber)
       }
-      if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].storedEvents)) {
-        this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex] = {
-          "nodeNumber": nodeNumber,
-          "eventIndex": eventIndex,
-          "variables": {}
-        }
-      }
-      // this may change even if it already exists
-      this.nodeConfig.nodes[nodeNumber].storedEvents[eventIndex].eventIdentifier = eventIdentifier
       //
       if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
         this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
@@ -799,7 +789,6 @@ class cbusAdmin extends EventEmitter {
 
     removeNodeEvents(nodeNumber) {
       if(this.nodeConfig.nodes[nodeNumber]){
-        this.nodeConfig.nodes[nodeNumber].storedEvents = {}
         this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
         this.saveConfig()
       }
