@@ -111,6 +111,13 @@ class configuration {
   }
 
 
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // backup methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
   // update current config file
   readBackup(layoutName, filename){
     winston.info({message: className + ` readBackup ` + filename });
@@ -169,6 +176,14 @@ class configuration {
     }
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // busTraffic methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
   writeBusTraffic(data){
     // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
     var time = new Date()
@@ -177,6 +192,36 @@ class configuration {
       + String(time.getMilliseconds()).padStart(3, '0')
     this.busTrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
+
+
+
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // Layout methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
+  // return true if default layout freshly created
+  // false if it already existed
+  createLayoutFile(name){
+    var result = false
+    var layoutPath = this.userConfigPath + '/layouts/' + name + '/'
+    this.createDirectory(layoutPath)
+    if (fs.existsSync(layoutPath + 'layoutData.json')) {
+      winston.debug({message: className + `: layoutData file exists`});
+      result = false
+    } else {
+        winston.debug({message: className + `: config file not found - creating new one`});
+        // use defaultLayoutDetails
+        var newLayout = defaultLayoutData
+        newLayout.layoutDetails.title = name
+        jsonfile.writeFileSync(layoutPath + 'layoutData.json', newLayout, {spaces: 2, EOL: '\r\n'})
+        result = true
+    }
+    return result
+  }
+
 
   //
   //
@@ -205,8 +250,6 @@ class configuration {
       winston.error({message: className + ': deleteLayoutFolder: ' + err});
     }
   }
-
-
 
 
   // reads/writes layoutDetails file from/to current layout folder
@@ -257,6 +300,7 @@ class configuration {
     }
     return file
   }
+
   
   writeLayoutData(data){
     try{
@@ -271,6 +315,13 @@ class configuration {
   }
 
 
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // nodeConfig methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
   // reads/writes nodeConfig file to/from config folder
   //
   readNodeConfig(){
@@ -282,32 +333,33 @@ class configuration {
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // Node Descriptor methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
   // reads/writes the module descriptors currently in use for nodes to/from config folder
   //
   readNodeDescriptors(){
     var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     return jsonfile.readFileSync(filePath)
   }
+
   writeNodeDescriptors(data){
     var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
-  // static file, so use fixed location
-  //
-  readMergConfig(){
-    var filePath = this.systemConfigPath + "/mergConfig.json"
-    return jsonfile.readFileSync(filePath)
-  }
 
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // Module Descriptor File methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
 
-  // static file, so use fixed location
-  //
-  readServiceDefinitions(){
-    var filePath = this.systemConfigPath + "/Service_Definitions.json"
-    return jsonfile.readFileSync(filePath)
-  }
-  
 
   // uses two locations
   // first tries the user location (OS dependant)
@@ -355,6 +407,8 @@ class configuration {
     }
     return moduleDescriptor
   }
+
+
   writeModuleDescriptor(data){
     if (this.userConfigPath){
       if (data.moduleDescriptorFilename){
@@ -479,6 +533,69 @@ class configuration {
     return result
   }
 
+  getMatchingModuleDescriptorFile(moduleIdentifier, version, processorType){
+    // create a merged list of mtaching files from both locations
+    var fileList = this.getMatchingMDFList('SYSTEM', moduleIdentifier).concat(this.getMatchingMDFList('USER', moduleIdentifier))
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: list: ' + JSON.stringify(fileList)})
+    var filename = undefined
+    let versionU = version.toUpperCase()
+    let versionL = version.toLowerCase()
+    winston.debug({message: className + ': processorType ' + '--' + processorType})
+    for (let i=0; i< fileList.length; i++){
+      // check for file with matching processor type first
+      // note we convert both to upper case, so will match any combination
+      if (fileList[i][0].toUpperCase().includes('--' + processorType.toUpperCase())){
+        winston.debug({message: className + ': with processorType ' + JSON.stringify(fileList[i])})
+        if (fileList[i][0].includes(moduleIdentifier + '-' + versionU)){
+          filename = fileList[i][0]
+          break
+        }
+        if (fileList[i][0].includes(moduleIdentifier + '-' + versionL)){
+          filename = fileList[i][0]
+          break
+        }
+      }
+      // ok, check files that don't include the processor type
+      // note that we turn the filename to upper case, so checks absence of both --p and --P
+      if (!fileList[i][0].toUpperCase().includes('--P')){
+        winston.debug({message: className + ': without processorType ' + JSON.stringify(fileList[i])})
+        if (fileList[i][0].includes(moduleIdentifier + '-' + versionU)){
+          filename = fileList[i][0]
+          break
+        }
+        if (fileList[i][0].includes(moduleIdentifier + '-' + versionL)){
+          filename = fileList[i][0]
+          break
+        }
+      }
+    }
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: file: ' + filename})
+    return filename
+  }
+  
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // Other methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+
+  // static file, so use fixed location
+  //
+  readMergConfig(){
+    var filePath = this.systemConfigPath + "/mergConfig.json"
+    return jsonfile.readFileSync(filePath)
+  }
+
+
+  // static file, so use fixed location
+  //
+  readServiceDefinitions(){
+    var filePath = this.systemConfigPath + "/Service_Definitions.json"
+    return jsonfile.readFileSync(filePath)
+  }
+  
+
 
   //
   //
@@ -599,25 +716,6 @@ class configuration {
     return result
   }
 
-  // return true if default layout freshly created
-  // false if it already existed
-  createLayoutFile(name){
-    var result = false
-    var layoutPath = this.userConfigPath + '/layouts/' + name + '/'
-    this.createDirectory(layoutPath)
-    if (fs.existsSync(layoutPath + 'layoutData.json')) {
-      winston.debug({message: className + `: layoutData file exists`});
-      result = false
-    } else {
-        winston.debug({message: className + `: config file not found - creating new one`});
-        // use defaultLayoutDetails
-        var newLayout = defaultLayoutData
-        newLayout.layoutDetails.title = name
-        jsonfile.writeFileSync(layoutPath + 'layoutData.json', newLayout, {spaces: 2, EOL: '\r\n'})
-        result = true
-    }
-    return result
-  }
 
 }
 

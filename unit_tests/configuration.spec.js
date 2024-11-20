@@ -35,7 +35,7 @@ config.createDirectory(path.join(config.systemConfigPath, "modules"))
 // write test files
 var testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-1q.json")
 jsonfile.writeFileSync(testFilePath, "{}")
-testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-2q.json")
+testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-2q--P13.json")
 jsonfile.writeFileSync(testFilePath, testContent)
 
 // ensure 'user' modules directory exists
@@ -44,6 +44,8 @@ config.createDirectory(path.join(config.userConfigPath, "modules"))
 var testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-3q.json")
 jsonfile.writeFileSync(testFilePath, "{}")
 testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-4q.json")
+jsonfile.writeFileSync(testFilePath, testContent)
+testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-4q--p1.json")
 jsonfile.writeFileSync(testFilePath, testContent)
 
 describe('configuration tests', function(){
@@ -480,6 +482,29 @@ describe('configuration tests', function(){
     winston.info({message: 'result: ' + result});
     expect(result).to.equal('COM4');
     winston.info({message: 'unit_test: END serialPort test'});
+  })
+
+
+  function GetTestCase_MDF() {
+    var arg1, arg2, arg3, arg4, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = "XXXX", arg2 = "2Q", arg3 = "P13", arg4 = "CANTEST-XXXX-2q--P13.json"}
+      if (a == 2) {arg1 = "XXXX", arg2 = "2u", arg3 = "P13", arg4 = undefined}
+      if (a == 3) {arg1 = "XXXX", arg2 = "4Q", arg3 = "P15", arg4 = "CANTEST-XXXX-4q.json"}
+      testCases.push({'moduleIdentifier':arg1, 'version':arg2, 'processorType':arg3, 'result':arg4});
+    }
+    return testCases;
+  }
+
+
+  //
+  itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), function (value) {
+//    it("getMatchingModuleDescriptorFile test}", function () {
+    winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFile test '});
+    result = config.getMatchingModuleDescriptorFile(value.moduleIdentifier, value.version, value.processorType);
+    winston.info({message: 'result: ' + result});
+    expect(result).to.equal(value.result);
+    winston.info({message: 'unit_test: END getMatchingModuleDescriptorFile test'});
   })
 
 
