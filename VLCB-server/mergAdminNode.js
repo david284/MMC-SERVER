@@ -511,7 +511,7 @@ class cbusAdmin extends EventEmitter {
       timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
         // don't reset QNN flag if too soon - avoids flag being cleared after just being set
-        if (Date.now() > this.QNN_sent_time + 100){
+        if (Date.now() > this.QNN_sent_time + 30){
           this.lastMessageWasQNN = false
         }
         if (this.CBUS_Queue.length > 0){
