@@ -39,14 +39,8 @@ class cbusAdmin extends EventEmitter {
         this.lastReceiveTime = Date.now()   // put valid milliseconds in to start
         this.lastMessageWasQNN = false
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
-        this.NERD_Queue = []
-        this.NERD_Queue_Count = 0;
-        setInterval(this.sendNERDIntervalFunc.bind(this), 50);
-        this.RQEVN_Queue = []
-        setInterval(this.sendRQEVNIntervalFunc.bind(this), 50);
-
         this.CBUS_Queue = []
-        setInterval(this.sendCBUSIntervalFunc.bind(this), 20);
+        setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -230,14 +224,14 @@ class cbusAdmin extends EventEmitter {
                   if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != cbusMsg.eventCount) {
                       this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
                       this.saveNode(cbusMsg.nodeNumber)
-                      this.NERD_Queue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
+                      this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
                     } else {
                       winston.debug({message: `mergAdminNode:  NUMEV: EvCount value has not changed`});
                   }
                 } else {
                   this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
                   this.saveNode(cbusMsg.nodeNumber)
-                  this.NERD_Queue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
+                  this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
                 }
             },
             '90': async (cbusMsg) => {//Accessory On Long Event
@@ -372,7 +366,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
                 this.nodeConfig.nodes[ref].status = true
-                this.RQEVN_Queue.push(cbusMsg.nodeNumber)   // push node onto queue to read all events
+                this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
                 this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
@@ -505,67 +499,21 @@ class cbusAdmin extends EventEmitter {
         }
     }
 
-    //
-    // Function to read all events from nodes one at a time
-    // node numbers are pushed onto a queue
-    // node number taken from queue and NERD sent to get all events for that node
-    // Function called on a frequent basis
-    // wait for elapsed time after last message received
-    //
-    sendNERDIntervalFunc(){
-      if ( Date.now() > this.lastReceiveTime + 100){
-        if (this.NERD_Queue.length > 0){
-          var nodeNumber = this.NERD_Queue[0]
-          // if first time for this node, then send it...
-          if (this.NERD_Queue_Count == 0) {
-            winston.info({message: name + `: scanNodesIntervalFunc: node ` + nodeNumber})
-            // clear events before we re-read them (but don't send to client yet)
-//            this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
-            this.cbusSend(this.NERD(nodeNumber))
-          }
-          // count passes for this node
-          this.NERD_Queue_Count++
-          var loops = (this.nodeConfig.nodes[nodeNumber].eventCount) ? this.nodeConfig.nodes[nodeNumber].eventCount / 5 : 1
-          if (this.NERD_Queue_Count > loops){
-            // reset for next node
-            var nodeNumber = this.NERD_Queue.shift()
-            this.NERD_Queue_Count = 0
-          }
-        }
-      }
-    }
-      
 
     //
-    // Function to read number of events from nodes one at a time
-    // node numbers are pushed onto a queue
-    // node number taken from queue and RQEVN sent to get number for that node
-    // Function called on a frequent basis
-    // If QNN has been sent recently, then wait until a time has elapsed to allow the nodes
-    // to send their PNN responses
-    //
-    sendRQEVNIntervalFunc(){
-      // allow larger gap if we've just sent QNN
-      var timeGap = this.lastMessageWasQNN ? 500 : 100
-      timeGap = this.inUnitTest ? 1 : timeGap
-      if ( Date.now() > this.lastReceiveTime + timeGap){
-        this.lastMessageWasQNN = false
-        if (this.RQEVN_Queue.length > 0){
-          // get first out of queue
-          var nodeNumber = this.RQEVN_Queue[0]
-          this.cbusSend(this.RQEVN(nodeNumber))
-          // remove the one we've used from queue
-          this.RQEVN_Queue.shift()
-        }
-      }
-    }
-      
-    //
     // Function to send CBUS messages one at a time, ensuring a gap between them
+    // but allow longer time gap if last message was QNN to allow all PNN's to be
     //
     sendCBUSIntervalFunc(){
-      var timeGap = this.inUnitTest ? 1 : 100
+      // allow larger gap if we've just sent QNN
+      var timeGap = this.lastMessageWasQNN ? 400 : 50
+      // but reduce gap if doing unit tests
+      timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
+        // don't reset QNN flag if too soon - avoids flag being cleared after just being set
+        if (Date.now() > this.QNN_sent_time + 100){
+          this.lastMessageWasQNN = false
+        }
         if (this.CBUS_Queue.length > 0){
           // get first out of queue
           var msg = this.CBUS_Queue[0]
@@ -573,6 +521,9 @@ class cbusAdmin extends EventEmitter {
           // remove the one we've used from queue
           this.CBUS_Queue.shift()
         }
+      } else {
+        //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
+        //winston.debug({message: name + `: lastMessageWasQNN  ${this.lastMessageWasQNN}`})
       }
     }
       
@@ -810,6 +761,10 @@ class cbusAdmin extends EventEmitter {
 
     async cbusSend(msg) {
       if (typeof msg !== 'undefined') {
+        if (msg.mnemonic == "QNN"){
+          this.QNN_sent_time = Date.now()   // gets milliseconds now
+          this.lastMessageWasQNN = true
+        }
         let output = JSON.stringify(msg)
         this.client.write(output);
         winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
@@ -939,9 +894,7 @@ class cbusAdmin extends EventEmitter {
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.saveConfig()
-    this.QNN_sent_time = Date.now()   // gets milliseconds now
-    await this.cbusSend(this.QNN())
-    this.lastMessageWasQNN = true
+    this.CBUS_Queue.push(this.QNN())
   }
 
   async event_unlearn(nodeNumber, eventName) {
