@@ -31,6 +31,7 @@ class cbusAdmin extends EventEmitter {
         this.saveConfig()
         this.setNodeNumberIssued = false
         this.nodeNumberInLearnMode = null
+        this.rqnnPreviousNodeNumber = null
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -134,7 +135,9 @@ class cbusAdmin extends EventEmitter {
             },
             '50': async (cbusMsg) => {// RQNN -  Node Number
               winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
-              this.emit('requestNodeNumber', cbusMsg.nodeNumber)
+//              this.emit('requestNodeNumber', cbusMsg.nodeNumber)
+              this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
+              this.CBUS_Queue.push(this.RQMN())   // push node onto queue to read module name from node
             },
             '52': async (cbusMsg) => {
               // NNACK - acknowledge
@@ -271,6 +274,14 @@ class cbusAdmin extends EventEmitter {
                         saveConfigNeeded = true
                     }
                 }
+                if (cbusMsg.parameterIndex == 8) {
+                  if (this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true){
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true
+                    saveConfigNeeded = true
+                  }
+                }
+                this.nodeConfig.nodes[ref].status = true
+
                 if (cbusMsg.parameterIndex == 9) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].cpuName != merg.cpuName[cbusMsg.parameterValue]) {
                         this.nodeConfig.nodes[cbusMsg.nodeNumber].cpuName = merg.cpuName[cbusMsg.parameterValue]
@@ -447,7 +458,11 @@ class cbusAdmin extends EventEmitter {
                 this.emit('dccSessions', this.dccSessions)
                 winston.debug({message: `mergAdminNode: PLOC (E1) ` + JSON.stringify(this.dccSessions[session])})
             },
-            'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
+            'E2': async (cbusMsg) => { // NAME
+              winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
+              this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
+          },
+          'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
                 // mode
                 winston.debug({message: name + `: Extended Service Discovery ${JSON.stringify(cbusMsg)}`})
                 utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 1, cbusMsg.Data1)
@@ -1086,7 +1101,15 @@ class cbusAdmin extends EventEmitter {
       return output;
   }
 
-  // 0x22 QLOC
+  // 0x11 RQMN
+  //
+  RQMN() {//Request Module Name
+    let output = {}
+    output['mnemonic'] = 'RQMN'
+    return output;
+}
+
+// 0x22 QLOC
   //
   QLOC(sessionId) {
       let output = {}

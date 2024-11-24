@@ -442,9 +442,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   })
 
 
-  node.on('requestNodeNumber', function (nodeNumber) {
-    winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber});
-    io.emit('REQUEST_NODE_NUMBER', nodeNumber)
+  node.on('requestNodeNumber', function (nodeNumber, name) {
+    winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber + '  Name ' + name});
+    io.emit('REQUEST_NODE_NUMBER', nodeNumber, name)
   })
 
 
