@@ -274,14 +274,6 @@ class cbusAdmin extends EventEmitter {
                         saveConfigNeeded = true
                     }
                 }
-                if (cbusMsg.parameterIndex == 8) {
-                  if (this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true){
-                    this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true
-                    saveConfigNeeded = true
-                  }
-                }
-                this.nodeConfig.nodes[ref].status = true
-
                 if (cbusMsg.parameterIndex == 9) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].cpuName != merg.cpuName[cbusMsg.parameterValue]) {
                         this.nodeConfig.nodes[cbusMsg.nodeNumber].cpuName = merg.cpuName[cbusMsg.parameterValue]
@@ -376,7 +368,7 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].coe = (cbusMsg.flags & 16) ? true : false
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
-                this.nodeConfig.nodes[ref].status = true
+//                this.nodeConfig.nodes[ref].status = true
                 this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
@@ -594,6 +586,15 @@ class cbusAdmin extends EventEmitter {
     async action_message(cbusMsg) {
       if (cbusMsg.ID_TYPE == "S"){
         winston.info({message: "mergAdminNode: Standard message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
+        if (cbusMsg.nodeNumber){
+          // if the message has a node number, mark that node as active status
+          if (this.nodeConfig.nodes[cbusMsg.nodeNumber]){
+            if (this.nodeConfig.nodes[cbusMsg.nodeNumber].status != true){
+              this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true
+              this.saveNode(cbusMsg.nodeNumber)
+            }
+          }
+        }
         if (this.actions[cbusMsg.opCode]) {
             await this.actions[cbusMsg.opCode](cbusMsg);
         } else {
