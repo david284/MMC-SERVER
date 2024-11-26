@@ -269,10 +269,30 @@ class cbusAdmin extends EventEmitter {
             '9B': async (cbusMsg) => {//PARAN Parameter readback by Index
                 let saveConfigNeeded = false
                 if (cbusMsg.parameterIndex == 1) {
-                    if (this.nodeConfig.nodes[cbusMsg.nodeNumber].moduleManufacturerName != merg.moduleManufacturerName[cbusMsg.parameterValue]) {
-                        this.nodeConfig.nodes[cbusMsg.nodeNumber].moduleManufacturerName = merg.moduleManufacturerName[cbusMsg.parameterValue]
-                        saveConfigNeeded = true
-                    }
+                  if (this.nodeConfig.nodes[cbusMsg.nodeNumber].manufacturerId != cbusMsg.parameterValue) {
+                      this.nodeConfig.nodes[cbusMsg.nodeNumber].manufacturerId = cbusMsg.parameterValue
+                      saveConfigNeeded = true
+                  }
+                }
+                if (cbusMsg.parameterIndex == 3) {
+                  if (this.nodeConfig.nodes[cbusMsg.nodeNumber].moduleId != cbusMsg.parameterValue) {
+                      this.nodeConfig.nodes[cbusMsg.nodeNumber].moduleId = cbusMsg.parameterValue
+                      saveConfigNeeded = true
+                  }
+                }
+                if (cbusMsg.parameterIndex == 8) {
+                  // nodeflags parameter
+                  if (this.nodeConfig.nodes[cbusMsg.nodeNumber].flags != cbusMsg.parameterValue) {
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].flags = cbusMsg.parameterValue
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].flim = (cbusMsg.parameterValue & 4) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].consumer = (cbusMsg.parameterValue & 1) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].producer = (cbusMsg.parameterValue & 2) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].bootloader = (cbusMsg.parameterValue & 8) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].coe = (cbusMsg.parameterValue & 16) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].learn = (cbusMsg.parameterValue & 32) ? true : false
+                    this.nodeConfig.nodes[cbusMsg.nodeNumber].VLCB = (cbusMsg.parameterValue & 64) ? true : false
+                    saveConfigNeeded = true
+                  }
                 }
                 if (cbusMsg.parameterIndex == 9) {
                     if (this.nodeConfig.nodes[cbusMsg.nodeNumber].cpuName != merg.cpuName[cbusMsg.parameterValue]) {
@@ -368,7 +388,6 @@ class cbusAdmin extends EventEmitter {
                 this.nodeConfig.nodes[ref].coe = (cbusMsg.flags & 16) ? true : false
                 this.nodeConfig.nodes[ref].learn = (cbusMsg.flags & 32) ? true : false
                 this.nodeConfig.nodes[ref].VLCB = (cbusMsg.flags & 64) ? true : false
-//                this.nodeConfig.nodes[ref].status = true
                 this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))   // push node onto queue to read all events
                 this.saveNode(cbusMsg.nodeNumber)
                 // now get file list & send event to socketServer
@@ -587,13 +606,8 @@ class cbusAdmin extends EventEmitter {
       if (cbusMsg.ID_TYPE == "S"){
         winston.info({message: "mergAdminNode: Standard message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
         if (cbusMsg.nodeNumber){
-          // if the message has a node number, mark that node as active status
-          if (this.nodeConfig.nodes[cbusMsg.nodeNumber]){
-            if (this.nodeConfig.nodes[cbusMsg.nodeNumber].status != true){
-              this.nodeConfig.nodes[cbusMsg.nodeNumber].status = true
-              this.saveNode(cbusMsg.nodeNumber)
-            }
-          }
+          // if the message has a node number, update status
+          this.updateNodeStatus(cbusMsg.nodeNumber)
         }
         if (this.actions[cbusMsg.opCode]) {
             await this.actions[cbusMsg.opCode](cbusMsg);
@@ -607,6 +621,26 @@ class cbusAdmin extends EventEmitter {
       else {
         winston.warn({message: name + ": unexpected cbus message " + JSON.stringify(cbusMsg)});
       }
+    }
+
+    // updated status on received message from Node
+    // create node if we don't aleady have it
+    //
+    updateNodeStatus(nodeNumber){
+      var updated = false
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){
+        this.createNodeConfig(nodeNumber)
+        // get flags (param 8) as needed as a minimum
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))
+        updated = true
+      }
+      if (this.nodeConfig.nodes[nodeNumber].status != true){
+        this.nodeConfig.nodes[nodeNumber].status = true
+        updated = true
+      }
+      if (updated) {this.saveNode(nodeNumber)}
     }
 
     isMessageValid(cbusMsg){
@@ -765,8 +799,15 @@ class cbusAdmin extends EventEmitter {
       winston.info({message: name + `: removeNodeEvent ${nodeNumber} ${eventIdentifier}`})
       if(this.nodeConfig.nodes[nodeNumber]){
         delete this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier]
-        this.saveConfig()
       }
+      // if there's a bus event for this event from that node, then remove that too
+      // but need to include the nodeNumber in the event identifier, as it's sent on the bus
+      // and identifies the source node, even for short events
+      var busEventIdentifier = utils.decToHex(nodeNumber, 4) + eventIdentifier.substring(4, 8)
+      delete this.nodeConfig.events[busEventIdentifier]
+      winston.debug({message: name + `: removeBusEvent ${busEventIdentifier}`})
+      this.saveConfig()
+      this.refreshEvents()  // will send bus events
     }
 
 
@@ -842,6 +883,15 @@ class cbusAdmin extends EventEmitter {
           "nodeNumber": nodeNumber,
           "eventVariableReadBusy": false
         } 
+      }
+      // ensure moduleIdentifier is created (if params 1 & 3 exist)
+      if ((this.nodeConfig.nodes[nodeNumber].manufacturerId) && (this.nodeConfig.nodes[nodeNumber].moduleId)){
+        var moduleIdentifier = utils.decToHex(this.nodeConfig.nodes[nodeNumber].manufacturerId, 2)
+          + utils.decToHex(this.nodeConfig.nodes[nodeNumber].moduleId, 2)
+        this.nodeConfig.nodes[nodeNumber].moduleIdentifier = moduleIdentifier
+        // also fill manufacturer & module name
+        this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
+        this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
       this.checkNodeDescriptorNG(nodeNumber); // do before emit node
       this.config.writeNodeConfig(this.nodeConfig)
@@ -931,7 +981,7 @@ class cbusAdmin extends EventEmitter {
     nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
     winston.info({message: name + ': nodes ' + nodes});
     this.saveConfig()
-  }
+    }
 
 
   // need to use event index here, as used outside of learn mode
