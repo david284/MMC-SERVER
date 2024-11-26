@@ -373,6 +373,10 @@ class cbusAdmin extends EventEmitter {
                   this.createNodeConfig(cbusMsg.nodeNumber)
                 }
                 this.nodeConfig.nodes[ref].CANID = utils.getMGCCANID(cbusMsg.encoded)
+                this.nodeConfig.nodes[ref].parameters[1] = cbusMsg.manufacturerId
+                this.nodeConfig.nodes[ref].parameters[3] = cbusMsg.moduleId
+                this.nodeConfig.nodes[ref].parameters[8] = cbusMsg.flags
+                //
                 this.nodeConfig.nodes[ref].manufacturerId = cbusMsg.manufacturerId
                 this.nodeConfig.nodes[ref].moduleId = cbusMsg.moduleId
                 this.nodeConfig.nodes[ref].moduleIdentifier =  moduleIdentifier
@@ -606,8 +610,11 @@ class cbusAdmin extends EventEmitter {
       if (cbusMsg.ID_TYPE == "S"){
         winston.info({message: "mergAdminNode: Standard message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
         if (cbusMsg.nodeNumber){
-          // if the message has a node number, update status
-          this.updateNodeStatus(cbusMsg.nodeNumber)
+          if (cbusMsg.mnemonic != "PNN"){
+            // if the message has a node number, update status
+            // but not if PNN, as that does the same thing
+            this.updateNodeStatus(cbusMsg.nodeNumber)
+          }
         }
         if (this.actions[cbusMsg.opCode]) {
             await this.actions[cbusMsg.opCode](cbusMsg);
@@ -631,9 +638,15 @@ class cbusAdmin extends EventEmitter {
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
         this.createNodeConfig(nodeNumber)
         // get flags (param 8) as needed as a minimum
-        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))
-        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))
-        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))
+        if (this.nodeConfig.nodes[nodeNumber].parameters[8]){
+          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))
+        }
+        if (this.nodeConfig.nodes[nodeNumber].parameters[1]){
+          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))
+        }
+        if (this.nodeConfig.nodes[nodeNumber].parameters[3]){
+          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))
+        }
         updated = true
       }
       if (this.nodeConfig.nodes[nodeNumber].status != true){
@@ -804,6 +817,11 @@ class cbusAdmin extends EventEmitter {
       // but need to include the nodeNumber in the event identifier, as it's sent on the bus
       // and identifies the source node, even for short events
       var busEventIdentifier = utils.decToHex(nodeNumber, 4) + eventIdentifier.substring(4, 8)
+      if(eventIdentifier.substring(0, 4) == '0000'){
+        busEventIdentifier = 'S' + busEventIdentifier
+      } else {
+        busEventIdentifier = 'L' + busEventIdentifier
+      }
       delete this.nodeConfig.events[busEventIdentifier]
       winston.debug({message: name + `: removeBusEvent ${busEventIdentifier}`})
       this.saveConfig()
@@ -846,8 +864,11 @@ class cbusAdmin extends EventEmitter {
         let eventIdentifier = busIdentifier
         winston.info({message: 'mergAdminNode: eventIdentifier : ' + eventIdentifier});
         //need to remove node number from event identifier if short event
-        if (type == 'short') {
+        if (type == 'short') { 
+          busIdentifier = 'S' + busIdentifier
           eventIdentifier = "0000" + eventIdentifier.slice(4)
+        } else {
+          busIdentifier = 'L' + busIdentifier
         }
         if (busIdentifier in this.nodeConfig.events) {
             this.nodeConfig.events[busIdentifier]['status'] = status
@@ -1044,6 +1065,7 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(this.RQNPN(nodeNumber, 0))     // get number of node parameters
     await sleep(400); // wait for a response before trying to use it
     let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
+    if (nodeParameterCount == undefined){nodeParameterCount = 20}
     for (let i = 1; i <= nodeParameterCount; i++) {
       this.CBUS_Queue.push(this.RQNPN(nodeNumber, i))
     }
