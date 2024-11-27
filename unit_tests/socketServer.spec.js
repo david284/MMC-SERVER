@@ -373,24 +373,26 @@ describe('socketServer tests', async function(){
   })
 
 
-
-
-
-
+  //
+  //
   //
   itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
-    var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
+    var testMessage = cbusLib.encodeNAME("ABCDEFGH")
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
+    node.rqnnPreviousNodeNumber = value.nodeNumber
     var receivedNodeNumber = undefined
-    socket.once('REQUEST_NODE_NUMBER', function (nodeNumber) {
+    var receivedNAME = undefined
+    socket.once('REQUEST_NODE_NUMBER', function (nodeNumber, name) {
       receivedNodeNumber = nodeNumber
+      receivedNAME = name
       winston.debug({message: 'unit_test: node.once - REQUEST_NODE_NUMBER ' + nodeNumber});
     })
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
       expect(receivedNodeNumber).to.equal(value.nodeNumber)
+      expect(receivedNAME).to.equal("ABCDEFG")
       winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
 			done();
 		}, 100);

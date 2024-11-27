@@ -378,19 +378,17 @@ describe('mergAdminNode tests', function(){
     var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
-    var receivedNodeNumber = undefined
-    node.once('requestNodeNumber', function (nodeNumber) {
-      receivedNodeNumber = nodeNumber
-      winston.debug({message: 'unit_test: node.once - requestNodeNumber ' + nodeNumber});
-    })
     mock_jsonServer.inject(testMessage)
     setTimeout(function(){
-      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      for (let i = 0; i < nodeTraffic.length; i++) {
+        winston.info({message: 'unit_test: nodeTraffic: ' + JSON.stringify(nodeTraffic[i])});
+      }
       expect(nodeTraffic[0].json.mnemonic).to.equal("RQNN")
-      expect(receivedNodeNumber).to.equal(value.nodeNumber)
+      expect(nodeTraffic[1].json.mnemonic).to.equal("RQMN")
+      expect(node.rqnnPreviousNodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END RQNN test'});
 			done();
-		}, 100);
+		}, 300);
   })
 
 
@@ -495,7 +493,7 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber])});
       expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier].eventIndex).to.equal(value.eventIndex)
       expect(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
-        winston.info({message: 'unit_test: END NEVAL test'});
+      winston.info({message: 'unit_test: END NEVAL test'});
 			done();
 		}, 30);
   })
@@ -626,9 +624,39 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[nodeUnderTest])});
       expect(node.nodeConfig.nodes[nodeUnderTest].storedEventsNI[eventIdentifier].eventIndex).to.equal(value.eventIndex)
       expect(node.nodeConfig.nodes[nodeUnderTest].storedEventsNI[eventIdentifier].variables[value.eventVariableIndex]).to.equal(value.eventVariableValue)
-        winston.info({message: 'unit_test: END EVANS test'});
+      winston.info({message: 'unit_test: END EVANS test'});
 			done();
 		}, 30);
+  })
+
+
+  // 0xE2 NAME
+  //
+  itParam("NAME test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN NAME test ' + JSON.stringify(value)});
+    var testMessage = cbusLib.encodeNAME("ABCDEFG")
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    node.rqnnPreviousNodeNumber = value.nodeNumber
+    var receivedNodeNumber = undefined
+    var receivedNAME = undefined
+    node.once('requestNodeNumber', function (nodeNumber, name) {
+      receivedNodeNumber = nodeNumber
+      receivedNAME = name
+      winston.debug({message: 'unit_test: node.once - requestNodeNumber ' + nodeNumber});
+    })
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
+      for (let i = 0; i < nodeTraffic.length; i++) {
+        winston.info({message: 'unit_test: ' + JSON.stringify(nodeTraffic[i])});
+      }
+      expect(nodeTraffic[0].json.mnemonic).to.equal("NAME")
+      expect(receivedNodeNumber).to.equal(value.nodeNumber)
+      expect(receivedNAME).to.equal("ABCDEFG")
+      winston.info({message: 'unit_test: END NAME test'});
+			done();
+		}, 300);
   })
 
 
@@ -928,6 +956,7 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+
   //
   //
   //
@@ -935,14 +964,41 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN eventSend test '});
     node.nodeConfig.events = []
     var busIdentifier = utils.decToHex(value.nodeNumber, 4) + utils.decToHex(value.eventNumber, 4)
-
+    if (value.type == 'long'){
+      busIdentifier = 'L' + busIdentifier
+    } else {
+      busIdentifier = 'S' + busIdentifier
+    }
     node.eventSend(value.nodeNumber, value.eventNumber, 'on', value.type)
-//20:00:47.532 info	mergAdminNode: EventSend : {"nodeNumber":1,"eventNumber":1,"status":"on","type":"long","count":1}
     winston.info({message: 'unit_test: node.nodeConfig.events ' + JSON.stringify(node.nodeConfig.events[busIdentifier])});
     expect(node.nodeConfig.events[busIdentifier].nodeNumber).to.equal(value.nodeNumber)
     expect(node.nodeConfig.events[busIdentifier].eventNumber).to.equal(value.eventNumber)
     winston.info({message: 'unit_test: END eventSend test'});
+  })
 
+
+  //
+  // This test focuses just on bus events
+  // should remove both long and short events just for the target node
+  //
+  itParam("removeNodeBusEvents test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (value) {
+    winston.info({message: 'unit_test: BEGIN removeNodeBusEvents test '});
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.events = []
+    // use eventSend to create busEvents...
+    node.eventSend(value.nodeNumber, 1, 'on', 'short')      // expect to be deleted
+    node.eventSend(value.nodeNumber, 65535, 'on', 'short')  // expect to be deleted
+    node.eventSend(value.nodeNumber, 1, 'on', 'long')       // expect to be deleted
+    node.eventSend(value.nodeNumber, 65535, 'on', 'long')   // expect to be deleted
+    node.eventSend(55, 1, 'on', 'short')                    // expect to remain
+    node.eventSend(55, 1, 'on', 'long')                     // expect to remain
+    expect (Object.keys(node.nodeConfig.events).length).to.equal(6)   // check all pressent
+    node.removeNodeEvents(value.nodeNumber)
+    for (const key of Object.keys(node.nodeConfig.events)) {
+      winston.info({message: 'unit_test: Event ' + key});
+    }
+    expect (Object.keys(node.nodeConfig.events).length).to.equal(2)   // check expected number remaining
+    winston.info({message: 'unit_test: END removeNodeBusEvents test'});
   })
 
 

@@ -496,7 +496,6 @@ class cbusAdmin extends EventEmitter {
         }
       } else {
         //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
-        //winston.debug({message: name + `: lastMessageWasQNN  ${this.lastMessageWasQNN}`})
       }
     }
       
@@ -747,10 +746,29 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+    //
+    // expected to be called after executing a NNCLR to clear all events on the node
+    // Remove all events for node in nodeConfig, as it shouldn't have any now
+    // include deleting any Bus Events stored for this node
+    //
     removeNodeEvents(nodeNumber) {
+      winston.debug({message: name + `: removeNodeEvents for node ${nodeNumber}`})
       if(this.nodeConfig.nodes[nodeNumber]){
         this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
+        // remove all bus events for this node
+        let busEventsList = Object.keys(this.nodeConfig.events)
+        for (const busEventIdentifier of busEventsList) {
+          if (busEventIdentifier.includes('L' + utils.decToHex(nodeNumber, 4))){
+            winston.debug({message: name + `: removeBusEvent ${busEventIdentifier}`})
+            delete this.nodeConfig.events[busEventIdentifier]
+          }
+          if (busEventIdentifier.includes('S' + utils.decToHex(nodeNumber, 4))){
+            winston.debug({message: name + `: removeBusEvent ${busEventIdentifier}`})            
+            delete this.nodeConfig.events[busEventIdentifier]
+          }
+        }
         this.saveConfig()
+        this.refreshEvents()  // will send bus events
       }
     }
 
