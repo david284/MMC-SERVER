@@ -877,7 +877,7 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].coe = (flags & 16) ? true : false
       this.nodeConfig.nodes[nodeNumber].learn = (flags & 32) ? true : false
       this.nodeConfig.nodes[nodeNumber].VLCB = (flags & 64) ? true : false
-      this.nodeConfig.nodes[nodeNumber].cpuName = this.nodeConfig.nodes[nodeNumber].parameters[9]
+      this.nodeConfig.nodes[nodeNumber].cpuName = this.merg.cpuName[this.nodeConfig.nodes[nodeNumber].parameters[9]]
       this.nodeConfig.nodes[nodeNumber].interfaceName = this.merg.interfaceName[this.nodeConfig.nodes[nodeNumber].parameters[10]]
       this.nodeConfig.nodes[nodeNumber].cpuManufacturerName = this.nodeConfig.nodes[nodeNumber].parameters[19]
       this.nodeConfig.nodes[nodeNumber].Beta = this.nodeConfig.nodes[nodeNumber].parameters[20]
