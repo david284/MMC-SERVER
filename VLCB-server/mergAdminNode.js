@@ -1033,6 +1033,8 @@ class cbusAdmin extends EventEmitter {
 
 
   async request_all_node_parameters(nodeNumber){
+    // clear parameters to force full refresh
+    this.nodeConfig.nodes[nodeNumber].parameters = {}
     this.CBUS_Queue.push(this.RQNPN(nodeNumber, 0))     // get number of node parameters
     await sleep(400); // wait for a response before trying to use it
     let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
