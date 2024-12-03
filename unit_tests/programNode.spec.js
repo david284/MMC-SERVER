@@ -125,9 +125,12 @@ describe('programNode tests', async function(){
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile full test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')
     programNode.setConnection(NET_ADDRESS, NET_PORT)
+    let filename = './unit_tests/test_firmware/CANPAN3.4c-108.HEX'
 //    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
 //    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+    var intelHexString = fs.readFileSync(filename);
+//    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+    winston.info({message: 'TEST: Parsing file ' + filename});
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
     winston.info({message: 'TEST: <<<<<< END: ParseHexFile full test:'});

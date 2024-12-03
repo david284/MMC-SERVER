@@ -7,6 +7,7 @@ const jsonfile = require('jsonfile')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
+var mdns = require('multicast-dns')()
 
 const name = 'programNode'
 

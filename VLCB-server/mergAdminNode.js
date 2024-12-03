@@ -4,6 +4,7 @@ let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 const { isUndefined } = require('util');
+var mdns = require('multicast-dns')()
 
 const name = 'mergAdminNode'
 
