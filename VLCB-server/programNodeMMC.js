@@ -378,13 +378,13 @@ class programNode extends EventEmitter  {
     this.sendMessageToClient('Parsing file')
 //        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
 
-    const lines = intelHexString.toString().split("\r\n");
+    const lines = intelHexString.toString().split(':');
     winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
 
-    for (var i = 0; i < lines.length - 1; i++) {
-    //winston.debug({message: 'programNode: parseHexFile - line ' + lines[i]})
-
-      result = this.decodeLineNG(lines[i])
+    for (var i = 1; i < lines.length; i++) {
+    winston.debug({message: 'programNode: parseHexFile - line ' + ':' + lines[i]})
+      // replace MARK symbol lost due to split
+      result = this.decodeLineNG(':' + lines[i])
 
       if (result == false) {break}
     }
@@ -490,14 +490,20 @@ class programNode extends EventEmitter  {
       this.FIRMWARE[this.decodeState.area] = {}   // initialise starting area
     }
 
+    if (line.length < 11 ){
+      winston.debug({message: 'programNode: READ LINE: line too short (<11) ' + line});
+      return false;
+    }
     // now lets look at the line we're given
-    //
+    // but beware there is likely to be unwanted 'End of Line' characters
+    // So calculate length of valid content
     var MARK = line.substr(0,1)
     var RECLEN = parseInt(line.substr(1,2), 16)
     var OFFSET = parseInt(line.substr(3,4), 16)
     var RECTYP = parseInt(line.substr(7,2), 16) 
-    var data = line.substr(9, line.length - 9 - 2)
-    var CHKSUM = parseInt(line.substr(line.length - 2, 2), 16)
+    let dataLength = RECLEN*2
+    var data = line.substr(9, dataLength)
+    var CHKSUM = parseInt(line.substr(9 + dataLength, 2), 16)
     winston.debug({message: 'programNode: READ LINE: '
       + ' RECLEN ' + RECLEN 
       + ' OFFSET ' + utils.decToHex(OFFSET, 4) 
@@ -505,15 +511,23 @@ class programNode extends EventEmitter  {
       + ' data ' + data
       + ' CHKSUM ' + CHKSUM});
 
-          // test the checksum to see if the line is valid
-    var lineChecksum = 0x00
-    for (var i = 1; i < line.length; i += 2) {
-      lineChecksum += parseInt(line.substr(i, 2), 16)
-      lineChecksum &= 0xFF
-    }
-    if (lineChecksum != 0) {
+    let lineLength = (9 + dataLength + 2)  
+    if (lineLength > 0 ){
+      // test the checksum to see if the line is valid
+      // Start at index 1 to ignore the MARK symbol at index 0
+      var lineChecksum = 0x00
+      for (var i = 1; i < lineLength; i += 2) {
+        lineChecksum += parseInt(line.substr(i, 2), 16)
+        lineChecksum &= 0xFF
+      }
+      if (lineChecksum != 0) {
+        winston.debug({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
+        return false;
+      }
+    } else {
+      // wasn't a valid linelength, so fail
       winston.debug({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
-      return false;
+      return false;    
     }
 
     // ok, line is valid so start processing it

@@ -80,11 +80,28 @@ describe('programNode tests', async function(){
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile short test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')
     programNode.setConnection(NET_ADDRESS, NET_PORT)
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
-    var callbackInvoked = false
+    let filename = './unit_tests/test_firmware/shortFile.HEX'
+    winston.info({message: 'TEST: ParseHexFile short test: Filename: ' + filename});
+    var intelHexString = fs.readFileSync(filename);
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
     winston.info({message: 'TEST: <<<<<< END: ParseHexFile short test:'});
+  });
+
+
+  //
+  // Use real hex file to ensure correct operation
+  //
+  it('ParseHexFile shortNoEOL test', function() {
+    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile shortNoEOL test:'});
+    const programNode = require('../VLCB-server/programNodeMMC.js')
+    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    let filename = './unit_tests/test_firmware/shortFileNoEOL.HEX'
+    winston.info({message: 'TEST: ParseHexFile shortNoEOL test: Filename: ' + filename});
+    var intelHexString = fs.readFileSync(filename);
+    var result = programNode.parseHexFile( intelHexString );
+    expect(result).to.equal(true);
+    winston.info({message: 'TEST: <<<<<< END: ParseHexFile shortNoEOL test:'});
   });
 
 
@@ -125,12 +142,31 @@ describe('programNode tests', async function(){
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile full test:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')
     programNode.setConnection(NET_ADDRESS, NET_PORT)
+    let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
+//    let filename = "./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX"
 //    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
 //    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+    var intelHexString = fs.readFileSync(filename);
+    winston.info({message: 'TEST: ParseHexFile full test: Filename: ' + filename});
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
     winston.info({message: 'TEST: <<<<<< END: ParseHexFile full test:'});
+  });
+
+
+  //
+  // Use real hex file to ensure correct operation
+  //
+  it('ParseHexFileLF full test', function() {
+    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFileLF full test:'});
+    const programNode = require('../VLCB-server/programNodeMMC.js')
+    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    let filename = './unit_tests/test_firmware/CANACC5_v2v LF.hex'
+    var intelHexString = fs.readFileSync(filename);
+    winston.info({message: 'TEST: ParseHexFileLF full test: Filename: ' + filename});
+    var result = programNode.parseHexFile( intelHexString );
+    expect(result).to.equal(true);
+    winston.info({message: 'TEST: <<<<<< END: ParseHexFileLF full test:'});
   });
 
 
@@ -149,51 +185,46 @@ describe('programNode tests', async function(){
   
   
   function GetTestCase_lines() {
-    var arg1, testCases = [];
-    for (var a = 1; a<= 10; a++) {
-      if (a == 1) {arg1 = ':04000000FEEF03F01C'}
-      if (a == 2) {arg1 = ':0400080004EF04F00D'}
-      if (a == 3) {arg1 = ':040018000CEF04F0F5'}
-      if (a == 4) {arg1 = ':1007F200CCEC00F001017581D8D54BEF00F001EF90'}
-      if (a == 5) {arg1 = ':0208020005F0FF'}
-      if (a == 6) {arg1 = ':10082000A56120FF147F040B1701000800000000E1'}
-      if (a == 7) {arg1 = ':10ED340000010103020202020302020301000001B6'}
-      if (a == 8) {arg1 = ':020000040030CA'}
-      if (a == 9) {arg1 = ':0300010006061ED2'}
-      if (a == 10) {arg1 = ':00000001FF'}
-      testCases.push({'line':arg1});
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 14; a++) {
+      if (a == 1) {arg1 = ':04000000FEEF03F01C', arg2 = true}
+      if (a == 2) {arg1 = ':0400080004EF04F00D', arg2 = true}
+      if (a == 3) {arg1 = ':040018000CEF04F0F5', arg2 = true}
+      if (a == 4) {arg1 = ':1007F200CCEC00F001017581D8D54BEF00F001EF90', arg2 = true}
+      if (a == 5) {arg1 = ':0208020005F0FF', arg2 = true}
+      if (a == 6) {arg1 = ':10082000A56120FF147F040B1701000800000000E1', arg2 = true}
+      if (a == 7) {arg1 = ':10ED340000010103020202020302020301000001B6', arg2 = true}
+      if (a == 8) {arg1 = ':020000040030CA', arg2 = true}
+      if (a == 9) {arg1 = ':0300010006061ED2', arg2 = true}
+      if (a == 10) {arg1 = ':00000001FF', arg2 = true}
+      // tests expected to fail
+      if (a == 11) {arg1 = ':', arg2 = false}                 // too short
+      if (a == 12) {arg1 = '::00000001FF', arg2 = false}      // first entry too short
+      if (a == 13) {arg1 = '00000001FF', arg2 = false}        // still too short
+      if (a == 14) {arg1 = ':020000040030FF', arg2 = false}   // wrong checksum
+      testCases.push({'line':arg1, 'result': arg2});
     }
     return testCases;
   }
   
 
   //
-  //
+  // test line checksum works on decode line function
+  // Including failing when expected
   //
   itParam("decodeLineNG test ${JSON.stringify(value)}", GetTestCase_lines(), function (value) {
-//	it('decodeLineNG test', function() {
-		winston.info({message: 'TEST: BEGIN: decodeLineNG:'});
+		winston.info({message: 'TEST: BEGIN: decodeLineNG: ' + JSON.stringify(value)});
     const programNode = require('../VLCB-server/programNodeMMC.js')
     programNode.setConnection(NET_ADDRESS, NET_PORT)
 		var result = programNode.decodeLineNG(value.line);
-    expect(result).to.equal(true);
+    expect(result).to.equal(value.result);
 		winston.info({message: 'TEST: END: decodeLineNG:'});
 	});
 
-
+  
   //
-  // test line checksum works on decode line function
   //
-	it('decode line checksum test', function() {
-		winston.info({message: 'TEST: >>>>>> BEGIN: decode line checksum:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
-		var result = programNode.decodeLineNG(':00000008FF');
-    expect(result).to.equal(false);
-		winston.info({message: 'TEST: <<<<<< END: decode line checksum:'});
-	});
-
-
+  //
 	it('program short test', async function() {
 		winston.info({message: 'TEST: BEGIN program short:'});
     const programNode = require('../VLCB-server/programNodeMMC.js')
