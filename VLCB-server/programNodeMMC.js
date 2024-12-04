@@ -491,7 +491,7 @@ class programNode extends EventEmitter  {
     }
 
     if (line.length < 11 ){
-      winston.debug({message: 'programNode: READ LINE: line too short (<11) ' + line});
+      winston.error({message: 'programNode: READ LINE: line too short (<11) ' + line});
       return false;
     }
     // now lets look at the line we're given
@@ -511,7 +511,15 @@ class programNode extends EventEmitter  {
       + ' data ' + data
       + ' CHKSUM ' + CHKSUM});
 
-    let lineLength = (9 + dataLength + 2)  
+      // work out length of line for checksum purposes
+      let lineLength = (9 + dataLength + 2)  
+
+      // if actual length of line is less than calculated, then fail
+      if (line.length < lineLength ){
+        winston.error({message: 'programNode: READ LINE: line too short for RECLEN ' + line});
+        return false;
+      }  
+
     if (lineLength > 0 ){
       // test the checksum to see if the line is valid
       // Start at index 1 to ignore the MARK symbol at index 0
@@ -521,12 +529,12 @@ class programNode extends EventEmitter  {
         lineChecksum &= 0xFF
       }
       if (lineChecksum != 0) {
-        winston.debug({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
+        winston.error({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
         return false;
       }
     } else {
       // wasn't a valid linelength, so fail
-      winston.debug({message: 'programNode: READ LINE: checksum error ' + lineChecksum});
+      winston.error({message: 'programNode: READ LINE: invalid calculated length ' + line});
       return false;    
     }
 

@@ -186,7 +186,7 @@ describe('programNode tests', async function(){
   
   function GetTestCase_lines() {
     var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 14; a++) {
+    for (var a = 1; a<= 15; a++) {
       if (a == 1) {arg1 = ':04000000FEEF03F01C', arg2 = true}
       if (a == 2) {arg1 = ':0400080004EF04F00D', arg2 = true}
       if (a == 3) {arg1 = ':040018000CEF04F0F5', arg2 = true}
@@ -201,7 +201,8 @@ describe('programNode tests', async function(){
       if (a == 11) {arg1 = ':', arg2 = false}                 // too short
       if (a == 12) {arg1 = '::00000001FF', arg2 = false}      // first entry too short
       if (a == 13) {arg1 = '00000001FF', arg2 = false}        // still too short
-      if (a == 14) {arg1 = ':020000040030FF', arg2 = false}   // wrong checksum
+      if (a == 14) {arg1 = ':0400010006061ED2', arg2 = false} // too short for RECLEN
+      if (a == 15) {arg1 = ':020000040030FF', arg2 = false}   // wrong checksum
       testCases.push({'line':arg1, 'result': arg2});
     }
     return testCases;
