@@ -39,7 +39,7 @@ class jsonServer{
       for (let i = 0; i < outMsg.length - 1; i++) {
         // restore terminating ';' lost due to split & then decode
         let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
-        this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.text)
+        this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
         this.clients.forEach(function (client) {
             let output = JSON.stringify(cbusLibMsg);
             winston.debug({message: name + ': Output to ' + client.remotePort + ' : ' + output})
