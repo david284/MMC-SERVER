@@ -138,7 +138,7 @@ class jsonServer{
     let input = JSON.parse(data)
     let cbusMsg = cbusLib.encode(input)
     let outMsg = cbusLib.decode(cbusMsg.encoded)
-    this.config.writeBusTraffic('OUT>> ' + outMsg.text)
+    this.config.writeBusTraffic('OUT>> ' + outMsg.encoded + ' ' + outMsg.text)
     this.clients.forEach(function (client) {
       // Don't want to send it to sender
       if (client === sender) return;
