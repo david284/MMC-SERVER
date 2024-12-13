@@ -1,14 +1,7 @@
 {
-  "timestamp": "202411092105",
+  "timestamp": "202412131442",
   "moduleName":"MIO-OUT",
   "nodeVariables": [
-    {
-      "type": "NodeVariableSlider",
-      "nodeVariableIndex": 9,
-      "displayTitle": "Feedback Delay",
-      "displayScale": 0.5,
-      "displayUnits": "mS"
-    },
     {
       "type": "NodeVariableGroup",
       "displayTitle": "Output 1",
@@ -40,7 +33,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 0
         }
       ]
@@ -76,7 +70,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 1
         }
       ]
@@ -112,7 +107,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 2
         }
       ]
@@ -148,7 +144,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 3
         }
       ]
@@ -184,7 +181,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 4
         }
       ]
@@ -220,7 +218,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 5
         }
       ]
@@ -256,7 +255,8 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 6
         }
       ]
@@ -292,8 +292,232 @@
         {
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 10,
-          "displayTitle": "Startup: Last position, otherwise 0 position",
+          "displayTitle": "Startup action",
+          "displaySubTitle": "Saved action, OFF if not set",
           "bit": 7
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSlider",
+      "nodeVariableIndex": 9,
+      "displayTitle": "Feedback Delay",
+      "displaySubTitle": "Range 0 to 127.5mS",
+      "displayScale": 0.5,
+      "displayUnits": "mS"
+    }
+  ],
+  "eventVariables": [
+    {
+      "displayTitle": "Event Direction",
+      "type": "EventVariableSelect",
+      "visibilityLogic":{"JLL":{ "or" : [
+          { "==" : [ {"EVbit" : [3, 0]}, false ] }, 
+          { "==" : [ {"EVbit" : [3, 1]}, false ] }
+        ]}        
+      },
+      "eventVariableIndex": 3,
+      "bitMask": 128,
+      "options": [
+        {
+          "value": 0,
+          "label": "Consumed Event"
+        },
+        {
+          "value": 128,
+          "label": "Produced Event"
+        }
+      ]
+    },
+    {
+      "displayTitle": "Consumed Event",
+      "type": "EventVariableGroup",
+      "visibilityLogic": { "JLL":
+        { "==" : [ {"EVbit" : [3, 7]}, false ] }
+      },
+      "groupItems": [
+        {
+          "type": "EventVariableBitArray",
+          "visibilityLogic":{"JLL":{ "or" : [
+              { "==" : [ {"EVbit" : [3, 0]}, false ] }, 
+              { "==" : [ {"EVbit" : [3, 1]}, false ] }
+            ]}        
+          },
+          "eventVariableIndex": 1,
+          "displayTitle": "Output enable",
+          "bitCollection": [
+            {
+              "bitPosition": 0,
+              "label": "output 1"
+            },
+            {
+              "bitPosition": 1,
+              "label": "output 2"
+            },
+            {
+              "bitPosition": 2,
+              "label": "output 3"
+            },
+            {
+              "bitPosition": 3,
+              "label": "output 4"
+            },
+            {
+              "bitPosition": 4,
+              "label": "output 5"
+            },
+            {
+              "bitPosition": 5,
+              "label": "output 6"
+            },
+            {
+              "bitPosition": 6,
+              "label": "output 7"
+            },
+            {
+              "bitPosition": 7,
+              "label": "output 8"
+            }
+          ]
+        },
+        {
+          "type": "EventVariableBitArray",
+          "visibilityLogic":{"JLL":{ "or" : [
+              { "==" : [ {"EVbit" : [3, 0]}, false ] }, 
+              { "==" : [ {"EVbit" : [3, 1]}, false ] }
+            ]}        
+          },
+          "eventVariableIndex": 2,
+          "displayTitle": "Enable reverse polarity",
+          "bitCollection": [
+            {
+              "bitPosition": 0,
+              "label": "output 1"
+            },
+            {
+              "bitPosition": 1,
+              "label": "output 2"
+            },
+            {
+              "bitPosition": 2,
+              "label": "output 3"
+            },
+            {
+              "bitPosition": 3,
+              "label": "output 4"
+            },
+            {
+              "bitPosition": 4,
+              "label": "output 5"
+            },
+            {
+              "bitPosition": 5,
+              "label": "output 6"
+            },
+            {
+              "bitPosition": 6,
+              "label": "output 7"
+            },
+            {
+              "bitPosition": 7,
+              "label": "output 8"
+            }
+          ]
+        },
+        {
+          "type": "EventVariableSelect",
+          "eventVariableIndex": 3,
+          "displayTitle": "Start of Day",
+          "displaySubTitle": "Actions feedback events",
+          "bitMask": 3,
+          "options": [
+            {
+              "label": "disabled",
+              "value": 0
+            },
+            {
+              "label": "disabled",
+              "value": 1
+            },
+            {
+              "label": "disabled",
+              "value": 2
+            },
+            {
+              "label": "enabled",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "displayTitle": "Produced Event",
+      "type": "EventVariableGroup",
+      "visibilityLogic": { "JLL":
+        { "==" : [ {"EVbit" : [3, 7]}, true ] }
+      },
+      "groupItems": [
+        {
+          "type": "EventVariableSelect",
+          "eventVariableIndex": 3,
+          "displayTitle": "Output select",
+          "bitMask": 28,
+          "options": [
+            {
+              "label": "Output 1",
+              "value": 0
+            },
+            {
+              "label": "Output 2",
+              "value": 4
+            },
+            {
+              "label": "Output 3",
+              "value": 8
+            },
+            {
+              "label": "Output 4",
+              "value": 12
+            },
+            {
+              "label": "Output 5",
+              "value": 16
+            },
+            {
+              "label": "Output 6",
+              "value": 20
+            },
+            {
+              "label": "Output 7",
+              "value": 24
+            },
+            {
+              "label": "Output 8",
+              "value": 28
+            }
+          ]
+        },
+        {
+          "type": "EventVariableSelect",
+          "eventVariableIndex": 3,
+          "displayTitle": "Event",
+          "displaySubTitle": "remember to select the correct output",
+          "bitMask": 3,
+          "options": [
+            {
+              "label": "On event",
+              "value": 0
+            },
+            {
+              "label": "Off event",
+              "value": 1
+            },
+            {
+              "label": "Do Nothing",
+              "value": 2
+            }
+          ]
         }
       ]
     }
