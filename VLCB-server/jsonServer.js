@@ -120,11 +120,11 @@ class jsonServer{
   }
 
   connectIntervalFunction(){
-    winston.info({message:name + ': cbusClient check connection:'})
+    winston.debug({message:name + ': cbusClient check connection:'})
     if(this.enableReconnect){
-      winston.info({message:name + ': cbusClient reconnect enabled:'})
+      winston.debug({message:name + ': cbusClient reconnect enabled:'})
       if(this.connected){
-        winston.info({message:name + ': cbusClient still connected:'})
+        winston.debug({message:name + ': cbusClient still connected:'})
       } else {
         winston.info({message:name + ': cbusClient not connected:'})
         this.connect(this.clientHost, this.clientPort)

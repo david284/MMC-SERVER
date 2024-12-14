@@ -514,8 +514,10 @@ class configuration {
     return result
   }
 
+
   //
-  // Get a matching filename from either USER or SYSTEM locations
+  // Try to get a matching filename from either USER or SYSTEM locations
+  // tries USER first, then SYSTEM
   // Not concerned with which location, just want the matching filename
   // tries with the processor type option first
   // but if no success, tries for match with files with no processor type
@@ -523,9 +525,23 @@ class configuration {
   // returns either filename or undefined
   //
   getMatchingModuleDescriptorFile(moduleIdentifier, version, processorType){
-    // create a merged list of matching files from both locations
-    var fileList = this.getMatchingMDFList('SYSTEM', moduleIdentifier).concat(this.getMatchingMDFList('USER', moduleIdentifier))
-    winston.debug({message: className + ': getMatchingModuleDescriptorFile: list: ' + JSON.stringify(fileList)})
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: ' + moduleIdentifier})
+    var fileList = this.getMatchingMDFList('USER', moduleIdentifier)
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: USER: ' + JSON.stringify(fileList)})
+    var fileName = this.getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList)
+
+    if (fileName == undefined) {
+      fileList = this.getMatchingMDFList('SYSTEM', moduleIdentifier)
+      winston.debug({message: className + ': getMatchingModuleDescriptorFile: SYSTEM: ' + JSON.stringify(fileList)})
+      fileName = this.getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList)
+    }
+    return fileName
+  }
+
+
+
+
+  getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList){
     var filename = undefined
     winston.debug({message: className + ': processorType ' + '--' + processorType})
     for (let i=0; i< fileList.length; i++){
@@ -552,6 +568,8 @@ class configuration {
     return filename
   }
   
+
+
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
   // Other methods

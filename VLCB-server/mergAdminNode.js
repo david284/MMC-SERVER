@@ -42,8 +42,9 @@ class cbusAdmin extends EventEmitter {
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
         this.CBUS_Queue = []
         setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
-        // update client if any node changed
-        setInterval(this.checkIfNodeschanged.bind(this), 500);
+        this.eventsChanged = false
+        // update client if anything changed
+        setInterval(this.updateClients.bind(this), 500);
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -135,7 +136,6 @@ class cbusAdmin extends EventEmitter {
           },
           '50': async (cbusMsg) => {// RQNN -  Node Number
             winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
-//              this.emit('requestNodeNumber', cbusMsg.nodeNumber)
             this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
             this.CBUS_Queue.push(this.RQMN())   // push node onto queue to read module name from node
           },
@@ -260,6 +260,8 @@ class cbusAdmin extends EventEmitter {
           '9B': async (cbusMsg) => {//PARAN Parameter readback by Index
             try {
             this.nodeConfig.nodes[cbusMsg.nodeNumber].parameters[cbusMsg.parameterIndex] = cbusMsg.parameterValue
+            // mark paramsUpdated if we get index 10
+            if (cbusMsg.parameterIndex == 10){ this.nodeConfig.nodes[cbusMsg.nodeNumber].paramsUpdated = true}
             this.saveNode(cbusMsg.nodeNumber)
             } catch (err){ winston.error({message: name + `: PARAN: ` + err}) }
           },
@@ -310,7 +312,7 @@ class cbusAdmin extends EventEmitter {
               this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
               this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
               // force variableConfig to be reloaded
-              this.nodeConfig.nodes[nodeNumber].variableConfig = undefined
+//              this.nodeConfig.nodes[nodeNumber].variableConfig = undefined
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
               this.saveNode(cbusMsg.nodeNumber)
@@ -760,14 +762,14 @@ class cbusAdmin extends EventEmitter {
     }
 
     refreshEvents() {
-        this.emit('events', this.nodeConfig.events)
+      this.eventsChanged = true
     }
 
     clearEvents() {
         winston.info({message: `mergAdminNode: clearEvents() `});
         this.nodeConfig.events = {}
         this.saveConfig()
-        this.emit('events', this.nodeConfig.events)
+        this.eventsChanged = true
     }
 
     eventSend(nodeNumber, eventNumber, status, type) {
@@ -796,7 +798,7 @@ class cbusAdmin extends EventEmitter {
             winston.debug({message: name + `: EventSend added to events ${busIdentifier}`});
           }
         winston.info({message: 'mergAdminNode: EventSend : ' + JSON.stringify(this.nodeConfig.events[busIdentifier])});
-        this.emit('events', this.nodeConfig.events);
+        this.eventsChanged = true
     }
 
     //
@@ -940,11 +942,13 @@ class cbusAdmin extends EventEmitter {
       
 
     //
-    // Function to check on a regular basis if any nodes have changed
+    // Function to check on a regular basis if anything has changed
     // and update client if so
     // aim is to reduce the traffic to client if rapid changes occur
     //
-    checkIfNodeschanged(){
+    updateClients(){
+      //
+      // check if any nodes have changed
       for (let nodeNumber in this.nodeConfig.nodes) {
         // returns keyword, in this case the nodeNumber
         if(this.nodeConfig.nodes[nodeNumber].hasChanged){
@@ -953,6 +957,13 @@ class cbusAdmin extends EventEmitter {
           this.emit('node', this.nodeConfig.nodes[nodeNumber])
         }
       }
+      //
+      // check to see if events have changed
+      if (this.eventsChanged){
+        this.eventsChanged = false
+        this.emit('events', this.nodeConfig.events)
+      }
+
     }
 
 
@@ -1047,12 +1058,27 @@ class cbusAdmin extends EventEmitter {
   async request_all_node_parameters(nodeNumber){
     // clear parameters to force full refresh
     this.nodeConfig.nodes[nodeNumber].parameters = {}
+    this.nodeConfig.nodes[nodeNumber].paramsUpdated = false
     this.CBUS_Queue.push(this.RQNPN(nodeNumber, 0))     // get number of node parameters
-    await sleep(400); // wait for a response before trying to use it
-    let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
-    if (nodeParameterCount == undefined){nodeParameterCount = 20}
-    for (let i = 1; i <= nodeParameterCount; i++) {
-      this.CBUS_Queue.push(this.RQNPN(nodeNumber, i))
+    await utils.sleep(200) // allow time for message to be sent & initial response
+    // allow a gap in case we get multiple responses
+    var timeGap = 400
+    var count = 0   // add safety counter so while loop can't get stuck
+    // but reduce gap if doing unit tests
+    timeGap = this.inUnitTest ? 1 : timeGap
+    while ( Date.now() < this.lastReceiveTime + timeGap){
+      winston.debug({message: name +': request_all_node_parameters: timeGap '})
+      await utils.sleep(100)
+      if (count++ > 100){break}
+    }
+    // if we haven't received all the parameters, then we need to request them individually
+    if (this.nodeConfig.nodes[nodeNumber].paramsUpdated == false){
+      winston.debug({message: name +': request_all_node_parameters: request individually for node ' + nodeNumber})
+      let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
+      if (nodeParameterCount == undefined){nodeParameterCount = 20}
+      for (let i = 1; i <= nodeParameterCount; i++) {
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, i))
+      }
     }
   }
 
