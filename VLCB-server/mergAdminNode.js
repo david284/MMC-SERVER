@@ -1005,27 +1005,6 @@ class cbusAdmin extends EventEmitter {
     }
 
 
-  // need to use event index here, as used outside of learn mode
-  async requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
-    winston.debug({message: name + ': requestEventVariablesByIndex: '});
-
-    // try reading EV0 - should return number of event variables
-    this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
-    var timeGap = this.inUnitTest ? 100 : 300
-    await sleep(timeGap); // wait for a response before trying to use it
-    // now assume number of variables from param 5, but use the value in EV0 if it exists
-    var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
-    if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
-      numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
-      winston.debug({message: name + ': requestEventVariablesByIndex: EV0 ' + numberOfVariables});
-    }
-    // now read all the rest of the event variables
-    for (let i = 1; i <= numberOfVariables; i++) {
-      this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
-    }
-
-  }
-
   async delete_all_events(nodeNumber) {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
@@ -1126,9 +1105,11 @@ class cbusAdmin extends EventEmitter {
     this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
   }
 
-
+  //
+  // request individual event variable
+  //
   async requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex){
-    winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+    winston.info({message: name + ': requestEventVariableByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
     // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
     // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
@@ -1146,24 +1127,74 @@ class cbusAdmin extends EventEmitter {
   }
 
 
+  //
+  // request all event variables for specific event
+  //
   async requestEventVariablesByIdentifier(nodeNumber, eventIdentifier){
     winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
-    // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
-    // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
-    // but need to refresh all events to get updated event indexes
-    this.CBUS_Queue.push(this.NERD(nodeNumber))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after EVLRN
-    try{
-      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-      if (eventIndex){
-        await this.requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
-      } else {
-        winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
+    if (this.nodeConfig.nodes[nodeNumber].VLCB){
+      // if VLCB, we can use REQEV to read all event variables with one command
+      this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
+    } else {
+      // 'legacy' CBUS
+      // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
+      // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
+      // but need to refresh all events to get updated event indexes
+      this.CBUS_Queue.push(this.NERD(nodeNumber))
+      var timeOut = (this.inUnitTest) ? 1 : 250
+      await sleep(timeOut); // allow a bit more time after EVLRN
+      try{
+        var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+        if (eventIndex){
+          await this.requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
+        } else {
+          winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
+        }
+      } catch (err){
+        winston.error({message: name + ': requestEventVariablesByIdentifier: failed to get eventIndex: ' + err});
       }
-    } catch (err){
-      winston.error({message: name + ': requestEventVariablesByIdentifier: failed to get eventIndex: ' + err});
+    }
+  }
+
+  //
+  // To use REQEV, the module needs to be in learn mode
+  // but then can use the eventIdentifier directly, bypassing the need to use eventIndex
+  //
+  async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex){
+    this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.nodeNumberInLearnMode = nodeNumber
+    this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
+    var timeOut = (this.inUnitTest) ? 1 : 250
+    await sleep(timeOut); // allow a bit more time after REQEV
+    this.CBUS_Queue.push(this.NNULN(nodeNumber))
+  }
+
+
+  //  
+  // need to use event index here, as used outside of learn mode
+  //
+  async requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
+    winston.debug({message: name + ': requestEventVariablesByIndex: '});
+    //
+    if (this.nodeConfig.nodes[nodeNumber].VLCB){
+      // VLCB - so should return all variables just by reading 0
+      this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
+    } else {
+      // 'legacy' CBUS, so try reading EV0 - should return number of event variables
+      this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
+      var timeGap = this.inUnitTest ? 100 : 300
+      await sleep(timeGap); // wait for a response before trying to use it
+      // now assume number of variables from param 5, but use the value in EV0 if it exists
+      var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+      if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
+        numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
+        winston.debug({message: name + ': requestEventVariablesByIndex: EV0 ' + numberOfVariables});
+      }
+      // now read all the rest of the event variables
+      for (let i = 1; i <= numberOfVariables; i++) {
+        this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
+      }
     }
   }
 
