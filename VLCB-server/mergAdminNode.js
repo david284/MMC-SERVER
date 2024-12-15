@@ -1066,10 +1066,12 @@ class cbusAdmin extends EventEmitter {
     var count = 0   // add safety counter so while loop can't get stuck
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 1 : timeGap
+    // so now wait for the specified timeGap after the last message recieved
+    // incase there was multiple responses (VLCB style)
     while ( Date.now() < this.lastReceiveTime + timeGap){
       winston.debug({message: name +': request_all_node_parameters: timeGap '})
       await utils.sleep(100)
-      if (count++ > 100){break}
+      if (count++ > 100){break} // safety escape
     }
     // if we haven't received all the parameters, then we need to request them individually
     if (this.nodeConfig.nodes[nodeNumber].paramsUpdated == false){
@@ -1089,9 +1091,13 @@ class cbusAdmin extends EventEmitter {
       await sleep(50); // allow time between requests
     }
     let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
-    for (let i = start; i <= nodeVariableCount; i++) {
-      this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
-      await sleep(50); // allow time between requests
+    if (this.nodeConfig.nodes[nodeNumber].VLCB){
+      this.CBUS_Queue.push(this.NVRD(nodeNumber, 0))
+    } else {
+      for (let i = start; i <= nodeVariableCount; i++) {
+        this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
+        await sleep(50); // allow time between requests
+      }
     }
   }
 
