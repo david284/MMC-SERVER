@@ -307,12 +307,11 @@ class cbusAdmin extends EventEmitter {
               } else {
                 this.createNodeConfig(cbusMsg.nodeNumber)
               }
+              this.nodeConfig.nodes[nodeNumber].status = true
               this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
               this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
               this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
               this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
-              // force variableConfig to be reloaded
-//              this.nodeConfig.nodes[nodeNumber].variableConfig = undefined
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
               this.saveNode(cbusMsg.nodeNumber)
