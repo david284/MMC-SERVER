@@ -502,6 +502,7 @@ class cbusAdmin extends EventEmitter {
           if (cbusMsg.mnemonic != "PNN"){
             // if the message has a node number, update status
             // but not if PNN, as that does the same thing
+            // but this might have been a node added without doing a refresh
             this.updateNodeStatus(cbusMsg.nodeNumber)
           }
         }
