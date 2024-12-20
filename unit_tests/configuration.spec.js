@@ -28,25 +28,41 @@ fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
-var testContent = {"version":"202411071435"}
 
-// ensure 'system' modules directory exists
-config.createDirectory(path.join(config.systemConfigPath, "modules"))
-// write test files
-var testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-1q.json")
-jsonfile.writeFileSync(testFilePath, "{}")
-testFilePath = path.join(config.systemConfigPath, "modules", "CANTEST-XXXX-2q--P13.json")
-jsonfile.writeFileSync(testFilePath, testContent)
+async function createTestFiles(){
+  var testContent = {"timestamp":Date.now()}
 
-// ensure 'user' modules directory exists
-config.createDirectory(path.join(config.userConfigPath, "modules"))
-// write test files
-var testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-3q.json")
-jsonfile.writeFileSync(testFilePath, "{}")
-testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-4q.json")
-jsonfile.writeFileSync(testFilePath, testContent)
-testFilePath = path.join(config.userConfigPath, "modules", "CANTEST-XXXX-4q--p1.json")
-jsonfile.writeFileSync(testFilePath, testContent)
+  // ensure the following files exist
+  //                            System:  User:   tests
+  // MDFTEST-YYYY-1a--P11.json      Y       Y     select from user, version case, processor
+  // MDFTEST-YYYY-1b.json           Y       Y     select from user, version case, no processor
+  // MDFTEST-YYYY-1c--p11.json      N       Y     select from user, version case, processor case
+  // MDFTEST-YYYY-2a.json           Y       N     select from system, version case, no processor
+  // MDFTEST-YYYY-2a--p11.json      Y       N     select from system, version case, processor case
+  //
+
+  // ensure 'system' modules directory exists
+  config.createDirectory(path.join(config.systemConfigPath, "modules"))
+  // write test files
+  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-1a--P11.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-1b.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-2a.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-2a--p11.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+
+  // ensure 'user' modules directory exists
+  config.createDirectory(path.join(config.userConfigPath, "modules"))
+  // write test files
+  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1a--P11.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1b.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1c--p11.json")
+  jsonfile.writeFileSync(testFilePath, testContent)
+}
 
 describe('configuration tests', function(){
 
@@ -58,6 +74,8 @@ describe('configuration tests', function(){
 		winston.info({message: '------------------------------ configuration tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
+    //
+    createTestFiles()
     //
 		done();
 	});
@@ -294,46 +312,6 @@ describe('configuration tests', function(){
     return testCases;
   }
 
-  // test Aims
-  // add test file #1 to test 'user' module folder
-  // retrieve said file & check it's the same
-  // add test file #2 to 'system' module folder (but not 'user' folder)
-  // retrieve said file & check it's the same
-  // attempt to retrieve non-existant file and chek it fails
-  //
-  itParam("readModuleDescriptor test ${JSON.stringify(value)}", GetTestCase_readModuleDescriptor(), function (done, value) {
-    winston.info({message: 'unit_test: BEGIN readModuleDescriptor test ' + JSON.stringify(value)})
-    var testPattern = {"testNumber":value.testNumber}
-    if (value.testNumber == 1){
-      // ensure 'user' modules directory exists
-      config.createDirectory(path.join(config.userConfigPath, "modules"))
-      jsonfile.writeFileSync(
-        path.join(config.userConfigPath, "modules", value.file),
-        testPattern,
-        {spaces: 2, EOL: '\r\n'})
-    }
-    if (value.testNumber == 2){
-      // ensure 'system' modules directory exists
-      config.createDirectory(path.join(config.systemConfigPath, "modules"))
-      jsonfile.writeFileSync(
-        path.join(config.systemConfigPath, "modules", value.file),
-        testPattern,
-        {spaces: 2, EOL: '\r\n'})
-    }
-    var moduleDescriptor = config.readModuleDescriptor(value.file)
-    setTimeout(function(){
-      if (moduleDescriptor) {
-        winston.info({message: 'unit_test: result length: ' + JSON.stringify(moduleDescriptor).length})
-        expect(JSON.stringify(moduleDescriptor).length).to.be.greaterThan(3)
-        expect(value.result).to.be.equal('pass')
-        expect (moduleDescriptor.testNumber).to.be.equal(testPattern.testNumber)
-      } else {
-        expect(value.result).to.be.equal('fail')
-      }
-      winston.info({message: 'unit_test: END readModuleDescriptor test'})
-      done();
-		}, 50);
-  })
 
   // test Aims
   // ensure test 'user' module folder exists
@@ -375,21 +353,11 @@ describe('configuration tests', function(){
   //
   it("getModuleDescriptorFileList test", function (done) {
     winston.info({message: 'unit_test: BEGIN getModuleDescriptorFileList test '})
-    // user files
-    var testFilePath = path.join(config.userConfigPath, "modules/CANABC-AAFF-1q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.userConfigPath, "modules/CANABC-BBFF-2q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    // system files
-    testFilePath = path.join(config.systemConfigPath, "modules/CAN-ABC-AAFF-3q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
-    testFilePath = path.join(config.systemConfigPath, "modules/CANABC-CCFF-4q.json")
-    jsonfile.writeFileSync(testFilePath, "testPattern")
     //
-    var result = config.getModuleDescriptorFileList("AAFF")
+    var result = config.getModuleDescriptorFileList("YYYY")
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
-      expect (result.length).to.be.equal(2)
+      expect (result.length).to.be.equal(3)
       winston.info({message: 'unit_test: END getModuleDescriptorFileList test'})
         done();
 		}, 50);
@@ -411,10 +379,10 @@ describe('configuration tests', function(){
   // Relies on at least 3 files already written to system module folder
   // There could be more files due to other tests
   //
-  itParam("getMatchingMDFList test ${JSON.stringify(value)}", GetTestCase_getMatchingMDFList(), function (value) {
+  itParam("getMatchingMDFList test ${JSON.stringify(value)}", GetTestCase_getMatchingMDFList(), async function (value) {
     winston.info({message: 'unit_test: BEGIN getMatchingMDFList test ' + JSON.stringify(value)})
     //
-    var result = config.getMatchingMDFList(value.location, "CANTEST-XXXX")
+    var result = config.getMatchingMDFList(value.location, "MDFTEST-YYYY")
     winston.info({message: 'result: ' + JSON.stringify(result)})
     expect (result.length).to.be.above(0)
     winston.info({message: 'unit_test: END getMatchingMDFList test'})
@@ -485,47 +453,67 @@ describe('configuration tests', function(){
   })
 
 
+  // ensure the following files exist - created at beginning of module
+  //                            System:  User:   tests
+  // MDFTEST-YYYY-1a--p11.json      Y       Y     select from user, version case, processor
+  // MDFTEST-YYYY-1b.json           Y       Y     select from user, version case, no processor
+  // MDFTEST-YYYY-1c--p11.json      N       Y     select from user, version case, processor case
+  // MDFTEST-YYYY-2a.json           Y       N     select from system, version case, no processor
+  // MDFTEST-YYYY-2a--p11.json      Y       N     select from system, version case, processor case
+  //
+
+
   function GetTestCase_MDF() {
-    var arg1, arg2, arg3, arg4, testCases = [];
-    for (var a = 1; a<= 6; a++) {
+    var arg1, arg2, arg3, arg4, arg5, testCases = [];
+    for (var a = 1; a<= 7; a++) {
       // complete match
-      if (a == 1) {arg1 = "YYYY", arg2 = "1a", arg3 = "P11", arg4 = "MDFTEST-YYYY-1a--P11.json"}
+      if (a == 1) {arg1 = "YYYY", arg2 = "1a", arg3 = "P11", arg4 = "MDFTEST-YYYY-1a--P11.json", arg5 = "USER"}
+      // filename, no processorType
+      if (a == 2) {arg1 = "YYYY", arg2 = "1b", arg3 = "", arg4 = "MDFTEST-YYYY-1b.json", arg5 = "USER"}
       // filename, no processorType - version case wrong
-      if (a == 2) {arg1 = "YYYY", arg2 = "1Q", arg3 = "P13", arg4 = "MDFTEST-YYYY-1q.json"}
-      // filename, no processorType - version case wrong
-      if (a == 3) {arg1 = "YYYY", arg2 = "1u", arg3 = "P13", arg4 = "MDFTEST-YYYY-1U.json"}
-      // processor type lower case p
-      if (a == 4) {arg1 = "YYYY", arg2 = "2q", arg3 = "P21", arg4 = "MDFTEST-YYYY-2q--p21.json"}
+      if (a == 3) {arg1 = "YYYY", arg2 = "1B", arg3 = "P13", arg4 = "MDFTEST-YYYY-1b.json", arg5 = "USER"}
+      // processor type lower case processor
+      if (a == 4) {arg1 = "YYYY", arg2 = "1c", arg3 = "P11", arg4 = "MDFTEST-YYYY-1c--p11.json", arg5 = "USER"}
       // processor type lower case p - version case wrong
-      if (a == 4) {arg1 = "YYYY", arg2 = "3a", arg3 = "P31", arg4 = "MDFTEST-YYYY-3A--p31.json"}
-      // processor type lower case p - version case wrong
-      if (a == 5) {arg1 = "YYYY", arg2 = "4A", arg3 = "P31", arg4 = "MDFTEST-YYYY-4a--p31.json"}
+      if (a == 4) {arg1 = "YYYY", arg2 = "1C", arg3 = "P11", arg4 = "MDFTEST-YYYY-1c--p11.json", arg5 = "USER"}
+      // processor type lower case p - version case wrong, system only
+      if (a == 5) {arg1 = "YYYY", arg2 = "2A", arg3 = "P11", arg4 = "MDFTEST-YYYY-2a--p11.json", arg5 = "SYSTEM"}
+      // wrong processor type, system only
+      if (a == 6) {arg1 = "YYYY", arg2 = "2a", arg3 = "P31", arg4 = "MDFTEST-YYYY-2a.json", arg5 = "SYSTEM"}
       // no file found
-      if (a == 6) {arg1 = "YYYY", arg2 = "9u", arg3 = "P13", arg4 = undefined}
-      testCases.push({'moduleIdentifier':arg1, 'version':arg2, 'processorType':arg3, 'result':arg4});
+      if (a == 7) {arg1 = "YYYY", arg2 = "9u", arg3 = "P13", arg4 = undefined}
+      testCases.push({'moduleIdentifier':arg1, 'version':arg2, 'processorType':arg3, 'result':arg4, "location":arg5});
     }
     return testCases;
   }
 
+/*
+  //
+  itParam("getMatchingModuleDescriptorFileOLD test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFileOLD test '});
+
+    result = config.getMatchingModuleDescriptorFileOLD(value.moduleIdentifier, value.version, value.processorType);
+    winston.info({message: 'result: ' + result});
+    expect(result).to.equal(value.result);
+    winston.info({message: 'unit_test: END getMatchingModuleDescriptorFileOLD test'});
+  })
+*/
 
   //
   itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFile test '});
-    // user files
-    if (value.result != undefined){
-      var testFilePath = path.join(config.userConfigPath, "modules", value.result)
-      jsonfile.writeFileSync(testFilePath, "testPattern")
-    }
-
-    // allow a bit for file to be written
-    await utils.sleep(50)
+    winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFile test ' + JSON.stringify(value)});
 
     result = config.getMatchingModuleDescriptorFile(value.moduleIdentifier, value.version, value.processorType);
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal(value.result);
-    winston.info({message: 'unit_test: END getMatchingModuleDescriptorFile test'});
+    winston.info({message: 'result: ' + JSON.stringify(result)})
+    if (value.result != undefined){
+      expect(result.moduleDescriptorFilename).to.equal(value.result)
+      expect(result.moduleDescriptorLocation).to.equal(value.location)
+    } else {
+      // not expecting a result for this test
+      expect(result).to.equal(undefined)
+    }
+    winston.info({message: 'unit_test: END getMatchingModuleDescriptorFile test'})
   })
-
 
 
 })

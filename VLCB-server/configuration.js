@@ -361,38 +361,12 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
 
 
-  // uses two locations
-  // first tries the user location (OS dependant)
-  // and if not found, tries the fixed system location
-  // Must return 'undefined' if file not found
-  readModuleDescriptor(filename){
-    var moduleDescriptor = undefined
-    try{
-      // try to read user directory first
-      var filePath = path.join(this.userConfigPath, "modules", filename)
-      winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
-      moduleDescriptor =  jsonfile.readFileSync(filePath)
-    } catch(e1){
-      try{
-        // fall back to project directory if not in user directory
-        var filePath = path.join(this.systemConfigPath, "modules", filename)
-        winston.debug({message: className + `: readModuleDescriptor: ` + filePath});
-        moduleDescriptor =  jsonfile.readFileSync(filePath)
-      } catch(e2) {
-        winston.info({message: className + `: readModuleDescriptor: failed to read ` + filename});
-      }
-    }
-    // store the filename actually used
-    if (moduleDescriptor){
-      moduleDescriptor['moduleDescriptorFilename'] = filename
-    }
-    return moduleDescriptor
-  }
-
 
   writeModuleDescriptor(data){
     if (this.userConfigPath){
       if (data.moduleDescriptorFilename){
+        // don't want location in folder copy, in case it's copied
+        delete data.moduleDescriptorLocation
         try {
           // always write to user directory - check it exists first
           if (this.createDirectory(path.join(this.userConfigPath, 'modules')))
@@ -433,7 +407,9 @@ class configuration {
     }
     try {
       winston.debug({message: className + `: getMDF: ` + filePath});
-      moduleDescriptor =  jsonfile.readFileSync(filePath) 
+      moduleDescriptor = jsonfile.readFileSync(filePath) 
+      moduleDescriptor['moduleDescriptorFilename'] = filename
+      moduleDescriptor['moduleDescriptorLocation'] = location
     } catch(err){
       winston.info({message: className + `: getMDF: ` + err});
     }     
@@ -441,6 +417,9 @@ class configuration {
   }
 
 
+  //
+  // Get merged list of matching files from both USER & SYSTEM locations
+  //
   getModuleDescriptorFileList(moduleDescriptor){
     winston.info({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})
     var result =[]
@@ -482,7 +461,9 @@ class configuration {
     return result
   }
 
-
+  //
+  // Get list of matching files from specified location only
+  //
   getMatchingMDFList(location, match){
     var folder
     if (location.toUpperCase() == "SYSTEM"){
@@ -518,30 +499,40 @@ class configuration {
   //
   // Try to get a matching filename from either USER or SYSTEM locations
   // tries USER first, then SYSTEM
-  // Not concerned with which location, just want the matching filename
-  // tries with the processor type option first
-  // but if no success, tries for match with files with no processor type
-  // note conversions to uppercase so tolerant of lowercase in either supplied arguments or filename
   // returns either filename or undefined
   //
   getMatchingModuleDescriptorFile(moduleIdentifier, version, processorType){
     winston.debug({message: className + ': getMatchingModuleDescriptorFile: ' + moduleIdentifier})
-    var fileList = this.getMatchingMDFList('USER', moduleIdentifier)
-    winston.debug({message: className + ': getMatchingModuleDescriptorFile: USER: ' + JSON.stringify(fileList)})
-    var fileName = this.getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList)
-
+    var location
+    //
+    // first try USER location
+    location = 'USER'
+    var fileList = this.getMatchingMDFList(location, moduleIdentifier)
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: ' + location + ': ' + JSON.stringify(fileList)})
+    var fileName = this.getMatchingModuleDescriptorFilenameUsingList(moduleIdentifier, version, processorType, fileList)
+    //
+    // if no luck, try SYSTEM location
     if (fileName == undefined) {
-      fileList = this.getMatchingMDFList('SYSTEM', moduleIdentifier)
-      winston.debug({message: className + ': getMatchingModuleDescriptorFile: SYSTEM: ' + JSON.stringify(fileList)})
-      fileName = this.getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList)
+      location = 'SYSTEM'
+      fileList = this.getMatchingMDFList(location, moduleIdentifier)
+      winston.debug({message: className + ': getMatchingModuleDescriptorFile: ' + location + ': ' + JSON.stringify(fileList)})
+      fileName = this.getMatchingModuleDescriptorFilenameUsingList(moduleIdentifier, version, processorType, fileList)
     }
-    return fileName
+    //
+    // ok, if we have actually found a matching file,then read it
+    var moduleDescriptor
+    if (fileName != undefined) {
+      moduleDescriptor = this.getMDF(location, fileName)
+    }
+    return moduleDescriptor
   }
 
-
-
-
-  getMatchingModuleDescriptorFileUsingList(moduleIdentifier, version, processorType, fileList){
+  // try to find a matching filename from the supplied filelist
+  // tries with the processor type option first
+  // but if no success, tries for match with files with no processor type
+  // note conversions to uppercase so tolerant of lowercase in either supplied arguments or filename
+  //
+  getMatchingModuleDescriptorFilenameUsingList(moduleIdentifier, version, processorType, fileList){
     var filename = undefined
     winston.debug({message: className + ': processorType ' + '--' + processorType})
     for (let i=0; i< fileList.length; i++){
@@ -564,10 +555,9 @@ class configuration {
         }
       }
     }
-    winston.debug({message: className + ': getMatchingModuleDescriptorFile: file: ' + filename})
+    winston.debug({message: className + ': getMatchingModuleDescriptorFilenameUsingList: file: ' + filename})
     return filename
   }
-  
 
 
   //-----------------------------------------------------------------------------------------------

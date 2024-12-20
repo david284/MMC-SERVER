@@ -300,7 +300,6 @@ class cbusAdmin extends EventEmitter {
             const nodeNumber = cbusMsg.nodeNumber
             // don't process the PNN if it's node number 0, as it's an uninitialsed module
             if (nodeNumber > 0){
-              const moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
               if (nodeNumber in this.nodeConfig.nodes) {
                 // already exists in config file...
                 winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
@@ -315,7 +314,9 @@ class cbusAdmin extends EventEmitter {
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
               this.saveNode(cbusMsg.nodeNumber)
-              // now get file list & send event to socketServer
+              // now get file list & send event to socketServer - short cut to get moduleIdentifier as already in hex
+              // must exist as part of PNN
+              const moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
               this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
             }
           },
@@ -818,7 +819,7 @@ class cbusAdmin extends EventEmitter {
     //
     saveNode(nodeNumber) {
       winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
-      winston.debug({message: 'mergAdminNode: Save Node : ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
+//      winston.debug({message: 'mergAdminNode: Save Node : ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
         this.createNodeConfig(nodeNumber)
       }
@@ -838,9 +839,10 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].interfaceName = this.merg.interfaceName[this.nodeConfig.nodes[nodeNumber].parameters[10]]
       this.nodeConfig.nodes[nodeNumber].cpuManufacturerName = this.nodeConfig.nodes[nodeNumber].parameters[19]
       this.nodeConfig.nodes[nodeNumber].Beta = this.nodeConfig.nodes[nodeNumber].parameters[20]
+      winston.debug({message: 'mergAdminNode: Save Node P2: ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
 
       // ensure moduleIdentifier is created (if params 1 & 3 exist)
-      if ((this.nodeConfig.nodes[nodeNumber].manufacturerId) && (this.nodeConfig.nodes[nodeNumber].moduleId)){
+      if ((this.nodeConfig.nodes[nodeNumber].manufacturerId != undefined) && (this.nodeConfig.nodes[nodeNumber].moduleId != undefined)){
         var moduleIdentifier = utils.decToHex(this.nodeConfig.nodes[nodeNumber].manufacturerId, 2)
           + utils.decToHex(this.nodeConfig.nodes[nodeNumber].moduleId, 2)
         this.nodeConfig.nodes[nodeNumber].moduleIdentifier = moduleIdentifier
@@ -848,7 +850,7 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
         this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
-      this.checkNodeDescriptorNG(nodeNumber); // do before emit node
+      this.checkNodeDescriptor(nodeNumber); // do before emit node
       this.config.writeNodeConfig(this.nodeConfig)
       // mark node has changed, so regular check will send the node to the client
       // reduces traffic if node is being changed very quickly
@@ -860,7 +862,7 @@ class cbusAdmin extends EventEmitter {
     //
     refreshNodeDescriptors(){
       Object.keys(this.nodeDescriptors).forEach(nodeNumber => {
-        this.checkNodeDescriptorNG(nodeNumber, true)
+        this.checkNodeDescriptor(nodeNumber, true)
       })
     }
 
@@ -868,37 +870,32 @@ class cbusAdmin extends EventEmitter {
     //
     //
     //
-    checkNodeDescriptorNG(nodeNumber, force){
+    checkNodeDescriptor(nodeNumber, force){
       if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         try {
           if (this.nodeConfig.nodes[nodeNumber]){
-            var moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
+            // get the module identifier...
+            let moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
+            if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
+            {
+              // get & store the version & processor type 
+              let moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
+              this.nodeConfig.nodes[nodeNumber].moduleVersion = moduleVersion
+              var processorType = "P" + this.nodeConfig.nodes[nodeNumber].parameters[9]
 
-              if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
-              {
-                // get & store the version
-                this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
-                var processorType = "P" + this.nodeConfig.nodes[nodeNumber].parameters[9]
-                // now get matching filename
-                var filename = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, this.nodeConfig.nodes[nodeNumber].moduleVersion, processorType)
-                // but don't store the filename in nodeConfig until we're tried to read the file
-                try {
-                  const moduleDescriptor = this.config.readModuleDescriptor(filename)
-                  this.nodeDescriptors[nodeNumber] = moduleDescriptor
-                  // ok, we've tried to read the file, and sent it if it succeeded, so set the filename in nodeConfig
-                  // and the client can check for filename, and if no data, then fileload failed
-                  if (moduleDescriptor){
-                    this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
-                  }
-                  this.config.writeNodeDescriptors(this.nodeDescriptors)
-                  winston.info({message: 'mergAdminNode: checkNodeDescriptorNG: loaded file ' + filename});
-                  var payload = {[nodeNumber]:moduleDescriptor}
-                  this.emit('nodeDescriptor', payload);
-                }catch(err) {
-                  winston.error({message: 'mergAdminNode: checkNodeDescriptorNG: error loading file ' + filename + ' ' + err});
-                }
+              // ok, parameters prepared, so lets go get the file
+              const moduleDescriptor = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, moduleVersion, processorType)
+              // now check we did get an actual file
+              if (moduleDescriptor){
+                this.nodeDescriptors[nodeNumber] = moduleDescriptor
+                this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
+                this.config.writeNodeDescriptors(this.nodeDescriptors)
+                winston.info({message: 'mergAdminNode: checkNodeDescriptorNG: loaded file ' + moduleDescriptor.moduleDescriptorFilename});
+                var payload = {[nodeNumber]:moduleDescriptor}
+                this.emit('nodeDescriptor', payload);
               }
+            }
           }
         } catch (err){
           winston.error({message: name + ': checkNodeDescriptorNG: ' + err});        
