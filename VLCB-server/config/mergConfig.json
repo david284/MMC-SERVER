@@ -238,13 +238,25 @@
       "name": "CANBUFFER"
     },
     "A550": {
-      "name": "CANLEVER"
+      "name": "CANSHIELD"
     },
-    "FA62": {
-      "name": "CAN4in4out"
+    "A551": {
+      "name": "CANSHIELD"
     },
-    "FA63": {
-      "name": "CAN1in1out"
+    "A552": {
+      "name": "CAN4IN4OUT"
+    },
+    "A553": {
+      "name": "CANCMDB"
+    },
+    "A554": {
+      "name": "CANPIXEL"
+    },
+    "A555": {
+      "name": "CANCABPE"
+    },
+    "A556": {
+      "name": "CANSMARTTD"
     }
 
   },
