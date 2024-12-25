@@ -655,6 +655,10 @@ class cbusAdmin extends EventEmitter {
           }
           if (node.storedEventsNI[eventIdentifier].variables == undefined){
             node.storedEventsNI[eventIdentifier].variables = {}
+            // create all event variables - param 5 = No. of Event Variables per event
+            for ( let i = 1; i < node.parameters[5]; i++){
+              node.storedEventsNI[eventIdentifier].variables[i] = 0
+            }
           }
           // now store it
           node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
@@ -861,7 +865,8 @@ class cbusAdmin extends EventEmitter {
     //
     //
     refreshNodeDescriptors(){
-      Object.keys(this.nodeDescriptors).forEach(nodeNumber => {
+      winston.debug({message: name + ': refreshNodeDescriptors'});
+      Object.keys(this.nodeConfig.nodes).forEach(nodeNumber => {
         this.checkNodeDescriptor(nodeNumber, true)
       })
     }
@@ -872,6 +877,7 @@ class cbusAdmin extends EventEmitter {
     //
     checkNodeDescriptor(nodeNumber, force){
       if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
+        winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' ' + force});
         // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
         try {
           if (this.nodeConfig.nodes[nodeNumber]){
@@ -894,6 +900,8 @@ class cbusAdmin extends EventEmitter {
                 winston.info({message: 'mergAdminNode: checkNodeDescriptorNG: loaded file ' + moduleDescriptor.moduleDescriptorFilename});
                 var payload = {[nodeNumber]:moduleDescriptor}
                 this.emit('nodeDescriptor', payload);
+                // saveNode will populate moduleName if it doesn't exist
+                this.saveNode(nodeNumber)
               }
             }
           }
@@ -1096,10 +1104,14 @@ class cbusAdmin extends EventEmitter {
 
     if (isNewEvent){
       // adding new event may change event indexes, so need to refresh
+      /*
       this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
       await sleep(500); // allow a bit more time after RQEVN as it'll trigger a NERD
+      */
+      this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+    } else {
+      this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
     }
-    this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
   }
 
   //
