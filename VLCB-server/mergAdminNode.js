@@ -1,6 +1,7 @@
 const winston = require('winston');		// use config from root instance
 const net = require('net')
 let cbusLib = require('cbuslibrary')
+//let nodeConfigObj = require('./../VLCB-server/nodeConfig.js');
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 const { isUndefined } = require('util');
@@ -221,28 +222,30 @@ class cbusAdmin extends EventEmitter {
               }
               this.emit('cbusError', this.cbusErrors)
           },
+          '70': async (cbusMsg) => { // EVNLF - response to NNEVN
+            this.nodeConfig.nodes[cbusMsg.nodeNumber]["eventSpaceLeft"] = cbusMsg.EVSPC
+            this.saveNode(cbusMsg.nodeNumber)
+          },
           '74': async (cbusMsg) => { // NUMEV - response to RQEVN
-              //winston.info({message: 'mergAdminNode: 74: ' + JSON.stringify(this.nodeConfig.nodes[cbusMsg.nodeNumber])})
-              if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
-                if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != cbusMsg.eventCount) {
-                    this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-                    this.saveNode(cbusMsg.nodeNumber)
-                    this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
-                  } else {
-                    winston.debug({message: `mergAdminNode:  NUMEV: EvCount value has not changed`});
-                }
-              } else {
-                this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-                this.saveNode(cbusMsg.nodeNumber)
-                this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
+            if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
+              if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != cbusMsg.eventCount) {
+                  this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
+                  this.saveNode(cbusMsg.nodeNumber)
+                  this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
+                } else {
+                  winston.debug({message: `mergAdminNode:  NUMEV: EvCount value has not changed`});
               }
+            } else {
+              this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
+              this.saveNode(cbusMsg.nodeNumber)
+              this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
+            }
           },
           '90': async (cbusMsg) => {//Accessory On Long Event
               //winston.info({message: `mergAdminNode:  90 recieved`})
               this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
           },
           '91': async (cbusMsg) => {//Accessory Off Long Event
-              //winston.info({message: `mergAdminNode: 91 recieved`})
               this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
           },
           '97': async (cbusMsg) => { // NVANS - Receive Node Variable Value
@@ -298,27 +301,30 @@ class cbusAdmin extends EventEmitter {
           },
           'B6': async (cbusMsg) => { //PNN Received from Node
             const nodeNumber = cbusMsg.nodeNumber
-            // don't process the PNN if it's node number 0, as it's an uninitialsed module
+            if (nodeNumber in this.nodeConfig.nodes) {
+              // already exists in config file...
+              winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
+            } else {
+              this.createNodeConfig(cbusMsg.nodeNumber)
+            }
+            this.nodeConfig.nodes[nodeNumber].status = true
+            this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
+            this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
+            this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
+            this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
+            // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
+            this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
+            // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
             if (nodeNumber > 0){
-              if (nodeNumber in this.nodeConfig.nodes) {
-                // already exists in config file...
-                winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
-              } else {
-                this.createNodeConfig(cbusMsg.nodeNumber)
-              }
-              this.nodeConfig.nodes[nodeNumber].status = true
-              this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
-              this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
-              this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
-              this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
-              this.saveNode(cbusMsg.nodeNumber)
-              // now get file list & send event to socketServer - short cut to get moduleIdentifier as already in hex
-              // must exist as part of PNN
-              const moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
-              this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
+              //NNEVN Allows a read of available event space left. Answer is EVLNF
+              this.CBUS_Queue.push(this.NNEVN(nodeNumber)) // get available space left
             }
+            this.saveNode(cbusMsg.nodeNumber)
+            // now get file list & send event to socketServer
+            const moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
+            this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
           },
           'B8': async (cbusMsg) => {//Accessory On Short Event 1
               this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
@@ -1019,8 +1025,9 @@ class cbusAdmin extends EventEmitter {
   }
 
   //
-  // Adds node number to scan queue so that multiple requests can be dealt with in order
-  // so that it doesn't overload the CANBUS
+  // requests number of events for node
+  // the response will then trigger a NERD
+  // also request event space left
   //
   async request_all_node_events(nodeNumber){
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
@@ -1034,12 +1041,15 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
     this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
     // response to RQEVN will trigger a NERD command as well
-    var timeOut = (this.inUnitTest) ? 1 : 100
-    await sleep(timeOut); // allow a bit more time after EVLRN
+    //NNEVN Allows a read of available event space left. Answer is EVLNF
+    this.CBUS_Queue.push(this.NNEVN(nodeNumber)) // get available space left
+//    var timeOut = (this.inUnitTest) ? 1 : 100
+//    await sleep(timeOut); // allow a bit more time after EVLRN
   }
 
 
   async request_all_node_parameters(nodeNumber){
+    if (this.nodeConfig.nodes[nodeNumber] == undefined) { this.createNodeConfig(nodeNumber) }
     // clear parameters to force full refresh
     this.nodeConfig.nodes[nodeNumber].parameters = {}
     this.nodeConfig.nodes[nodeNumber].paramsUpdated = false
@@ -1291,6 +1301,15 @@ class cbusAdmin extends EventEmitter {
       return output
   }
 
+  // 0x56 NNEVN
+  //
+  NNEVN(nodeNumber) {//Request event space left
+    let output = {}
+    output['mnemonic'] = 'NNEVN'
+    output['nodeNumber'] = nodeNumber
+    return output
+  }
+
   // 0x57 NERD
   //
   NERD(nodeNumber) {//Request All Events
@@ -1302,7 +1321,7 @@ class cbusAdmin extends EventEmitter {
 
   // 0x58 RQEVN
   //
-  RQEVN(nodeNumber) {// Read Node Variable
+  RQEVN(nodeNumber) {// Request number of events
       let output = {}
       output['mnemonic'] = 'RQEVN'
       output['nodeNumber'] = nodeNumber

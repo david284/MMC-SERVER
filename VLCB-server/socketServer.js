@@ -14,16 +14,15 @@ const io = require('socket.io')(server, {
     }
 });
 
-function send_SERVER_STATUS(config, status){
-  status["userDirectory"] = config.userConfigPath
-  status["systemDirectory"] = config.systemConfigPath
-//  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
-  io.emit('SERVER_STATUS', status)
-}
-
-
 
 exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
+
+
+  //*************************************************************************************** */
+  //
+  // events from web socket clients
+  //
+  //*************************************************************************************** */
 
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
@@ -367,8 +366,26 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       
   });
 
+  //*************************************************************************************** */
+  //
+  // General functions to send to web socket clients
+  //
+  //*************************************************************************************** */
 
-    
+  function send_SERVER_STATUS(config, status){
+    status["userDirectory"] = config.userConfigPath
+    status["systemDirectory"] = config.systemConfigPath
+  //  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
+    io.emit('SERVER_STATUS', status)
+  }
+  
+  function send_SERVER_MESSAGE(message){
+    winston.debug({message: name + ': send_SERVER_MESSAGE ' + JSON.stringify(message)});
+    io.emit('SERVER_MESSAGE', message)
+  }
+  
+  
+      
   server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
   //*************************************************************************************** */
