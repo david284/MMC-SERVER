@@ -227,17 +227,10 @@ class cbusAdmin extends EventEmitter {
             this.saveNode(cbusMsg.nodeNumber)
           },
           '74': async (cbusMsg) => { // NUMEV - response to RQEVN
+            this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
+            this.saveNode(cbusMsg.nodeNumber)
+            this.CBUS_Queue.push(this.NNEVN(cbusMsg.nodeNumber)) // always request available space left
             if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
-              if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != cbusMsg.eventCount) {
-                  this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-                  this.saveNode(cbusMsg.nodeNumber)
-                  this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
-                } else {
-                  winston.debug({message: `mergAdminNode:  NUMEV: EvCount value has not changed`});
-              }
-            } else {
-              this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-              this.saveNode(cbusMsg.nodeNumber)
               this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
             }
           },
@@ -318,8 +311,6 @@ class cbusAdmin extends EventEmitter {
             if (nodeNumber > 0){
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
-              //NNEVN Allows a read of available event space left. Answer is EVLNF
-              this.CBUS_Queue.push(this.NNEVN(nodeNumber)) // get available space left
             }
             this.saveNode(cbusMsg.nodeNumber)
             // now get file list & send event to socketServer
@@ -1040,11 +1031,7 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].eventCount = undefined
     this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
     this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
-    // response to RQEVN will trigger a NERD command as well
-    //NNEVN Allows a read of available event space left. Answer is EVLNF
-    this.CBUS_Queue.push(this.NNEVN(nodeNumber)) // get available space left
-//    var timeOut = (this.inUnitTest) ? 1 : 100
-//    await sleep(timeOut); // allow a bit more time after EVLRN
+    // NUMEV response to RQEVN will trigger a NERD command as well
   }
 
 
@@ -1114,10 +1101,6 @@ class cbusAdmin extends EventEmitter {
 
     if (isNewEvent){
       // adding new event may change event indexes, so need to refresh
-      /*
-      this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
-      await sleep(500); // allow a bit more time after RQEVN as it'll trigger a NERD
-      */
       this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
     } else {
       this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
@@ -1160,7 +1143,8 @@ class cbusAdmin extends EventEmitter {
       // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
       // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
       // but need to refresh all events to get updated event indexes
-      this.CBUS_Queue.push(this.NERD(nodeNumber))
+      // get number of events for each node - response NUMEV will trigger NERD if event count changes
+       this.CBUS_Queue.push(this.RQEVN(nodeNumber))
       var timeOut = (this.inUnitTest) ? 1 : 250
       await sleep(timeOut); // allow a bit more time after EVLRN
       try{

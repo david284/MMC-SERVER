@@ -423,7 +423,8 @@ describe('mergAdminNode tests', function(){
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("NUMEV")
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NERD")
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNEVN")
+      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END NUMEV test'});
 			done();
 		}, 200);
