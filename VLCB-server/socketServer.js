@@ -84,8 +84,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
 
     socket.on('CHANGE_LAYOUT', function(data){
-      winston.info({message: `socketServer: CHANGE_LAYOUT ` + data});
-      config.setCurrentLayoutFolder(data)
+      winston.info({message: `socketServer: CHANGE_LAYOUT ` + JSON.stringify(data)});
+      if (data.userPath){
+        // change user path where all user entered data is stored
+      }
+      if (data.layoutName){
+        config.setCurrentLayoutFolder(data.layoutName)
+      }
       io.emit('LAYOUT_DATA', config.readLayoutData())
     })
 
@@ -373,6 +378,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //*************************************************************************************** */
 
   function send_SERVER_STATUS(config, status){
+    status["altUserDirectory"] = config.altUserPath
     status["userDirectory"] = config.userConfigPath
     status["systemDirectory"] = config.systemConfigPath
   //  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});

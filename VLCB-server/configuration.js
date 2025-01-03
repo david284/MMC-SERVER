@@ -19,6 +19,8 @@ const name = 'configuration'
 // module descriptors published in the distribution are found in <this.systemConfigPath>/modules
 // ( typically /VLCB-server/config/modules )
 // User loaded module descriptors are kept in an OS specific folder
+// but the user folder can be defined in the file 'altUserPathSetting.txt'
+// __dirname is the VLCB-server path, so we want the directory above that
 //
 
 const className = "configuration"
@@ -58,6 +60,7 @@ class configuration {
     this.systemModuleDescriptorFileList = []
 		this.createDirectory(this.systemConfigPath)
     this.createConfigFile(this.systemConfigPath)
+    this.altUserPath = this.getAltUserPath()
     this.config = jsonfile.readFileSync(this.systemConfigPath + '/config.json')
     winston.debug({message:  name + ': config: '+ JSON.stringify(this.config)});
     // create a user directory - will set userConfigPath
@@ -69,7 +72,7 @@ class configuration {
       // and default layout exists (creates directory if not there also)
       this.createLayoutFile(defaultLayoutData.layoutDetails.title)
     } 
-	}
+	} // end constructor
 
   // this value set by constructor, so no need for a 'set' method
   // 
@@ -81,6 +84,18 @@ class configuration {
       winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.systemConfigPath});
     }
     return this.systemConfigPath
+  }
+
+  getAltUserPath(){
+    const altUserPathSetting = path.join(__dirname, "..//", "altUserPathSetting.txt")
+    try{
+      this.altUserPath = path.join(fs.readFileSync(altUserPathSetting).toString())
+      winston.info({message: className + `: getAltUserPath: ` + this.altUserPath});
+      return this.altUserPath
+    } catch (err) {
+      winston.error({message: className + `: getAltUserPath: file read failed: ` + altUserPathSetting + ' ' + err});
+      return undefined
+    }
   }
 
   // update current config file
