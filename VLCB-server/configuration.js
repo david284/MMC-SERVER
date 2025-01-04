@@ -5,6 +5,8 @@ const jsonfile = require('jsonfile')
 var path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
+const os = require("os");
+
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -59,19 +61,13 @@ class configuration {
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
 		this.createDirectory(this.systemConfigPath)
-    this.createConfigFile(this.systemConfigPath)
+    this.createAppStorage()
+    // create a user directory - will set userConfigPath
     this.altUserPath = this.getAltUserPath()
+    this.createUserDirectory(userConfigPath)
+    this.createConfigFile(this.systemConfigPath)
     this.config = jsonfile.readFileSync(this.systemConfigPath + '/config.json')
     winston.debug({message:  name + ': config: '+ JSON.stringify(this.config)});
-    // create a user directory - will set userConfigPath
-    this.createUserDirectory()
-    if (this.userConfigPath){
-      // also ensure all the expected folders exists in user directory
-      this.createDirectory(this.userConfigPath + '/layouts')
-      this.createDirectory(this.userConfigPath + '/modules')
-      // and default layout exists (creates directory if not there also)
-      this.createLayoutFile(defaultLayoutData.layoutDetails.title)
-    } 
 	} // end constructor
 
   // this value set by constructor, so no need for a 'set' method
@@ -653,25 +649,56 @@ class configuration {
   // false if it already existed
   createDirectory(directory) {
     var result = false
-    // check if directory exists
-    if (fs.existsSync(directory)) {
-        winston.info({message: className + `: createDirectory: ` + directory + ` Directory exists`});
-        result = false
-      } else {
-        winston.info({message: className + `: createDirectory: ` + directory + ` Directory not found - creating new one`});
-        fs.mkdirSync(directory, { recursive: true })
-        result = true
-    } 
+    try {
+      // check if directory exists
+      if (fs.existsSync(directory)) {
+          winston.info({message: className + `: createDirectory: ` + directory + ` Directory exists`});
+          result = false
+        } else {
+          winston.info({message: className + `: createDirectory: ` + directory + ` Directory not found - creating new one`});
+          fs.mkdirSync(directory, { recursive: true })
+          result = true
+      } 
+    } catch (err){
+      winston.error({message: className + `: createDirectory: ` + err});
+    }
     return result
   }
 
-  createUserDirectory(){
-    if (this.userConfigPath){
+  createAppStorage(){
+    // create OS based user directories
+    winston.info({message: className + ': createAppStorage: Platform: ' + os.platform()});
+    switch (os.platform()) {
+      case 'win32':
+        this.appStoragePath = path.join("C:/ProgramData", "MMC-SERVER")
+        break;
+      case 'linux':
+        this.appStoragePath = path.join("/srv", "MMC-SERVER")
+        break;
+      case 'darwin':    // MAC O/S
+        this.appStoragePath = path.join("/Library/Application Support", "MMC-SERVER")
+        break;
+      default:
+        this.appStoragePath = path.join("C:/ProgramData", "MMC-SERVER")
+    }
+    this.createDirectory(this.appStoragePath)
+    winston.info({message: className + ': VLCB_SERVER appStoragePath: ' + this.appStoragePath});
+    // also ensure all the expected folders exists in user directory
+    if (this.appStoragePath){
+      this.createDirectory(path.join(this.appStoragePath, 'layouts'))
+      this.createDirectory(path.join(this.appStoragePath, '/modules'))
+      // and default layout exists (creates directory if not there also)
+//      this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+    }
+  }
+
+  createUserDirectory(userDirectory){
+    if (userDirectory){
       // override supplied for user config directory
+      this.userConfigPath = userDirectory
       this.createDirectory(this.userConfigPath)
     } else {
       // create OS based user directories
-      const os = require("os");
       const homePath = os.homedir()
       winston.info({message: className + ': Platform: ' + os.platform()});
       winston.info({message: className + ': User home directory: ' + homePath});
@@ -692,6 +719,13 @@ class configuration {
         this.createDirectory(this.userConfigPath)
     }
     winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
+    // also ensure all the expected folders exists in user directory
+    if (this.userConfigPath){
+      this.createDirectory(this.userConfigPath + '/layouts')
+      this.createDirectory(this.userConfigPath + '/modules')
+      // and default layout exists (creates directory if not there also)
+      this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+    } 
   }
 
   // return true if config file freshly created

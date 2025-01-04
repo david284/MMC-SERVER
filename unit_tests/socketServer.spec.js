@@ -311,12 +311,25 @@ describe('socketServer tests', async function(){
   //
   itParam("change_layout test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN change_layout test '});
-    socket.emit('CHANGE_LAYOUT', value.layout)
+    socket.emit('CHANGE_LAYOUT', {"layoutName": value.layout})
     //
     setTimeout(function(){
       winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
       expect(layoutData.layoutDetails.title).to.equal(value.layout);
       winston.info({message: 'unit_test: END change_layout test'});
+			done();
+		}, 30);
+  })
+
+  //
+  itParam("change_layout_alt test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN change_layout_alt test '});
+    socket.emit('CHANGE_LAYOUT', {"userPath": "./unit_tests/test_output/test_user_alt", "layoutName": value.layout})
+    //
+    setTimeout(function(){
+      winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
+      expect(layoutData.layoutDetails.title).to.equal(value.layout);
+      winston.info({message: 'unit_test: END change_layout_alt test'});
 			done();
 		}, 30);
   })

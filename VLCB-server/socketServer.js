@@ -87,6 +87,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + JSON.stringify(data)});
       if (data.userPath){
         // change user path where all user entered data is stored
+        config.createUserDirectory(data.userPath)
       }
       if (data.layoutName){
         config.setCurrentLayoutFolder(data.layoutName)
