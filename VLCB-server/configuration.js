@@ -104,8 +104,10 @@ class configuration {
     winston.debug({message: className + ` writeAppSettings` });
     // remove older redundant data
     delete this.appSettings.cbusServerPort
+    delete this.appSettings.jsonServerPort
     delete this.appSettings.remoteAddress
     delete this.appSettings.serverAddress
+    delete this.appSettings.socketServerPort
     try{
       jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
     } catch(err){
@@ -607,7 +609,6 @@ class configuration {
   }
   
 
-
   //
   //
   getSerialPort(){return this.appSettings.serialPort}
@@ -618,18 +619,17 @@ class configuration {
 
   //
   //
-  getJsonServerPort(){return this.appSettings.jsonServerPort}
+  getJsonServerPort(){return (this.jsonServerPort != undefined) ? this.jsonServerPort : 5551}
   setJsonServerPort(port){
-    this.appSettings.jsonServerPort = port
-    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
+    this.jsonServerPort = port
   }
+
 
   //
   //
-  getSocketServerPort(){return this.appSettings.socketServerPort}
+  getSocketServerPort(){return  (this.socketServerPort != undefined) ? this.socketServerPort : 5552}
   setSocketServerPort(port){  
-    this.appSettings.socketServerPort = port
-    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
+    this.socketServerPort = port
   }
 
 
