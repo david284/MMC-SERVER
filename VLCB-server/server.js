@@ -9,16 +9,12 @@ const socketServer = require('./socketServer')
 const utils = require('./utilities.js');
 
 
-// look for the config folder based on the directory of this module
+// pass in the system directory based on the directory of this module
 const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
 
-// set config items if they don't exist
-if (!config.getJsonServerPort()){
-  config.setJsonServerPort(5551);
-}
-if (!config.getSocketServerPort()){
-  config.setSocketServerPort(5552);
-}
+// set config items
+config.setJsonServerPort(5551);
+config.setSocketServerPort(5552);
 
 //run()
 
