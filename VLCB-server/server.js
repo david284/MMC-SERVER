@@ -13,15 +13,6 @@ const utils = require('./utilities.js');
 const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
 
 // set config items if they don't exist
-if (!config.getRemoteAddress()){
-  config.setRemoteAddress("127.0.0.1")
-}
-if (!config.getServerAddress()){
-  config.setServerAddress("localhost")
-}
-if (!config.getCbusServerPort()){
-  config.setCbusServerPort(5550);
-}
 if (!config.getJsonServerPort()){
   config.setJsonServerPort(5551);
 }

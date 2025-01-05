@@ -24,10 +24,8 @@ const testUserConfigPath = "./unit_tests/test_output/test_user"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 // set config items
-config.setServerAddress("localhost")
-config.setCbusServerPort(5570);
 config.setJsonServerPort(5571);
-config.setSocketServerPort(5572);
+config.setSocketServerPort(5552);
 
 
 const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
@@ -70,7 +68,7 @@ const name = 'unit_test: socketServer'
 describe('socketServer tests', async function(){
 
 
-  const socket = io(`http://${config.getServerAddress()}:${config.getSocketServerPort()}`)
+  const socket = io(`http://${"localhost"}:${config.getSocketServerPort()}`)
 
   // Add a connect listener
   socket.on('connect', function (socket) {
@@ -94,7 +92,7 @@ describe('socketServer tests', async function(){
     await utils.sleep(200)
     //
     // Use local 'user' directory for tests...
-    config.userConfigPath = "./unit_tests/test_output/test_user"
+    config.singleUserConfigPath = "./unit_tests/test_output/test_user"
 	});
 
 	beforeEach(function() {
@@ -321,6 +319,8 @@ describe('socketServer tests', async function(){
 		}, 30);
   })
 
+  /*
+
   //
   itParam("change_layout_alt test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN change_layout_alt test '});
@@ -333,6 +333,7 @@ describe('socketServer tests', async function(){
 			done();
 		}, 30);
   })
+*/
 
   //
   it("request_version test", function (done) {

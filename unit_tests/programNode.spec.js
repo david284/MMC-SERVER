@@ -16,8 +16,6 @@ const testUserConfigPath = "./unit_tests/test_output/test_user"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 // set config items
-config.setServerAddress("localhost")
-config.setCbusServerPort(5570);
 config.setJsonServerPort(5591);
 config.setSocketServerPort(5572);
 

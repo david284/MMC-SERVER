@@ -87,7 +87,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + JSON.stringify(data)});
       if (data.userPath){
         // change user path where all user entered data is stored
-        config.createUserDirectory(data.userPath)
+        config.createSingleUserDirectory(data.userPath)
       }
       if (data.layoutName){
         config.setCurrentLayoutFolder(data.layoutName)
@@ -334,12 +334,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
           }
         }
 
-        // using local address
+        // using expicit (remote) address
         winston.info({message: name + `: START_CONNECTION: connect JsonServer using local `});
-        await jsonServer.connect(config.getRemoteAddress(), config.getCbusServerPort())
+        await jsonServer.connect(data.getRemoteAddress(), data.getCbusServerPort())
       }
-      await node.connect(config.getServerAddress(), config.getJsonServerPort());
-      programNode.setConnection(config.getServerAddress(), config.getJsonServerPort());
+      await node.connect("localhost", config.getJsonServerPort());
+      programNode.setConnection("localhost", config.getJsonServerPort());
       status.mode = 'RUNNING'
     })
 
@@ -379,9 +379,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //*************************************************************************************** */
 
   function send_SERVER_STATUS(config, status){
-    status["altUserDirectory"] = config.altUserPath
-    status["userDirectory"] = config.userConfigPath
-    status["systemDirectory"] = config.systemConfigPath
+    status["userDataMode"] = config.appSettings.userDataMode
+    status["currentUserDirectory"] = config.currentUserDirectory
+    status["appStorageDirectory"] = config.appStorageDirectory
+    status["customUserDirectory"] = config.appSettings.customUserDirectory
+    status["singleUserDirectory"] = config.singleUserDirectory
+    status["systemDirectory"] = config.systemDirectory
   //  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
     io.emit('SERVER_STATUS', status)
   }

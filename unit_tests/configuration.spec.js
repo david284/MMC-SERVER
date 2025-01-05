@@ -28,6 +28,8 @@ fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
+config.singleUserDirectory = testUserConfigPath
+config.currentUserDirectory = config.singleUserDirectory
 
 async function createTestFiles(){
   var testContent = {"timestamp":Date.now()}
@@ -42,25 +44,25 @@ async function createTestFiles(){
   //
 
   // ensure 'system' modules directory exists
-  config.createDirectory(path.join(config.systemConfigPath, "modules"))
+  config.createDirectory(path.join(config.systemDirectory, "modules"))
   // write test files
-  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-1a--P11.json")
+  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-1a--P11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-1b.json")
+  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-1b.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-2a.json")
+  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-2a.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemConfigPath, "modules", "MDFTEST-YYYY-2a--p11.json")
+  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-2a--p11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
 
   // ensure 'user' modules directory exists
-  config.createDirectory(path.join(config.userConfigPath, "modules"))
+  config.createDirectory(path.join(config.singleUserDirectory, "modules"))
   // write test files
-  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1a--P11.json")
+  testFilePath = path.join(config.singleUserDirectory, "modules", "MDFTEST-YYYY-1a--P11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1b.json")
+  testFilePath = path.join(config.singleUserDirectory, "modules", "MDFTEST-YYYY-1b.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.userConfigPath, "modules", "MDFTEST-YYYY-1c--p11.json")
+  testFilePath = path.join(config.singleUserDirectory, "modules", "MDFTEST-YYYY-1c--p11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
 }
 
@@ -150,6 +152,7 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: BEGIN createDirectory test '})
     var layout = 'test_createDirectory_' + Date.now()
     config.createDirectory(path.join(testUserConfigPath, 'layouts', layout) )
+    config.currentUserDirectory = testUserConfigPath
     var layout_list = config.getListOfLayouts()
     setTimeout(function(){
       winston.info({message: 'layout_list: ' + JSON.stringify(layout_list)})
@@ -322,8 +325,9 @@ describe('configuration tests', function(){
   it("writeModuleDescriptor test", function (done) {
     winston.info({message: 'unit_test: BEGIN writeModuleDescriptor test '})
     // ensure 'user' modules directory exists
-    config.createDirectory(config.userConfigPath + "/modules")
-    var testFilePath = config.userConfigPath + "/modules/writeTest.json"
+    config.currentUserDirectory = testUserConfigPath
+    config.createDirectory(path.join(config.currentUserDirectory, "modules"))
+    var testFilePath = path.join(config.currentUserDirectory, "modules", "writeTest.json")
     // delete test file if it already exists
     if (fs.existsSync(testFilePath)){
       fs.unlinkSync(testFilePath)
@@ -351,9 +355,12 @@ describe('configuration tests', function(){
   })
 
   //
+  //
+  //
   it("getModuleDescriptorFileList test", function (done) {
     winston.info({message: 'unit_test: BEGIN getModuleDescriptorFileList test '})
     //
+    winston.info({message: 'currentUserDirectory: ' + config.currentUserDirectory})
     var result = config.getModuleDescriptorFileList("YYYY")
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
@@ -411,16 +418,6 @@ describe('configuration tests', function(){
     }
     return testCases;
   }
-
-  //
-  itParam("cbusServerPort test ${JSON.stringify(value)}", GetTestCase_port(), function (value) {
-    winston.info({message: 'unit_test: BEGIN cbusServerPort test '});
-    config.setCbusServerPort(value.port);
-    result = config.getCbusServerPort();
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal(value.port);
-    winston.info({message: 'unit_test: END cbusServerPort test'});
-  })
 
   //
   itParam("jsonServerPort test ${JSON.stringify(value)}", GetTestCase_port(), function (value) {

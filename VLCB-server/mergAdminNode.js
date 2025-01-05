@@ -76,7 +76,7 @@ class cbusAdmin extends EventEmitter {
         this.client.on('close', function () {
             winston.debug({message: 'mergAdminNode: Connection Closed'});
             setTimeout(() => {
-                this.client.connect(config.getJsonServerPort(), config.getServerAddress(), function () {
+                this.client.connect(config.getJsonServerPort(), "localhost", function () {
                     winston.debug({message: 'mergAdminNode: Client ReConnected'});
                 })
             }, 1000)

@@ -18,11 +18,9 @@ const os = require("os");
 
 //
 // Modules are stored in two directories
-// module descriptors published in the distribution are found in <this.systemConfigPath>/modules
+// module descriptors published in the distribution are found in <this.systemDirectory>/modules
 // ( typically /VLCB-server/config/modules )
 // User loaded module descriptors are kept in an OS specific folder
-// but the user folder can be defined in the file 'altUserPathSetting.txt'
-// __dirname is the VLCB-server path, so we want the directory above that
 //
 
 const className = "configuration"
@@ -40,7 +38,7 @@ const defaultLayoutData = {
   const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
 
 
-  // In normal use, the userConfigPath is NOT supplied - i.e. only supply systemConfigPath
+  // In normal use, the userConfigPath is NOT supplied - i.e. only supply systemDirectory
   // the code will create a system specific user directory
   //
   // userConfigPath is intended to be supplied when unit testing
@@ -48,76 +46,87 @@ const defaultLayoutData = {
 
 class configuration {
 
-  constructor(systemConfigPath, userConfigPath) {
+  constructor(systemDirectory, singleUserDirectory) {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
-		winston.debug({message:  '--- system path: ' + systemConfigPath});
-		winston.debug({message:  '--- user path: ' + userConfigPath});
+		winston.debug({message:  '--- system path: ' + systemDirectory});
+		winston.debug({message:  '--- user path: ' + singleUserDirectory});
     this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
-    this.config= {}
-    this.systemConfigPath = systemConfigPath
-    this.userConfigPath = userConfigPath
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
-		this.createDirectory(this.systemConfigPath)
-    this.createAppStorage()
-    // create a user directory - will set userConfigPath
-    this.altUserPath = this.getAltUserPath()
-    this.createUserDirectory(userConfigPath)
-    this.createConfigFile(this.systemConfigPath)
-    this.config = jsonfile.readFileSync(this.systemConfigPath + '/config.json')
-    winston.debug({message:  name + ': config: '+ JSON.stringify(this.config)});
+    this.createDirectories(systemDirectory, singleUserDirectory)
+    winston.debug({message:  name + ': appSettings: '+ JSON.stringify(this.appSettings)});
 	} // end constructor
+
+  //
+  // Attempt to create all directories needed
+  // should only create (& populate if appropriate) if directory doesn't exist
+  //
+  createDirectories(systemDirectory, singleUserDirectory){
+    // create a single user directory, based on OS platform
+    try{
+      this.createSingleUserDirectory(singleUserDirectory)
+      // Create appStorage & create appSettings file is either don't exist
+      // will set appStorageDirectory
+      this.createAppStorage()
+      this.createAppSettingsFile(this.appStorageDirectory)
+      // now read appSettings, as its content may affect subsequent actions
+      this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
+      //
+      this.systemDirectory = systemDirectory
+      this.createDirectory(systemDirectory)
+      // decide which directory to use for 'USER' content
+      if (this.appSettings.userDataMode == 'CUSTOM' ){ this.currentUserDirectory = this.appSettings.customUserDirectory }
+      else if (this.appSettings.userDataMode == 'USER' ){ this.currentUserDirectory = this.singleUserDirectory }
+      else { this.currentUserDirectory = this.appStorageDirectory }    
+    } catch (err){
+      winston.error({message:  name + ': createDirectories: '+ err});
+    }
+  }
+
+
 
   // this value set by constructor, so no need for a 'set' method
   // 
   getConfigPath(){ 
     // check if directory exists
-    if (fs.existsSync(this.systemConfigPath)) {
-      winston.info({message: className + `: getConfigPath: ` + this.systemConfigPath});
+    if (fs.existsSync(this.systemDirectory)) {
+      winston.info({message: className + `: getConfigPath: ` + this.systemDirectory});
     } else {
-      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.systemConfigPath});
+      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.systemDirectory});
     }
-    return this.systemConfigPath
+    return this.systemDirectory
   }
 
-  getAltUserPath(){
-    const altUserPathSetting = path.join(__dirname, "..//", "altUserPathSetting.txt")
+  // update current appSettings file
+  writeAppSettings(){
+    winston.debug({message: className + ` writeAppSettings` });
+    // remove older redundant data
+    delete this.appSettings.cbusServerPort
+    delete this.appSettings.remoteAddress
+    delete this.appSettings.serverAddress
     try{
-      this.altUserPath = path.join(fs.readFileSync(altUserPathSetting).toString())
-      winston.info({message: className + `: getAltUserPath: ` + this.altUserPath});
-      return this.altUserPath
-    } catch (err) {
-      winston.error({message: className + `: getAltUserPath: file read failed: ` + altUserPathSetting + ' ' + err});
-      return undefined
-    }
-  }
-
-  // update current config file
-  writeConfig(){
-    winston.debug({message: className + ` writeConfig` });
-    try{
-      jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
-    } catch(e){
-      winston.info({message: className + `: writeConfig: Error writing config.json`});
+      jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
+    } catch(err){
+      winston.info({message: className + `: writeAppSettings: ` + err});
     }
   }
 
   //
   //
-  getCurrentLayoutFolder(){return this.config.currentLayoutFolder}
+  getCurrentLayoutFolder(){return this.appSettings.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
-    if (this.userConfigPath){
+    if (this.currentUserDirectory){
       // check folder name not blank, set to default if so...
       if (folder == undefined) {folder = defaultLayoutData.layoutDetails.title}
-      this.config.currentLayoutFolder = folder
+      this.appSettings.currentLayoutFolder = folder
       // now create current layout folder if it doesn't exist
-      if (this.createDirectory(this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder)) {
+      if (this.createDirectory(this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder)) {
         // if freshly created, create blank layout file & directory, using folder name as layout name
-        this.createLayoutFile(this.config.currentLayoutFolder)
+        this.createLayoutFile(this.appSettings.currentLayoutFolder)
       }
-      this.writeConfig()
+      this.writeAppSettings()
     }
   }
 
@@ -128,11 +137,11 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
 
-
-  // update current config file
+  //
+  // 
   readBackup(layoutName, filename){
     winston.info({message: className + ` readBackup ` + filename });
-    var filePath = path.join(this.userConfigPath, 'layouts', layoutName, 'backups', filename)
+    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', filename)
     winston.debug({message: className + ` readBackup: ` + filePath });
     var file = null
     try{
@@ -143,11 +152,11 @@ class configuration {
     return file
   }
 
-
-  // update current config file
+  //
+  // 
   writeBackup(layoutName, fileName, layoutData, nodeConfig){
     winston.info({message: className + ` writeBackup: ` + fileName });
-    var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
+    var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
     // now create current backup folder if it doesn't exist
     this.createDirectory(backupFolder)
     var filePath = path.join(backupFolder, fileName)
@@ -155,7 +164,7 @@ class configuration {
     try{
       var backup = { 
         timestamp: new Date().toISOString(),
-        systemConfig: this.config,
+        systemConfig: this.appSettings,
         nodeConfig: nodeConfig,
         layoutData: layoutData
       }
@@ -170,8 +179,8 @@ class configuration {
   getListOfBackups(layoutName){
     winston.debug({message: className + `: getListOfBackups:`});
     try{
-      if (this.userConfigPath){
-        var backupFolder = path.join(this.userConfigPath, 'layouts', layoutName, 'backups')
+      if (this.currentUserDirectory){
+        var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
         if (!fs.existsSync(backupFolder)){
           // doesn't exist, so create
           this.createDirectory(backupFolder)      
@@ -217,13 +226,13 @@ class configuration {
   // false if it already existed
   createLayoutFile(name){
     var result = false
-    var layoutPath = this.userConfigPath + '/layouts/' + name + '/'
+    var layoutPath = this.currentUserDirectory + '/layouts/' + name + '/'
     this.createDirectory(layoutPath)
     if (fs.existsSync(layoutPath + 'layoutData.json')) {
       winston.debug({message: className + `: layoutData file exists`});
       result = false
     } else {
-        winston.debug({message: className + `: config file not found - creating new one`});
+        winston.debug({message: className + `: layoutData file not found - creating new one`});
         // use defaultLayoutDetails
         var newLayout = defaultLayoutData
         newLayout.layoutDetails.title = name
@@ -237,25 +246,29 @@ class configuration {
   //
   //
   getListOfLayouts(){
-    winston.debug({message: className + `: get_layout_list:`});
-    if (this.userConfigPath){
-      var list = fs.readdirSync(this.userConfigPath + '/layouts/').filter(function (file) {
-        return fs.statSync(this.userConfigPath + '/layouts/' +file).isDirectory();
-      },(this));
-      winston.debug({message: className + `: get_layout_list: ` + list});
-      return list
+    winston.debug({message: className + `: get_layout_list: ` + this.currentUserDirectory});
+    try{
+      if (this.currentUserDirectory){
+        var list = fs.readdirSync(path.join(this.currentUserDirectory, 'layouts')).filter(function (file) {
+          return fs.statSync(path.join(this.currentUserDirectory, 'layouts', file)).isDirectory();
+        },(this));
+        winston.debug({message: className + `: get_layout_list: ` + list});
+        return list
+      }
+    } catch(err){
+      winston.error({message: className + `: get_layout_list: ` + err});
     }
   }
   deleteLayoutFolder(folder){
     winston.info({message: className + `: deleteLayoutFolder: ` + folder});
     try {
-      if (this.userConfigPath){
+      if (this.currentUserDirectory){
         // check folder name not blank
         if (folder != undefined) {
-          var folderPath = path.join(this.userConfigPath, '/layouts/', folder )
+          var folderPath = path.join(this.currentUserDirectory, '/layouts/', folder )
           fs.rmSync(folderPath, { recursive: true }) 
         }
-        this.writeConfig()
+        this.writeAppSettings()
       }
     } catch (err) {
       winston.error({message: className + ': deleteLayoutFolder: ' + err});
@@ -268,17 +281,17 @@ class configuration {
   readLayoutData(){
     var file = defaultLayoutData // preload with default in case read fails
     // does folder exist?
-    if (this.config.currentLayoutFolder == undefined) {
+    if (this.appSettings.currentLayoutFolder == undefined) {
       winston.info({message: className + `: readLayoutData: currentLayoutFolder undefined`});
-      this.config.currentLayoutFolder = defaultLayoutData.layoutDetails.title
-      this.writeConfig()
+      this.appSettings.currentLayoutFolder = defaultLayoutData.layoutDetails.title
+      this.writeAppSettings()
     }
-    if(this.userConfigPath){
-      var filePath = path.join( this.userConfigPath, "layouts", this.config.currentLayoutFolder)
+    if(this.currentUserDirectory){
+      var filePath = path.join( this.currentUserDirectory, "layouts", this.appSettings.currentLayoutFolder)
       // does layoutData filse exist?
       if (!fs.existsSync(path.join(filePath, "layoutData.json"))){
         // doesn't exist, so create
-        this.createLayoutFile(this.config.currentLayoutFolder)
+        this.createLayoutFile(this.appSettings.currentLayoutFolder)
       }
       // ok, folder & file should now exist - read it
       try{
@@ -287,9 +300,9 @@ class configuration {
       } catch(e){
         winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
         // couldn't read the layout, so get the default layout instead...
-        this.config.currentLayoutFolder = defaultLayoutData.layoutDetails.title
-        this.writeConfig()
-        filePath = path.join(this.userConfigPath, 'layouts', this.config.currentLayoutFolder)
+        this.appSettings.currentLayoutFolder = defaultLayoutData.layoutDetails.title
+        this.writeAppSettings()
+        filePath = path.join(this.currentUserDirectory, 'layouts', this.appSettings.currentLayoutFolder)
         try {
           winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
           file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
@@ -304,7 +317,7 @@ class configuration {
     if (file.layoutDetails == undefined){
       // essential element missing, so rebuild data
       file["layoutDetails"] = defaultLayoutData.layoutDetails
-      file.layoutDetails.title = this.config.currentLayoutFolder
+      file.layoutDetails.title = this.appSettings.currentLayoutFolder
       file.layoutDetails.subTitle = "rebuilt data"
       file["eventDetails"] = {}
       file["nodeDetails"] = {}
@@ -315,8 +328,8 @@ class configuration {
   
   writeLayoutData(data){
     try{
-      if(this.userConfigPath){
-        var filePath = this.userConfigPath + '/layouts/' + this.config.currentLayoutFolder + "/layoutData.json"
+      if(this.currentUserDirectory){
+        var filePath = this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder + "/layoutData.json"
         winston.info({message: className + `: writeLayoutData: ` + filePath});
         jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
       }
@@ -333,14 +346,14 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
 
 
-  // reads/writes nodeConfig file to/from config folder
+  // reads/writes nodeConfig file to/from system directory
   //
   readNodeConfig(){
-    var filePath = this.systemConfigPath + "/nodeConfig.json"
+    var filePath = this.systemDirectory + "/nodeConfig.json"
     return jsonfile.readFileSync(filePath)
   }
   writeNodeConfig(data){
-    var filePath = this.systemConfigPath + "/nodeConfig.json"
+    var filePath = this.systemDirectory + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
@@ -352,15 +365,15 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
 
 
-  // reads/writes the module descriptors currently in use for nodes to/from config folder
+  // reads/writes the module descriptors currently in use for nodes to/from system directory
   //
   readNodeDescriptors(){
-    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
+    var filePath = this.systemDirectory + "/nodeDescriptors.json"
     return jsonfile.readFileSync(filePath)
   }
 
   writeNodeDescriptors(data){
-    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
+    var filePath = this.systemDirectory + "/nodeDescriptors.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
@@ -374,15 +387,15 @@ class configuration {
 
 
   writeModuleDescriptor(data){
-    if (this.userConfigPath){
+    if (this.currentUserDirectory){
       if (data.moduleDescriptorFilename){
         // don't want location in folder copy, in case it's copied
         delete data.moduleDescriptorLocation
         try {
           // always write to user directory - check it exists first
-          if (this.createDirectory(path.join(this.userConfigPath, 'modules')))
+          if (this.createDirectory(path.join(this.currentUserDirectory, 'modules')))
           winston.info({message: className + ': writeModuleDescriptor ' + data.moduleDescriptorFilename})
-          var filePath = path.join(this.userConfigPath, "modules", data.moduleDescriptorFilename)
+          var filePath = path.join(this.currentUserDirectory, "modules", data.moduleDescriptorFilename)
           jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n', flag:'w'})
           // clear cached file list so it gets re-read next time accessed
           this.userModuleDescriptorFileList = []
@@ -397,7 +410,7 @@ class configuration {
 
 
   deleteMDF(filename){
-    var filePath = this.userConfigPath + "/modules/" + filename
+    var filePath = this.currentUserDirectory + "/modules/" + filename
     winston.debug({message: className + `: deleteMDF: ` + filePath});
     try {
       fs.rmSync(filePath) 
@@ -411,10 +424,10 @@ class configuration {
     var moduleDescriptor
     var filePath = undefined
     if (location == 'SYSTEM'){
-      filePath = this.systemConfigPath + "/modules/" + filename
+      filePath = this.systemDirectory + "/modules/" + filename
     }
     else if (location == 'USER'){
-      filePath = this.userConfigPath + "/modules/" + filename
+      filePath = this.currentUserDirectory + "/modules/" + filename
     }
     try {
       winston.debug({message: className + `: getMDF: ` + filePath});
@@ -435,15 +448,15 @@ class configuration {
     winston.info({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})
     var result =[]
     try{
-      if (this.userConfigPath){
+      if (this.currentUserDirectory){
         if (this.userModuleDescriptorFileList.length == 0){
-          this.userModuleDescriptorFileList = fs.readdirSync(path.join(this.userConfigPath, 'modules'))
+          this.userModuleDescriptorFileList = fs.readdirSync(path.join(this.currentUserDirectory, 'modules'))
           winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
         }
       }
-      if (this.systemConfigPath){
+      if (this.systemDirectory){
         if (this.systemModuleDescriptorFileList.length == 0){
-          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemConfigPath, 'modules'))
+          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemDirectory, 'modules'))
           winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
         }
       }
@@ -478,9 +491,9 @@ class configuration {
   getMatchingMDFList(location, match){
     var folder
     if (location.toUpperCase() == "SYSTEM"){
-      folder = path.join(this.systemConfigPath, 'modules')
+      folder = path.join(this.systemDirectory, 'modules')
     } else {
-      folder = path.join(this.userConfigPath, 'modules')
+      folder = path.join(this.currentUserDirectory, 'modules')
     }
     winston.info({message: className + ': getMatchingMDFList: ' + folder + ' ' + match})
     var result =[]
@@ -581,7 +594,7 @@ class configuration {
   // static file, so use fixed location
   //
   readMergConfig(){
-    var filePath = this.systemConfigPath + "/mergConfig.json"
+    var filePath = this.systemDirectory + "/mergConfig.json"
     return jsonfile.readFileSync(filePath)
   }
 
@@ -589,7 +602,7 @@ class configuration {
   // static file, so use fixed location
   //
   readServiceDefinitions(){
-    var filePath = this.systemConfigPath + "/Service_Definitions.json"
+    var filePath = this.systemDirectory + "/Service_Definitions.json"
     return jsonfile.readFileSync(filePath)
   }
   
@@ -597,51 +610,26 @@ class configuration {
 
   //
   //
-  getSerialPort(){return this.config.serialPort}
+  getSerialPort(){return this.appSettings.serialPort}
   setSerialPort(port){
-    this.config.serialPort = port
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    this.appSettings.serialPort = port
+    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
   }
 
   //
   //
-  getCbusServerPort(){return this.config.cbusServerPort}
-  setCbusServerPort(port){
-    this.config.cbusServerPort = port
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
-  }
-
-  //
-  //
-  getJsonServerPort(){return this.config.jsonServerPort}
+  getJsonServerPort(){return this.appSettings.jsonServerPort}
   setJsonServerPort(port){
-    this.config.jsonServerPort = port
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    this.appSettings.jsonServerPort = port
+    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
   }
 
   //
   //
-  getSocketServerPort(){return this.config.socketServerPort}
+  getSocketServerPort(){return this.appSettings.socketServerPort}
   setSocketServerPort(port){  
-    this.config.socketServerPort = port
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
-  }
-
-  //
-  //
-  getServerAddress(){return this.config.serverAddress}
-  setServerAddress(address){  
-    this.config.serverAddress = address
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
-  }
-
-
-  //
-  //
-  getRemoteAddress(){return this.config.remoteAddress}
-  setRemoteAddress(address){  
-    this.config.remoteAddress = address
-    jsonfile.writeFileSync(this.systemConfigPath + '/config.json', this.config, {spaces: 2, EOL: '\r\n'})
+    this.appSettings.socketServerPort = port
+    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
   }
 
 
@@ -666,37 +654,52 @@ class configuration {
   }
 
   createAppStorage(){
-    // create OS based user directories
-    winston.info({message: className + ': createAppStorage: Platform: ' + os.platform()});
-    switch (os.platform()) {
-      case 'win32':
-        this.appStoragePath = path.join("C:/ProgramData", "MMC-SERVER")
-        break;
-      case 'linux':
-        this.appStoragePath = path.join("/srv", "MMC-SERVER")
-        break;
-      case 'darwin':    // MAC O/S
-        this.appStoragePath = path.join("/Library/Application Support", "MMC-SERVER")
-        break;
-      default:
-        this.appStoragePath = path.join("C:/ProgramData", "MMC-SERVER")
-    }
-    this.createDirectory(this.appStoragePath)
-    winston.info({message: className + ': VLCB_SERVER appStoragePath: ' + this.appStoragePath});
-    // also ensure all the expected folders exists in user directory
-    if (this.appStoragePath){
-      this.createDirectory(path.join(this.appStoragePath, 'layouts'))
-      this.createDirectory(path.join(this.appStoragePath, '/modules'))
-      // and default layout exists (creates directory if not there also)
-//      this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+    try{
+      // create OS based user directories
+      winston.info({message: className + ': createAppStorage: Platform: ' + os.platform()});
+      switch (os.platform()) {
+        case 'win32':
+          this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
+          break;
+        case 'linux':
+          this.appStorageDirectory = path.join("/srv", "MMC-SERVER")
+          break;
+        case 'darwin':    // MAC O/S
+          this.appStorageDirectory = path.join("/Library/Application Support", "MMC-SERVER")
+          break;
+        default:
+          this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
+      }
+      winston.info({message: className + ': createAppStorage: Directory: ' + this.appStorageDirectory});
+      // for backwards compatibility, copy from user directory if app storage doesn't yet exist
+      try{
+        if (fs.existsSync(this.appStorageDirectory) == false) {
+          winston.info({message: className + ': no appStorage, look for existing singleUser: ' + this.singleUserDirectory});
+          // try copying from singleUserDirectory 
+          if (fs.existsSync(this.singleUserDirectory)) {
+            fs.cpSync(this.singleUserDirectory, this.appStorageDirectory, {recursive: true} )
+          }
+        }
+      } catch(err){
+        winston.error({message: className + ': copy from singleUser: ' + err});
+      }
+      this.createDirectory(this.appStorageDirectory)
+      winston.info({message: className + ': VLCB_SERVER appStorageDirectory: ' + this.appStorageDirectory});
+      // also ensure all the expected folders exists in user directory
+      if (this.appStorageDirectory){
+        this.createDirectory(path.join(this.appStorageDirectory, 'layouts'))
+        this.createDirectory(path.join(this.appStorageDirectory, '/modules'))
+        // and default layout exists (creates directory if not there also)
+        // this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+      }
+    } catch(err){
+      winston.error({message: className + ': createAppStorage: ' + err});      
     }
   }
 
-  createUserDirectory(userDirectory){
+  createSingleUserDirectory(userDirectory){
     if (userDirectory){
-      // override supplied for user config directory
-      this.userConfigPath = userDirectory
-      this.createDirectory(this.userConfigPath)
+      this.createDirectory(userDirectory)
     } else {
       // create OS based user directories
       const homePath = os.homedir()
@@ -705,55 +708,60 @@ class configuration {
 
       switch (os.platform()) {
         case 'win32':
-          this.userConfigPath = homePath + "/AppData/local/MMC-SERVER"
+          this.singleUserDirectory = homePath + "/AppData/local/MMC-SERVER"
           break;
         case 'linux':
-          this.userConfigPath = homePath + "/MMC-SERVER"
+          this.singleUserDirectory = homePath + "/MMC-SERVER"
           break;
         case 'darwin':    // MAC O/S
-          this.userConfigPath = homePath + "/MMC-SERVER"
+          this.singleUserDirectory = homePath + "/MMC-SERVER"
           break;
         default:
-          this.userConfigPath = homePath + "/MMC-SERVER"
+          this.singleUserDirectory = homePath + "/MMC-SERVER"
         }
-        this.createDirectory(this.userConfigPath)
+        this.createDirectory(this.singleUserDirectory)
     }
-    winston.info({message: className + ': VLCB_SERVER User config path: ' + this.userConfigPath});
+    winston.info({message: className + ': VLCB_SERVER single user directory: ' + this.singleUserDirectory});
     // also ensure all the expected folders exists in user directory
-    if (this.userConfigPath){
-      this.createDirectory(this.userConfigPath + '/layouts')
-      this.createDirectory(this.userConfigPath + '/modules')
+    if (this.singleUserDirectory){
+      this.createDirectory(this.singleUserDirectory + '/layouts')
+      this.createDirectory(this.singleUserDirectory + '/modules')
       // and default layout exists (creates directory if not there also)
       this.createLayoutFile(defaultLayoutData.layoutDetails.title)
     } 
   }
 
-  // return true if config file freshly created
+  // return true if appSettings.json file freshly created
   // false if it already existed
-  createConfigFile(path){
+  createAppSettingsFile(directory){
     var result = false
-    var fullPath = path + '/config.json'
-    if (fs.existsSync(fullPath)) {
-      winston.debug({message: className + `: config file exists`});
-      result = false
-    } else {
-        winston.debug({message: className + `: config file not found - creating new one`});
-        const config = {
-          "serverAddress": "localhost",
-          "cbusServerPort": 5550,
-          "jsonServerPort": 5551,
-          "socketServerPort": 5552,
-          "currentLayoutFolder": "default"
-        }
-        this.config = config
-        jsonfile.writeFileSync(fullPath, config, {spaces: 2, EOL: '\r\n'})
-        result = true
+    try{
+      var fullPath = path.join(directory, 'appSettings.json')
+      if (fs.existsSync(fullPath)) {
+        winston.debug({message: className + `: appSettings file exists`});
+        result = false
+      } else {
+          winston.debug({message: className + `: appSettings file not found - creating new one`});
+          const appSettings = {
+            "serverAddress": "localhost",
+            "jsonServerPort": 5551,
+            "socketServerPort": 5552,
+            "currentLayoutFolder": "default",
+            "userDataMode": "APP",
+            "customUserDirectory": null
+          }
+          this.appSettings = appSettings
+          jsonfile.writeFileSync(fullPath, appSettings, {spaces: 2, EOL: '\r\n'})
+          result = true
+      }
+    } catch(err){
+      winston.error({message: className + `: createAppSettingsFile: ` + err});
     }
     return result
   }
 
 
-}
+} // end class
 
 
 module.exports = ( arg1, arg2 ) => { return new configuration(arg1, arg2) }
