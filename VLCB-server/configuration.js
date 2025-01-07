@@ -112,6 +112,7 @@ class configuration {
     winston.debug({message: className + ` writeAppSettings` });
     // remove older redundant data
     delete this.appSettings.cbusServerPort
+    delete this.appSettings.currentLayoutFolder
     delete this.appSettings.jsonServerPort
     delete this.appSettings.remoteAddress
     delete this.appSettings.serialPort
@@ -218,18 +219,18 @@ class configuration {
 
   //
   //
-  getCurrentLayoutFolder(){return this.appSettings.currentLayoutFolder}
+  getCurrentLayoutFolder(){return this.currentLayoutFolder}
   setCurrentLayoutFolder(folder){
     if (this.currentUserDirectory){
       // check folder name not blank, set to default if so...
       if (folder == undefined) {folder = defaultLayoutData.layoutDetails.title}
-      this.appSettings.currentLayoutFolder = folder
+      this.currentLayoutFolder = folder
       // now create current layout folder if it doesn't exist
-      if (this.createDirectory(this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder)) {
+      if (this.createDirectory(this.currentUserDirectory + '/layouts/' + this.currentLayoutFolder)) {
         // if freshly created, create blank layout file & directory, using folder name as layout name
-        this.createLayoutFile(this.currentUserDirectory, this.appSettings.currentLayoutFolder)
+        this.createLayoutFile(this.currentUserDirectory, this.currentLayoutFolder)
       }
-      this.writeAppSettings()
+//      this.writeAppSettings()
     }
   }
 
@@ -297,17 +298,17 @@ class configuration {
   readLayoutData(){
     var file = defaultLayoutData // preload with default in case read fails
     // does folder exist?
-    if (this.appSettings.currentLayoutFolder == undefined) {
+    if (this.getCurrentLayoutFolder() == undefined) {
       winston.info({message: className + `: readLayoutData: currentLayoutFolder undefined`});
-      this.appSettings.currentLayoutFolder = defaultLayoutData.layoutDetails.title
+      this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
       this.writeAppSettings()
     }
     if(this.currentUserDirectory){
-      var filePath = path.join( this.currentUserDirectory, "layouts", this.appSettings.currentLayoutFolder)
+      var filePath = path.join( this.currentUserDirectory, "layouts", this.getCurrentLayoutFolder())
       // does layoutData filse exist?
       if (!fs.existsSync(path.join(filePath, "layoutData.json"))){
         // doesn't exist, so create
-        this.createLayoutFile(this.currentUserDirectory, this.appSettings.currentLayoutFolder)
+        this.createLayoutFile(this.currentUserDirectory, this.getCurrentLayoutFolder())
       }
       // ok, folder & file should now exist - read it
       try{
@@ -316,15 +317,15 @@ class configuration {
       } catch(e){
         winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
         // couldn't read the layout, so get the default layout instead...
-        this.appSettings.currentLayoutFolder = defaultLayoutData.layoutDetails.title
+        this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
         this.writeAppSettings()
-        filePath = path.join(this.currentUserDirectory, 'layouts', this.appSettings.currentLayoutFolder)
+        filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder())
         try {
           winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
           file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
         } catch(e){
           // ok, totally failed, so load with defaults
-          winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
+          winston.error({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
           winston.info({message: className + `: readLayoutData: defaults loaded`});
           file = defaultLayoutData
         }
@@ -333,7 +334,7 @@ class configuration {
     if (file.layoutDetails == undefined){
       // essential element missing, so rebuild data
       file["layoutDetails"] = defaultLayoutData.layoutDetails
-      file.layoutDetails.title = this.appSettings.currentLayoutFolder
+      file.layoutDetails.title = this.getCurrentLayoutFolder()
       file.layoutDetails.subTitle = "rebuilt data"
       file["eventDetails"] = {}
       file["nodeDetails"] = {}
@@ -345,12 +346,13 @@ class configuration {
   writeLayoutData(data){
     try{
       if(this.currentUserDirectory){
-        var filePath = this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder + "/layoutData.json"
+        var filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder(), "layoutData.json")
         winston.info({message: className + `: writeLayoutData: ` + filePath});
         jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
       }
     } catch (err){
-      winston.info({message: className + `: writeLayoutData: ` + err });
+      winston.error({message: className + `: writeLayoutData: ` + filePath });
+      winston.error({message: className + `: writeLayoutData: ` + err });
     }
   }
 
