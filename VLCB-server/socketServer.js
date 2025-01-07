@@ -31,7 +31,6 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
       node.query_all_nodes()
-//      io.emit('NODES', node.nodeConfig.nodes);
     }
     
     socket.on('ACCESSORY_LONG_OFF', function(data){
@@ -477,7 +476,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
   //*************************************************************************************** */
   //
-  // events from jsonServer
+  // eventBus events
   //
   //*************************************************************************************** */
 
@@ -485,6 +484,12 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     winston.info({message: `socketServer: bus_connection_state: ` + state});
     status.busConnection.state = state
   })
+
+  config.eventBus.on('system_notification', function (text) {
+    winston.info({message: `socketServer: SYSTEM_NOTIFICATION: ` + text});
+    io.emit('SYSTEM_NOTIFICATION', text)
+  })
+
 
 
   //*************************************************************************************** */

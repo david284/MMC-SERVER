@@ -430,16 +430,6 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: END socketServerPort test'});
   })
 
-  //
-  it("serialPort test}", function () {
-    winston.info({message: 'unit_test: BEGIN serialPort test '});
-    config.setSerialPort('COM4');
-    result = config.getSerialPort();
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal('COM4');
-    winston.info({message: 'unit_test: END serialPort test'});
-  })
-
 
   // ensure the following files exist - created at beginning of module
   //                            System:  User:   tests

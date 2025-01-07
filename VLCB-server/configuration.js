@@ -101,7 +101,9 @@ class configuration {
       this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
       winston.info({message: className + ` readAppSettings ` + JSON.stringify(this.appSettings) });
     } catch(err){
-      winston.error({message: className + `: readAppSettings: ` + err});
+      var text = "Failed to load " + path.join(this.appStorageDirectory, 'appSettings.json') + " - check file is valid JSON"
+      winston.error({message: className + `: readAppSettings: ` + text})
+      winston.error({message: className + `: readAppSettings: ` + err})
     }
   }
 
@@ -112,6 +114,7 @@ class configuration {
     delete this.appSettings.cbusServerPort
     delete this.appSettings.jsonServerPort
     delete this.appSettings.remoteAddress
+    delete this.appSettings.serialPort
     delete this.appSettings.serverAddress
     delete this.appSettings.socketServerPort
     try{
@@ -619,15 +622,6 @@ class configuration {
     return jsonfile.readFileSync(filePath)
   }
   
-
-  //
-  //
-  getSerialPort(){return this.appSettings.serialPort}
-  setSerialPort(port){
-    this.appSettings.serialPort = port
-    jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
-  }
-
   //
   //
   getJsonServerPort(){return (this.jsonServerPort != undefined) ? this.jsonServerPort : 5551}
@@ -671,6 +665,18 @@ class configuration {
       switch (os.platform()) {
         case 'win32':
           this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
+          // for backwards compatibility, copy from user directory if app storage doesn't yet exist
+          try{
+            if (fs.existsSync(this.appStorageDirectory) == false) {
+              winston.info({message: className + ': no appStorage, look for existing singleUser: ' + this.singleUserDirectory});
+              // try copying from singleUserDirectory 
+              if (fs.existsSync(this.singleUserDirectory)) {
+                fs.cpSync(this.singleUserDirectory, this.appStorageDirectory, {recursive: true} )
+              }
+            }
+          } catch(err){
+            winston.error({message: className + ': copy from singleUser: ' + err});
+          }
           break;
         case 'linux':
           this.appStorageDirectory = path.join(os.homedir(), "MMC-SERVER")
@@ -682,18 +688,6 @@ class configuration {
           this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
       }
       winston.info({message: className + ': createAppStorage: Directory: ' + this.appStorageDirectory});
-      // for backwards compatibility, copy from user directory if app storage doesn't yet exist
-      try{
-        if (fs.existsSync(this.appStorageDirectory) == false) {
-          winston.info({message: className + ': no appStorage, look for existing singleUser: ' + this.singleUserDirectory});
-          // try copying from singleUserDirectory 
-          if (fs.existsSync(this.singleUserDirectory)) {
-            fs.cpSync(this.singleUserDirectory, this.appStorageDirectory, {recursive: true} )
-          }
-        }
-      } catch(err){
-        winston.error({message: className + ': copy from singleUser: ' + err});
-      }
       this.createDirectory(this.appStorageDirectory)
       winston.info({message: className + ': appStorageDirectory: ' + this.appStorageDirectory});
       // also ensure all the expected folders exists in user directory
@@ -738,38 +732,43 @@ class configuration {
       this.createDirectory(this.singleUserDirectory + '/layouts')
       this.createDirectory(this.singleUserDirectory + '/modules')
       // and default layout exists (creates directory if not there also)
-      this.createLayoutFile(this.appStorageDirectory, defaultLayoutData.layoutDetails.title)
+      this.createLayoutFile(this.singleUserDirectory, defaultLayoutData.layoutDetails.title)
     } 
   }
 
-  // return true if appSettings.json file freshly created
-  // false if it already existed
+  //
+  //
   createAppSettingsFile(directory){
     winston.info({message: className + `: createAppSettingsFile: ` + directory});
-    var result = false
+    var fileNeedsCreating = true
     try{
       var fullPath = path.join(directory, 'appSettings.json')
       if (fs.existsSync(fullPath)) {
         winston.debug({message: className + `: appSettings file exists`});
-        result = false
+        // try to read it, to check it's valid
+        try{
+          this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
+          fileNeedsCreating = false
+        } catch {
+          winston.error({message: className + `: ` + path.join(this.appStorageDirectory , "appSettings.json") + ` file invalid - create new one`});
+          fileNeedsCreating = true 
+        }
       } else {
-          winston.debug({message: className + `: appSettings file not found - creating new one`});
+        winston.debug({message: className + `: appSettings file not present - create new one`});
+      }
+      if(fileNeedsCreating) {
+          winston.debug({message: className + `: creating new appSettings.json`});
           const appSettings = {
-            "serverAddress": "localhost",
-            "jsonServerPort": 5551,
-            "socketServerPort": 5552,
             "currentLayoutFolder": "default",
             "userDataMode": "APP",
             "customUserDirectory": null
           }
           this.appSettings = appSettings
           jsonfile.writeFileSync(fullPath, appSettings, {spaces: 2, EOL: '\r\n'})
-          result = true
       }
     } catch(err){
       winston.error({message: className + `: createAppSettingsFile: ` + err});
     }
-    return result
   }
 
 
