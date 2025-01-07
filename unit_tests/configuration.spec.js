@@ -190,15 +190,6 @@ describe('configuration tests', function(){
   })
 
 
-  //
-  it("configPath test", function () {
-    winston.info({message: 'unit_test: BEGIN configPath test '});
-    result = config.getConfigPath();
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal(testSystemConfigPath);
-    winston.info({message: 'unit_test: END configPath test'});
-  })
-
 
   //
   it("readLayoutData", function (done) {

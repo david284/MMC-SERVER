@@ -334,9 +334,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
           }
         }
 
-        // using expicit (remote) address
-        winston.info({message: name + `: START_CONNECTION: connect JsonServer using local `});
-        await jsonServer.connect(data.getRemoteAddress(), data.getCbusServerPort())
+        // using local inbuilt cbusServer on 5550
+        winston.info({message: name + `: START_CONNECTION: connect JsonServer using in-built cbusServer `});
+        await jsonServer.connect('localhost', 5550)
       }
       await node.connect("localhost", config.getJsonServerPort());
       programNode.setConnection("localhost", config.getJsonServerPort());

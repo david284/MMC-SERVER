@@ -38,10 +38,10 @@ const defaultLayoutData = {
   const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
 
 
-  // In normal use, the userConfigPath is NOT supplied - i.e. only supply systemDirectory
+  // In normal use, the singleUserDirectory is NOT supplied - i.e. only supply systemDirectory
   // the code will create a system specific user directory
   //
-  // userConfigPath is intended to be supplied when unit testing
+  // singleUserDirectory is intended to be supplied when unit testing
   // to avoid polluting the user directory
 
 class configuration {
@@ -71,8 +71,8 @@ class configuration {
       // will set appStorageDirectory
       this.createAppStorage()
       this.createAppSettingsFile(this.appStorageDirectory)
-      // now read appSettings, as its content may affect subsequent actions
-      this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
+      // now read appSettings from AppStorage, as its content may affect subsequent actions
+      this.readAppSettings()
       //
       this.systemDirectory = systemDirectory
       this.createDirectory(systemDirectory)
@@ -80,23 +80,29 @@ class configuration {
       if (this.appSettings.userDataMode == 'CUSTOM' ){ this.currentUserDirectory = this.appSettings.customUserDirectory }
       else if (this.appSettings.userDataMode == 'USER' ){ this.currentUserDirectory = this.singleUserDirectory }
       else { this.currentUserDirectory = this.appStorageDirectory }    
+      winston.info({message: className + `: currentUserDirectory: ` + this.currentUserDirectory});
+      // and default layout exists (creates directory if not there also)
+      this.createLayoutFile(this.currentUserDirectory, defaultLayoutData.layoutDetails.title)
     } catch (err){
       winston.error({message:  name + ': createDirectories: '+ err});
     }
   }
 
 
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // appSettings methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
 
-  // this value set by constructor, so no need for a 'set' method
-  // 
-  getConfigPath(){ 
-    // check if directory exists
-    if (fs.existsSync(this.systemDirectory)) {
-      winston.info({message: className + `: getConfigPath: ` + this.systemDirectory});
-    } else {
-      winston.error({message: className + `: getConfigPath: Directory does not exist ` + this.systemDirectory});
+  readAppSettings(){
+    winston.info({message: className + ` readAppSettings` });
+    try{
+      this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
+      winston.info({message: className + ` readAppSettings ` + JSON.stringify(this.appSettings) });
+    } catch(err){
+      winston.error({message: className + `: readAppSettings: ` + err});
     }
-    return this.systemDirectory
   }
 
   // update current appSettings file
@@ -112,23 +118,6 @@ class configuration {
       jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
     } catch(err){
       winston.info({message: className + `: writeAppSettings: ` + err});
-    }
-  }
-
-  //
-  //
-  getCurrentLayoutFolder(){return this.appSettings.currentLayoutFolder}
-  setCurrentLayoutFolder(folder){
-    if (this.currentUserDirectory){
-      // check folder name not blank, set to default if so...
-      if (folder == undefined) {folder = defaultLayoutData.layoutDetails.title}
-      this.appSettings.currentLayoutFolder = folder
-      // now create current layout folder if it doesn't exist
-      if (this.createDirectory(this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder)) {
-        // if freshly created, create blank layout file & directory, using folder name as layout name
-        this.createLayoutFile(this.appSettings.currentLayoutFolder)
-      }
-      this.writeAppSettings()
     }
   }
 
@@ -224,22 +213,44 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
 
 
+  //
+  //
+  getCurrentLayoutFolder(){return this.appSettings.currentLayoutFolder}
+  setCurrentLayoutFolder(folder){
+    if (this.currentUserDirectory){
+      // check folder name not blank, set to default if so...
+      if (folder == undefined) {folder = defaultLayoutData.layoutDetails.title}
+      this.appSettings.currentLayoutFolder = folder
+      // now create current layout folder if it doesn't exist
+      if (this.createDirectory(this.currentUserDirectory + '/layouts/' + this.appSettings.currentLayoutFolder)) {
+        // if freshly created, create blank layout file & directory, using folder name as layout name
+        this.createLayoutFile(this.currentUserDirectory, this.appSettings.currentLayoutFolder)
+      }
+      this.writeAppSettings()
+    }
+  }
+
+
   // return true if default layout freshly created
   // false if it already existed
-  createLayoutFile(name){
+  createLayoutFile(directory, name){
+    winston.debug({message: className + `: createLayoutFile: ` + directory + ' ' + name});      
     var result = false
-    var layoutPath = this.currentUserDirectory + '/layouts/' + name + '/'
-    this.createDirectory(layoutPath)
-    if (fs.existsSync(layoutPath + 'layoutData.json')) {
-      winston.debug({message: className + `: layoutData file exists`});
-      result = false
-    } else {
-        winston.debug({message: className + `: layoutData file not found - creating new one`});
-        // use defaultLayoutDetails
-        var newLayout = defaultLayoutData
-        newLayout.layoutDetails.title = name
-        jsonfile.writeFileSync(layoutPath + 'layoutData.json', newLayout, {spaces: 2, EOL: '\r\n'})
-        result = true
+    try{
+      this.createDirectory(path.join(directory, 'layouts'))
+      if (fs.existsSync(path.join(directory, 'layouts', name, 'layoutData.json'))) {
+        winston.debug({message: className + `: layoutData file exists`});
+        result = false
+      } else {
+          winston.debug({message: className + `: layoutData file not found - creating new one`});
+          // use defaultLayoutDetails
+          var newLayout = defaultLayoutData
+          newLayout.layoutDetails.title = name
+          jsonfile.writeFileSync(path.join(directory, 'layouts', name, 'layoutData.json'), newLayout, {spaces: 2, EOL: '\r\n'})
+          result = true
+      }
+    } catch(err){
+      winston.debug({message: className + `: createLayoutFile: ` + err});      
     }
     return result
   }
@@ -293,7 +304,7 @@ class configuration {
       // does layoutData filse exist?
       if (!fs.existsSync(path.join(filePath, "layoutData.json"))){
         // doesn't exist, so create
-        this.createLayoutFile(this.appSettings.currentLayoutFolder)
+        this.createLayoutFile(this.currentUserDirectory, this.appSettings.currentLayoutFolder)
       }
       // ok, folder & file should now exist - read it
       try{
@@ -640,10 +651,10 @@ class configuration {
     try {
       // check if directory exists
       if (fs.existsSync(directory)) {
-          winston.info({message: className + `: createDirectory: ` + directory + ` Directory exists`});
+          winston.debug({message: className + `: createDirectory: ` + directory + ` Directory exists`});
           result = false
         } else {
-          winston.info({message: className + `: createDirectory: ` + directory + ` Directory not found - creating new one`});
+          winston.debug({message: className + `: createDirectory: ` + directory + ` Directory not found - creating new one`});
           fs.mkdirSync(directory, { recursive: true })
           result = true
       } 
@@ -662,10 +673,10 @@ class configuration {
           this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
           break;
         case 'linux':
-          this.appStorageDirectory = path.join("/srv", "MMC-SERVER")
+          this.appStorageDirectory = path.join(os.homedir(), "MMC-SERVER")
           break;
         case 'darwin':    // MAC O/S
-          this.appStorageDirectory = path.join("/Library/Application Support", "MMC-SERVER")
+          this.appStorageDirectory = path.join(os.homedir(), "MMC-SERVER")
           break;
         default:
           this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
@@ -684,13 +695,13 @@ class configuration {
         winston.error({message: className + ': copy from singleUser: ' + err});
       }
       this.createDirectory(this.appStorageDirectory)
-      winston.info({message: className + ': VLCB_SERVER appStorageDirectory: ' + this.appStorageDirectory});
+      winston.info({message: className + ': appStorageDirectory: ' + this.appStorageDirectory});
       // also ensure all the expected folders exists in user directory
       if (this.appStorageDirectory){
         this.createDirectory(path.join(this.appStorageDirectory, 'layouts'))
         this.createDirectory(path.join(this.appStorageDirectory, '/modules'))
         // and default layout exists (creates directory if not there also)
-        // this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+        this.createLayoutFile(this.appStorageDirectory, defaultLayoutData.layoutDetails.title)
       }
     } catch(err){
       winston.error({message: className + ': createAppStorage: ' + err});      
@@ -721,19 +732,20 @@ class configuration {
         }
         this.createDirectory(this.singleUserDirectory)
     }
-    winston.info({message: className + ': VLCB_SERVER single user directory: ' + this.singleUserDirectory});
+    winston.info({message: className + ': singleUserDirectory: ' + this.singleUserDirectory});
     // also ensure all the expected folders exists in user directory
     if (this.singleUserDirectory){
       this.createDirectory(this.singleUserDirectory + '/layouts')
       this.createDirectory(this.singleUserDirectory + '/modules')
       // and default layout exists (creates directory if not there also)
-      this.createLayoutFile(defaultLayoutData.layoutDetails.title)
+      this.createLayoutFile(this.appStorageDirectory, defaultLayoutData.layoutDetails.title)
     } 
   }
 
   // return true if appSettings.json file freshly created
   // false if it already existed
   createAppSettingsFile(directory){
+    winston.info({message: className + `: createAppSettingsFile: ` + directory});
     var result = false
     try{
       var fullPath = path.join(directory, 'appSettings.json')
