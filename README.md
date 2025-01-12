@@ -17,8 +17,8 @@ In principal, another machine could be a tablet or mobile on the same network, b
 The following is needed to run the application from the github project
 
 1. Node.js - see Node.js section
-2. a connection to the device to be tested  - see Connection section
-3. this application - see installation section
+2. this application - see installation section
+3. a connection to the device to be tested  - see Connection section
 
 ## Node.js
 This application requires Node.js (& npm) to run   
@@ -28,28 +28,24 @@ Get Node.js from -> https://nodejs.org/en/download/package-manager/
 
 ## Installation:
 Once Node.js is installed, clone the application, or take the zip file, & extract to your location of choice   
-Use the green 'code' button near the top of this page   
-(cloning is recommended, as it's easier to update)
+Use the green 'code' button near the top of this page
+See the [Git Cloning](GitCloning.md) page for more about cloning a repository
 
-After the repo is cloned locally, at the root of the repo, run 'npm install' to load all dependancies - this may take a little while
+In the folder where MMC is cloned or copied locally, at the command line run 'npm install' to load all dependancies - this may take a little while, so please be patient
 
 On windows, once installed, if you then get npm failing to run (I get mixed '\' and '/' trying to load files),  you may need to "Set the npm run shell" by running the following
 	npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"   
 Original source for this fix -> https://digipie.github.io/digidocs/nodejs/set-npm-run-shell/
 
 ## Connection
-A startup dialog will expect a layout to be selected before the 'proceed' option can be clicked 
-By default, the application will attempt to automatically find a CANUSB or CANUSB4 device connected via USB, and then use that to connect to the CANBUS network
-There is an INFO button on the startup dialog that provides more information
-
-For testing purposes, there is a software simulation of a CBUS network available, again using the 'network' option, 
-which avoids the need for any other physical hardware   
-This application provides a simulation of multiple modules on a VLCB network, and has been used to test operation of this conformance test   
-https://github.com/david284/CbusNetworkSimulator.git
+On startup, a dialog will be displayed, expecting a layout to be selected before the 'proceed' option can be clicked
+A default layout will be created if none exist, but it's recommended that an appropriately named layout is created. Multiple layouts can be created, each with their own configuration & data (names & groups etc..) 
+By default, layouts will be set to 'auto', which will attempt to automatically find a CANUSB or CANUSB4 device connected via USB, and then use that to connect to the CANBUS network
+There is an INFO button on the startup dialog that provides more information on the options that can be selected
 
 ## Execution:
 To run the app, use 'npm start' at the command line
-The program will open a web page using the default web browser
+The program will open a web page using the default web browser, and the 'startup' dialog displayed as mentioned above
 
 # 'user' data
 Data entered by the user, such as the user configured layouts and the associated names & groups, are stored independently of the application, so upgrading or moving the application won't lose this information
@@ -61,4 +57,9 @@ Unfortunately, it no longer works
 It is likely my ignorance of this, but I found it difficult to create, and had reports of others not being able to use it
 I would welcome any help from anyone who has experience in creating installable nodejs applications
 
+# testing
+For testing purposes, there is a software simulation of a CBUS network available, again using the 'network' option, 
+which avoids the need for any other physical hardware   
+This application provides a simulation of multiple modules on a VLCB network, and has been used to test operation of this conformance test   
+https://github.com/david284/CbusNetworkSimulator.git
 
