@@ -51,6 +51,9 @@ https://github.com/david284/CbusNetworkSimulator.git
 To run the app, use 'npm start' at the command line
 The program will open a web page using the default web browser
 
+# 'user' data
+Data entered by the user, such as the user configured layouts and the associated names & groups, are stored independently of the application, so upgrading or moving the application won't lose this information
+See the [User Data](UserData.md) page for information about how user data is stored
 
 # Pre-Built version of MMC
 There was a pre-built version of MMC for windows only, using NW.js (previously known as node-webkit)

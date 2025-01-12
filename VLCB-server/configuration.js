@@ -37,25 +37,28 @@ const defaultLayoutData = {
 
   const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
 
-
-  // In normal use, the singleUserDirectory is NOT supplied - i.e. only supply systemDirectory
-  // the code will create a system specific user directory
   //
-  // singleUserDirectory is intended to be supplied when unit testing
-  // to avoid polluting the user directory
+  // Application settings are stored in the appSettings.json file
+  // This is stored in the 'appStorageDirectory' which is OS dependant
+  //
+  // The code will use two directories for other data storage,
+  // A system directory in the application folder
+  // And a 'user' directory, independant of the application folder, so it's not overwritten on an update
+  // The 'user' directory is dependant on the OS userDataMode setting
+  // and the OS in use
+  //
 
 class configuration {
 
-  constructor(systemDirectory, singleUserDirectory) {
+  constructor(systemDirectory) {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
-		winston.debug({message:  '--- user path: ' + singleUserDirectory});
     this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
-    this.createDirectories(systemDirectory, singleUserDirectory)
+    this.createDirectories(systemDirectory)
     winston.debug({message:  name + ': appSettings: '+ JSON.stringify(this.appSettings)});
 	} // end constructor
 
@@ -63,10 +66,10 @@ class configuration {
   // Attempt to create all directories needed
   // should only create (& populate if appropriate) if directory doesn't exist
   //
-  createDirectories(systemDirectory, singleUserDirectory){
+  createDirectories(systemDirectory){
     // create a single user directory, based on OS platform
     try{
-      this.createSingleUserDirectory(singleUserDirectory)
+      this.createSingleUserDirectory()
       // Create appStorage & create appSettings file is either don't exist
       // will set appStorageDirectory
       this.createAppStorage()
@@ -100,6 +103,12 @@ class configuration {
     try{
       this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
       winston.info({message: className + ` readAppSettings ` + JSON.stringify(this.appSettings) });
+      if(this.appSettings.userDataMode == undefined){
+        // likely to be old file, so ensure newer settings are present & write it back
+        this.appSettings.userDataMode = 'APP'
+        this.appSettings.customUserDirectory = ''
+        writeAppSettings()
+      }
     } catch(err){
       var text = "Failed to load " + path.join(this.appStorageDirectory, 'appSettings.json') + " - check file is valid JSON"
       winston.error({message: className + `: readAppSettings: ` + text})
@@ -704,30 +713,25 @@ class configuration {
     }
   }
 
-  createSingleUserDirectory(userDirectory){
-    if (userDirectory){
-      this.createDirectory(userDirectory)
-    } else {
-      // create OS based user directories
-      const homePath = os.homedir()
-      winston.info({message: className + ': Platform: ' + os.platform()});
-      winston.info({message: className + ': User home directory: ' + homePath});
-
-      switch (os.platform()) {
-        case 'win32':
-          this.singleUserDirectory = homePath + "/AppData/local/MMC-SERVER"
-          break;
-        case 'linux':
-          this.singleUserDirectory = homePath + "/MMC-SERVER"
-          break;
-        case 'darwin':    // MAC O/S
-          this.singleUserDirectory = homePath + "/MMC-SERVER"
-          break;
-        default:
-          this.singleUserDirectory = homePath + "/MMC-SERVER"
-        }
-        this.createDirectory(this.singleUserDirectory)
+  createSingleUserDirectory(){
+    // create OS based user directories
+    const homePath = os.homedir()
+    winston.info({message: className + ': Platform: ' + os.platform()});
+    winston.info({message: className + ': User home directory: ' + homePath});
+    switch (os.platform()) {
+      case 'win32':
+        this.singleUserDirectory = homePath + "/AppData/local/MMC-SERVER"
+        break;
+      case 'linux':
+        this.singleUserDirectory = homePath + "/MMC-SERVER"
+        break;
+      case 'darwin':    // MAC O/S
+        this.singleUserDirectory = homePath + "/MMC-SERVER"
+        break;
+      default:
+        this.singleUserDirectory = homePath + "/MMC-SERVER"
     }
+    this.createDirectory(this.singleUserDirectory)
     winston.info({message: className + ': singleUserDirectory: ' + this.singleUserDirectory});
     // also ensure all the expected folders exists in user directory
     if (this.singleUserDirectory){

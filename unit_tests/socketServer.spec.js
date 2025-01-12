@@ -21,7 +21,10 @@ const socketServer = require('../VLCB-server/socketServer.js')
 
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
+const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+// override direectories set in configuration constructor
+config.singleUserDirectory = testUserConfigPath
+config.currentUserDirectory = config.singleUserDirectory
 
 // set config items
 config.setJsonServerPort(5571);

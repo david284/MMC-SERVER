@@ -26,8 +26,10 @@ fs.rmSync(path.join(testSystemConfigPath, 'modules'), { recursive: true, force: 
 winston.info({message: 'Deleting user path ' + testUserConfigPath});
 fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
+const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+//const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
+// override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
 
@@ -465,17 +467,6 @@ describe('configuration tests', function(){
     return testCases;
   }
 
-/*
-  //
-  itParam("getMatchingModuleDescriptorFileOLD test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFileOLD test '});
-
-    result = config.getMatchingModuleDescriptorFileOLD(value.moduleIdentifier, value.version, value.processorType);
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal(value.result);
-    winston.info({message: 'unit_test: END getMatchingModuleDescriptorFileOLD test'});
-  })
-*/
 
   //
   itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
