@@ -119,14 +119,6 @@ class configuration {
   // update current appSettings file
   writeAppSettings(){
     winston.debug({message: className + ` writeAppSettings` });
-    // remove older redundant data
-    delete this.appSettings.cbusServerPort
-    delete this.appSettings.currentLayoutFolder
-    delete this.appSettings.jsonServerPort
-    delete this.appSettings.remoteAddress
-    delete this.appSettings.serialPort
-    delete this.appSettings.serverAddress
-    delete this.appSettings.socketServerPort
     try{
       jsonfile.writeFileSync(path.join(this.appStorageDirectory, 'appSettings.json'), this.appSettings, {spaces: 2, EOL: '\r\n'})
     } catch(err){
@@ -239,7 +231,6 @@ class configuration {
         // if freshly created, create blank layout file & directory, using folder name as layout name
         this.createLayoutFile(this.currentUserDirectory, this.currentLayoutFolder)
       }
-//      this.writeAppSettings()
     }
   }
 
@@ -294,7 +285,6 @@ class configuration {
           var folderPath = path.join(this.currentUserDirectory, '/layouts/', folder )
           fs.rmSync(folderPath, { recursive: true }) 
         }
-        this.writeAppSettings()
       }
     } catch (err) {
       winston.error({message: className + ': deleteLayoutFolder: ' + err});
@@ -310,7 +300,6 @@ class configuration {
     if (this.getCurrentLayoutFolder() == undefined) {
       winston.info({message: className + `: readLayoutData: currentLayoutFolder undefined`});
       this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
-      this.writeAppSettings()
     }
     if(this.currentUserDirectory){
       var filePath = path.join( this.currentUserDirectory, "layouts", this.getCurrentLayoutFolder())
@@ -327,7 +316,6 @@ class configuration {
         winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
         // couldn't read the layout, so get the default layout instead...
         this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
-        this.writeAppSettings()
         filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder())
         try {
           winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
@@ -765,7 +753,6 @@ class configuration {
       if(fileNeedsCreating) {
           winston.debug({message: className + `: creating new appSettings.json`});
           const appSettings = {
-            "currentLayoutFolder": "default",
             "userDataMode": "APP",
             "customUserDirectory": null
           }
