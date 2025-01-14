@@ -12,7 +12,8 @@ But for the other platforms, the 'user' data is specific to the user thats signe
 
 ### appSettings.json
 
-For normal operation this is expected to be transparent to the user, however it is also possible to change this to a custom location (even a different drive), using a `"customUserDirectory"` setting - but this should be treated as an 'advanced' level option
+For the majority of installs, where the user data is stored is expected to be transparent to the end user  
+However it is also possible to change this to a custom location (even a different drive), using a `"customUserDirectory"` setting - but this should be treated as an 'advanced' level option
 
 In the appSettings.json file there is a `"userDataMode"` setting - by default this is 'APP', and the user data will be stored as described above  
 Hoever, if this userDataMode setting is changed to 'CUSTOM', then the MMC will expect a `“customUserDirectory"` setting in the appSettings.json file, which would point to this new location
