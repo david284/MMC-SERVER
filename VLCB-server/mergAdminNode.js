@@ -300,6 +300,8 @@ class cbusAdmin extends EventEmitter {
             } else {
               this.createNodeConfig(cbusMsg.nodeNumber)
             }
+            // store the timestamp
+            this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
             this.nodeConfig.nodes[nodeNumber].status = true
             this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
             this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
@@ -451,6 +453,7 @@ class cbusAdmin extends EventEmitter {
         winston.info({message: `mergAdminNode: Connected - ${host} on port ${port}`});
       })
       await utils.sleep(100)
+      this.addLayoutNodes(this.config.readLayoutData())
       this.query_all_nodes()
     }
 
@@ -608,7 +611,7 @@ class cbusAdmin extends EventEmitter {
           "eventCount": 0,
           "services": {},
           "moduleName": 'Unknown',
-          "lastReceiveTimestamp": Date.now()
+          "lastReceiveTimestamp": undefined
       }
       this.nodeConfig.nodes[nodeNumber] = output
       winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
@@ -975,6 +978,16 @@ class cbusAdmin extends EventEmitter {
 // in alphabetical order
 //
 //************************************************************************ */
+
+  async addLayoutNodes(layoutData){
+    winston.info({message: name + ': addLayoutNodes'});
+    for (let nodeNumber in layoutData.nodeDetails) {
+      if (nodeNumber != 'undefined'){
+        winston.info({message: name + ': addLayoutNodes ' + nodeNumber});
+        this.createNodeConfig(nodeNumber)
+      }
+    }
+  }
 
   async query_all_nodes(){
     winston.info({message: name + ': query_all_nodes'});
