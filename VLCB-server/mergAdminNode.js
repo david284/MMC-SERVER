@@ -502,7 +502,7 @@ class cbusAdmin extends EventEmitter {
         if (cbusMsg.nodeNumber){
           if (cbusMsg.mnemonic != "PNN"){
             // if the message has a node number, update status
-            // but not if PNN, as that does the same thing
+            // but not if PNN, as it's nodeConfig won't exist, and don't want to request duplicate info
             // but this might have been a node added without doing a refresh
             this.updateNodeStatus(cbusMsg.nodeNumber)
           }
@@ -522,23 +522,19 @@ class cbusAdmin extends EventEmitter {
     }
 
     // updated status on received message from Node
-    // create node if we don't aleady have it
+    // creates node if we don't aleady have it
+    // but don't call on PNN, as PNN will create the node & gets the minimum params anyway
+    // and we'd be generating 3 unnecessary commands if we did
     //
     updateNodeStatus(nodeNumber){
       var updated = false
-      // if node doesn't exist, create it & request minimum params (same as PNN delivers)
+      // if node doesn't exist, create it & request minimum params
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
         this.createNodeConfig(nodeNumber)
-        // get flags (param 8) as needed as a minimum
-        if (this.nodeConfig.nodes[nodeNumber].parameters[8]){
-          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))
-        }
-        if (this.nodeConfig.nodes[nodeNumber].parameters[1]){
-          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))
-        }
-        if (this.nodeConfig.nodes[nodeNumber].parameters[3]){
-          this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))
-        }
+        // get param 8, 1 & 3 as needed as a minimum if new node
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))   // flags
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))   // ManufacturerID
+        this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))   // ModuleID
         updated = true
       }
       // if status wasn't true, change it & mark as needs updating
@@ -610,7 +606,6 @@ class cbusAdmin extends EventEmitter {
           "status": true,
           "eventCount": 0,
           "services": {},
-          "moduleName": 'Unknown',
           "lastReceiveTimestamp": undefined
       }
       this.nodeConfig.nodes[nodeNumber] = output
