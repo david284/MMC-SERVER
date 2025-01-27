@@ -135,6 +135,21 @@ class configuration {
 
   //
   // 
+  deleteBackup(layoutName, filename){
+    winston.info({message: className + ` deleteBackup ` + filename });
+    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', filename)
+    winston.debug({message: className + ` deleteBackup: ` + filePath });
+    var file = null
+    try{
+      fs.rmSync(filePath, { recursive: true }) 
+    } catch(err){
+      winston.info({message: className + `: deleteBackup: ` + err});
+    }
+    return file
+  }
+
+  //
+  // 
   readBackup(layoutName, filename){
     winston.info({message: className + ` readBackup ` + filename });
     var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', filename)

@@ -33,6 +33,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.query_all_nodes()
     }
     
+    //
+    //
     socket.on('ACCESSORY_LONG_OFF', function(data){
       winston.info({message: name + `: ACCESSORY_LONG_OFF ${JSON.stringify(data)}`});
       if (data) { 
@@ -44,6 +46,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('ACCESSORY_LONG_ON', function(data){
       winston.info({message: name + `: ACCESSORY_LONG_ON ${JSON.stringify(data)}`});
       if (data) { 
@@ -55,6 +59,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('ACCESSORY_SHORT_OFF', function(data){
       winston.info({message: `socketServer: ACCESSORY_SHORT_OFF ${JSON.stringify(data)}`});
       if (data) { 
@@ -66,6 +72,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('ACCESSORY_SHORT_ON', function(data){
       winston.info({message: `socketServer: ACCESSORY_SHORT_ON ${JSON.stringify(data)}`});
       if (data) { 
@@ -77,11 +85,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('CANID_ENUM', function(nodeNumber){
       winston.info({message: name + `:  CANID_ENUM ${nodeNumber}`});
       node.CBUS_Queue.push(node.ENUM(nodeNumber))
     })
 
+    //
+    //
     socket.on('CHANGE_LAYOUT', function(data){
       winston.info({message: `socketServer: CHANGE_LAYOUT ` + JSON.stringify(data)});
       if (data.userPath){
@@ -94,21 +106,29 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       io.emit('LAYOUT_DATA', config.readLayoutData())
     })
 
+    //
+    //
     socket.on('CLEAR_CBUS_ERRORS', function(){
       winston.info({message: `socketServer: CLEAR_CBUS_ERRORS`});
       node.clearCbusErrors();
     })
       
+    //
+    //
     socket.on('CLEAR_BUS_EVENTS', function(){
       winston.info({message: `socketServer: CLEAR_BUS_EVENTS`});
       node.clearEvents();
     })
 
+    //
+    //
     socket.on('CLEAR_NODE_EVENTS', function(data){
       winston.info({message: `socketServer: CLEAR_NODE_EVENTS ${data.nodeNumber}`});
       node.removeNodeEvents(data.nodeNumber);
     })
 
+    //
+    //
     socket.on('DELETE_ALL_EVENTS', async function(data){
       winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
       await node.delete_all_events(data.nodeNumber)
@@ -116,16 +136,29 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       await node.request_all_node_events(data.nodeNumber) // now refresh
     })
 
+    //
+    //
+    socket.on('DELETE_BACKUP', function(data){
+      winston.info({message: name + `: DELETE_BACKUP ${JSON.stringify(data)}`});
+      config.deleteBackup(data.layoutName, data.fileName)
+    })
+
+    //
+    //
     socket.on('DELETE_LAYOUT', function(data){
       winston.info({message: name + `: DELETE_LAYOUT ${JSON.stringify(data.layoutName)}`});
       config.deleteLayoutFolder(data.layoutName)
     })
 
+    //
+    //
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
       await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
     })
 
+    //
+    //
     socket.on('IMPORT_MODULE_DESCRIPTOR', function(data){
       var filename = data.moduleDescriptor.moduleDescriptorFilename
       winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR ' + data.nodeNumber + ' ' + filename});
@@ -138,16 +171,22 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('PROGRAM_NODE', function(data){
       winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
       programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
     })
 
+    //
+    //
     socket.on('QUERY_ALL_NODES', function(){
       winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
       node.query_all_nodes()
     })
 
+    //
+    //
     socket.on('REMOVE_EVENT', async function(data){
       winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
       await node.event_unlearn(data.nodeNumber, data.eventName)
@@ -155,6 +194,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       await node.request_all_node_events(data.nodeNumber) // now refresh
     })
 
+    //
+    //
     socket.on('REMOVE_NODE', function(nodeNumber){
       winston.info({message: `socketServer: REMOVE_NODE ${nodeNumber}`});
       if (nodeNumber != undefined){
@@ -162,11 +203,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
       node.requestEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
     })
 
+    //
+    //
     socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
       winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
       if (data.nodeNumber != undefined){
@@ -174,11 +219,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       }
     })
 
+    //
+    //
     socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
       winston.info({message: `socketServer:  REQUEST_ALL_NODE_PARAMETERS ${JSON.stringify(data)}`});
       node.request_all_node_parameters(data.nodeNumber)
     })
 
+    //
+    //
     socket.on('REQUEST_ALL_NODE_VARIABLES', function(data){
       winston.info({message: `socketServer:  REQUEST_ALL_NODE_VARIABLES ${JSON.stringify(data)}`})
       if (data.start === undefined) {
@@ -187,6 +236,17 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.request_all_node_variables(data.nodeNumber, data.start)
     })
 
+    //
+    //
+    socket.on('REQUEST_BACKUP', function(data){
+      winston.info({message: name + `: REQUEST_BACKUP ` + JSON.stringify(data)});
+      const backup = config.readBackup(data.layoutName, data.fileName)
+      io.emit('RESTORED_DATA', backup)
+      winston.info({message: `socketServer: sent RESTORED_DATA`});
+    })
+
+    //
+    //
     socket.on('REQUEST_BACKUPS_LIST', function(data){
       winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
       const backups_list = config.getListOfBackups(data.layoutName)
@@ -194,33 +254,43 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: sent BACKUPS_LIST ` + backups_list});
     })
 
+    //
+    //
     socket.on('REQUEST_BUS_CONNECTION', function(){
-//      winston.debug({message: `socketServer: REQUEST_BUS_CONNECTION`});
       io.emit('BUS_CONNECTION', status.busConnection)
-//      winston.debug({message: `socketServer: sent BUS_CONNECTION`});
     })
 
+    //
+    //
     socket.on('REQUEST_BUS_EVENTS', function(){
       winston.info({message: `socketServer: REQUEST_BUS_EVENTS`});
       node.refreshEvents();
     })
 
+    //
+    //
     socket.on('REQUEST_DIAGNOSTICS', function(data){
       winston.info({message: `socketServer:  REQUEST_DIAGNOSTICS ${JSON.stringify(data)}`});
       if (data.serviceIndex == undefined){data.serviceIndex = 0;}
       node.CBUS_Queue.push(node.RDGN(data.nodeNumber, data.serviceIndex, 0))
     })
 
+    //
+    //
     socket.on('REQUEST_EVENT_VARIABLE', function(data){
       winston.info({message: `socketServer: REQUEST_EVENT_VARIABLE ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.REVAL(data.nodeNumber, data.eventIndex, data.eventVariableId))
     })
 
+    //
+    //
     socket.on('REQUEST_LAYOUT_DATA', function(){
       winston.info({message: `socketServer: REQUEST_LAYOUT_DATA`});
       io.emit('LAYOUT_DATA', config.readLayoutData())
     })
 
+    //
+    //
     socket.on('REQUEST_LAYOUTS_LIST', function(){
       winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
       const layout_list = config.getListOfLayouts()
@@ -228,22 +298,29 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: sent LAYOUTS_LIST ` + layout_list});
     })
 
+    //
+    //
     socket.on('REQUEST_NODE_VARIABLE', function(data){
       winston.info({message: `socketServer:  REQUEST_NODE_VARIABLE ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
     })
 
+    //
+    //
     socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
       winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.RQSD(data.nodeNumber, 0))
     })
 
+    //
+    //
     socket.on('REQUEST_SERVER_STATUS', function(){
     //      winston.debug({message: `socketServer: REQUEST_SERVER_STATUS`});
       send_SERVER_STATUS(config, status)
     })
       
-
+    //
+    //
     socket.on('REQUEST_MATCHING_MDF_LIST', function(data){
       winston.info({message: `socketServer:  REQUEST_MATCHING_MDF_LIST: ` + data.location})
       // uses synchronous file system calls
@@ -251,7 +328,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       io.emit('MATCHING_MDF_LIST', data.location, data.nodeNumber, config.getMatchingMDFList(data.location, match))
     })
 
-
+    //
+    //
     socket.on('REQUEST_MDF_EXPORT', function(data){
       winston.info({message: `socketServer:  REQUEST_MDF_EXPORT: ` + data.location + ' ' + data.filename})
       // uses synchronous file system calls
@@ -260,7 +338,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: name + `: emit MDF_EXPORT ${data.location} ${data.filename}`});
     })
 
-
+    //
+    //
     socket.on('REQUEST_MDF_DELETE', function(data){
       winston.info({message: `socketServer:  REQUEST_MDF_DELETE: ` + data.filename})
       // uses synchronous file system calls
@@ -268,13 +347,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.refreshNodeDescriptors()   // force refresh
     })
 
-
+    //
+    //
     socket.on('REQUEST_NODE_DESCRIPTOR', function(data){
       winston.info({message: `socketServer:  REQUEST_NODE_DESCRIPTOR: ` + data.nodeNumber})
       // uses synchronous file system calls
     })
 
-
+    //
+    //
     socket.on('REQUEST_VERSION', function(){
       winston.info({message: `socketServer: REQUEST_VERSION`});
       let version = {
@@ -286,32 +367,44 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer: sent VERSION ${JSON.stringify(version)}`});
     })
 
+    //
+    //
     socket.on('RESET_NODE', function(nodeNumber){
       winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
       node.CBUS_Queue.push(node.NNRST(nodeNumber))
     })
 
+    //
+    //
     socket.on('RQNPN', function(data){ //Request Node Parameter
       winston.info({message: `socketServer:  RQNPN ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.RQNPN(data.nodeNumber, data.parameter))
     })
 
+    //
+    //
     socket.on('SAVE_BACKUP', function(data){ //save backup
       winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
       config.writeBackup(data.layoutName, data.fileName, data.layout, node.nodeConfig)
     })
  
+    //
+    //
     socket.on('SET_CAN_ID', function(data){
       winston.info({message: `socketServer: SET_CAN_ID ` + data});
       node.CBUS_Queue.push(node.CANID(data.nodeNumber, data.CAN_ID))
     })
     
+    //
+    //
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
       node.CBUS_Queue.push(node.SNN(nodeNumber))
       node.setNodeNumberIssued = true
     })
     
+    //
+    //
     socket.on('START_CONNECTION', async function(data){
       winston.info({message: name + `: START_CONNECTION ${JSON.stringify(data)}`});
       if (data.mode == 'Network'){
@@ -342,17 +435,23 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       status.mode = 'RUNNING'
     })
 
+    //
+    //
     socket.on('STOP_SERVER', function(){
       winston.info({message: `socketServer: STOP_SERVER`});
       process.exit();
     })
     
+    //
+    //
     socket.on('UPDATE_NODE_VARIABLE', function(data){
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
         setTimeout(function() {node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))},50)
     })
 
+    //
+    //
     socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.NNLRN(data.nodeNumber))
@@ -362,6 +461,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
     })
 
+    //
+    //
     socket.on('UPDATE_LAYOUT_DATA', function(data){
       winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
       config.writeLayoutData(data)
