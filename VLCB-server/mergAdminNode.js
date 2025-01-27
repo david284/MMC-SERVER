@@ -830,15 +830,17 @@ class cbusAdmin extends EventEmitter {
       // if node parameters exist, always update associated fields
       this.nodeConfig.nodes[nodeNumber].manufacturerId = this.nodeConfig.nodes[nodeNumber].parameters[1]
       this.nodeConfig.nodes[nodeNumber].moduleId = this.nodeConfig.nodes[nodeNumber].parameters[3]
-      let flags = this.nodeConfig.nodes[nodeNumber].parameters[8]
-      this.nodeConfig.nodes[nodeNumber].flags = flags
-      this.nodeConfig.nodes[nodeNumber].flim = (flags & 4) ? true : false
-      this.nodeConfig.nodes[nodeNumber].consumer = (flags & 1) ? true : false
-      this.nodeConfig.nodes[nodeNumber].producer = (flags & 2) ? true : false
-      this.nodeConfig.nodes[nodeNumber].bootloader = (flags & 8) ? true : false
-      this.nodeConfig.nodes[nodeNumber].coe = (flags & 16) ? true : false
-      this.nodeConfig.nodes[nodeNumber].learn = (flags & 32) ? true : false
-      this.nodeConfig.nodes[nodeNumber].VLCB = (flags & 64) ? true : false
+      if (this.nodeConfig.nodes[nodeNumber].parameters[8]){
+        let flags = this.nodeConfig.nodes[nodeNumber].parameters[8]
+        this.nodeConfig.nodes[nodeNumber].flags = flags
+        this.nodeConfig.nodes[nodeNumber].flim = (flags & 4) ? true : false
+        this.nodeConfig.nodes[nodeNumber].consumer = (flags & 1) ? true : false
+        this.nodeConfig.nodes[nodeNumber].producer = (flags & 2) ? true : false
+        this.nodeConfig.nodes[nodeNumber].bootloader = (flags & 8) ? true : false
+        this.nodeConfig.nodes[nodeNumber].coe = (flags & 16) ? true : false
+        this.nodeConfig.nodes[nodeNumber].learn = (flags & 32) ? true : false
+        this.nodeConfig.nodes[nodeNumber].VLCB = (flags & 64) ? true : false
+      }
       this.nodeConfig.nodes[nodeNumber].cpuName = this.merg.cpuName[this.nodeConfig.nodes[nodeNumber].parameters[9]]
       this.nodeConfig.nodes[nodeNumber].interfaceName = this.merg.interfaceName[this.nodeConfig.nodes[nodeNumber].parameters[10]]
       this.nodeConfig.nodes[nodeNumber].cpuManufacturerName = this.nodeConfig.nodes[nodeNumber].parameters[19]
