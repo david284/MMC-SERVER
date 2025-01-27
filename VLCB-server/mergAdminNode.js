@@ -298,7 +298,7 @@ class cbusAdmin extends EventEmitter {
               // already exists in config file...
               winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
             } else {
-              this.createNodeConfig(cbusMsg.nodeNumber)
+              this.createNodeConfig(cbusMsg.nodeNumber, true)
             }
             // store the timestamp
             this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
@@ -530,7 +530,7 @@ class cbusAdmin extends EventEmitter {
       var updated = false
       // if node doesn't exist, create it & request minimum params
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
-        this.createNodeConfig(nodeNumber)
+        this.createNodeConfig(nodeNumber, false)
         // get param 8, 1 & 3 as needed as a minimum if new node
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))   // flags
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))   // ManufacturerID
@@ -590,8 +590,12 @@ class cbusAdmin extends EventEmitter {
       return result
     }
 
-
-    createNodeConfig(nodeNumber){
+    //
+    // Create a node in node config
+    // status true if creating because we've received traffic
+    // status false if creating because it used to be there, but not seen it yet
+    //
+    createNodeConfig(nodeNumber, status){
         // doesn't exist in config file, so create an entry for it
         let output = {
           "CANID": "",
@@ -603,13 +607,14 @@ class cbusAdmin extends EventEmitter {
           "parameters": [],
           "nodeVariables": [],
           "storedEventsNI": {},
-          "status": true,
+          "status": status,
           "eventCount": 0,
           "services": {},
           "lastReceiveTimestamp": undefined
       }
       this.nodeConfig.nodes[nodeNumber] = output
       winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
+      this.saveNode(nodeNumber)
     }
 
     //
@@ -618,7 +623,7 @@ class cbusAdmin extends EventEmitter {
     //
     updateEventInNodeConfig(nodeNumber, eventIdentifier, eventIndex){
       if (this.nodeConfig.nodes[nodeNumber] == undefined) {
-        this.createNodeConfig(nodeNumber)
+        this.createNodeConfig(nodeNumber, false)
       }
       //
       if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
@@ -820,7 +825,7 @@ class cbusAdmin extends EventEmitter {
       winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
 //      winston.debug({message: 'mergAdminNode: Save Node : ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
-        this.createNodeConfig(nodeNumber)
+        this.createNodeConfig(nodeNumber, false)
       }
       // if node parameters exist, always update associated fields
       this.nodeConfig.nodes[nodeNumber].manufacturerId = this.nodeConfig.nodes[nodeNumber].parameters[1]
@@ -974,16 +979,21 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */
 
+  // add any nodes that don't exist in node config
+  // from layout data
+  //  
   async addLayoutNodes(layoutData){
     winston.info({message: name + ': addLayoutNodes'});
     for (let nodeNumber in layoutData.nodeDetails) {
-      if (nodeNumber != 'undefined'){
-        winston.info({message: name + ': addLayoutNodes ' + nodeNumber});
-        this.createNodeConfig(nodeNumber)
+      if ( this.nodeConfig.nodes[nodeNumber] == undefined ){
+        winston.info({message: name + ': addLayoutNodes - create node ' + nodeNumber});
+        this.createNodeConfig(nodeNumber, false)
       }
     }
   }
 
+  //
+  //
   async query_all_nodes(){
     winston.info({message: name + ': query_all_nodes'});
     for (let node in this.nodeConfig.nodes) {
@@ -1030,7 +1040,7 @@ class cbusAdmin extends EventEmitter {
   //
   async request_all_node_events(nodeNumber){
     winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
-    if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber)}
+    if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
     // clear event count to force clearing & reload of events
     // ensures any events deleted are removed
     // this will force a NERD to be sent
@@ -1044,7 +1054,7 @@ class cbusAdmin extends EventEmitter {
 
 
   async request_all_node_parameters(nodeNumber){
-    if (this.nodeConfig.nodes[nodeNumber] == undefined) { this.createNodeConfig(nodeNumber) }
+    if (this.nodeConfig.nodes[nodeNumber] == undefined) { this.createNodeConfig(nodeNumber, false) }
     // clear parameters to force full refresh
     this.nodeConfig.nodes[nodeNumber].parameters = {}
     this.nodeConfig.nodes[nodeNumber].paramsUpdated = false
