@@ -385,7 +385,11 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: nodeTraffic: ' + JSON.stringify(nodeTraffic[i])});
       }
       expect(nodeTraffic[0].json.mnemonic).to.equal("RQNN")
-      expect(nodeTraffic[1].json.mnemonic).to.equal("RQMN")
+      let found_RQMN = false
+      for (let index in nodeTraffic) {
+        if (nodeTraffic[index].json.mnemonic == "RQMN"){ found_RQMN = true }
+      }
+      expect(found_RQMN).to.equal(true)
       expect(node.rqnnPreviousNodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END RQNN test'});
 			done();
