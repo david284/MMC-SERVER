@@ -153,3 +153,16 @@ exports.addESDvalue = function addESDvalue(nodeConfig, nodeNumber, ServiceIndex,
   }
   nodeConfig.nodes[nodeNumber]["services"][ServiceIndex].ESD[ESDIndex].value = value
 }
+
+
+exports.createTimestamp = function createTimestamp(){
+  //create timestamp for filename
+  var date = new Date()
+  var timestamp = date.getFullYear()  + '-' +
+    date.getMonth() + '-' +
+    date.getDate()  + '_' +
+    date.getHours()  + '-' +
+    date.getMinutes()  + '-' +
+    date.getSeconds()
+  return timestamp
+}

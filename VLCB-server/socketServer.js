@@ -390,6 +390,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
  
     //
     //
+    socket.on('SAVE_NODE_BACKUP', function(data){ //save backup
+      winston.info({message: `socketServer:  SAVE_NODE_BACKUP ${JSON.stringify(data.nodeNumber)}`});
+      config.writeNodeBackup(data.layoutName, data.nodeNumber, data.layout, node.nodeConfig)
+    })
+ 
+    //
+    //
     socket.on('SET_CAN_ID', function(data){
       winston.info({message: `socketServer: SET_CAN_ID ` + data});
       node.CBUS_Queue.push(node.CANID(data.nodeNumber, data.CAN_ID))

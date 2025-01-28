@@ -6,6 +6,7 @@ var path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
 const os = require("os");
+const utils = require('./../VLCB-server/utilities.js');
 
 
 // Scope:
@@ -170,6 +171,29 @@ class configuration {
     var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
     // now create current backup folder if it doesn't exist
     this.createDirectory(backupFolder)
+    var filePath = path.join(backupFolder, fileName)
+    winston.debug({message: className + ` writeBackup: ` + filePath });
+    try{
+      var backup = { 
+        timestamp: new Date().toISOString(),
+        systemConfig: this.appSettings,
+        nodeConfig: nodeConfig,
+        layoutData: layoutData
+      }
+      jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
+    } catch(err){
+      winston.info({message: className + `: writeBackup: ` + err});
+    }
+  }
+
+  //
+  // 
+  writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig){
+    winston.info({message: className + ` writeNodeBackup: ` + nodeNumber });
+    var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
+    // now create current backup folder if it doesn't exist
+    this.createDirectory(backupFolder)
+    let fileName = 'Backup_' + utils.createTimestamp()
     var filePath = path.join(backupFolder, fileName)
     winston.debug({message: className + ` writeBackup: ` + filePath });
     try{
