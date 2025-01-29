@@ -166,6 +166,21 @@ class configuration {
 
   //
   // 
+  readNodeBackup(layoutName, nodeNumber, filename){
+    winston.info({message: className + ` readBackup ` + filename });
+    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber, filename)
+    winston.debug({message: className + ` readBackup: ` + filePath });
+    var file = null
+    try{
+      file = jsonfile.readFileSync(filePath)
+    } catch(err){
+      winston.info({message: className + `: readBackup: ` + err});
+    }
+    return file
+  }
+
+  //
+  // 
   writeBackup(layoutName, fileName, layoutData, nodeConfig){
     winston.info({message: className + ` writeBackup: ` + fileName });
     var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')

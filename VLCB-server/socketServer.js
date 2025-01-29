@@ -256,6 +256,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     //
     //
+    socket.on('REQUEST_NODE_BACKUP', function(data){
+      winston.info({message: name + `: REQUEST_NODE_BACKUP ` + JSON.stringify(data)});
+      const backup = config.readNodeBackup(data.layoutName, data.nodeNumber, data.fileName)
+      io.emit('RESTORED_DATA', backup)
+      winston.info({message: `socketServer: sent RESTORED_DATA`});
+    })
+
+    //
+    //
     socket.on('REQUEST_NODE_BACKUPS_LIST', function(data){
       winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
       const nodeBackups_list = config.getListOfNodeBackups(data.layoutName, data.nodeNumber)
