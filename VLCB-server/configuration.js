@@ -232,6 +232,29 @@ class configuration {
   }
 
 
+  //
+  //
+  getListOfNodeBackups(layoutName, nodeNumber){
+    winston.debug({message: className + `: getListOfNodeBackups:`});
+    try{
+      if (this.currentUserDirectory){
+        var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
+        if (!fs.existsSync(backupFolder)){
+          // doesn't exist, so create
+          this.createDirectory(backupFolder)      
+        }
+        var list = fs.readdirSync(backupFolder).filter(function (file) {
+          return fs.statSync(path.join(backupFolder, file)).isFile();
+        },(this));
+        winston.debug({message: className + `: getListOfNodeBackups: ` + list});
+        return list
+      }
+    } catch (err){
+      winston.error({message: className + `: getListOfNodeBackups: ` + err});
+    }
+  }
+
+
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
   // busTraffic methods

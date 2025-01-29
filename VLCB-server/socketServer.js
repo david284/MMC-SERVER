@@ -256,6 +256,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     //
     //
+    socket.on('REQUEST_NODE_BACKUPS_LIST', function(data){
+      winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
+      const nodeBackups_list = config.getListOfNodeBackups(data.layoutName, data.nodeNumber)
+      io.emit('NODE_BACKUPS_LIST', nodeBackups_list)
+      winston.info({message: `socketServer: sent NODE_BACKUPS_LIST ` + data.nodeNumber});
+    })
+
+    //
+    //
     socket.on('REQUEST_BUS_CONNECTION', function(){
       io.emit('BUS_CONNECTION', status.busConnection)
     })
