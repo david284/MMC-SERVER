@@ -163,6 +163,7 @@ exports.createTimestamp = function createTimestamp(){
     date.getDate()  + '_' +
     date.getHours()  + '-' +
     date.getMinutes()  + '-' +
-    date.getSeconds()
+    date.getSeconds() + '.' +
+    date.getMilliseconds()
   return timestamp
 }

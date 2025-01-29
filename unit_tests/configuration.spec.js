@@ -133,6 +133,39 @@ describe('configuration tests', function(){
 
 
   //
+  // Combined node backup test - does read, write, list & delete
+  //
+  it("Node Backup test", function (done) {
+    winston.info({message: 'unit_test: BEGIN Backup test '})
+    var layoutName = 'test_backup_layout'
+    let nodeNumber = 999
+    var layoutData = {layout: 999} 
+    var nodeConfig = {config: 999}
+    // keep file name of 2nd backup
+    let fileName = config.writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig)
+    var result = config.readNodeBackup(layoutName, nodeNumber, fileName)
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      winston.info({message: 'unit_test: END Backup test'})
+      expect(result).to.have.property('systemConfig')
+      expect(result).to.have.property('nodeConfig')
+      expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
+      // write 2nd backup so should be two entries, but just check for first backup
+      config.writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig)
+      var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
+      expect (list1).to.include(fileName)
+      expect(list1.length).to.equal(2)
+      // now delete initial backup & get new list
+      config.deleteNodeBackup(layoutName, nodeNumber, fileName)
+      var list2 = config.getListOfNodeBackups(layoutName, nodeNumber)
+      expect (list2).to.not.include(fileName)
+      expect(list2.length).to.equal(1)
+      done();
+		}, 10);
+  })
+
+
+  //
   // test writeBusTraffic
   //
   it("writeBusTraffic test", function (done) {

@@ -220,6 +220,7 @@ class configuration {
   }
 
   //
+  // returns fileName created for unit testing purposes
   // 
   writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig){
     winston.info({message: className + ` writeNodeBackup: ` + nodeNumber });
@@ -240,6 +241,7 @@ class configuration {
     } catch(err){
       winston.info({message: className + `: writeBackup: ` + err});
     }
+    return fileName
   }
 
   //
