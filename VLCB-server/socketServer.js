@@ -145,6 +145,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     //
     //
+    socket.on('DELETE_NODE_BACKUP', function(data){
+      winston.info({message: name + `: DELETE_NODE_BACKUP ${JSON.stringify(data)}`});
+      config.deleteNodeBackup(data.layoutName, data.nodeNumber, data.fileName)
+    })
+
+    //
+    //
     socket.on('DELETE_LAYOUT', function(data){
       winston.info({message: name + `: DELETE_LAYOUT ${JSON.stringify(data.layoutName)}`});
       config.deleteLayoutFolder(data.layoutName)
