@@ -152,16 +152,19 @@ class configuration {
   //
   // 
   deleteNodeBackup(layoutName, nodenumber, filename){
-    winston.info({message: className + ` deleteNodeBackup ` + filename });
-    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodenumber, filename)
-    winston.debug({message: className + ` deleteNodeBackup: ` + filePath });
-    var file = null
-    try{
-      fs.rmSync(filePath, { recursive: true }) 
-    } catch(err){
-      winston.info({message: className + `: deleteNodeBackup: ` + err});
+    winston.info({message: className + ` deleteNodeBackup ${layoutName} ${nodenumber} ${filename}` });
+    if ((filename != undefined) && (filename.length > 0)){
+      var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodenumber, filename)
+      winston.debug({message: className + ` deleteNodeBackup: ` + filePath });
+      var file = null
+      try{
+        fs.rmSync(filePath, { recursive: true }) 
+      } catch(err){
+        winston.info({message: className + `: deleteNodeBackup: ` + err});
+      }
+    } else {
+      winston.info({message: className + `: deleteNodeBackup: invalid filename`});
     }
-    return file
   }
 
   //
