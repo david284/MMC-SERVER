@@ -823,7 +823,6 @@ class cbusAdmin extends EventEmitter {
     //
     saveNode(nodeNumber) {
       winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
-//      winston.debug({message: 'mergAdminNode: Save Node : ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
       if (this.nodeConfig.nodes[nodeNumber] == undefined){
         this.createNodeConfig(nodeNumber, false)
       }
@@ -845,7 +844,7 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].interfaceName = this.merg.interfaceName[this.nodeConfig.nodes[nodeNumber].parameters[10]]
       this.nodeConfig.nodes[nodeNumber].cpuManufacturerName = this.nodeConfig.nodes[nodeNumber].parameters[19]
       this.nodeConfig.nodes[nodeNumber].Beta = this.nodeConfig.nodes[nodeNumber].parameters[20]
-      winston.debug({message: 'mergAdminNode: Save Node P2: ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
+      //winston.debug({message: 'mergAdminNode: Save Node P2: ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
 
       // ensure moduleIdentifier is created (if params 1 & 3 exist)
       if ((this.nodeConfig.nodes[nodeNumber].manufacturerId != undefined) && (this.nodeConfig.nodes[nodeNumber].moduleId != undefined)){
@@ -856,7 +855,7 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
         this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
-      this.checkNodeDescriptor(nodeNumber); // do before emit node
+      this.checkNodeDescriptor(nodeNumber, false); // do before emit node
       this.config.writeNodeConfig(this.nodeConfig)
       // mark node has changed, so regular check will send the node to the client
       // reduces traffic if node is being changed very quickly
@@ -1467,7 +1466,8 @@ EVLRN(nodeNumber, eventIdentifier, variableId, value) {
 
   NVSET(nodeNumber, variableId, variableVal) {// Read Node Variable
       this.nodeConfig.nodes[nodeNumber].nodeVariables[variableId] = variableVal
-      this.saveConfig()
+      this.nodeConfig.nodes[nodeNumber].hasChanged = true
+//      this.saveConfig()
       let output = {}
       output['mnemonic'] = 'NVSET'
       output['nodeNumber'] = nodeNumber

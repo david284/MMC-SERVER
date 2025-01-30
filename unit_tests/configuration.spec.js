@@ -151,7 +151,7 @@ describe('configuration tests', function(){
       expect(result).to.have.property('nodeConfig')
       expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
       // write 2nd backup so should be two entries, but just check for first backup
-      config.writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig)
+      let fileName2 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig)
       var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
       expect (list1).to.include(fileName)
       expect(list1.length).to.equal(2)
@@ -160,6 +160,10 @@ describe('configuration tests', function(){
       var list2 = config.getListOfNodeBackups(layoutName, nodeNumber)
       expect (list2).to.not.include(fileName)
       expect(list2.length).to.equal(1)
+      winston.info({message: 'fileName2: ' + JSON.stringify(fileName2)})
+      var list3 = config.renameNodeBackup(layoutName, nodeNumber, fileName2, "test")
+      winston.info({message: 'list3: ' + JSON.stringify(list3)})
+      expect (list3).to.include("test")
       done();
 		}, 10);
   })

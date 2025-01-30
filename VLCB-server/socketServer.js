@@ -212,6 +212,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
 
     //
     //
+    socket.on('RENAME_NODE_BACKUP', function(data){
+      winston.info({message: name + `: RENAME_NODE_BACKUP ${JSON.stringify(data)}`});
+      let nodeBackups_list = config.renameNodeBackup(data.layoutName, data.nodeNumber, data.fileName, data.newFileName)
+      io.emit('NODE_BACKUPS_LIST', nodeBackups_list)
+      winston.info({message: name + `: sent NODE_BACKUPS_LIST ${JSON.stringify(nodeBackups_list)}`});
+    })
+
+    //
+    //
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
       node.requestEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
@@ -479,7 +488,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('UPDATE_NODE_VARIABLE', function(data){
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
-        setTimeout(function() {node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))},50)
+      // now read it back
+      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
     })
 
     //
@@ -511,6 +521,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //*************************************************************************************** */
 
+  //
+  //
   function send_SERVER_STATUS(config, status){
     status["userDataMode"] = config.appSettings.userDataMode
     status["currentUserDirectory"] = config.currentUserDirectory
@@ -522,13 +534,15 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     io.emit('SERVER_STATUS', status)
   }
   
+  //
+  //
   function send_SERVER_MESSAGE(message){
     winston.debug({message: name + ': send_SERVER_MESSAGE ' + JSON.stringify(message)});
     io.emit('SERVER_MESSAGE', message)
   }
   
-  
-      
+  //
+  //      
   server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
   //*************************************************************************************** */
@@ -537,76 +551,87 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //*************************************************************************************** */
 
+  //
+  //
   node.on('cbusError', function (cbusErrors) {
     winston.info({message: `socketServer: CBUS - ERROR :${JSON.stringify(cbusErrors)}`});
     io.emit('CBUS_ERRORS', cbusErrors);
   })
 
-
+  //
+  //
   node.on('cbusNoSupport', function (cbusNoSupport) {
     winston.info({message: `socketServer: CBUS_NO_SUPPORT sent`});
     winston.debug({message: `socketServer: CBUS_NO_SUPPORT - Op Code Unknown : ${cbusNoSupport.opCode}`});
     io.emit('CBUS_NO_SUPPORT', cbusNoSupport);
   })
 
-
+  //
+  //
   node.on('cbusTraffic', function (data) {
     winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
-//    winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
+    //winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
     io.emit('CBUS_TRAFFIC', data);
   })
 
-
+  //
+  //
   node.on('dccError', function (error) {
     winston.info({message: `socketServer: DCC_ERROR sent`});
     io.emit('DCC_ERROR', error);
   })
 
-
+  //
+  //
   node.on('dccSessions', function (dccSessions) {
     winston.info({message: `socketServer: DCC_SESSIONS sent`});
     io.emit('DCC_SESSIONS', dccSessions);
   })
 
-
+  //
+  //
   node.on('events', function (events) {
     winston.info({message: `socketServer: EVENTS sent`});
-//    winston.debug({message: `socketServer: EVENTS :${JSON.stringify(events)}`});
+    //winston.debug({message: `socketServer: EVENTS :${JSON.stringify(events)}`});
     io.emit('BUS_EVENTS', events);
   })
 
-
+  //
+  //
   node.on('node', function (node) {
     winston.info({message: `socketServer: Node Sent `});
-//    winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
+    //winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
   })
 
-
+  //
+  //
   node.on('nodes', function (nodes) {
     winston.info({message: `socketServer: NODES Sent`});
     io.emit('NODES', nodes);
   })
 
-
+  //
+  //
   node.on('nodeDescriptor', function (nodeDescriptor) {
     winston.info({message: `socketServer: NodeDescriptor Sent`});
-//    winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
+    //winston.debug({message: `socketServer: NodeDescriptor Sent : ` + JSON.stringify(nodeDescriptor)});
     io.emit('NODE_DESCRIPTOR', nodeDescriptor);
   })
 
-
+  //
+  //
   node.on('node_descriptor_file_list', function (nodeNumber, list) {
     winston.info({message: `socketServer: NODE_DESCRIPTOR_FILE_LIST Sent nodeNumber ` + nodeNumber});
     io.emit('NODE_DESCRIPTOR_FILE_LIST', nodeNumber, list);
   })
 
-
+  //
+  //
   node.on('requestNodeNumber', function (nodeNumber, name) {
     winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber + '  Name ' + name});
     io.emit('REQUEST_NODE_NUMBER', nodeNumber, name)
   })
-
 
   //*************************************************************************************** */
   //
@@ -614,17 +639,19 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //*************************************************************************************** */
 
+  //
+  //
   config.eventBus.on('bus_connection_state', function (state) {
     winston.info({message: `socketServer: bus_connection_state: ` + state});
     status.busConnection.state = state
   })
 
+  //
+  //
   config.eventBus.on('system_notification', function (text) {
     winston.info({message: `socketServer: SYSTEM_NOTIFICATION: ` + text});
     io.emit('SYSTEM_NOTIFICATION', text)
   })
-
-
 
   //*************************************************************************************** */
   //
@@ -632,6 +659,8 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //*************************************************************************************** */
 
+  //
+  //
   programNode.on('programNode_progress', function (data) {
     downloadData = data;
     winston.info({message: name + ': programNode event: ' + downloadData.text});

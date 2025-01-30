@@ -289,6 +289,19 @@ class configuration {
     }
   }
 
+  //
+  //
+  renameNodeBackup(layoutName, nodeNumber, fileName, newFileName){
+    winston.debug({message: className + `: renameNodeBackup: ${fileName} to ${newFileName}`});
+    var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
+    try{
+      fs.renameSync(path.join(backupFolder, fileName), path.join(backupFolder, newFileName), () => {
+      });    
+    } catch(err){
+      winston.info({message: className + `: renameNodeBackup: ` + err});
+    }
+    return this.getListOfNodeBackups(layoutName, nodeNumber);
+  }
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
