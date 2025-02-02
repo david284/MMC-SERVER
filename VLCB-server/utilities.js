@@ -159,11 +159,11 @@ exports.createTimestamp = function createTimestamp(){
   //create timestamp for filename
   var date = new Date()
   var timestamp = date.getFullYear()  + '-' +
-    date.getMonth() + '-' +
-    date.getDate()  + '_' +
-    date.getHours()  + '-' +
-    date.getMinutes()  + '-' +
-    date.getSeconds() + '.' +
-    date.getMilliseconds()
+    (date.getMonth() + 1).toString().padStart(2, '0') + '-' +       // getMonth starts at 0
+    date.getDate().toString().padStart(2, '0')  + '_' +
+    date.getHours().toString().padStart(2, '0')  + '-' +
+    date.getMinutes().toString().padStart(2, '0')  + '-' +
+    date.getSeconds().toString().padStart(2, '0') + '.' +
+    date.getMilliseconds().toString().padStart(3, '0')
   return timestamp
 }

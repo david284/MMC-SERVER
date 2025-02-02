@@ -222,19 +222,22 @@ class configuration {
   //
   // returns fileName created for unit testing purposes
   // 
-  writeNodeBackup(layoutName, nodeNumber, layoutData, nodeConfig){
+  writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode){
     winston.info({message: className + ` writeNodeBackup: ` + nodeNumber });
     var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
-    // now create current backup folder if it doesn't exist
-    this.createDirectory(backupFolder)
-    let fileName = 'Backup_' + utils.createTimestamp()
-    var filePath = path.join(backupFolder, fileName)
-    winston.debug({message: className + ` writeBackup: ` + filePath });
+    var fileName  // need to define it early in case next bit fails
     try{
+      // now create current backup folder if it doesn't exist
+      this.createDirectory(backupFolder)
+      // now assemble filename
+      let moduleName = backupNode.moduleName ? backupNode.moduleName: 'undefined'
+      fileName = moduleName + '_' + utils.createTimestamp()
+      var filePath = path.join(backupFolder, fileName)
+      winston.debug({message: className + ` writeBackup: ` + filePath });
       var backup = { 
         timestamp: new Date().toISOString(),
         systemConfig: this.appSettings,
-        nodeConfig: nodeConfig,
+        backupNode: backupNode,
         layoutData: layoutData
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
@@ -478,6 +481,7 @@ class configuration {
     return jsonfile.readFileSync(filePath)
   }
   writeNodeConfig(data){
+    winston.debug({message: className + `: writeNodeConfig:`});
     var filePath = this.systemDirectory + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }

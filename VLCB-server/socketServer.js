@@ -161,7 +161,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
-      await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue)
+      await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
     })
 
     //
@@ -426,7 +426,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('SAVE_NODE_BACKUP', function(data){ //save backup
       winston.info({message: `socketServer:  SAVE_NODE_BACKUP ${JSON.stringify(data.nodeNumber)}`});
-      config.writeNodeBackup(data.layoutName, data.nodeNumber, data.layout, node.nodeConfig)
+      config.writeNodeBackup(data.layoutName, data.nodeNumber, data.layout, data.backupNode)
     })
  
     //
@@ -489,7 +489,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
       // now read it back
-      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+      if (data.reLoad != false){
+        node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+      }
     })
 
     //
@@ -499,8 +501,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.CBUS_Queue.push(node.NNLRN(data.nodeNumber))
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
-      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
-      node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
+      if (data.reLoad != false){
+        node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+      }
     })
 
     //

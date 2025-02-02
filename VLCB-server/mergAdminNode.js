@@ -33,6 +33,8 @@ class cbusAdmin extends EventEmitter {
         this.setNodeNumberIssued = false
         this.nodeNumberInLearnMode = null
         this.rqnnPreviousNodeNumber = null
+        // keep a record of when any module descriptors are updated, so we know when to recheck
+        this.moduleDescriptorFilesTimeStamp = Date.now()   // put valid milliseconds in to start
 
         const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -457,7 +459,10 @@ class cbusAdmin extends EventEmitter {
       this.query_all_nodes()
     }
 
+    //
+    //
     getModuleName(moduleIdentifier){
+      winston.debug({message: name + `: getModuleName: ` + moduleIdentifier});
       var moduleName = 'Unknown'
       if (this.merg['modules'][moduleIdentifier]) {
         if (this.merg['modules'][moduleIdentifier]['name']) {
@@ -610,7 +615,8 @@ class cbusAdmin extends EventEmitter {
           "status": status,
           "eventCount": 0,
           "services": {},
-          "lastReceiveTimestamp": undefined
+          "lastReceiveTimestamp": undefined,
+          "checkNodeDescriptorTimeStamp": 0
       }
       this.nodeConfig.nodes[nodeNumber] = output
       winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
@@ -855,7 +861,10 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
         this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
-      this.checkNodeDescriptor(nodeNumber, false); // do before emit node
+      if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined)){
+        // if version number exist, try to get module descriptor
+        this.checkNodeDescriptor(nodeNumber, false); // do before emit node
+      }
       this.config.writeNodeConfig(this.nodeConfig)
       // mark node has changed, so regular check will send the node to the client
       // reduces traffic if node is being changed very quickly
@@ -867,6 +876,8 @@ class cbusAdmin extends EventEmitter {
     //
     refreshNodeDescriptors(){
       winston.debug({message: name + ': refreshNodeDescriptors'});
+      // refresh time stamp so that node descriptors will be refreshed
+      this.moduleDescriptorFilesTimeStamp = Date.now()
       Object.keys(this.nodeConfig.nodes).forEach(nodeNumber => {
         this.checkNodeDescriptor(nodeNumber, true)
       })
@@ -874,12 +885,25 @@ class cbusAdmin extends EventEmitter {
 
 
     //
-    //
+    // checks if there's a module descriptor for this node, and populates it's node descriptor if so
+    // Do this on initial run, or if there's been an update to Module Descriptors
+    // or if it's been forced anyway
+    // don't want to check every time as it's slow
     //
     checkNodeDescriptor(nodeNumber, force){
-      if ((this.nodeDescriptors[nodeNumber] == undefined) || (force == true)) {
-        winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' ' + force});
-        // only proceed if nodeDescriptor doesn't exist, if it does exist, then just return, nothing to see here...
+      //decide if we really need to do this, 
+      let proceed = false
+      if (force == true) {
+        proceed = true
+      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp == undefined){
+        proceed = true
+      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){
+        proceed = true
+      }
+      winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
+      //
+      // ok, should know if we need to run this
+      if (proceed) {
         try {
           if (this.nodeConfig.nodes[nodeNumber]){
             // get the module identifier...
@@ -893,21 +917,22 @@ class cbusAdmin extends EventEmitter {
 
               // ok, parameters prepared, so lets go get the file
               const moduleDescriptor = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, moduleVersion, processorType)
+              this.nodeConfig.nodes[nodeNumber]['checkNodeDescriptorTimeStamp'] = Date.now()
               // now check we did get an actual file
               if (moduleDescriptor){
                 this.nodeDescriptors[nodeNumber] = moduleDescriptor
                 this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
                 this.config.writeNodeDescriptors(this.nodeDescriptors)
-                winston.info({message: 'mergAdminNode: checkNodeDescriptorNG: loaded file ' + moduleDescriptor.moduleDescriptorFilename});
+                winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + moduleDescriptor.moduleDescriptorFilename});
                 var payload = {[nodeNumber]:moduleDescriptor}
                 this.emit('nodeDescriptor', payload);
                 // saveNode will populate moduleName if it doesn't exist
-                this.saveNode(nodeNumber)
+                //this.saveNode(nodeNumber)
               }
             }
           }
         } catch (err){
-          winston.error({message: name + ': checkNodeDescriptorNG: ' + err});        
+          winston.error({message: name + ': checkNodeDescriptor: ' + err});        
         }
       }
     }
@@ -926,7 +951,7 @@ class cbusAdmin extends EventEmitter {
     //
     sendCBUSIntervalFunc(){
       // allow larger gap if we've just sent QNN
-      var timeGap = this.lastMessageWasQNN ? 400 : 50
+      var timeGap = this.lastMessageWasQNN ? 400 : 40
       // but reduce gap if doing unit tests
       timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
@@ -1001,6 +1026,7 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[node].status = false
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
+    this.moduleDescriptorFilesTimeStamp = Date.now()
     this.saveConfig()
     this.CBUS_Queue.push(this.QNN())
   }
@@ -1102,8 +1128,9 @@ class cbusAdmin extends EventEmitter {
   }
 
 
-  async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue) {
+  async event_teach_by_identifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue, reLoad) {
     winston.debug({message: name +': event_teach_by_identity: ' + nodeNumber + " " + eventIdentifier})
+    if (reLoad == undefined){ reLoad = true }
     var isNewEvent = false
     if (utils.getEventTableIndexNI(this.nodeConfig.nodes[nodeNumber], eventIdentifier) == null){
       isNewEvent = true
@@ -1113,16 +1140,18 @@ class cbusAdmin extends EventEmitter {
     this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
     this.CBUS_Queue.push(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after EVLRN
-    winston.debug({message: name +': event_teach_by_identity: timeOut ' + timeOut})
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
 
-    if (isNewEvent){
-      // adding new event may change event indexes, so need to refresh
-      this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+    // don't reload variables if reload is false - like when restoring a node
+    if (reLoad){
+      if (isNewEvent){
+        // adding new event may change event indexes, so need to refresh
+        this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+      } else {
+        this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
+      }
     } else {
-      this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
+      winston.info({message: name + ': event_teach_by_identifier - reLoad false'});
     }
   }
 
@@ -1188,7 +1217,7 @@ class cbusAdmin extends EventEmitter {
     this.nodeNumberInLearnMode = nodeNumber
     this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
     var timeOut = (this.inUnitTest) ? 1 : 250
-    await sleep(timeOut); // allow a bit more time after REQEV
+//    await sleep(timeOut); // allow a bit more time after REQEV
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
   }
 
