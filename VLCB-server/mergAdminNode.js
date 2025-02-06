@@ -609,8 +609,8 @@ class cbusAdmin extends EventEmitter {
           "moduleId": "",
           "moduleIdentifier": "",
           "moduleVersion": "",
-          "parameters": [],
-          "nodeVariables": [],
+          "parameters": {},
+          "nodeVariables": {},
           "storedEventsNI": {},
           "status": status,
           "eventCount": 0,
@@ -1496,7 +1496,6 @@ EVLRN(nodeNumber, eventIdentifier, variableId, value) {
   NVSET(nodeNumber, variableId, variableVal) {// Read Node Variable
       this.nodeConfig.nodes[nodeNumber].nodeVariables[variableId] = variableVal
       this.nodeConfig.nodes[nodeNumber].hasChanged = true
-//      this.saveConfig()
       let output = {}
       output['mnemonic'] = 'NVSET'
       output['nodeNumber'] = nodeNumber
