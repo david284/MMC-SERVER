@@ -29,7 +29,7 @@ const className = "configuration"
 const defaultLayoutData = {
   "layoutDetails": {
     "title": "default layout",
-    "subTitle": "layout auto created",
+    "subTitle": "",
     "baseNodeNumber": 256
   },
   "nodeDetails": {},
@@ -236,9 +236,8 @@ class configuration {
       winston.debug({message: className + ` writeBackup: ` + filePath });
       var backup = { 
         timestamp: new Date().toISOString(),
-        systemConfig: this.appSettings,
         backupNode: backupNode,
-        layoutData: layoutData
+        layoutDetails: layoutData.layoutDetails
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
     } catch(err){
