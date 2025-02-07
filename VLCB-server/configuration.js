@@ -6,6 +6,7 @@ var path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
 const os = require("os");
+const packageInfo = require(process.cwd()+'/package.json')
 const utils = require('./../VLCB-server/utilities.js');
 
 
@@ -236,8 +237,9 @@ class configuration {
       winston.debug({message: className + ` writeBackup: ` + filePath });
       var backup = { 
         timestamp: new Date().toISOString(),
-        backupNode: backupNode,
-        layoutDetails: layoutData.layoutDetails
+        layoutName: layoutData.layoutDetails.title,
+        ServerVersion: packageInfo.version,
+        backupNode: backupNode
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
     } catch(err){
