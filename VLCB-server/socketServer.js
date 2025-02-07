@@ -246,10 +246,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('REQUEST_ALL_NODE_VARIABLES', function(data){
       winston.info({message: `socketServer:  REQUEST_ALL_NODE_VARIABLES ${JSON.stringify(data)}`})
-      if (data.start === undefined) {
-          data.start = 1
-      }
-      node.request_all_node_variables(data.nodeNumber, data.start)
+      node.request_all_node_variables(data.nodeNumber)
     })
 
     //
@@ -490,7 +487,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
       // now read it back
       if (data.reLoad != false){
-        node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+        node.request_all_node_variables(data.nodeNumber)
       }
     })
 
@@ -502,7 +499,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
       if (data.reLoad != false){
-        node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+        node.request_all_node_variables(data.nodeNumber)
       }
     })
 

@@ -62,7 +62,12 @@ class cbusAdmin extends EventEmitter {
 
                 //let cbusMsg = cbusLib.decode(outMsg[i].concat(";"))     // replace terminator removed by 'split' method
                 winston.debug({message: `mergAdminNode: CBUS Receive <<<  ${outMsg[i]}`})
-                var msg = JSON.parse(outMsg[i])
+                try{
+                  var msg = JSON.parse(outMsg[i])
+                } catch (err){
+                  winston.error({message: `mergAdminNode: CBUS Receive ${err}`})
+                  continue
+                }
                 this.emit('cbusTraffic', {direction: 'In', json: msg});
                 if (this.isMessageValid(msg)){
                   this.action_message(msg)
@@ -1110,7 +1115,8 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
-  async request_all_node_variables(nodeNumber, start){
+  async request_all_node_variables(nodeNumber){
+    winston.debug({message: name + `:  request_all_node_variables ${nodeNumber}`});
     // get number of node variables - but wait till it exists
     while (1){
       if (this.nodeConfig.nodes[nodeNumber].parameters[6] != undefined) {break}
@@ -1120,7 +1126,7 @@ class cbusAdmin extends EventEmitter {
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       this.CBUS_Queue.push(this.NVRD(nodeNumber, 0))
     } else {
-      for (let i = start; i <= nodeVariableCount; i++) {
+      for (let i = 1; i <= nodeVariableCount; i++) {
         this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
         await sleep(50); // allow time between requests
       }
