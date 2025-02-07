@@ -479,7 +479,7 @@ class cbusAdmin extends EventEmitter {
       winston.info({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
       if (list[0]){
         var index = list[0].toString().search(moduleIdentifier)
-        winston.info({message: name + `: moduleIdentifier position: ` + index});
+        winston.debug({message: name + `: getModuleDescriptorFileList: moduleIdentifier position: ` + index});
         if (index > 1) {
           moduleName =list[0].substr(0,index-1)
         }

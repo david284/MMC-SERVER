@@ -575,7 +575,7 @@ class configuration {
   // Get merged list of matching files from both USER & SYSTEM locations
   //
   getModuleDescriptorFileList(moduleDescriptor){
-    winston.info({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})
+    winston.debug({message: className + ': getModuleDescriptorFileList ' + moduleDescriptor})
     var result =[]
     try{
       if (this.currentUserDirectory){
