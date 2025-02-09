@@ -48,6 +48,7 @@ class cbusAdmin extends EventEmitter {
         this.eventsChanged = false
         // update client if anything changed
         setInterval(this.updateClients.bind(this), 500);
+        this.opcodeTracker = {}
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
@@ -509,6 +510,9 @@ class cbusAdmin extends EventEmitter {
     async action_message(cbusMsg) {
       if (cbusMsg.ID_TYPE == "S"){
         winston.info({message: "mergAdminNode: Standard message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
+        if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
+        this.opcodeTracker[cbusMsg.opCode].count++
+        this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
         if (cbusMsg.nodeNumber){
           if (cbusMsg.mnemonic != "PNN"){
             // if the message has a node number, update status
@@ -956,7 +960,8 @@ class cbusAdmin extends EventEmitter {
     //
     sendCBUSIntervalFunc(){
       // allow larger gap if we've just sent QNN
-      var timeGap = this.lastMessageWasQNN ? 400 : 40
+//      var timeGap = this.lastMessageWasQNN ? 400 : 40
+      var timeGap = this.lastMessageWasQNN ? 400 : 100
       // but reduce gap if doing unit tests
       timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
@@ -1071,7 +1076,7 @@ class cbusAdmin extends EventEmitter {
   // also request event space left
   //
   async request_all_node_events(nodeNumber){
-    winston.info({message: name +': request_all_node_events: node ' + nodeNumber});
+    winston.debug({message: name +': request_all_node_events: node ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
     // clear event count to force clearing & reload of events
     // ensures any events deleted are removed
@@ -1167,15 +1172,21 @@ class cbusAdmin extends EventEmitter {
   async requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex){
     winston.info({message: name + ': requestEventVariableByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
-    // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
-    // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
-    // should not need to refresh event Indexes, as just asking for one variable
     try{
-      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-      if (eventIndex){
-        this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
+      if (this.nodeConfig.nodes[nodeNumber].VLCB){
+        this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+        this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
+        this.CBUS_Queue.push(this.NNULN(nodeNumber))
       } else {
-        winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
+        // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
+        // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
+        // should not need to refresh event Indexes, as just asking for one variable
+        var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+        if (eventIndex){
+          this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
+        } else {
+          winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
+        }
       }
     } catch (err){
       winston.error({message: name + ': requestEventVariableByIdentifier: failed to get eventIndex: ' + err});

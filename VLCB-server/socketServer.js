@@ -530,6 +530,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     status["customUserDirectory"] = config.appSettings.customUserDirectory
     status["singleUserDirectory"] = config.singleUserDirectory
     status["systemDirectory"] = config.systemDirectory
+    status["opcodeTracker"] = node.opcodeTracker 
   //  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
     io.emit('SERVER_STATUS', status)
   }

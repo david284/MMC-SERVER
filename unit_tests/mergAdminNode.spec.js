@@ -119,6 +119,23 @@ describe('mergAdminNode tests', function(){
   }
 
   
+  function GetTestCase_eventIdentifier() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = '00000001'}
+        if (b == 2) {arg2 = '00010002'}
+        if (b == 3) {arg2 = 'FFFFFFFF'}
+        testCases.push({'nodeNumber':arg1, 'eventIdentifier': arg2});
+      }
+    }
+    return testCases;
+  }
+
+  
 
   //****************************************************************************************** */
   //
@@ -665,6 +682,24 @@ describe('mergAdminNode tests', function(){
 		}, 300);
   })
 
+  // GetTestCase_eventIdentifier
+
+  // 0xF2 ENRSP
+  //
+  itParam("ENRSP test ${JSON.stringify(value)}", GetTestCase_eventIdentifier(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN ENRSP test ' + JSON.stringify(value)});
+    var testMessage = cbusLib.encodeENRSP(value.nodeNumber, value.eventIdentifier, 1)
+    mock_jsonServer.messagesIn = []
+    nodeTraffic = []
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber]['ENRSP_request_variables'] = true
+    mock_jsonServer.inject(testMessage)
+    setTimeout(function(){
+      expect(nodeTraffic[0].json.mnemonic).to.equal("ENRSP")
+      winston.info({message: 'unit_test: END ENRSP test'});
+			done();
+		}, 300);
+  })
 
   //****************************************************************************************** */
   //****************************************************************************************** */

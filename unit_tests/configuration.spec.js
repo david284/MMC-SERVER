@@ -139,19 +139,19 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: BEGIN Backup test '})
     var layoutName = 'test_backup_layout'
     let nodeNumber = 999
-    var layoutData = {layout: 999} 
+    var layoutData = {layoutDetails:{title: layoutName}} 
     var backupNode = {moduleName:"CANACC5"}
+    var backupNode3 = {moduleName:"CANMIO"}
     // keep file name of 2nd backup
     let fileName = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode)
     var result = config.readNodeBackup(layoutName, nodeNumber, fileName)
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
-      expect(result).to.have.property('systemConfig')
-      expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
+      expect(JSON.stringify(result.layoutName)).to.equal(JSON.stringify(layoutName));
       // write 2nd & 3rd backup so should be three entries, but just check for first backup
       let fileName2 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode)
-      let fileName3 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, "CANMIO")
+      let fileName3 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode3)
       var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
       expect (list1).to.include(fileName)
       expect(list1.length).to.equal(3)
