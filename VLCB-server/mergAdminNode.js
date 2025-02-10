@@ -251,8 +251,7 @@ class cbusAdmin extends EventEmitter {
           },
           '97': async (cbusMsg) => { // NVANS - Receive Node Variable Value
             try{
-            this.nodeConfig.nodes[cbusMsg.nodeNumber].nodeVariables[cbusMsg.nodeVariableIndex] = cbusMsg.nodeVariableValue
-            this.saveNode(cbusMsg.nodeNumber)
+            this.saveNodeVariable(cbusMsg.nodeNumber, cbusMsg.nodeVariableIndex, cbusMsg.nodeVariableValue)
             } catch (err){ winston.error({message: name + `: NVANS: ` + err}) }
           },
           '98': async (cbusMsg) => {//Accessory On Short Event
@@ -491,7 +490,6 @@ class cbusAdmin extends EventEmitter {
     process_WRACK(cbusMsg) {
       winston.info({message: name + `: wrack : node ` + cbusMsg.nodeNumber});
       this.nodeConfig.nodes[cbusMsg.nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
-      this.saveNode(cbusMsg.nodeNumber)
     }
 
     async process_GRSP (data) {
@@ -882,6 +880,22 @@ class cbusAdmin extends EventEmitter {
 
     //
     //
+    saveNodeVariable(nodeNumber, nodeVariableIndex, nodeVariableValue){
+      winston.debug({message: name + `: saveNodeVariable : ${nodeNumber} ${nodeVariableIndex} ${nodeVariableValue}`});
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){
+        this.createNodeConfig(nodeNumber, false)
+      }
+      this.nodeConfig.nodes[nodeNumber].nodeVariables[nodeVariableIndex] = nodeVariableValue
+      this.config.writeNodeConfig(this.nodeConfig)
+      // check if last node variable - parameter 6
+      // if so, send immediately, otherwise don't send
+      if(nodeVariableIndex == this.nodeConfig.nodes[nodeNumber].parameters[6]){
+        this.emit('node', this.nodeConfig.nodes[nodeNumber])
+      }
+    }
+
+    //
+    //
     //
     refreshNodeDescriptors(){
       winston.debug({message: name + ': refreshNodeDescriptors'});
@@ -961,7 +975,7 @@ class cbusAdmin extends EventEmitter {
     sendCBUSIntervalFunc(){
       // allow larger gap if we've just sent QNN
 //      var timeGap = this.lastMessageWasQNN ? 400 : 40
-      var timeGap = this.lastMessageWasQNN ? 400 : 100
+      var timeGap = this.lastMessageWasQNN ? 400 : 50
       // but reduce gap if doing unit tests
       timeGap = this.inUnitTest ? 1 : timeGap
       if ( Date.now() > this.lastReceiveTime + timeGap){
@@ -1209,9 +1223,9 @@ class cbusAdmin extends EventEmitter {
       // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
       // but need to refresh all events to get updated event indexes
       // get number of events for each node - response NUMEV will trigger NERD if event count changes
-       this.CBUS_Queue.push(this.RQEVN(nodeNumber))
-      var timeOut = (this.inUnitTest) ? 1 : 250
-      await sleep(timeOut); // allow a bit more time after EVLRN
+//       this.CBUS_Queue.push(this.RQEVN(nodeNumber))
+//      var timeOut = (this.inUnitTest) ? 1 : 250
+//      await sleep(timeOut); // allow a bit more time after EVLRN
       try{
         var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
         if (eventIndex){
@@ -1512,7 +1526,6 @@ EVLRN(nodeNumber, eventIdentifier, variableId, value) {
 
   NVSET(nodeNumber, variableId, variableVal) {// Read Node Variable
       this.nodeConfig.nodes[nodeNumber].nodeVariables[variableId] = variableVal
-      this.nodeConfig.nodes[nodeNumber].hasChanged = true
       let output = {}
       output['mnemonic'] = 'NVSET'
       output['nodeNumber'] = nodeNumber
