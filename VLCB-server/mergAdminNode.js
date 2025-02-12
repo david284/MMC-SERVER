@@ -886,10 +886,17 @@ class cbusAdmin extends EventEmitter {
         this.createNodeConfig(nodeNumber, false)
       }
       this.nodeConfig.nodes[nodeNumber].nodeVariables[nodeVariableIndex] = nodeVariableValue
+      if (this.nodeConfig.nodes[nodeNumber]["nodeVariableReadCount"] == undefined){this.nodeConfig.nodes[nodeNumber]["nodeVariableReadCount"] = 0}
+      if (nodeVariableIndex == 1){
+        // start from 1 again
+        this.nodeConfig.nodes[nodeNumber].nodeVariableReadCount = 1
+      } else {
+        this.nodeConfig.nodes[nodeNumber].nodeVariableReadCount++ 
+      }
       this.config.writeNodeConfig(this.nodeConfig)
       // check if last node variable - parameter 6
       // if so, send immediately, otherwise don't send
-      if(nodeVariableIndex == this.nodeConfig.nodes[nodeNumber].parameters[6]){
+      if(nodeVariableIndex + 2 >= this.nodeConfig.nodes[nodeNumber].parameters[6]){
         this.emit('node', this.nodeConfig.nodes[nodeNumber])
       }
     }
@@ -974,7 +981,6 @@ class cbusAdmin extends EventEmitter {
     //
     sendCBUSIntervalFunc(){
       // allow larger gap if we've just sent QNN
-//      var timeGap = this.lastMessageWasQNN ? 400 : 40
       var timeGap = this.lastMessageWasQNN ? 400 : 50
       // but reduce gap if doing unit tests
       timeGap = this.inUnitTest ? 1 : timeGap
