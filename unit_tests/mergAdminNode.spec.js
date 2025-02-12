@@ -887,7 +887,7 @@ describe('mergAdminNode tests', function(){
   //
   //
   //
-  it("new_event_teach#2_by_identifier test", function (done) {
+  it("new_event_teach_2_by_identifier test", function (done) {
     winston.info({message: 'unit_test: BEGIN new_event_teach_by_identifier test'});
     mock_jsonServer.messagesIn = []
     // ensure event doesn't exist, so should always refresh all events

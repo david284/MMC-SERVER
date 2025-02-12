@@ -1140,6 +1140,13 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+  async request_linked_node_variables(nodeNumber, linkedVariableList){
+    winston.debug({message: name + `:  request_linked_node_variables ${nodeNumber}`});
+    for (let i = 0; i < linkedVariableList.length; i++) {
+      this.CBUS_Queue.push(this.NVRD(nodeNumber, linkedVariableList[i]))
+    }
+  }
+
   async request_all_node_variables(nodeNumber){
     winston.debug({message: name + `:  request_all_node_variables ${nodeNumber}`});
     // get number of node variables - but wait till it exists
@@ -1177,6 +1184,10 @@ class cbusAdmin extends EventEmitter {
     if (reLoad){
       if (isNewEvent){
         // adding new event may change event indexes, so need to refresh
+        // get number of events for each node - response NUMEV will trigger NERD if event count changes
+        this.CBUS_Queue.push(this.RQEVN(nodeNumber))
+        var timeOut = (this.inUnitTest) ? 1 : 250
+        await sleep(timeOut); // allow a bit more time after EVLRN
         this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
       } else {
         this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
@@ -1227,11 +1238,6 @@ class cbusAdmin extends EventEmitter {
       // 'legacy' CBUS
       // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
       // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
-      // but need to refresh all events to get updated event indexes
-      // get number of events for each node - response NUMEV will trigger NERD if event count changes
-//       this.CBUS_Queue.push(this.RQEVN(nodeNumber))
-//      var timeOut = (this.inUnitTest) ? 1 : 250
-//      await sleep(timeOut); // allow a bit more time after EVLRN
       try{
         var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
         if (eventIndex){

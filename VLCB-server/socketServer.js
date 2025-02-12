@@ -489,6 +489,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if (data.reLoad != false){
         node.request_all_node_variables(data.nodeNumber)
       }
+      if(data.linkedVariableList != undefined){
+        node.request_linked_node_variables(data.nodeNumber, data.linkedVariableList)
+      }
     })
 
     //
