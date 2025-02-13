@@ -162,11 +162,9 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
       await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
-      if(data.linkedVariables != undefined){
-        if (data.linkedVariables.EV != undefined){
-          for (let i = 0; i < data.linkedVariables.EV.length; i++) {
-            node.requestEventVariableByIdentifier(data.nodeNumber, data.linkedVariables.EV[i])
-          }
+      if(data.linkedVariableList != undefined){
+        for (let i = 0; i < data.linkedVariableList.length; i++) {
+          node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.linkedVariableList[i])
         }
       }
     })
