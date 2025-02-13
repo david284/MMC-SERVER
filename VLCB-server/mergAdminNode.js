@@ -894,11 +894,9 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].nodeVariableReadCount++ 
       }
       this.config.writeNodeConfig(this.nodeConfig)
-      // check if last node variable - parameter 6
-      // if so, send immediately, otherwise don't send
-      if(nodeVariableIndex + 2 >= this.nodeConfig.nodes[nodeNumber].parameters[6]){
-        this.emit('node', this.nodeConfig.nodes[nodeNumber])
-      }
+      // mark node has changed, so regular check will send the node to the client
+      // reduces traffic if node is being changed very quickly
+      this.nodeConfig.nodes[nodeNumber].hasChanged = true
     }
 
     //
