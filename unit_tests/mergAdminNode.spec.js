@@ -780,15 +780,15 @@ describe('mergAdminNode tests', function(){
   // so check the number of REVAL's is correct - should be 3 in total
   // response to REVAL - NEVAL is tested elsewhere
   //
-  itParam("requestEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
-    winston.info({message: 'unit_test: BEGIN requestEventVariablesByIndex test ' + JSON.stringify(value)});
+  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
     mock_jsonServer.messagesIn = []
     nodeTraffic = []
-    node.requestEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
     setTimeout(function(){
       for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
@@ -796,7 +796,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal('REVAL')
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal('REVAL')
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal('REVAL')
-      winston.info({message: 'unit_test: END requestEventVariablesByIndex test '});
+      winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
       done();
     }, 200);
   })

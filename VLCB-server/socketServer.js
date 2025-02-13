@@ -165,7 +165,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if(data.linkedVariables != undefined){
         if (data.linkedVariables.EV != undefined){
           for (let i = 0; i < data.linkedVariables.EV.length; i++) {
-            node.requestEventVariablesByIdentifier(data.nodeNumber, data.linkedVariables.EV[i])
+            node.requestEventVariableByIdentifier(data.nodeNumber, data.linkedVariables.EV[i])
           }
         }
       }
@@ -230,7 +230,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
-      node.requestEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
+      node.requestAllEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
     })
 
     //
@@ -340,7 +340,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('REQUEST_NODE_VARIABLE', function(data){
       winston.info({message: `socketServer:  REQUEST_NODE_VARIABLE ${JSON.stringify(data)}`});
-      node.CBUS_Queue.push(node.NVRD(data.nodeNumber, data.variableId))
+      node.request_node_variable(data.nodeNumber, data.variableId)
     })
 
     //

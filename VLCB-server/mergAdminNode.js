@@ -1190,7 +1190,7 @@ class cbusAdmin extends EventEmitter {
         this.CBUS_Queue.push(this.RQEVN(nodeNumber))
         var timeOut = (this.inUnitTest) ? 1 : 250
         await sleep(timeOut); // allow a bit more time after EVLRN
-        this.requestEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+        this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
       } else {
         this.requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex)
       }
@@ -1230,8 +1230,8 @@ class cbusAdmin extends EventEmitter {
   //
   // request all event variables for specific event
   //
-  async requestEventVariablesByIdentifier(nodeNumber, eventIdentifier){
-    winston.info({message: name + ': requestEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+  async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier){
+    winston.info({message: name + ': requestAllEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       // if VLCB, we can use REQEV to read all event variables with one command
@@ -1243,12 +1243,12 @@ class cbusAdmin extends EventEmitter {
       try{
         var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
         if (eventIndex){
-          await this.requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
+          await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
         } else {
-          winston.info({message: name + ': requestEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
+          winston.info({message: name + ': requestAllEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
         }
       } catch (err){
-        winston.error({message: name + ': requestEventVariablesByIdentifier: failed to get eventIndex: ' + err});
+        winston.error({message: name + ': requestAllEventVariablesByIdentifier: failed to get eventIndex: ' + err});
       }
     }
   }
@@ -1261,8 +1261,6 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
     this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
-    var timeOut = (this.inUnitTest) ? 1 : 250
-//    await sleep(timeOut); // allow a bit more time after REQEV
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
   }
 
@@ -1270,8 +1268,8 @@ class cbusAdmin extends EventEmitter {
   //  
   // need to use event index here, as used outside of learn mode
   //
-  async requestEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
-    winston.debug({message: name + ': requestEventVariablesByIndex: '});
+  async requestAllEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
+    winston.debug({message: name + ': requestAllEventVariablesByIndex: '});
     //
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       // VLCB - so should return all variables just by reading 0
@@ -1285,7 +1283,7 @@ class cbusAdmin extends EventEmitter {
       var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
       if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
         numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
-        winston.debug({message: name + ': requestEventVariablesByIndex: EV0 ' + numberOfVariables});
+        winston.debug({message: name + ': requestAllEventVariablesByIndex: EV0 ' + numberOfVariables});
       }
       // now read all the rest of the event variables
       for (let i = 1; i <= numberOfVariables; i++) {
