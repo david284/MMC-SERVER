@@ -888,7 +888,7 @@ describe('mergAdminNode tests', function(){
   //
   //
   it("new_event_teach_2_by_identifier test", function (done) {
-    winston.info({message: 'unit_test: BEGIN new_event_teach_by_identifier test'});
+    winston.info({message: 'unit_test: BEGIN new_event_teach_2_by_identifier test'});
     mock_jsonServer.messagesIn = []
     // ensure event doesn't exist, so should always refresh all events
     node.createNodeConfig(1)
@@ -902,7 +902,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
-      winston.info({message: 'unit_test: END new_event_teach_by_identifier test'});
+      winston.info({message: 'unit_test: END new_event_teach_2_by_identifier test'});
 			done();
 		}, 150);
   })
@@ -1041,6 +1041,31 @@ describe('mergAdminNode tests', function(){
     expect (Object.keys(node.nodeConfig.events).length).to.equal(2)   // check expected number remaining
     winston.info({message: 'unit_test: END removeNodeBusEvents test'});
   })
+
+
+  //
+  //
+  //
+  itParam("request_node_variable test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN request_node_variable test: ' + JSON.stringify(value) });
+    
+    mock_jsonServer.messagesIn = []
+
+    await node.request_node_variable(value.nodeNumber, 2) 
+  
+    setTimeout(function(){
+      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      }
+      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NVRD")
+      expect(mock_jsonServer.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_jsonServer.messagesIn[0].nodeVariableIndex).to.equal(2)
+      winston.info({message: 'unit_test: END request_node_variable test'});
+			done();
+		}, 300);
+
+  })
+
 
 
 })

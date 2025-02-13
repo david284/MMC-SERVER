@@ -162,6 +162,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('EVENT_TEACH_BY_IDENTIFIER', async function(data){
       winston.info({message: `socketServer: EVENT_TEACH_BY_IDENTIFIER ${JSON.stringify(data)}`});
       await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
+      if(data.linkedVariables != undefined){
+        if (data.linkedVariables.EV != undefined){
+          for (let i = 0; i < data.linkedVariables.EV.length; i++) {
+            node.requestEventVariablesByIdentifier(data.nodeNumber, data.linkedVariables.EV[i])
+          }
+        }
+      }
     })
 
     //
@@ -481,16 +488,28 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     })
     
     //
+    // write a single node variable
+    // reLoad is a flag to indicate if node variable(s) need to be read back
+    // we don't want to read any back if doing bulk programming (restoring a node)
+    // linkedVariableList is a list of variables that need to be read back as well as the changed variable
+    // if linkedVariableList not present, then just read the changed variable
     //
     socket.on('UPDATE_NODE_VARIABLE', function(data){
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
-      // now read it back
+      //
+      // Only read variable(s) back if reLoad not false
+      // but decide if just changed variable, or list
       if (data.reLoad != false){
-        node.request_all_node_variables(data.nodeNumber)
-      }
-      if(data.linkedVariableList != undefined){
-        node.request_linked_node_variables(data.nodeNumber, data.linkedVariableList)
+        // just read back the variable we've changed
+        node.request_node_variable(data.nodeNumber, data.variableId)
+        //
+        // now check if we need to read back linked variables
+        if(data.linkedVariableList != undefined){
+          for (let i = 0; i < data.linkedVariableList.length; i++) {
+            node.request_node_variable(data.nodeNumber, data.linkedVariableList[i])
+          }        
+        }
       }
     })
 

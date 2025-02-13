@@ -1140,13 +1140,15 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
-  async request_linked_node_variables(nodeNumber, linkedVariableList){
-    winston.debug({message: name + `:  request_linked_node_variables ${nodeNumber}`});
-    for (let i = 0; i < linkedVariableList.length; i++) {
-      this.CBUS_Queue.push(this.NVRD(nodeNumber, linkedVariableList[i]))
-    }
+  //
+  //
+  async request_node_variable(nodeNumber, nodeVariableIndex){
+    winston.debug({message: name + `:  request_node_variable ${nodeNumber} ${nodeVariableIndex}`});
+    this.CBUS_Queue.push(this.NVRD(nodeNumber, nodeVariableIndex))
   }
 
+  //
+  //
   async request_all_node_variables(nodeNumber){
     winston.debug({message: name + `:  request_all_node_variables ${nodeNumber}`});
     // get number of node variables - but wait till it exists
