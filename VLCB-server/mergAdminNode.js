@@ -40,7 +40,7 @@ class cbusAdmin extends EventEmitter {
         this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
         this.client = new net.Socket()
 
-        this.lastReceiveTime = Date.now()   // put valid milliseconds in to start
+        this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
         this.lastMessageWasQNN = false
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
         this.CBUS_Queue = []
@@ -52,7 +52,7 @@ class cbusAdmin extends EventEmitter {
 
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
-          this.lastReceiveTime = Date.now()     // store this time stamp
+          this.lastCbusTrafficTime = Date.now()     // store this time stamp
           //const outMsg = data.toString().split(";")
             let indata = data.toString().replace(/}{/g, "}|{")
             //winston.info({message: `mergAdminNode: CBUS Receive <<<  ${indata}`})
@@ -773,6 +773,7 @@ class cbusAdmin extends EventEmitter {
         }
         let output = JSON.stringify(msg)
         this.client.write(output);
+        this.lastCbusTrafficTime = Date.now()     // store this time stamp
         winston.debug({message: `mergAdminNode: CBUS Transmit >>>  ${output}`})
         let tmp = cbusLib.decode(cbusLib.encode(msg).encoded) //do double trip to get text
         this.emit('cbusTraffic', {direction: 'Out', json: tmp});
@@ -982,7 +983,7 @@ class cbusAdmin extends EventEmitter {
       var timeGap = this.lastMessageWasQNN ? 400 : 50
       // but reduce gap if doing unit tests
       timeGap = this.inUnitTest ? 1 : timeGap
-      if ( Date.now() > this.lastReceiveTime + timeGap){
+      if ( Date.now() > this.lastCbusTrafficTime + timeGap){
         // don't reset QNN flag if too soon - avoids flag being cleared after just being set
         if (Date.now() > this.QNN_sent_time + 30){
           this.lastMessageWasQNN = false
@@ -1064,7 +1065,6 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(this.EVULN(eventName))
     await sleep(300); // allow a bit more time after NNCLR
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
-    await sleep(100); // allow a bit more time after NNCLR
     await this.request_all_node_events(nodeNumber)
   }
 
@@ -1099,8 +1099,6 @@ class cbusAdmin extends EventEmitter {
     // clear event count to force clearing & reload of events
     // ensures any events deleted are removed
     // this will force a NERD to be sent
-    // but as it's destructive, lets wait for a gap in the traffic
-    while ( Date.now() < this.lastReceiveTime + 200){await sleep(10)}
     this.nodeConfig.nodes[nodeNumber].eventCount = undefined
     this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
     this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
@@ -1122,7 +1120,7 @@ class cbusAdmin extends EventEmitter {
     timeGap = this.inUnitTest ? 1 : timeGap
     // so now wait for the specified timeGap after the last message recieved
     // incase there was multiple responses (VLCB style)
-    while ( Date.now() < this.lastReceiveTime + timeGap){
+    while ( Date.now() < this.lastCbusTrafficTime + timeGap){
       winston.debug({message: name +': request_all_node_parameters: timeGap '})
       await utils.sleep(100)
       if (count++ > 100){break} // safety escape
