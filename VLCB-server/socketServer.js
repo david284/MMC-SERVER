@@ -228,7 +228,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
-      node.requestAllEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
+      if ((data.nodeNumber != undefined) && (data.eventIdentifier != undefined)){
+        node.requestAllEventVariablesByIdentifier(data.nodeNumber, data.eventIdentifier)
+      } else {
+        winston.error({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER: ERROR ${JSON.stringify(data)}`});
+      }
     })
 
     //
