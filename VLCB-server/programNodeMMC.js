@@ -82,6 +82,7 @@ class programNode extends EventEmitter  {
     this.sendingFirmware = false
     this.decodeState = {}
     this.programState = STATE_NULL
+    this.nodeCpuType = null
   }
     
   //
@@ -110,6 +111,7 @@ class programNode extends EventEmitter  {
     this.success = false
     this.nodeNumber = NODENUMBER
     this.programState = STATE_START
+    this.nodeCpuType = CPUTYPE
 
 
     this.client.connect(this.net_port, this.net_address, function () {
@@ -569,10 +571,8 @@ class programNode extends EventEmitter  {
       case 4:
         winston.debug({message: 'programNode: line decode: Extended Linear Address Record:'});
         this.decodeState.LBA = parseInt(data, 16)<<16 + OFFSET
-        if      (this.decodeState.LBA >= 0x00F00000) { this.decodeState.area = 'EEPROM' }
-        else if (this.decodeState.LBA >= 0x00300000) { this.decodeState.area = 'CONFIG' }
-        else if (this.decodeState.LBA >= 0x00000800) { this.decodeState.area = 'FLASH' }
-        else    { this.decodeState.area = 'BOOT' }
+        // get the area for this
+        this.decodeState.area = this.getArea(this.decodeState.LBA, this.nodeCpuType)
         // don't overite an existing area
         if (this.FIRMWARE[this.decodeState.area] == undefined) {
           this.FIRMWARE[this.decodeState.area] = {} 
@@ -690,6 +690,26 @@ class programNode extends EventEmitter  {
     }
   }
 
+  //
+  // work out which area the absolute address is in
+  // for CPU type = 23, EEPROM start is at 0x380000
+  //
+  getArea(absoluteAddress, nodeCpuType){
+    let eepromStart = 0x00F00000    //default
+    if (nodeCpuType == 23){
+      eepromStart = 0x380000        // start for 18F27Q83
+    }
+
+    let area = 'BOOT' 
+    if      (absoluteAddress >= eepromStart) { area = 'EEPROM' }
+    else if (absoluteAddress >= 0x00300000) { area = 'CONFIG' }
+    else if (absoluteAddress >= 0x00000800) { area = 'FLASH' }
+    else    { this.decodeState.area = 'BOOT' }
+    return area
+  }
+
 };
+
+
 
 module.exports = new programNode() 
