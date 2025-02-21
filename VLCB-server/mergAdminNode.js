@@ -149,12 +149,15 @@ class cbusAdmin extends EventEmitter {
             this.CBUS_Queue.push(this.RQMN())   // push node onto queue to read module name from node
           },
           '52': async (cbusMsg) => {
-            // NNACK - acknowledge
+            // NNACK - Node number acknowledge
               winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
-              // if acknowledge for set node number then query all nodes
+              // if acknowledge for set node number, delete any existing record of that node
+              // as it may now be a wholly different node being added
+              // then query all nodes to recreate the node
               if (this.setNodeNumberIssued){
                 this.setNodeNumberIssued = false
-                this.query_all_nodes()   // force refresh of nodes
+                delete this.nodeConfig.nodes[cbusMsg.nodeNumber]
+                this.query_all_nodes()
               }
           },
           '59': async (cbusMsg) => {
