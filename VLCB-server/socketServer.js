@@ -460,14 +460,14 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       } else {
         if(data.mode == 'SerialPort'){
           winston.info({message: name + `: START_CONNECTION: SerialPort mode `});
-          if(await cbusServer.connect(5550, data.serialPort) == false){
+          if(await cbusServer.connect(data.serialPort) == false){
             status.busConnection.state = false
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
         } else {
           winston.info({message: name + `: START_CONNECTION: Auto mode `});
           // assume it's Auto mode
-          if(await cbusServer.connect(5550, '') == false){
+          if(await cbusServer.connect('') == false){
             status.busConnection.state = false
             winston.info({message: name + `: START_CONNECTION: failed `});
           }

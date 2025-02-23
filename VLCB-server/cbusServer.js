@@ -17,9 +17,11 @@ const { get } = require('http');
 
 
 class cbusServer {
-  constructor() {
-    winston.info({message: name + ': Constructor'});
+  constructor(CbusServerPort) {
+    winston.info({message: name + `: Constructor: port ${CbusServerPort}`});
     this.clients = []
+    this.enableSerialReconnect = false
+    this.serialConnected = false
 
     //
     //
@@ -47,9 +49,16 @@ class cbusServer {
 
     }.bind(this)) //end create server
 
+    // now start the listener...
+    winston.info({message: name + `: connect: starting listener on port ${CbusServerPort}`})
+
+    this.server.listen(CbusServerPort, () => {
+      winston.info({message: name + ': connect: listener bound '})
+    })
+    
     //
     //
-    canUSBX.on('canUSBX', function (data) {
+    canUSBX.on('data', function (data) {
       //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
       let outMsg = data.toString().split(";");
       for (let i = 0; i < outMsg.length - 1; i++) {
@@ -58,28 +67,41 @@ class cbusServer {
       }
     }.bind(this))
     
+    //
+    //
+    canUSBX.on('close', function () {
+      winston.info({message: name + `: serial port close:`})
+      this.serialConnected = false
+    }.bind(this))
+
+    //
+    //
+    canUSBX.on('error', function (data) {
+      winston.info({message: name + `: serial port error:  ${JSON.stringify(data)}`})
+    }.bind(this))
+
+    setInterval(this.serialConnectIntervalFunction.bind(this), 2000);
+
 } // end constructor
 
   //
   // separate connect method so the instance can be passed
   // and the connection made later when the parameters are known
   //
-  async connect(CbusServerPort, targetSerial){
-    // now start the listener...
-    winston.info({message: name + ': connect: starting listener '})
-
-    this.server.listen(CbusServerPort, () => {
-      winston.info({message: name + ': connect: listener bound '})
-    })
-    
+  async connect(targetSerial){
     // connect to serial port
     let result = await canUSBX.connect(targetSerial)
 
     if (result == false){
       // close server - should raise error on clients
       winston.info({message: name + ': failed to connect to serial port ' + targetSerial});
+      this.serialConnected = false
+      this.enableSerialReconnect = false
       this.close()
-    } 
+    }  else {
+      this.serialConnected = true
+      this.enableSerialReconnect = true
+    }
     return result
   } // end connect
 
@@ -110,6 +132,23 @@ class cbusServer {
   } // end broadcast
 
 
+
+  serialConnectIntervalFunction(){
+    winston.info({message:name + ': serialConnectIntervalFunction:'})
+  
+    if(this.enableSerialReconnect){
+      winston.info({message:name + ': serial port reconnect enabled:'})
+      if(this.serialConnected){
+        winston.info({message:name + ': serial port still connected:'})
+      } else {
+        winston.info({message:name + ': serial port not connected:'})
+        //this.connect(this.clientHost, this.clientPort)
+      }
+    }
+    
+  }
+
 }
 
-module.exports = new cbusServer()
+module.exports = (CbusServerPort) => { return new cbusServer(CbusServerPort) }
+

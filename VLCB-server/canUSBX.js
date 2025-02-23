@@ -70,6 +70,7 @@ class canUSBX  extends EventEmitter {
       
     this.serialPort.on("close", function () {
       winston.info({message: name + `: Serial port: ${targetSerialPort} close`})
+      this.emit('close')
     }.bind(this))
       
     this.serialPort.on("data", function (data) {
@@ -83,7 +84,7 @@ class canUSBX  extends EventEmitter {
           if (message) {
               let cbusMsg = cbusLib.decode(message)
               winston.info({message: name + `: ${targetSerialPort} RX <- ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
-              this.emit('canUSBX', message)
+              this.emit('data', message)
           }
         }
         this.RxBuffer = messageArray[messageArray.length-1]
@@ -92,7 +93,8 @@ class canUSBX  extends EventEmitter {
 
     this.serialPort.on("error", function (err) {
         winston.error({message: name + `: Serial port ERROR:  : ${err.message}`})
-    }.bind(this));
+        this.emit('error', err.message)
+      }.bind(this));
 
     return true
   }

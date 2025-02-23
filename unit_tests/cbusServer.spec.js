@@ -10,7 +10,7 @@ const itParam = require('mocha-param');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const cbusServer = require('../VLCB-server/cbusServer')
+const cbusServer = require('../VLCB-server/cbusServer')(9999)
 
 const name = 'unit_test: cbusServer'
   
@@ -55,7 +55,8 @@ describe('cbusServer tests', function(){
       if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
       //if (a == 2) {arg1 = "COM99", arg2 = false}
       if (a == 2) {arg1 = "COM99", arg2 = true}
-      if (a == 3) {arg1 = "", arg2 = false}
+//      if (a == 3) {arg1 = "", arg2 = false}
+      if (a == 3) {arg1 = "", arg2 = true}
       testCases.push({'targetSerial':arg1, 'result':arg2});
     }
     return testCases;
@@ -65,7 +66,7 @@ describe('cbusServer tests', function(){
   itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (done, value) {
 
     winston.info({message: name + ': BEGIN connect test: ' + JSON.stringify(value)});
-    var result = await cbusServer.connect(9999, value.targetSerial)
+    var result = await cbusServer.connect(value.targetSerial)
 
     setTimeout(function(){
       winston.info({message: name +': connect test: result ' + result});
