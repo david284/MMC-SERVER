@@ -22,30 +22,46 @@ let cbusLib = require('cbuslibrary')
 class canUSBX  extends EventEmitter {
 
   constructor(){
-    winston.info({message: name + `: constructor`})
+    winston.debug({message: name + `: constructor`})
     super();
     this.serialPort = undefined
     this.targetSerialPort = ''
     this.RxBuffer = ""
   } // end constructor
 
-  connect(targetSerialPort){
-    winston.info({message: name + `: starting on ${targetSerialPort}`})
-    this.targetSerialPort = targetSerialPort
-    if(targetSerialPort == "MOCK_PORT"){
+  async connect(targetSerialPort){
+    winston.debug({message: name + `: connect: ${targetSerialPort}`})
+
+    winston.info({message: name + ': trying serialport.list '});
+    var serialPorts = await this.getSerialPorts()
+    winston.debug({message: name + ': serialports ' + JSON.stringify(serialPorts)});
+
+    if (targetSerialPort){
+      this.targetSerialPort = targetSerialPort
+    } else {
+      this.targetSerialPort = await this.getCANUSBx()
+    }
+
+    winston.info({message: name + `: starting on ${this.targetSerialPort}`})
+
+    if(this.targetSerialPort == "MOCK_PORT"){
       MockBinding.createPort('MOCK_PORT', { echo: false, record: true })
       this.serialPort = new SerialPort({binding: MockBinding, path:'MOCK_PORT', baudRate: 115200});
     }
-    else 
-    {
+    else if(this.targetSerialPort) {     
       // 'standard' serialport
       this.serialPort = new SerialPort({
-        path: targetSerialPort,
+        path: this.targetSerialPort,
         baudRate: 115200,
         dataBits: 8,
         parity: 'none',
         stopBits: 1
       })
+      if (!this.serialPort) {result = false}
+    } else{
+      // no connection found
+      winston.error({message: name + `: no connection to ${this.targetSerialPort}`})
+      return false
     }
 
     this.serialPort.on("open", function () {
@@ -78,6 +94,7 @@ class canUSBX  extends EventEmitter {
         winston.error({message: name + `: Serial port ERROR:  : ${err.message}`})
     }.bind(this));
 
+    return true
   }
     
   write(data){
@@ -183,6 +200,48 @@ class canUSBX  extends EventEmitter {
 
     return message;
   }
+
+  async getCANUSBx(){
+    return new Promise(function (resolve, reject) {
+      winston.debug({message: name + `: getCANUSBx`})
+      SerialPort.list().then(ports => {
+        ports.forEach(function(port) {
+          if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
+            // CANUSB4
+            winston.debug({message: name + ': CANUSB4 found on ' + port.path});
+            resolve(port.path);
+          } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
+            // Old CANUSB
+            winston.debug({message: name + ': CANUSB found on ' + port.path});
+            resolve(port.path);
+          }
+        })
+        resolve(undefined);
+      })
+    })
+  } // end connectCANUSBx
+
+  //
+  //
+  async getSerialPorts() {
+    return new Promise(function (resolve, reject) {
+      var serialports= [];
+      var portIndex = 0;
+      SerialPort.list().then(ports => {
+        ports.forEach(function(port) {
+          serialports[portIndex] = port
+          winston.info({message: 'serial port ' + portIndex + ': ' + serialports[portIndex].path});
+          winston.debug({message: 'serial port ' + portIndex + ': ' + JSON.stringify(serialports[portIndex])});
+          portIndex++
+        })
+        if (portIndex == 0){
+          winston.info({message: 'No active serial ports found...\n'});
+        }
+        resolve(serialports);
+      })
+    })
+  } // end getSerialPorts
+  
 
 
 }

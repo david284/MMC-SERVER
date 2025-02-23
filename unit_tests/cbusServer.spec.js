@@ -53,7 +53,8 @@ describe('cbusServer tests', function(){
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
-      if (a == 2) {arg1 = "COM99", arg2 = false}
+      //if (a == 2) {arg1 = "COM99", arg2 = false}
+      if (a == 2) {arg1 = "COM99", arg2 = true}
       if (a == 3) {arg1 = "", arg2 = false}
       testCases.push({'targetSerial':arg1, 'result':arg2});
     }
@@ -73,8 +74,6 @@ describe('cbusServer tests', function(){
       winston.info({message: name +': END connect test'});
 			done();
 		}, 20);
-
-
   })
 
 })

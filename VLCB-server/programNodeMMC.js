@@ -445,17 +445,15 @@ class programNode extends EventEmitter  {
     var jsonMessage = cbusLib.decode(msg)
     winston.info({message: 'programNode: CBUS Transmit >>>: ' + JSON.stringify(jsonMessage)})
     this.ackReceived = false  // set to false before writing
-    var count = 0
     this.client.write(JSON.stringify(jsonMessage))
     // need to add a delay between write to the module
     //
     var startTime = Date.now()
-    await utils.sleep(10) // always allow at least 10mSecs anyway
+    await utils.sleep(1) // always allow at least 1mSecs anyway
     while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
       await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
-      count++
     }       
-    winston.debug({message: 'programNode: CBUS Transmit time ' + (Date.now() - startTime) + ' ' + count})
+    winston.debug({message: 'programNode: CBUS Transmit time ' + (Date.now() - startTime)})
   }
 
 

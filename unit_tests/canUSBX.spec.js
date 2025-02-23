@@ -95,6 +95,15 @@ describe('canUSBX tests', function(){
     }, 10);
   })
 
-
+  //
+  // this will fail if there is a CANUSB connected
+  //
+  it("getCANUSBx test ", async function () {
+    winston.info({message: 'unit_test: BEGIN getCANUSBx test '});
+    let result = await canUSBX.getCANUSBx()
+    winston.info({message: name +`: result ${result}`});
+    expect(result).to.equal(undefined)
+    winston.info({message: name +': END getCANUSBx test'});
+  })
 
 })

@@ -3,14 +3,14 @@ const name = 'cbusServer.js'
 const net = require('net')
 
 const utils = require('./utilities.js');
-//const SerialPort = require("chrome-apps-serialport").SerialPort;
-const {SerialPort} = require("serialport");
-const canUSB = require('./canUSB')
-const canUSBX = require('../VLCB-server/canUSBX')
+//const canUSB = require('./canUSB')
+const canUSBX = require('../VLCB-server/canUSBX');
+const { get } = require('http');
 
 
 //
-// cbusServer - connects to a serial port to interface to the CAN bus
+// cbusServer - many to one adapter
+// connects to a single serial port to interface to the CAN bus
 // accepts connections from multiple network clients
 // Intended to be used with 'modified Grid Connect' format messages
 //
@@ -21,6 +21,8 @@ class cbusServer {
     winston.info({message: name + ': Constructor'});
     this.clients = []
 
+    //
+    //
     this.server = net.createServer(function (socket) {
       socket.setKeepAlive(true, 60000)
       this.clients.push(socket)
@@ -43,63 +45,41 @@ class cbusServer {
         winston.info({message: name + `: socket error:`})
       })
 
-
-      canUSBX.on('canUSBX', function (data) {
-        //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
-        let outMsg = data.toString().split(";");
-        for (let i = 0; i < outMsg.length - 1; i++) {
-          // don't specify socket as it doesn't have one
-          this.broadcast(outMsg[i] + ';')
-        }
-      }.bind(this))
-      
-      
     }.bind(this)) //end create server
 
-  } // end constructor
+    //
+    //
+    canUSBX.on('canUSBX', function (data) {
+      //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
+      let outMsg = data.toString().split(";");
+      for (let i = 0; i < outMsg.length - 1; i++) {
+        // don't specify socket as it doesn't have one
+        this.broadcast(outMsg[i] + ';')
+      }
+    }.bind(this))
+    
+} // end constructor
 
   //
   // separate connect method so the instance can be passed
   // and the connection made later when the parameters are known
   //
   async connect(CbusServerPort, targetSerial){
-    var result = false
-    // now start the listner...
-    winston.info({message: name + ': connect: starting listner '})
+    // now start the listener...
+    winston.info({message: name + ': connect: starting listener '})
 
     this.server.listen(CbusServerPort, () => {
-      winston.info({message: name + ': connect: listner bound '})
+      winston.info({message: name + ': connect: listener bound '})
     })
     
-    // use target serial port if it exists
-    // otherwise look for a CANUSBx
-    winston.info({message: name + ': trying serialport.list '});
-    var serialPorts = await this.getSerialPorts()
-    winston.debug({message: name + ': serialports ' + JSON.stringify(serialPorts)});
+    // connect to serial port
+    let result = await canUSBX.connect(targetSerial)
 
-    if (targetSerial){
-      winston.info({message: name + ': Using serial port ' + targetSerial});
-      if ((serialPorts.find(({ path }) => path === targetSerial)) || (targetSerial == 'MOCK_PORT') ){
-        //canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
-        canUSBX.connect(targetSerial)
-        result = true
-      } else {
-        winston.info({message: name + ': serial port ' + targetSerial + ' not found'});
-        // close server - should raise error on clients
-        this.close()
-        result = false
-      } 
-    } else {
-      winston.info({message: 'Finding CANUSBx...'});
-      if ( await this.connectCANUSBx(CbusServerPort, 'localhost') ) {
-        result = true
-      } else {
-        winston.info({message: name + ': Failed to find CANUSBx...'});
-        // close server - should raise error on clients
-        this.close()
-        result = false
-      }
-    }
+    if (result == false){
+      // close server - should raise error on clients
+      winston.info({message: name + ': failed to connect to serial port ' + targetSerial});
+      this.close()
+    } 
     return result
   } // end connect
 
@@ -113,7 +93,8 @@ class cbusServer {
     this.server.close()
   }
 
-
+  //
+  //
   broadcast(data, sender) {
     this.clients.forEach(function (client) {
         // Don't want to send it to sender
@@ -128,48 +109,7 @@ class cbusServer {
     })
   } // end broadcast
 
-  async getSerialPorts() {
-    return new Promise(function (resolve, reject) {
-      var serialports= [];
-      var portIndex = 0;
-      SerialPort.list().then(ports => {
-        ports.forEach(function(port) {
-          serialports[portIndex] = port
-          winston.info({message: 'serial port ' + portIndex + ': ' + serialports[portIndex].path});
-          winston.debug({message: 'serial port ' + portIndex + ': ' + JSON.stringify(serialports[portIndex])});
-          portIndex++
-        })
-        if (portIndex == 0){
-          winston.info({message: 'No active serial ports found...\n'});
-        }
-        resolve(serialports);
-      })
-    })
-  } // end getSerialPorts
-  
-  async connectCANUSBx(CbusServerPort){
-    return new Promise(function (resolve, reject) {
-      SerialPort.list().then(ports => {
-        ports.forEach(function(port) {
-          if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
-            // CANUSB4
-            winston.info({message: 'CANUSB4 : ' + port.path});
-            //canUSB.canUSB(port.path,  CbusServerPort, 'localhost')
-            canUSBX.connect(port.path)
-            resolve(true);
-          } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
-            // Old CANUSB
-            winston.info({message: 'CANUSB : ' + port.path});
-            //canUSB.canUSB(port.path, CbusServerPort, 'localhost')
-            canUSBX.connect(port.path)
-            resolve(true);
-          }
-        })
-        resolve(false);
-      })
-    })
-  } // end connectCANUSBx
-  
+
 }
 
 module.exports = new cbusServer()
