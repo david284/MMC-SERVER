@@ -15,37 +15,15 @@ const canUSBX = require('../VLCB-server/canUSBX')
 
 const name = 'unit_test: canUSBX'
 
-canUSBX.on('canUSBX', function (data) {
-  winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
-})
-
-  
 describe('canUSBX tests', function(){
 
-  let NetworkMessage = ''
-  let network = null
+  let messageIn = null
 
-  let server = net.createServer(function (socket) {
-    network = socket
-    socket.setKeepAlive(true, 60000)
-    winston.info({message: name + `: network Connection received`})
-
-    socket.on('data', function (data) {
-      winston.info({message: name + `: network data ${data}`})
-      NetworkMessage += data.toString();
-    }.bind(this));
-
-    socket.on('end', function () {
-        winston.info({message: name + `: Client Disconnected`})
-    }.bind(this))
-
-    socket.on("error", (err) => {
-      winston.info({message: name + `: socket error:`})
-    })
-
+  canUSBX.on('canUSBX', function (data) {
+    winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
+    messageIn = data
   })
   
-
 
 	before(function(done) {
 		winston.info({message: ' '});
@@ -84,10 +62,7 @@ describe('canUSBX tests', function(){
   //
   it("canUSBX_RX test ", function (done) {
     winston.info({message: 'unit_test: BEGIN canUSBX_RX test '});
-    server.listen(5550, () => {
-      winston.info({message: name + ': connect: listner bound '})
-    })
-    canUSBX.connect("MOCK_PORT", 5550, "127.0.0.1")
+    canUSBX.connect("MOCK_PORT")
 
     setTimeout(function(){
       // emulate some data being received on serialPort
@@ -95,13 +70,11 @@ describe('canUSBX tests', function(){
       canUSBX.serialPort.port.emitData(testPattern)
 
       setTimeout(function(){
-        winston.info({message: name +`: NetworkMessage ${NetworkMessage}`});
-        expect(NetworkMessage).to.equal(testPattern)
-        server.close()
+        expect(messageIn).to.equal(testPattern)
         winston.info({message: name +': END canUSBX_RX test'});
         done();
-      }, 100);
-    }, 100);
+      }, 10);
+    }, 10);
 
   })
 
@@ -109,73 +82,19 @@ describe('canUSBX tests', function(){
   //
   it("canUSBX_TX test ", function (done) {
     winston.info({message: 'unit_test: BEGIN canUSBX_TX test '});
-    server.listen(5550, () => {
-      winston.info({message: name + ': connect: listner bound '})
-    })
-    canUSBX.connect("MOCK_PORT", 5550, "127.0.0.1")
-    let testPattern = ":SB780N0D;"
-    setTimeout(function(){
-      network.write(testPattern)
-      setTimeout(function(){        
-        winston.info({message: name +`: END serial TX ${canUSBX.serialPort.port.recording}`});
-        expect(canUSBX.serialPort.port.recording.toString()).to.equal(testPattern)
-        server.close()
-        winston.info({message: name +': END canUSBX_TX test'});
-        done();
-      }, 100);
-    }, 100);
-  })
-
-
-  //
-  //
-  it("canUSBX_write test ", function (done) {
-    winston.info({message: 'unit_test: BEGIN canUSBX_write test '});
-    server.listen(5550, () => {
-      winston.info({message: name + ': connect: listner bound '})
-    })
-    canUSBX.connect("MOCK_PORT", 5550, "127.0.0.1")
+    canUSBX.connect("MOCK_PORT")
     let testPattern = ":SB780N0D;"
     setTimeout(function(){
       canUSBX.write(testPattern)
-//      network.write(testPattern)
       setTimeout(function(){        
         winston.info({message: name +`: END serial TX ${canUSBX.serialPort.port.recording}`});
         expect(canUSBX.serialPort.port.recording.toString()).to.equal(testPattern)
-        server.close()
-        winston.info({message: name +': END canUSBX_write test'});
+        winston.info({message: name +': END canUSBX_TX test'});
         done();
-      }, 100);
-    }, 100);
+      }, 10);
+    }, 10);
   })
 
 
-  /*
-  function GetTestCase_connect() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
-      if (a == 2) {arg1 = "COM99", arg2 = false}
-      if (a == 3) {arg1 = "", arg2 = false}
-      testCases.push({'targetSerial':arg1, 'result':arg2});
-    }
-    return testCases;
-  }
-
-
-  itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (done, value) {
-
-    winston.info({message: name + ': BEGIN connect test: ' + JSON.stringify(value)});
-    var result = await cbusServer.connect(9999, value.targetSerial)
-
-    setTimeout(function(){
-      winston.info({message: name +': connect test: result ' + result});
-      cbusServer.close()
-      expect(result).to.equal(value.result);
-      winston.info({message: name +': END connect test'});
-			done();
-		}, 20);
-  })
-  */  
 
 })

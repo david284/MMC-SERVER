@@ -1,7 +1,6 @@
 const winston = require('winston');
 const name = 'canUSBX.js'
 winston.info({message: name + `: loaded`})
-const net = require('net');
 const EventEmitter = require('events').EventEmitter;
 
 //const SerialPort = require("chrome-apps-serialport").SerialPort;
@@ -30,7 +29,7 @@ class canUSBX  extends EventEmitter {
     this.RxBuffer = ""
   } // end constructor
 
-  connect(targetSerialPort, NET_PORT, NET_ADDRESS){
+  connect(targetSerialPort){
     winston.info({message: name + `: starting on ${targetSerialPort}`})
     this.targetSerialPort = targetSerialPort
     if(targetSerialPort == "MOCK_PORT"){
@@ -49,29 +48,6 @@ class canUSBX  extends EventEmitter {
       })
     }
 
-    this.client = new net.Socket()
-
-    this.client.connect(NET_PORT, NET_ADDRESS, function () {
-        winston.info({message: name + `: Client Connected to ${targetSerialPort}`})
-    })
-
-    this.client.on('data', function (data) {
-      let outMsg = data.toString().split(";")
-      for (let i = 0; i < outMsg.length - 1; i++) {
-        let message = this.getValidMessage(outMsg[i]);    // rebuild message as string
-        if (message) {
-          let cbusMsg = cbusLib.decode(message)
-          winston.info({message: name + `: ${targetSerialPort} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
-          this.serialPort.write(message)
-          winston.debug({message: name + `: ${targetSerialPort} Tx ${message}`})
-        }
-      }
-    }.bind(this))
-
-    this.client.on("error", function (err) {
-      winston.error({message: name + `: client ERROR:  : ${err.message}`})
-    }.bind(this));
-
     this.serialPort.on("open", function () {
       winston.info({message: name + `: Serial port: ${targetSerialPort} Open`})
     }.bind(this))
@@ -86,12 +62,11 @@ class canUSBX  extends EventEmitter {
       let messageArray = this.RxBuffer.split(';')
       if (messageArray.length > 1){
         for (var i=0; i < messageArray.length-1; i++ ){
-          winston.debug({message: name + `: ${targetSerialPort} Rx ${messageArray[i]};`})
+          //winston.debug({message: name + `: ${targetSerialPort} Rx ${messageArray[i]};`})
           let message = this.getValidMessage(messageArray[i]);    // rebuild message as string
           if (message) {
               let cbusMsg = cbusLib.decode(message)
-              winston.info({message: name + `: ${targetSerialPort} <- Receive : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
-              this.client.write(message)
+              winston.info({message: name + `: ${targetSerialPort} RX <- ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
               this.emit('canUSBX', message)
           }
         }
@@ -111,9 +86,9 @@ class canUSBX  extends EventEmitter {
       let message = this.getValidMessage(outMsg[i]);    // rebuild message as string
       if (message) {
         let cbusMsg = cbusLib.decode(message)
-        winston.info({message: name + `: ${this.targetSerialPort} -> Transmit : ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+        winston.info({message: name + `: ${this.targetSerialPort} TX -> ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
         this.serialPort.write(message)
-        winston.debug({message: name + `: ${this.targetSerialPort} Tx ${message}`})
+        //winston.debug({message: name + `: ${this.targetSerialPort} Tx ${message}`})
       }
     }
   }

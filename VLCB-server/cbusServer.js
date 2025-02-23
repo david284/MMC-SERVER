@@ -29,7 +29,8 @@ class cbusServer {
       socket.on('data', function (data) {
           let outMsg = data.toString().split(";");
           for (let i = 0; i < outMsg.length - 1; i++) {
-              this.broadcast(outMsg[i] + ';', socket)
+            canUSBX.write(outMsg[i] + ';')
+            this.broadcast(outMsg[i] + ';', socket)
           }
       }.bind(this));
 
@@ -43,6 +44,16 @@ class cbusServer {
       })
 
 
+      canUSBX.on('canUSBX', function (data) {
+        //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
+        let outMsg = data.toString().split(";");
+        for (let i = 0; i < outMsg.length - 1; i++) {
+          // don't specify socket as it doesn't have one
+          this.broadcast(outMsg[i] + ';')
+        }
+      }.bind(this))
+      
+      
     }.bind(this)) //end create server
 
   } // end constructor
@@ -70,7 +81,7 @@ class cbusServer {
       winston.info({message: name + ': Using serial port ' + targetSerial});
       if ((serialPorts.find(({ path }) => path === targetSerial)) || (targetSerial == 'MOCK_PORT') ){
         //canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
-        canUSBX.connect(targetSerial, CbusServerPort, 'localhost')
+        canUSBX.connect(targetSerial)
         result = true
       } else {
         winston.info({message: name + ': serial port ' + targetSerial + ' not found'});
@@ -93,8 +104,8 @@ class cbusServer {
   } // end connect
 
   //
-  // method to close the listner
-  // Essential for unit testing, so that we can close the conenction & open it again
+  // method to close the listener
+  // Essential for unit testing, so that we can close the connection & open it again
   //
   close(){
     winston.info({message: name + ': close:'});
@@ -144,13 +155,13 @@ class cbusServer {
             // CANUSB4
             winston.info({message: 'CANUSB4 : ' + port.path});
             //canUSB.canUSB(port.path,  CbusServerPort, 'localhost')
-            canUSBX.connect(port.path,  CbusServerPort, 'localhost')
+            canUSBX.connect(port.path)
             resolve(true);
           } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
             // Old CANUSB
             winston.info({message: 'CANUSB : ' + port.path});
             //canUSB.canUSB(port.path, CbusServerPort, 'localhost')
-            canUSBX.connect(port.path,  CbusServerPort, 'localhost')
+            canUSBX.connect(port.path)
             resolve(true);
           }
         })

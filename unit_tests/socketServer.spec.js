@@ -319,7 +319,7 @@ describe('socketServer tests', async function(){
       expect(layoutData.layoutDetails.title).to.equal(value.layout);
       winston.info({message: 'unit_test: END change_layout test'});
 			done();
-		}, 30);
+		}, 100);
   })
 
   /*
