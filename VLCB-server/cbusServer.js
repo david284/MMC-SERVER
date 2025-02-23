@@ -6,6 +6,7 @@ const utils = require('./utilities.js');
 //const SerialPort = require("chrome-apps-serialport").SerialPort;
 const {SerialPort} = require("serialport");
 const canUSB = require('./canUSB')
+const canUSBX = require('../VLCB-server/canUSBX')
 
 
 //
@@ -68,7 +69,8 @@ class cbusServer {
     if (targetSerial){
       winston.info({message: name + ': Using serial port ' + targetSerial});
       if ((serialPorts.find(({ path }) => path === targetSerial)) || (targetSerial == 'MOCK_PORT') ){
-        canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
+        //canUSB.canUSB(targetSerial, CbusServerPort, 'localhost')
+        canUSBX.connect(targetSerial, CbusServerPort, 'localhost')
         result = true
       } else {
         winston.info({message: name + ': serial port ' + targetSerial + ' not found'});
@@ -141,12 +143,14 @@ class cbusServer {
           if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
             // CANUSB4
             winston.info({message: 'CANUSB4 : ' + port.path});
-            canUSB.canUSB(port.path,  CbusServerPort, 'localhost')
+            //canUSB.canUSB(port.path,  CbusServerPort, 'localhost')
+            canUSBX.connect(port.path,  CbusServerPort, 'localhost')
             resolve(true);
           } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
             // Old CANUSB
             winston.info({message: 'CANUSB : ' + port.path});
-            canUSB.canUSB(port.path, CbusServerPort, 'localhost')
+            //canUSB.canUSB(port.path, CbusServerPort, 'localhost')
+            canUSBX.connect(port.path,  CbusServerPort, 'localhost')
             resolve(true);
           }
         })
