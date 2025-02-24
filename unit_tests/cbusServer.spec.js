@@ -9,8 +9,10 @@ const itParam = require('mocha-param');
 // let has block scope (or global if top level)
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
+const testSystemConfigPath = "./unit_tests/test_output/config"
+const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
 
-const cbusServer = require('../VLCB-server/cbusServer')(9999)
+const cbusServer = require('../VLCB-server/cbusServer')(config, 9999)
 
 const name = 'unit_test: cbusServer'
   
@@ -55,8 +57,7 @@ describe('cbusServer tests', function(){
       if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
       //if (a == 2) {arg1 = "COM99", arg2 = false}
       if (a == 2) {arg1 = "COM99", arg2 = true}
-//      if (a == 3) {arg1 = "", arg2 = false}
-      if (a == 3) {arg1 = "", arg2 = true}
+      if (a == 3) {arg1 = "", arg2 = false}
       testCases.push({'targetSerial':arg1, 'result':arg2});
     }
     return testCases;

@@ -3,10 +3,8 @@ const name = 'cbusServer.js'
 const net = require('net')
 
 const utils = require('./utilities.js');
-//const canUSB = require('./canUSB')
 const canUSBX = require('../VLCB-server/canUSBX');
 const { get } = require('http');
-
 
 //
 // cbusServer - many to one adapter
@@ -15,13 +13,14 @@ const { get } = require('http');
 // Intended to be used with 'modified Grid Connect' format messages
 //
 
-
 class cbusServer {
-  constructor(CbusServerPort) {
+  constructor(config, CbusServerPort) {
     winston.info({message: name + `: Constructor: port ${CbusServerPort}`});
+    this.config = config
     this.clients = []
     this.enableSerialReconnect = false
     this.serialConnected = false
+    this.targetSerial = null
 
     //
     //
@@ -69,18 +68,50 @@ class cbusServer {
     
     //
     //
-    canUSBX.on('close', function () {
-      winston.info({message: name + `: serial port close:`})
+    canUSBX.on('close', function (data) {
+      winston.info({message: name + `: serial port closed:`})
       this.serialConnected = false
+      // restart timer so we start with the correct time gap
+      clearInterval(this.reconnectTimer);
+      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+      let eventData = {
+        message: "Serial port closed",
+        caption: data,
+        type: "warning",
+        timeout: 3000
+      }
+      this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', eventData)
     }.bind(this))
 
     //
     //
     canUSBX.on('error', function (data) {
       winston.info({message: name + `: serial port error:  ${JSON.stringify(data)}`})
+      this.serialConnected = false
+      let eventData = {
+        message: "Serial port error - not connected",
+        caption: data,
+        type: "warning",
+        timeout: 3000
+      }
+      this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', eventData)
     }.bind(this))
 
-    setInterval(this.serialConnectIntervalFunction.bind(this), 2000);
+    //
+    //
+    canUSBX.on('open', function (message) {
+      winston.info({message: name + `: serial port open: ${message}`})
+      this.serialConnected = true
+      let data = {
+        message: "Serial port connected",
+        caption: message,
+        type: "info",
+        timeout: 500
+      }
+      this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
+    }.bind(this))
+
+    this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
 
 } // end constructor
 
@@ -89,18 +120,30 @@ class cbusServer {
   // and the connection made later when the parameters are known
   //
   async connect(targetSerial){
+    winston.info({message: name + ': Connecting to serial port ' + targetSerial});
+    this.targetSerial = targetSerial
     // connect to serial port
-    let result = await canUSBX.connect(targetSerial)
+    let result = await canUSBX.connect(this.targetSerial)
 
     if (result == false){
-      // close server - should raise error on clients
-      winston.info({message: name + ': failed to connect to serial port ' + targetSerial});
+      // restart timer so we start with the correct time gap
+      clearInterval(this.reconnectTimer);
+      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+      winston.info({message: name + ': failed to connect to serial port ' + this.targetSerial});
+      let data = {
+        message: "Serial port failed to connect",
+        caption: this.targetSerial,
+        type: "warning",
+        timeout: 3000
+      }
+      this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', data)
       this.serialConnected = false
-      this.enableSerialReconnect = false
-      this.close()
+      this.enableSerialReconnect = true
     }  else {
       this.serialConnected = true
       this.enableSerialReconnect = true
+      // we'll get an open event, which will have the port number in it
+      // so we can raise a notification in the event handler
     }
     return result
   } // end connect
@@ -131,24 +174,30 @@ class cbusServer {
     })
   } // end broadcast
 
-
-
+  //
+  //
   serialConnectIntervalFunction(){
-    winston.info({message:name + ': serialConnectIntervalFunction:'})
-  
+    winston.debug({message:name + `: serialConnectIntervalFunction: ${this.targetSerial}`})
     if(this.enableSerialReconnect){
-      winston.info({message:name + ': serial port reconnect enabled:'})
+      winston.debug({message:name + `: serial port reconnect enabled: ${this.targetSerial}`})
       if(this.serialConnected){
-        winston.info({message:name + ': serial port still connected:'})
+        winston.debug({message:name + `: serial port still connected: ${this.targetSerial}`})
       } else {
-        winston.info({message:name + ': serial port not connected:'})
-        //this.connect(this.clientHost, this.clientPort)
-      }
+        winston.info({message:name + `: serial port not connected: ${this.targetSerial}`})
+        this.connect(this.targetSerial)
+        let data = {
+          message: "Serial port not connected",
+          caption: this.targetSerial,
+          type: "warning",
+          timeout: 1000
+        }
+//        this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', data)
+        }
     }
-    
   }
+
 
 }
 
-module.exports = (CbusServerPort) => { return new cbusServer(CbusServerPort) }
+module.exports = (config, CbusServerPort) => { return new cbusServer(config, CbusServerPort) }
 

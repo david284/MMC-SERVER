@@ -563,6 +563,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   function send_SERVER_MESSAGE(message){
     winston.debug({message: name + ': send_SERVER_MESSAGE ' + JSON.stringify(message)});
+
     io.emit('SERVER_MESSAGE', message)
   }
   
@@ -671,11 +672,18 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     status.busConnection.state = state
   })
 
+  // data JSON elements: message, caption, type, timeout
   //
+  config.eventBus.on('SERVER_NOTIFICATION', function (data) {
+    winston.info({message: `socketServer: SERVER_NOTIFICATION: ${JSON.stringify(data)}`});
+    io.emit('SERVER_NOTIFICATION', data)
+  })
+
+  // data JSON elements:
   //
-  config.eventBus.on('system_notification', function (text) {
-    winston.info({message: `socketServer: SYSTEM_NOTIFICATION: ` + text});
-    io.emit('SYSTEM_NOTIFICATION', text)
+  config.eventBus.on('SERIAL_CONNECTION_FAILURE', function (data) {
+    winston.info({message: `socketServer: SERIAL_CONNECTION_FAILURE: ${JSON.stringify(data)}`});
+    io.emit('SERIAL_CONNECTION_FAILURE', data)
   })
 
   //*************************************************************************************** */
@@ -687,7 +695,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //
   programNode.on('programNode_progress', function (data) {
-    downloadData = data;
+    let downloadData = data;
     winston.info({message: name + ': programNode event: ' + downloadData.text});
     io.emit('PROGRAM_NODE_PROGRESS', downloadData.text)
   });	        

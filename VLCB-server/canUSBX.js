@@ -66,11 +66,12 @@ class canUSBX  extends EventEmitter {
 
     this.serialPort.on("open", function () {
       winston.info({message: name + `: Serial port: ${targetSerialPort} Open`})
+      this.emit('open', this.targetSerialPort)
     }.bind(this))
       
     this.serialPort.on("close", function () {
       winston.info({message: name + `: Serial port: ${targetSerialPort} close`})
-      this.emit('close')
+      this.emit('close', this.targetSerialPort)
     }.bind(this))
       
     this.serialPort.on("data", function (data) {
@@ -100,14 +101,16 @@ class canUSBX  extends EventEmitter {
   }
     
   write(data){
-    let outMsg = data.toString().split(";")
-    for (let i = 0; i < outMsg.length - 1; i++) {
-      let message = this.getValidMessage(outMsg[i]);    // rebuild message as string
-      if (message) {
-        let cbusMsg = cbusLib.decode(message)
-        winston.info({message: name + `: ${this.targetSerialPort} TX -> ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
-        this.serialPort.write(message)
-        //winston.debug({message: name + `: ${this.targetSerialPort} Tx ${message}`})
+    if (this.serialPort){
+      let outMsg = data.toString().split(";")
+      for (let i = 0; i < outMsg.length - 1; i++) {
+        let message = this.getValidMessage(outMsg[i]);    // rebuild message as string
+        if (message) {
+          let cbusMsg = cbusLib.decode(message)
+          winston.info({message: name + `: ${this.targetSerialPort} TX -> ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+          this.serialPort.write(message)
+          //winston.debug({message: name + `: ${this.targetSerialPort} Tx ${message}`})
+        }
       }
     }
   }

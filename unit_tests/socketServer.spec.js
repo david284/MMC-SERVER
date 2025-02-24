@@ -39,7 +39,7 @@ let status = {"busConnection":{
   }
 }
 
-const cbusServer = require('../VLCB-server/cbusServer')
+const cbusServer = require('../VLCB-server/cbusServer')(config, 9998)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
 const programNode = require('../VLCB-server/programNodeMMC.js')
 

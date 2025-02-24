@@ -19,7 +19,7 @@ describe('canUSBX tests', function(){
 
   let messageIn = null
 
-  canUSBX.on('canUSBX', function (data) {
+  canUSBX.on('data', function (data) {
     winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
     messageIn = data
   })
