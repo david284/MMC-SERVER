@@ -2,7 +2,6 @@ const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: canUSBX.spec.js'});
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
-const net = require('net')
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -11,15 +10,15 @@ const net = require('net')
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const canUSBX = require('../VLCB-server/canUSBX')
+const serialGC = require('../VLCB-server/serialGC')
 
-const name = 'unit_test: canUSBX'
+const name = 'unit_test: serialGC'
 
-describe('canUSBX tests', function(){
+describe('serialGC tests', function(){
 
   let messageIn = null
 
-  canUSBX.on('data', function (data) {
+  serialGC.on('data', function (data) {
     winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
     messageIn = data
   })
@@ -29,7 +28,7 @@ describe('canUSBX tests', function(){
 		winston.info({message: ' '});
 		winston.info({message: '================================================================================'});
     //                      12345678901234567890123456789012345678900987654321098765432109876543210987654321
-		winston.info({message: '------------------------------- canUSBX tests -------------------------------'});
+		winston.info({message: '-------------------------------- serialGC tests --------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
     //
@@ -60,18 +59,18 @@ describe('canUSBX tests', function(){
 
   //
   //
-  it("canUSBX_RX test ", function (done) {
-    winston.info({message: 'unit_test: BEGIN canUSBX_RX test '});
-    canUSBX.connect("MOCK_PORT")
+  it("serialGC_RX test ", function (done) {
+    winston.info({message: 'unit_test: BEGIN serialGC_RX test '});
+    serialGC.connect("MOCK_PORT")
 
     setTimeout(function(){
       // emulate some data being received on serialPort
       let testPattern = ":SB780N0D;"
-      canUSBX.serialPort.port.emitData(testPattern)
+      serialGC.serialPort.port.emitData(testPattern)
 
       setTimeout(function(){
         expect(messageIn).to.equal(testPattern)
-        winston.info({message: name +': END canUSBX_RX test'});
+        winston.info({message: name +': END serialGC_RX test'});
         done();
       }, 20);
     }, 20);
@@ -80,16 +79,16 @@ describe('canUSBX tests', function(){
 
   //
   //
-  it("canUSBX_TX test ", function (done) {
-    winston.info({message: 'unit_test: BEGIN canUSBX_TX test '});
-    canUSBX.connect("MOCK_PORT")
+  it("serialGC_TX test ", function (done) {
+    winston.info({message: 'unit_test: BEGIN serialGC_TX test '});
+    serialGC.connect("MOCK_PORT")
     let testPattern = ":SB780N0D;"
     setTimeout(function(){
-      canUSBX.write(testPattern)
+      serialGC.write(testPattern)
       setTimeout(function(){        
-        winston.info({message: name +`: END serial TX ${canUSBX.serialPort.port.recording}`});
-        expect(canUSBX.serialPort.port.recording.toString()).to.equal(testPattern)
-        winston.info({message: name +': END canUSBX_TX test'});
+        winston.info({message: name +`: END serial TX ${serialGC.serialPort.port.recording}`});
+        expect(serialGC.serialPort.port.recording.toString()).to.equal(testPattern)
+        winston.info({message: name +': END serialGC_TX test'});
         done();
       }, 10);
     }, 10);
@@ -100,7 +99,7 @@ describe('canUSBX tests', function(){
   //
   it("getCANUSBx test ", async function () {
     winston.info({message: 'unit_test: BEGIN getCANUSBx test '});
-    let result = await canUSBX.getCANUSBx()
+    let result = await serialGC.getCANUSBx()
     winston.info({message: name +`: result ${result}`});
     expect(result).to.equal(undefined)
     winston.info({message: name +': END getCANUSBx test'});

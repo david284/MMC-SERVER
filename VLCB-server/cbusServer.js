@@ -3,7 +3,7 @@ const name = 'cbusServer.js'
 const net = require('net')
 
 const utils = require('./utilities.js');
-const canUSBX = require('../VLCB-server/canUSBX');
+const serialGC = require('../VLCB-server/serialGC.js');
 const { get } = require('http');
 
 //
@@ -32,7 +32,7 @@ class cbusServer {
       socket.on('data', function (data) {
           let outMsg = data.toString().split(";");
           for (let i = 0; i < outMsg.length - 1; i++) {
-            canUSBX.write(outMsg[i] + ';')
+            serialGC.write(outMsg[i] + ';')
             this.broadcast(outMsg[i] + ';', socket)
           }
       }.bind(this));
@@ -57,7 +57,7 @@ class cbusServer {
     
     //
     //
-    canUSBX.on('data', function (data) {
+    serialGC.on('data', function (data) {
       //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
       let outMsg = data.toString().split(";");
       for (let i = 0; i < outMsg.length - 1; i++) {
@@ -68,7 +68,7 @@ class cbusServer {
     
     //
     //
-    canUSBX.on('close', function (data) {
+    serialGC.on('close', function (data) {
       winston.info({message: name + `: serial port closed:`})
       this.serialConnected = false
       // restart timer so we start with the correct time gap
@@ -85,7 +85,7 @@ class cbusServer {
 
     //
     //
-    canUSBX.on('error', function (data) {
+    serialGC.on('error', function (data) {
       winston.info({message: name + `: serial port error:  ${JSON.stringify(data)}`})
       this.serialConnected = false
       let eventData = {
@@ -99,7 +99,7 @@ class cbusServer {
 
     //
     //
-    canUSBX.on('open', function (message) {
+    serialGC.on('open', function (message) {
       winston.info({message: name + `: serial port open: ${message}`})
       this.serialConnected = true
       let data = {
@@ -123,7 +123,7 @@ class cbusServer {
     winston.info({message: name + ': Connecting to serial port ' + targetSerial});
     this.targetSerial = targetSerial
     // connect to serial port
-    let result = await canUSBX.connect(this.targetSerial)
+    let result = await serialGC.connect(this.targetSerial)
 
     if (result == false){
       // restart timer so we start with the correct time gap
