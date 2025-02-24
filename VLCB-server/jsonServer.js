@@ -21,7 +21,7 @@ class jsonServer{
     this.config = configuration
     this.eventBus = configuration.eventBus
     this.JsonPort = JsonPort
-    setInterval(this.connectIntervalFunction.bind(this), 2000);
+    setInterval(this.connectIntervalFunction.bind(this), 5000);
     this.enableReconnect = false
     this.connected = false
     this.clientHost = null
@@ -50,7 +50,14 @@ class jsonServer{
 
     this.cbusClient.on('error', async function (err) {
       winston.error({message: name + `: Client error: ` + err.stack});
-      this.eventBus.emit ('bus_connection_state', false)
+      let caption = `IP: ${this.clientHost}  Port: ${this.clientPort}` 
+      let eventData = {
+        message: "Network error - retrying connection",
+        caption: caption,
+        type: "warning",
+        timeout: 3000
+      }
+      this.eventBus.emit ('NETWORK_CONNECTION_FAILURE', eventData)
       this.connected = false
     }.bind(this))
 
@@ -106,7 +113,6 @@ class jsonServer{
     try{
       this.cbusClient.connect(cbusPort, remoteAddress, function () {
         winston.info({message:name + ': Connected to ' + remoteAddress + ' on ' + cbusPort})
-        this.eventBus.emit ('bus_connection_state', true)
         this.connected = true
       }.bind(this));
 

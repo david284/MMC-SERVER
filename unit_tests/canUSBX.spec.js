@@ -73,8 +73,8 @@ describe('canUSBX tests', function(){
         expect(messageIn).to.equal(testPattern)
         winston.info({message: name +': END canUSBX_RX test'});
         done();
-      }, 10);
-    }, 10);
+      }, 20);
+    }, 20);
 
   })
 

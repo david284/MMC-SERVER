@@ -665,11 +665,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   //
   //*************************************************************************************** */
 
+  // data JSON elements: message, caption, type, timeout
   //
-  //
-  config.eventBus.on('bus_connection_state', function (state) {
-    winston.info({message: `socketServer: bus_connection_state: ` + state});
-    status.busConnection.state = state
+  config.eventBus.on('NETWORK_CONNECTION_FAILURE', function (data) {
+    winston.info({message: `socketServer: NETWORK_CONNECTION_FAILURE: ${JSON.stringify(data)}`});
+    io.emit('NETWORK_CONNECTION_FAILURE', data)
   })
 
   // data JSON elements: message, caption, type, timeout
@@ -679,7 +679,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     io.emit('SERVER_NOTIFICATION', data)
   })
 
-  // data JSON elements:
+  // data JSON elements: message, caption, type, timeout
   //
   config.eventBus.on('SERIAL_CONNECTION_FAILURE', function (data) {
     winston.info({message: `socketServer: SERIAL_CONNECTION_FAILURE: ${JSON.stringify(data)}`});

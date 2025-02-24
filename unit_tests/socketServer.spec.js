@@ -416,21 +416,6 @@ describe('socketServer tests', async function(){
   })
 
 
-  //
-  itParam("bus_connection_state test ${JSON.stringify(value)}", GetTestCase_boolean(), function (done, value) {
-//    it("bus_connection_state test", function (done) {
-    winston.info({message: name + ': BEGIN bus_connection_state test - boolean ' + value.boolean});
-    config.eventBus.emit('bus_connection_state', value.boolean)
-    //
-    setTimeout(function(){
-      winston.info({message: name + ': status.busConnection.state ' + status.busConnection.state});
-      expect (status.busConnection.state).to.equal(value.boolean)
-      winston.info({message: name + ': END bus_connection_state test'});
-			done();
-		}, 100);
-  })
-
-
   it("REQUEST_BUS_CONNECTION test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_BUS_CONNECTION test '});
     var result = false
