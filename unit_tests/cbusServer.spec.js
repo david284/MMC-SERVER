@@ -12,7 +12,7 @@ const itParam = require('mocha-param');
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
 
-const cbusServer = require('../VLCB-server/cbusServer')(config, 9999)
+const cbusServer = require('../VLCB-server/cbusServer')(config)
 
 const name = 'unit_test: cbusServer'
   
@@ -67,7 +67,7 @@ describe('cbusServer tests', function(){
   itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (done, value) {
 
     winston.info({message: name + ': BEGIN connect test: ' + JSON.stringify(value)});
-    var result = await cbusServer.connect(value.targetSerial)
+    var result = await cbusServer.connect(9999, value.targetSerial)
 
     setTimeout(function(){
       winston.info({message: name +': connect test: result ' + result});

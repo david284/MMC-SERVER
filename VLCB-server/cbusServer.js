@@ -14,8 +14,8 @@ const { get } = require('http');
 //
 
 class cbusServer {
-  constructor(config, CbusServerPort) {
-    winston.info({message: name + `: Constructor: port ${CbusServerPort}`});
+  constructor(config) {
+    winston.info({message: name + `: Constructor`});
     this.config = config
     this.clients = []
     this.enableSerialReconnect = false
@@ -48,13 +48,6 @@ class cbusServer {
 
     }.bind(this)) //end create server
 
-    // now start the listener...
-    winston.info({message: name + `: connect: starting listener on port ${CbusServerPort}`})
-
-    this.server.listen(CbusServerPort, () => {
-      winston.info({message: name + ': connect: listener bound '})
-    })
-    
     //
     //
     serialGC.on('data', function (data) {
@@ -118,8 +111,18 @@ class cbusServer {
   //
   // separate connect method so the instance can be passed
   // and the connection made later when the parameters are known
+  // need to supply port number so unit tests can use a different port
   //
-  async connect(targetSerial){
+  async connect(CbusServerPort, targetSerial){
+
+    // now start the listener...
+    winston.info({message: name + `: connect: starting cbusServer listener on port ${CbusServerPort}`})
+
+    this.server.listen(CbusServerPort, () => {
+      winston.info({message: name + ': connect: listener bound '})
+    })
+    
+
     winston.info({message: name + ': Connecting to serial port ' + targetSerial});
     this.targetSerial = targetSerial
     // connect to serial port
@@ -199,5 +202,5 @@ class cbusServer {
 
 }
 
-module.exports = (config, CbusServerPort) => { return new cbusServer(config, CbusServerPort) }
+module.exports = (config) => { return new cbusServer(config) }
 
