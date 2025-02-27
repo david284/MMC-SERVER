@@ -118,9 +118,12 @@ class cbusServer {
     // now start the listener...
     winston.info({message: name + `: connect: starting cbusServer listener on port ${CbusServerPort}`})
 
-    this.server.listen(CbusServerPort, () => {
-      winston.info({message: name + ': connect: listener bound '})
-    })
+    if (!this.server.listening){
+      // don't do this if already listening
+      this.server.listen(CbusServerPort, () => {
+        winston.info({message: name + ': connect: listener bound '})
+      })
+    }
     
 
     winston.info({message: name + ': Connecting to serial port ' + targetSerial});
