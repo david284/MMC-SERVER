@@ -112,9 +112,17 @@ class jsonServer{
     // connect to remote socket for CBUS messages
     try{
       this.cbusClient.connect(cbusPort, remoteAddress, function () {
-        winston.info({message:name + ': Connected to ' + remoteAddress + ' on ' + cbusPort})
+        let message = 'Connected to ' + remoteAddress + ' on ' + cbusPort
+        winston.info({message:name + ': ' + message})
         this.connected = true
-      }.bind(this));
+        let data = {
+          message: "Network port connected",
+          caption: message,
+          type: "info",
+          timeout: 500
+        }
+        this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
+        }.bind(this));
 
       if(this.enableReconnect == false){
         this.server.listen(this.JsonPort)
