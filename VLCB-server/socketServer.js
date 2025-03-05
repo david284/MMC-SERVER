@@ -437,6 +437,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
  
     //
     //
+    socket.on('SEND_CBUS_MESSAGE', function(data){
+      winston.info({message: `socketServer: SEND_CBUS_MESSAGE ` + data});
+      jsonServer.sendCbusMessage(data)
+    })
+    
+    //
+    //
     socket.on('SET_CAN_ID', function(data){
       winston.info({message: `socketServer: SET_CAN_ID ` + data});
       node.CBUS_Queue.push(node.CANID(data.nodeNumber, data.CAN_ID))
@@ -455,9 +462,14 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('START_CONNECTION', async function(data){
       winston.info({message: name + `: START_CONNECTION ${JSON.stringify(data)}`});
       if (data.mode == 'Network'){
+        // expect network CbusServer (or equivalent)
         winston.info({message: name + `: START_CONNECTION: Network mode `});
-        await jsonServer.connect(data.host, data.hostPort)
+        config.setCbusServerHost(data.host)
+        config.setCbusServerPort(data.hostPort)
       } else {
+        // use inbuilt cbusServer
+        config.setCbusServerHost('localhost')
+        config.setCbusServerPort(5550)
         if(data.mode == 'SerialPort'){
           winston.info({message: name + `: START_CONNECTION: SerialPort mode `});
           if(await cbusServer.connect(5550, data.serialPort) == false){
@@ -472,11 +484,10 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
         }
-
-        // using local inbuilt cbusServer on 5550
         winston.info({message: name + `: START_CONNECTION: connect JsonServer using in-built cbusServer `});
-        await jsonServer.connect('localhost', 5550)
       }
+      // now connect the jsonServer to the configured CbusServer
+      await jsonServer.connect(config.getCbusServerHost(), config.getCbusServerPort())
       await node.connect("localhost", config.getJsonServerPort());
       programNode.setConnection("localhost", config.getJsonServerPort());
       status.mode = 'RUNNING'
@@ -664,6 +675,13 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
   // eventBus events
   //
   //*************************************************************************************** */
+
+  //
+  //
+  config.eventBus.on('CBUS_TRAFFIC', function (data) {
+    winston.debug({message: name + `: eventBus: CBUS_TRAFFIC: ${data.direction} ${data.json.text}` });
+    io.emit('CBUS_TRAFFIC', data);
+  })
 
   // data JSON elements: message, caption, type, timeout
   //

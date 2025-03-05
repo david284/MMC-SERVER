@@ -146,6 +146,15 @@ class jsonServer{
     }
   }
 
+  //
+  // outputs an already encoded message
+  //
+  sendCbusMessage(cbusMSG){
+    let outMsg = cbusLib.decode(cbusMSG)
+    this.config.writeBusTraffic('OUT>> ' + outMsg.encoded + ' ' + outMsg.text)
+    this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'Out', json: outMsg})
+    this.cbusClient.write(cbusMSG)
+  }
 
   broadcast(data, sender) {
     //            winston.debug({message:`jsonServer: broadcast : ${data} `})

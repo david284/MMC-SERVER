@@ -738,6 +738,20 @@ class configuration {
   
   //
   //
+  getCbusServerHost(){return (this.cbusServerHost != undefined) ? this.cbusServerHost : '127.0.0.1'}
+  setCbusServerHost(cbusServerHost){
+    this.cbusServerHost = cbusServerHost
+  }
+
+  //
+  //
+  getCbusServerPort(){return (this.cbusServerPort != undefined) ? this.cbusServerPort : 5550}
+  setCbusServerPort(port){
+    this.cbusServerPort = port
+  }
+
+  //
+  //
   getJsonServerPort(){return (this.jsonServerPort != undefined) ? this.jsonServerPort : 5551}
   setJsonServerPort(port){
     this.jsonServerPort = port
