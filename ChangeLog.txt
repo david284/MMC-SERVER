@@ -1,0 +1,6 @@
+version 0.8.6
+  Added 'send cbus message' menu option
+  Made 'view toggle' ('view only short events' etc..) sticky and common across all views
+  Added 'view only long events' to view toggle
+  
+
