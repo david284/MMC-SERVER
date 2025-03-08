@@ -28,7 +28,7 @@ config.setCurrentLayoutFolder() // use default layout
 
 const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
 //let node = new admin.cbusAdmin(config);
 node.connect('localhost', config.getJsonServerPort())

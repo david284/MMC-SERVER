@@ -73,9 +73,10 @@ const STATE_QUIT = 3
 //
 //
 class programNode extends EventEmitter  {
-  constructor() {
+  constructor(config) {
     super()
     this.client = new net.Socket()  
+    this.config = config
     this.FIRMWARE = {}
     this.nodeNumber = null
     this.ackReceived = false
@@ -442,10 +443,14 @@ class programNode extends EventEmitter  {
   async transmitCBUS(msg, delay)
   {
     if (delay == undefined){ delay = 50}
+    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
+    /*
     var jsonMessage = cbusLib.decode(msg)
     winston.info({message: 'programNode: CBUS Transmit >>>: ' + JSON.stringify(jsonMessage)})
+    */
     this.ackReceived = false  // set to false before writing
-    this.client.write(JSON.stringify(jsonMessage))
+    //this.client.write(JSON.stringify(jsonMessage))
+
     // need to add a delay between write to the module
     //
     var startTime = Date.now()
@@ -709,5 +714,4 @@ class programNode extends EventEmitter  {
 };
 
 
-
-module.exports = new programNode() 
+module.exports = (config) => { return new programNode(config) } 

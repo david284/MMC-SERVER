@@ -30,9 +30,10 @@ function  arrayChecksum(array, start) {
 
 
 class mock_jsonServer{
-  constructor(JSON_SERVER_PORT) {
+  constructor(JSON_SERVER_PORT, config) {
     winston.info({message:`mock_jsonServer: Constructor - Port ` + JSON_SERVER_PORT})
 
+    this.config = config
     this.clients = [];
     this.messagesIn = [];
     this.learnNodeNumber = 0;
@@ -64,9 +65,15 @@ class mock_jsonServer{
       socket.on('error', function (data) {
         winston.info({message:`mock_jsonServer: error Received :`})
       }.bind(this));
-
     }.bind(this));
 
+    this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
+      winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
+      let cbusMsg = cbusLib.decode(data)
+      this.messagesIn.push(cbusMsg)
+      this.processMessagesIn(cbusMsg)
+    }.bind(this))
+    
     server.listen(JSON_SERVER_PORT)
   }
 
@@ -190,5 +197,6 @@ class mock_jsonServer{
 
 }
 
-module.exports = mock_jsonServer;
+module.exports = (JsonPort, configuration) => { return new mock_jsonServer(JsonPort, configuration) }
+
 

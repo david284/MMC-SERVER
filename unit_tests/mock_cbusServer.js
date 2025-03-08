@@ -17,26 +17,36 @@ class mock_cbusServer{
       socket.setKeepAlive(true, 60000);
       this.clients.push(socket);
       winston.info({message:name + `: remote Client Connected: ` + JSON.stringify(socket.address())})
-  
+
       socket.on('connect', function (data) {
-        winston.info({message:name + `: On remote Client connected :`})
+        winston.info({message:name + `: On connect :`})
       }.bind(this));
 
       socket.on('data', function (data) {
-        winston.debug({message:name + `: on data received start: ${data}`})
+        winston.debug({message:name + `: On data received: ${data}`})
         this.messagesIn.push(data)
       }.bind(this));
 
       socket.on('error', function (data) {
-        winston.info({message:name + `: error Received :`})
+        winston.info({message:name + `: On error Received :`})
       }.bind(this));
 
     }.bind(this));
 
     server.listen(CBUS_SERVER_PORT)
+  } // end constructor
+
+  // this accepts gridconnect data
+  inject(outMsg){
+    winston.info({message:`mock_cbusServer: inject ` + outMsg})
+    let cbusLibMsg = cbusLib.decode(outMsg)
+    this.clients.forEach(function (client) {
+        let output = JSON.stringify(cbusLibMsg);
+        winston.debug({message:name + `: inject receive data` + output})
+        winston.debug({message:name + `: client` + JSON.stringify(client._sockname)})
+        client.write(outMsg);
+    });
   }
-
-
 
 
 }

@@ -33,11 +33,14 @@ class jsonServer{
     //
 
     this.cbusClient.on('data', function (data) {
+      winston.debug({message:`jsonServer: cbusClient: data : ${data}`})
       this.connected = true
       this.cbusClient.setKeepAlive(true, 60000);
       let outMsg = data.toString().split(";");
       for (let i = 0; i < outMsg.length - 1; i++) {
         // restore terminating ';' lost due to split & then decode
+        winston.debug({message:`jsonServer: cbusClient: outMsg : ${outMsg[i] + ';'}`})
+        this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg[i] + ';')
         let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
         this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
         this.clients.forEach(function (client) {
@@ -96,7 +99,11 @@ class jsonServer{
 
     }.bind(this))
 
-//    this.server.listen(this.JsonPort)
+  this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
+    winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
+    this.sendCbusMessage(data)
+  }.bind(this))
+
 
   }
 

@@ -31,7 +31,7 @@ config.setJsonServerPort(5571);
 config.setSocketServerPort(5552);
 
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
 
 
 let status = {"busConnection":{
@@ -41,7 +41,7 @@ let status = {"busConnection":{
 
 const cbusServer = require('../VLCB-server/cbusServer')(config, 9998)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
-const programNode = require('../VLCB-server/programNodeMMC.js')
+const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 
 node.connect('localhost', config.getJsonServerPort())
 node.inUnitTest = true

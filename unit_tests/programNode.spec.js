@@ -23,7 +23,7 @@ config.setJsonServerPort(5591);
 config.setSocketServerPort(5572);
 
 
-const mock_jsonServer = new (require('./mock_jsonServer'))(config.getJsonServerPort())
+const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
 
 
 describe('programNode tests', async function(){
@@ -63,7 +63,7 @@ describe('programNode tests', async function(){
     //
 	it('Checksum test', function() {
 		winston.info({message: 'TEST: >>>>>> BEGIN: Checksum:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     // expect to get two's compliment of 16 bit checksum returned
     var array = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00]
@@ -79,7 +79,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile short test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile short test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     let filename = './unit_tests/test_firmware/shortFile.HEX'
     winston.info({message: 'TEST: ParseHexFile short test: Filename: ' + filename});
@@ -95,7 +95,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile shortNoEOL test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile shortNoEOL test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     let filename = './unit_tests/test_firmware/shortFileNoEOL.HEX'
     winston.info({message: 'TEST: ParseHexFile shortNoEOL test: Filename: ' + filename});
@@ -111,7 +111,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile configOnly test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile configOnly test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.HEX');
     var callbackInvoked = false
@@ -126,7 +126,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile eepromOnly test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile eepromOnly test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.HEX');
     var callbackInvoked = false
@@ -141,7 +141,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile full test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile full test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
 //    let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
 //    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
@@ -162,7 +162,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFileLF full test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFileLF full test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     let filename = './unit_tests/test_firmware/CANACC5_v2v LF.hex'
     var intelHexString = fs.readFileSync(filename);
@@ -178,7 +178,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile corrupt test', function() {
     winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile corrupt test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
     var result = programNode.parseHexFile( intelHexString );
@@ -218,7 +218,7 @@ describe('programNode tests', async function(){
   //
   itParam("decodeLineNG test ${JSON.stringify(value)}", GetTestCase_lines(), function (value) {
 		winston.info({message: 'TEST: BEGIN: decodeLineNG: ' + JSON.stringify(value)});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
 		var result = programNode.decodeLineNG(value.line);
     expect(result).to.equal(value.result);
@@ -231,7 +231,7 @@ describe('programNode tests', async function(){
   //
 	it('program short test', async function() {
 		winston.info({message: 'TEST: BEGIN program short:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     programNode.on('programNode_progress', function (data) {
     	downloadData = data;
@@ -278,7 +278,7 @@ describe('programNode tests', async function(){
     //
     it('program full test', async function() {
       winston.info({message: 'TEST: >>>>>> BEGIN: program full download:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')
+      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
       programNode.setConnection(NET_ADDRESS, NET_PORT)
       programNode.on('programNode_progress', function (data) {
         downloadData = data;
@@ -327,7 +327,7 @@ describe('programNode tests', async function(){
 
     it('program configOnly test', async function() {
       winston.info({message: 'TEST: BEGIN program short:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')
+      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
       programNode.setConnection(NET_ADDRESS, NET_PORT)
       programNode.on('programNode_progress', function (data) {
         downloadData = data;
@@ -366,7 +366,7 @@ describe('programNode tests', async function(){
   
     it('program eepromOnly test', async function() {
       winston.info({message: 'TEST: BEGIN program short:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')
+      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
       programNode.setConnection(NET_ADDRESS, NET_PORT)
       programNode.on('programNode_progress', function (data) {
         downloadData = data;
@@ -413,7 +413,7 @@ describe('programNode tests', async function(){
     //
 	it('Download corrupt file test', async function() {
 		winston.info({message: 'TEST: >>>>>> BEGIN: corrupt download:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     var corruptFileData
     programNode.on('programNode_progress', function (data) {
@@ -450,7 +450,7 @@ describe('programNode tests', async function(){
     //
     itParam("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
 		winston.info({message: 'TEST: BEGIN: CPUTYPE file:' + JSON.stringify(value)});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;
@@ -475,7 +475,7 @@ describe('programNode tests', async function(){
     //
 	it('CPUTYPE ignore test', async function() {
 		winston.info({message: 'TEST: >>>>>> BEGIN: ignore CPUTYPE:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
     downloadDataArray = []
     programNode.on('programNode_progress', function (data) {
@@ -507,7 +507,7 @@ describe('programNode tests', async function(){
 		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode:'});
     mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
     mock_jsonServer.ackRequested = true
-    const programNode = require('../VLCB-server/programNodeMMC.js')
+    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
     programNode.setConnection(NET_ADDRESS, NET_PORT)
 
     programNode.on('programNode_progress', function (data) {

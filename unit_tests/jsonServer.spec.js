@@ -58,16 +58,14 @@ describe('jsonServer tests', function(){
 
 
   it("sendCbusMessage test", function (done) {
-
     winston.info({message: name + ': BEGIN sendCbusMessage test:'});
-
     let cbusTraffic = undefined
     config.eventBus.once('CBUS_TRAFFIC', function (data) {
-      winston.info({message: name +': sendCbusMessage test: eventBus ' + JSON.stringify(data)});
+      winston.info({message: name +': sendCbusMessage test: CBUS_TRAFFIC ' + JSON.stringify(data)});
       cbusTraffic = data
     })
 
-    let testMessage = ":SB780N0D;"
+    let testMessage = ":SB780N0D;"  // QNN
     var result = jsonServer.sendCbusMessage(testMessage)
 
     setTimeout(function(){
@@ -75,6 +73,45 @@ describe('jsonServer tests', function(){
       expect(mock_cbusServer.messagesIn[0].toString()).to.equal(testMessage);
       expect(cbusTraffic.json.encoded).to.equal(testMessage);
       winston.info({message: name +': END sendCbusMessage test'});
+			done();
+		}, 500);
+  })
+
+  it("sendCbusMessageEvent test", function (done) {
+    winston.info({message: name + ': BEGIN sendCbusMessageEvent test:'});
+    let cbusTraffic = undefined
+    config.eventBus.once('CBUS_TRAFFIC', function (data) {
+      winston.info({message: name +': sendCbusMessageEvent test: CBUS_TRAFFIC ' + JSON.stringify(data)});
+      cbusTraffic = data
+    })
+
+    let testMessage = ":SB780N0D;"  // QNN
+    config.eventBus.emit ('GRID_CONNECT_SEND', testMessage)
+
+    setTimeout(function(){
+      winston.info({message: name +': sendCbusMessageEvent test: result ' + mock_cbusServer.messagesIn[0].toString()});
+      expect(mock_cbusServer.messagesIn[0].toString()).to.equal(testMessage);
+      expect(cbusTraffic.json.encoded).to.equal(testMessage);
+      winston.info({message: name +': END sendCbusMessageEvent test'});
+			done();
+		}, 500);
+  })
+
+  it("receiveCbusMessage test", function (done) {
+    winston.info({message: name + ': BEGIN receiveCbusMessage test:'});
+    let gcRX = undefined
+    config.eventBus.once('GRID_CONNECT_RECEIVE', function (data) {
+      winston.info({message: name +': GRID_CONNECT_RECEIVE: ' + JSON.stringify(data)});
+      gcRX = data
+    })
+
+    let testMessage = ":SB780N500101;"  // RQNN node 257
+    mock_cbusServer.inject(testMessage)
+
+    setTimeout(function(){
+      winston.info({message: name +': sendCbusMessage test: result ' + gcRX});
+      expect(gcRX).to.equal(testMessage);
+      winston.info({message: name +': END receiveCbusMessage test'});
 			done();
 		}, 500);
   })
