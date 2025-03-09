@@ -489,7 +489,6 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       // now connect the jsonServer to the configured CbusServer
       await jsonServer.connect(config.getCbusServerHost(), config.getCbusServerPort())
       await node.connect("localhost", config.getJsonServerPort());
-      programNode.setConnection("localhost", config.getJsonServerPort());
       status.mode = 'RUNNING'
     })
 

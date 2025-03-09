@@ -25,6 +25,8 @@ config.setSocketServerPort(5572);
 
 const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
 
+const programNode = require('../VLCB-server/programNodeMMC.js')(config)
+
 
 describe('programNode tests', async function(){
     
@@ -41,6 +43,9 @@ describe('programNode tests', async function(){
     
     beforeEach(function() {
       winston.info({message: '  '});   // blank line to separate tests
+      winston.info({message: '  '});   // blank line to separate tests
+      winston.debug({message: '  '});   // blank line to separate tests
+      winston.debug({message: '  '});   // blank line to separate tests
       winston.debug({message: '  '});   // blank line to separate tests
       mock_jsonServer.messagesIn = []
     })
@@ -48,7 +53,7 @@ describe('programNode tests', async function(){
 	after(function(done) {
    		winston.info({message: ' '});   // blank line to separate tests
         setTimeout(() => {
-            winston.debug({message: 'TEST: programNode: Tests ended'});
+            winston.debug({message: 'UNIT_TEST: programNode: Tests ended'});
             done();
         }, 1000)
 	});																										
@@ -62,15 +67,13 @@ describe('programNode tests', async function(){
     //
     //
 	it('Checksum test', function() {
-		winston.info({message: 'TEST: >>>>>> BEGIN: Checksum:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: Checksum:'});
     // expect to get two's compliment of 16 bit checksum returned
     var array = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00]
     // checksum of above is 06F9, so two's complement is F907
     var expected  = 'F907'
     expect(programNode.arrayChecksum(array)).to.equal(expected);
-		winston.info({message: 'TEST: <<<<<< END: Checksum:'});
+		winston.info({message: 'UNIT_TEST: <<<<<< END: Checksum:'});
 	});
 
 
@@ -78,15 +81,13 @@ describe('programNode tests', async function(){
   // Use real hex file to ensure correct operation
   //
   it('ParseHexFile short test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile short test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile short test:'});
     let filename = './unit_tests/test_firmware/shortFile.HEX'
-    winston.info({message: 'TEST: ParseHexFile short test: Filename: ' + filename});
+    winston.info({message: 'UNIT_TEST: ParseHexFile short test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile short test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile short test:'});
   });
 
 
@@ -94,15 +95,13 @@ describe('programNode tests', async function(){
   // Use real hex file to ensure correct operation
   //
   it('ParseHexFile shortNoEOL test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile shortNoEOL test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile shortNoEOL test:'});
     let filename = './unit_tests/test_firmware/shortFileNoEOL.HEX'
-    winston.info({message: 'TEST: ParseHexFile shortNoEOL test: Filename: ' + filename});
+    winston.info({message: 'UNIT_TEST: ParseHexFile shortNoEOL test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile shortNoEOL test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile shortNoEOL test:'});
   });
 
 
@@ -110,14 +109,12 @@ describe('programNode tests', async function(){
   //
   //
   it('ParseHexFile configOnly test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile configOnly test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile configOnly test:'});
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.HEX');
     var callbackInvoked = false
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile configOnly test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile configOnly test:'});
   });
 
 
@@ -125,14 +122,12 @@ describe('programNode tests', async function(){
   //
   //
   it('ParseHexFile eepromOnly test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile eepromOnly test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile eepromOnly test:'});
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.HEX');
     var callbackInvoked = false
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile eepromOnly test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile eepromOnly test:'});
   });
 
 
@@ -140,20 +135,18 @@ describe('programNode tests', async function(){
   // Use real hex file to ensure correct operation
   //
   it('ParseHexFile full test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile full test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile full test:'});
 //    let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
 //    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
     let filename = './unit_tests/test_firmware/Universal-VLCB4a15-18F27Q83-16MHz.HEX'
     var intelHexString = fs.readFileSync(filename);
-    winston.info({message: 'TEST: ParseHexFile full test: Filename: ' + filename});
+    winston.info({message: 'UNIT_TEST: ParseHexFile full test: Filename: ' + filename});
     //programNode.nodeCpuType = 13    // P18F25K80
     //programNode.nodeCpuType = 15    // P18F26K80
     programNode.nodeCpuType = 23    // 18F27Q83
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile full test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile full test:'});
   });
 
 
@@ -161,15 +154,13 @@ describe('programNode tests', async function(){
   // Use real hex file to ensure correct operation
   //
   it('ParseHexFileLF full test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFileLF full test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFileLF full test:'});
     let filename = './unit_tests/test_firmware/CANACC5_v2v LF.hex'
     var intelHexString = fs.readFileSync(filename);
-    winston.info({message: 'TEST: ParseHexFileLF full test: Filename: ' + filename});
+    winston.info({message: 'UNIT_TEST: ParseHexFileLF full test: Filename: ' + filename});
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(true);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFileLF full test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFileLF full test:'});
   });
 
 
@@ -177,13 +168,11 @@ describe('programNode tests', async function(){
   // Use real hex file to ensure correct operation
   //
   it('ParseHexFile corrupt test', function() {
-    winston.info({message: 'TEST: >>>>>> BEGIN: ParseHexFile corrupt test:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile corrupt test:'});
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(false);
-    winston.info({message: 'TEST: <<<<<< END: ParseHexFile corrupt test:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile corrupt test:'});
   });
   
   
@@ -217,12 +206,10 @@ describe('programNode tests', async function(){
   // Including failing when expected
   //
   itParam("decodeLineNG test ${JSON.stringify(value)}", GetTestCase_lines(), function (value) {
-		winston.info({message: 'TEST: BEGIN: decodeLineNG: ' + JSON.stringify(value)});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: BEGIN: decodeLineNG: ' + JSON.stringify(value)});
 		var result = programNode.decodeLineNG(value.line);
     expect(result).to.equal(value.result);
-		winston.info({message: 'TEST: END: decodeLineNG:'});
+		winston.info({message: 'UNIT_TEST: END: decodeLineNG:'});
 	});
 
   
@@ -230,21 +217,18 @@ describe('programNode tests', async function(){
   //
   //
 	it('program short test', async function() {
-		winston.info({message: 'TEST: BEGIN program short:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: BEGIN program short:'});
     programNode.on('programNode_progress', function (data) {
     	downloadData = data;
-	    winston.warn({message: 'TEST: short download: ' + JSON.stringify(downloadData)});
+	    winston.warn({message: 'UNIT_TEST: short download: ' + JSON.stringify(downloadData)});
 		});	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
 		await programNode.program(3000, 1, 3, intelHexString);
-    programNode.removeAllListeners()
     //
     //
     // expect first message to be BOOTM
     var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
-    winston.info({message: 'TEST: short download: first message: ' + JSON.stringify(firstMsg)});
+    winston.info({message: 'UNIT_TEST: short download: first message: ' + JSON.stringify(firstMsg)});
     expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
     expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
     //
@@ -255,92 +239,33 @@ describe('programNode tests', async function(){
 //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
     //
     // check last message is a reset command
-    winston.info({message: 'TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
+    winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
     var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
-    winston.info({message: 'TEST: short download: last message: ' + JSON.stringify(lastMsg)});
+    winston.info({message: 'UNIT_TEST: short download: last message: ' + JSON.stringify(lastMsg)});
     var lastMsg = cbusLib.decode(lastMsg)
-    winston.debug({message: 'TEST: short download: last message: ' + lastMsg.text});
+    winston.debug({message: 'UNIT_TEST: short download: last message: ' + lastMsg.text});
     expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
     expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
     expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
     //
-    winston.info({message: 'TEST: END program short:'});
+    winston.info({message: 'UNIT_TEST: END program short:'});
 	});
 
 
-    //
-    // test sequence of operations on download
-    // using full file this time
-    //
-    // expect: sequence to start with sending of BOOTM opcode
-    // expect: next, Hex file loaded, parsed & downloaded - verify by testing checksum of downloaded file if 'Complete' event received
-    // expect: Last thing, expect reset command sent
-    //
-    it('program full test', async function() {
-      winston.info({message: 'TEST: >>>>>> BEGIN: program full download:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-      programNode.setConnection(NET_ADDRESS, NET_PORT)
-      programNode.on('programNode_progress', function (data) {
-        downloadData = data;
-        winston.warn({message: 'TEST: full download: ' + JSON.stringify(downloadData)});
-      });	        
-      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACE8C_v2q.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
-      await programNode.program(300, 1, 4, intelHexString);
-      var FIRMWARE = programNode.FIRMWARE
-      programNode.removeAllListeners()
-    //
-      // expect first message to be BOOTM
-      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
-      winston.debug({message: 'TEST: full download: first message: ' + firstMsg.text});
-      expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
-      expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
-      //
-      // verify checksum when process is signalled as complete
-      expect(downloadData.status).to.equal('Success', 'Download status');
-      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-      //
-      // check last message is a reset command
-      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
-      winston.debug({message: 'TEST: full download: last message: ' + lastMsg.text});
-      expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
-      expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
-      expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
-      //
-
-      for (const block in FIRMWARE.FLASH) {
-        winston.debug({message: 'TEST: full download: FLASH: ' + utils.decToHex(block, 6) + ' '})
-        for (var i = 0; i<FIRMWARE.FLASH[block].length; i+=16){
-          var output = utils.decToHex(parseInt(block) + i, 6) + ' '
-          for (var j = 0; j<16; j++){output += utils.decToHex(FIRMWARE['FLASH'][block][i+j], 2) + ' ' }
-          winston.debug({message: 'FLASH Data: ' + output})
-        }
-      }
-
-      winston.info({message: 'TEST: END program full download:'});
-    });
-  
-  
 
     it('program configOnly test', async function() {
-      winston.info({message: 'TEST: BEGIN program short:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-      programNode.setConnection(NET_ADDRESS, NET_PORT)
+      winston.info({message: 'UNIT_TEST: BEGIN program configOnly:'});
       programNode.on('programNode_progress', function (data) {
         downloadData = data;
-        winston.warn({message: 'TEST: short download: ' + JSON.stringify(downloadData)});
+        winston.warn({message: 'UNIT_TEST: program configOnly: ' + JSON.stringify(downloadData)});
       });	        
       var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.HEX');
       await programNode.program(3000, 1, 5, intelHexString);
-      programNode.removeAllListeners()
       //
       //
       // expect first message to be BOOTM
       var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
-      winston.info({message: 'TEST: short download: first message: ' + JSON.stringify(firstMsg)});
+      winston.info({message: 'UNIT_TEST: program configOnly: first message: ' + JSON.stringify(firstMsg)});
       expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
       //
@@ -351,35 +276,32 @@ describe('programNode tests', async function(){
   //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
-      winston.info({message: 'TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
+      winston.info({message: 'UNIT_TEST: program configOnly: number of message: ' + mock_jsonServer.messagesIn.length});
       var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
-      winston.info({message: 'TEST: short download: last message: ' + JSON.stringify(lastMsg)});
+      winston.info({message: 'UNIT_TEST: program configOnly: last message: ' + JSON.stringify(lastMsg)});
       var lastMsg = cbusLib.decode(lastMsg)
-      winston.debug({message: 'TEST: short download: last message: ' + lastMsg.text});
+      winston.debug({message: 'UNIT_TEST: program configOnly: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
       //
-      winston.info({message: 'TEST: END program short:'});
+      winston.info({message: 'UNIT_TEST: END program configOnly:'});
     });
   
   
     it('program eepromOnly test', async function() {
-      winston.info({message: 'TEST: BEGIN program short:'});
-      const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-      programNode.setConnection(NET_ADDRESS, NET_PORT)
+      winston.info({message: 'UNIT_TEST: BEGIN program short:'});
       programNode.on('programNode_progress', function (data) {
         downloadData = data;
-        winston.warn({message: 'TEST: short download: ' + JSON.stringify(downloadData)});
+        winston.warn({message: 'UNIT_TEST: short download: ' + JSON.stringify(downloadData)});
       });	        
       var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.HEX');
       await programNode.program(3000, 1, 6, intelHexString);
-      programNode.removeAllListeners()
       //
       //
       // expect first message to be BOOTM
       var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
-      winston.info({message: 'TEST: short download: first message: ' + JSON.stringify(firstMsg)});
+      winston.info({message: 'UNIT_TEST: short download: first message: ' + JSON.stringify(firstMsg)});
       expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
       //
@@ -390,16 +312,16 @@ describe('programNode tests', async function(){
   //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
-      winston.info({message: 'TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
+      winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
       var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
-      winston.info({message: 'TEST: short download: last message: ' + JSON.stringify(lastMsg)});
+      winston.info({message: 'UNIT_TEST: short download: last message: ' + JSON.stringify(lastMsg)});
       var lastMsg = cbusLib.decode(lastMsg)
-      winston.debug({message: 'TEST: short download: last message: ' + lastMsg.text});
+      winston.debug({message: 'UNIT_TEST: short download: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
       //
-      winston.info({message: 'TEST: END program short:'});
+      winston.info({message: 'UNIT_TEST: END program short:'});
     });
   
   
@@ -412,23 +334,20 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('Download corrupt file test', async function() {
-		winston.info({message: 'TEST: >>>>>> BEGIN: corrupt download:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: corrupt download:'});
     var corruptFileData
     programNode.on('programNode_progress', function (data) {
       corruptFileData = data;
-		  winston.warn({message: 'TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
+		  winston.warn({message: 'UNIT_TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
 		});	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
 		await programNode.program(300, 1, 3, intelHexString);
-    programNode.removeAllListeners()
     //
     expect (mock_jsonServer.messagesIn.length).to.equal(0, "check sent messages")
     expect(corruptFileData.status).to.equal("Failure", 'Download event');
     expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
     //
-    winston.info({message: 'TEST: <<<<<< END: corrupt download:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: corrupt download:'});
 	});
 
 
@@ -449,23 +368,20 @@ describe('programNode tests', async function(){
     // use wrong cpu type, and short file
     //
     itParam("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
-		winston.info({message: 'TEST: BEGIN: CPUTYPE file:' + JSON.stringify(value)});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: BEGIN: CPUTYPE file:' + JSON.stringify(value)});
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;
-			winston.warn({message: 'TEST: CPUTYPE: ' + JSON.stringify(downloadData)});
+			winston.warn({message: 'UNIT_TEST: CPUTYPE: ' + JSON.stringify(downloadData)});
     });	        
     var intelHexString = fs.readFileSync(value.hexFile);
 		await programNode.program(300, value.cpuType, 0, intelHexString);
-    programNode.removeAllListeners()
     //
     expect(downloadData.status).to.equal(value.result, 'Download event');
     if(value.result == 'Failure'){
       expect(downloadData.text).to.equal('CPU mismatch', 'Download event');
     }
     //
-    winston.info({message: 'TEST: END: CPUTYPE:'});
+    winston.info({message: 'UNIT_TEST: END: CPUTYPE:'});
 	});
 
 
@@ -474,23 +390,20 @@ describe('programNode tests', async function(){
     // use wrong cpu type, and short file
     //
 	it('CPUTYPE ignore test', async function() {
-		winston.info({message: 'TEST: >>>>>> BEGIN: ignore CPUTYPE:'});
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
+		winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ignore CPUTYPE:'});
     downloadDataArray = []
     programNode.on('programNode_progress', function (data) {
 			downloadDataArray.push(data);
-			winston.warn({message: 'TEST: ignore CPUTYPE: ' + JSON.stringify(data)});
+			winston.warn({message: 'UNIT_TEST: ignore CPUTYPE: ' + JSON.stringify(data)});
     });	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
 		await programNode.program(300, 99, 4, intelHexString);
-    programNode.removeAllListeners()
     //
     expect(downloadDataArray[1].text).to.equal('CPUTYPE ignored', 'Download event');
     expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
     expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
     //
-    winston.info({message: 'TEST: <<<<<< END: ignore CPUTYPE:'});
+    winston.info({message: 'UNIT_TEST: <<<<<< END: ignore CPUTYPE:'});
 	});
 
 
@@ -504,19 +417,16 @@ describe('programNode tests', async function(){
     // expect: Last thing, expect reset command sent
     //
 	it('programBootMode test', async function() {
-		winston.info({message: 'TEST: >>>>>> BEGIN: programBootMode:'});
+		winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: programBootMode:'});
     mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
     mock_jsonServer.ackRequested = true
-    const programNode = require('../VLCB-server/programNodeMMC.js')(config)
-    programNode.setConnection(NET_ADDRESS, NET_PORT)
 
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;
-			winston.warn({message: 'TEST: programBootMode: ' + JSON.stringify(downloadData)});
+			winston.warn({message: 'UNIT_TEST: programBootMode: ' + JSON.stringify(downloadData)});
     });	        
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
 		await programNode.program(1, 1, 11, intelHexString);
-    programNode.removeAllListeners()
       //
       // verify process is signalled as complete & checksum correct
       expect(downloadData.status).to.equal("Success", 'programBootMode: expected event');
@@ -525,13 +435,66 @@ describe('programNode tests', async function(){
       //
       // check last message is a reset command
       var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
-			winston.debug({message: 'TEST: programBootMode: last message: ' + lastMsg.text});
+			winston.debug({message: 'UNIT_TEST: programBootMode: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
       expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
       //
-      winston.info({message: 'TEST: <<<<<< END: programBootMode:'});
+      winston.info({message: 'UNIT_TEST: <<<<<< END: programBootMode:'});
 	});
 
+    //
+    // test sequence of operations on download
+    // using full file this time
+    //
+    // expect: sequence to start with sending of BOOTM opcode
+    // expect: next, Hex file loaded, parsed & downloaded - verify by testing checksum of downloaded file if 'Complete' event received
+    // expect: Last thing, expect reset command sent
+    //
+    it('program full test', async function() {
+      winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: program full test:'});
+      programNode.on('programNode_progress', function (data) {
+        downloadData = data;
+        winston.warn({message: 'UNIT_TEST: full download: ' + JSON.stringify(downloadData)});
+      });	        
+      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACE8C_v2q.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
+//      var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
+      await programNode.program(300, 1, 4, intelHexString);
+      var FIRMWARE = programNode.FIRMWARE
+    //
+      // expect first message to be BOOTM
+      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
+      winston.debug({message: 'UNIT_TEST: full download: first message: ' + firstMsg.text});
+      expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
+      expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
+      //
+      // verify checksum when process is signalled as complete
+      expect(downloadData.status).to.equal('Success', 'Download status');
+      expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
+      //
+      // check last message is a reset command
+      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
+      winston.debug({message: 'UNIT_TEST: full download: last message: ' + lastMsg.text});
+      expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
+      expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
+      expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
+      //
+
+      for (const block in FIRMWARE.FLASH) {
+        winston.debug({message: 'UNIT_TEST: full download: FLASH: ' + utils.decToHex(block, 6) + ' '})
+        for (var i = 0; i<FIRMWARE.FLASH[block].length; i+=16){
+          var output = utils.decToHex(parseInt(block) + i, 6) + ' '
+          for (var j = 0; j<16; j++){output += utils.decToHex(FIRMWARE['FLASH'][block][i+j], 2) + ' ' }
+          winston.debug({message: 'FLASH Data: ' + output})
+        }
+      }
+
+      winston.info({message: 'UNIT_TEST: END program full download:'});
+    });
+  
+  
 
 })

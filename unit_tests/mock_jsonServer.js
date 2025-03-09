@@ -67,6 +67,8 @@ class mock_jsonServer{
       }.bind(this));
     }.bind(this));
 
+    server.listen(JSON_SERVER_PORT)
+
     this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
       winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
       let cbusMsg = cbusLib.decode(data)
@@ -74,8 +76,7 @@ class mock_jsonServer{
       this.processMessagesIn(cbusMsg)
     }.bind(this))
     
-    server.listen(JSON_SERVER_PORT)
-  }
+  } // end constructor
 
 
   connect(remoteAddress, cbusPort){
@@ -147,6 +148,7 @@ class mock_jsonServer{
           case 2:
               winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
               this.firmware = []
+              winston.debug({message: 'mock_jsonServer: <<< Received CMD_RST_CHKSM - new checksum ' + arrayChecksum(this.firmware, 0)});
               break;
           case 3:
               winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
@@ -170,13 +172,14 @@ class mock_jsonServer{
               break
         }
         if(message.CTLBT & (2**CTLBT_ACK))  {
-          winston.info({message: 'mock_jsonServer: ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
+          //winston.debug({message: 'mock_jsonServer: ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
           this.ackRequested = true
         }
     }
     if (message.type == 'DATA') {
       for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
       winston.debug({message: 'mock_jsonServer: <<< Received DATA - new length ' + this.firmware.length});
+      winston.debug({message: 'mock_jsonServer: <<< Received DATA - new checksum ' + arrayChecksum(this.firmware, 0)});
         if(this.ackRequested){
           this.outputExtResponse(1)   // 1 = ok          
         }

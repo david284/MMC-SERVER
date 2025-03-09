@@ -46,14 +46,14 @@ const SPCMD_BOOT_TEST = 4
 //  send check_boot - SPCMD_BOOT_TEST (4)
 //  expect response 2 - start send firmware process (||)
 //
-//  || set sendingFirmware = true
+//  || set programState = STATE_FIRMWARE
 //  || send intial control message SPCMD_INIT_CHK (2) with address 0000 & CONTROL_BITS
 //  || then for each block.... always starting at block 000800
 //  || send control message SPCMD_NOP (0) with block address & CONTROL_BITS
 //  || send all data messages for that block
 //  || if more blocks, send control with new block address & then data...
 //  || when all data sent...
-//  || set sendingFirmware = false
+//  || set programState = STATE_END_FIRMWARE
 //  || send control message SPCMD_CHK_RUN with check sum 
 //
 //  expect response message to SPCMD_CHK_RUN (now sendingFirmware == false)
@@ -68,6 +68,7 @@ const STATE_NULL = 0
 const STATE_START = 1
 const STATE_FIRMWARE = 2
 const STATE_QUIT = 3
+const STATE_END_FIRMWARE = 4
 
 //
 //
@@ -75,26 +76,19 @@ const STATE_QUIT = 3
 class programNode extends EventEmitter  {
   constructor(config) {
     super()
-    this.client = new net.Socket()  
     this.config = config
     this.FIRMWARE = {}
     this.nodeNumber = null
     this.ackReceived = false
-    this.sendingFirmware = false
     this.decodeState = {}
     this.programState = STATE_NULL
     this.nodeCpuType = null
-  }
+
+    this.success = false
+    this.TxCount = 0
+
+  } // end constructor
     
-  //
-  //
-  //
-  setConnection(host, port){
-    this.net_address = host
-    this.net_port = port
-  }
-
-
 
   /** actual download function
   * @param NODENUMBER
@@ -113,64 +107,50 @@ class programNode extends EventEmitter  {
     this.nodeNumber = NODENUMBER
     this.programState = STATE_START
     this.nodeCpuType = CPUTYPE
+    this.TxCount = 0
 
 
-    this.client.connect(this.net_port, this.net_address, function () {
-      winston.info({message: name + ': this Client Connected ' + this.net_address + ':' + this.net_port});
-      winston.info({message: name + ': this Client is port ' + this.client.localPort});
-    }.bind(this))
-    await utils.sleep(10)    // allow time for connection
-    
-    this.client.on('close', function () {
-      winston.debug({message: 'programNode: Connection Closed'});
-      this.programState = STATE_QUIT
-    }.bind(this))
-
-    this.client.on('error', function (err) {
-      var msg = 'TCP ERROR: ' + err.code
-      winston.debug({message: 'programNode: ' + msg});
-      this.sendFailureToClient(msg)
-      this.programState = STATE_QUIT
-    }.bind(this))
-
-    this.client.on('data', async function (message) {
-      let tmp = message.toString().replace(/}{/g, "}|{")
-      const inMsg = tmp.toString().split("|")
-      for (let i = 0; i < inMsg.length; i++) {
-        try {
-          var cbusMsg = JSON.parse(inMsg[i])
-          if (cbusMsg.ID_TYPE == "X"){
-            winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
-            if (cbusMsg.operation == 'RESPONSE') {
-              if (cbusMsg.response == 0) {
-                winston.debug({message: 'programNode: Check NOT OK received: download failed'});
-                this.sendFailureToClient('Check NOT OK received: download failed')
+    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
+      winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+      let cbusMsg = cbusLib.decode(data)
+      try {
+        if (cbusMsg.ID_TYPE == "X"){
+          winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
+          if (cbusMsg.operation == 'RESPONSE') {
+            if (cbusMsg.response == 0) {
+              winston.debug({message: 'programNode: Check NOT OK received: download failed'});
+              this.sendFailureToClient('Check NOT OK received: download failed')
+              this.programState = STATE_QUIT
+            }
+            if (cbusMsg.response == 1) {
+              this.ackReceived = true
+              if (this.programState == STATE_END_FIRMWARE){
+                winston.debug({message: 'programNode: Check OK received: Sending reset'});
+                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
+                await this.transmitCBUS(msg, 80)
+                this.success = true
+                // 'Success:' is a necessary string in the message to signal the client it's been successful
+                this.sendSuccessToClient('Success: programing completed')
                 this.programState = STATE_QUIT
+              } else {
+                winston.debug({message: 'programNode: ACK received'});
               }
-              if (cbusMsg.response == 1) {
-                this.ackReceived = true
-                if (this.sendingFirmware == false){
-                  winston.debug({message: 'programNode: Check OK received: Sending reset'});
-                  var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
-                  await this.transmitCBUS(msg, 80)
-                  this.success = true
-                  // 'Success:' is a necessary string in the message to signal the client it's been successful
-                  this.sendSuccessToClient('Success: programing completed')
-                  this.programState = STATE_QUIT
-                }
-              }
-              if (cbusMsg.response == 2) {
-                  winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
-                  this.sendFirmwareNG(FLAGS)
+            }
+            if (cbusMsg.response == 2) {
+              winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
+              if (this.programState != STATE_FIRMWARE){
+                this.sendFirmwareNG(FLAGS)
               }
             }
           }
-        } catch (err){
-          winston.debug({message: name + ': program on data: ' + err});
         }
+      } catch (err){
+        winston.debug({message: name + ': program on data: ' + err});
       }
     }.bind(this))
 
+    //
+    //
     if (this.parseHexFile(INTEL_HEX_STRING)){
       winston.debug({message: 'programNode: parseHexFile success'})
 
@@ -219,10 +199,6 @@ class programNode extends EventEmitter  {
       if(this.programState == STATE_QUIT) {break}
     }
     await utils.sleep(300)  // allow time for last messages to be sent
-    this.client.end()
-    await utils.sleep(100)  // allow time for connection to end
-    this.client.removeAllListeners()
-
   }
   
 
@@ -239,8 +215,6 @@ class programNode extends EventEmitter  {
       var fullArray = []
       // we want to indicate progress for each region, so we keep a counter that we can reset and then incrmeent for each region
       var progressCount = 0
-
-      this.sendingFirmware = true
 
       // start with SPCMD_INIT_CHK
       var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
@@ -262,11 +236,11 @@ class programNode extends EventEmitter  {
           progressCount = 0
           for (let i = 0; i < program.length; i += 8) {
             var chunk = program.slice(i, i + 8)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 60)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
+            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
             winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+            await this.transmitCBUS(msgData, 60)
+            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             if (progressCount <= i) {
               progressCount += 128    // report progress every 16 messages
               var text = 'Progress:   FLASH ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/program.length * 100) + '%'
@@ -286,16 +260,16 @@ class programNode extends EventEmitter  {
           winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
           await this.transmitCBUS(msgData, 80)
           //
-          for (let i = 0; i < config.length; i += 8) {
-            var chunk = config.slice(i, i + 8)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 80)
+          for (let configOffset = 0; configOffset < config.length; configOffset += 8) {
+            var chunk = config.slice(configOffset, configOffset + 8)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
+            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
+            winston.debug({message: 'programNode: sending CONFIG data: ' + configOffset + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+            await this.transmitCBUS(msgData, 80)
             for (let z=0; z<8; z++){fullArray.push(chunk[z])}
-            winston.debug({message: 'programNode: sending CONFIG data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-            if (progressCount <= i) {
+            if (progressCount <= configOffset) {
               progressCount += 32    // report progress every 4 messages
-              var text = 'Progress: CONFIG ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/config.length * 100) + '%'
+              var text = 'Progress: CONFIG ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(configOffset, 4) + ' : ' + Math.round(configOffset/config.length * 100) + '%'
               this.sendBootModeToClient(text)
             }
           }
@@ -314,11 +288,11 @@ class programNode extends EventEmitter  {
           //
           for (let i = 0; i < eeprom.length; i += 8) {
             var chunk = eeprom.slice(i, i + 8)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            await this.transmitCBUS(msgData, 80)
             calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
+            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
             winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
+            await this.transmitCBUS(msgData, 80)
+            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
             if (progressCount <= i) {
               progressCount += 32    // report progress every 4 messages
               var text = 'Progress: EEPROM ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/eeprom.length * 100) + '%  '
@@ -328,7 +302,7 @@ class programNode extends EventEmitter  {
         }
       }
 
-      this.sendingFirmware = false
+      this.programState = STATE_END_FIRMWARE
       
       // Verify Checksum
       // 00049272: Send: :X00080004N000000000D034122;
@@ -443,13 +417,9 @@ class programNode extends EventEmitter  {
   async transmitCBUS(msg, delay)
   {
     if (delay == undefined){ delay = 50}
-    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
-    /*
-    var jsonMessage = cbusLib.decode(msg)
-    winston.info({message: 'programNode: CBUS Transmit >>>: ' + JSON.stringify(jsonMessage)})
-    */
     this.ackReceived = false  // set to false before writing
-    //this.client.write(JSON.stringify(jsonMessage))
+    winston.debug({message: `programNode: CBUS Transmit ${this.TxCount} ${msg}`})
+    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
 
     // need to add a delay between write to the module
     //
@@ -458,7 +428,7 @@ class programNode extends EventEmitter  {
     while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
       await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
     }       
-    winston.debug({message: 'programNode: CBUS Transmit time ' + (Date.now() - startTime)})
+    winston.debug({message: name + `: CBUS Transmit time ${this.TxCount++} ${(Date.now() - startTime)}`})
   }
 
 

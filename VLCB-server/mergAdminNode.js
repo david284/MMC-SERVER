@@ -5,6 +5,7 @@ let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 const { isUndefined } = require('util');
+const cbusLibrary = require('cbuslibrary');
 
 const name = 'mergAdminNode'
 
@@ -50,6 +51,22 @@ class cbusAdmin extends EventEmitter {
         setInterval(this.updateClients.bind(this), 500);
         this.opcodeTracker = {}
 
+        this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
+          winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+          try{
+            let cbusMsg = cbusLibrary.decode(data)
+            winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
+            //
+            this.emit('cbusTraffic', {direction: 'In', json: cbusMsg});
+            if (this.isMessageValid(cbusMsg)){
+              this.action_message(cbusMsg)
+            }
+          } catch (err) {
+            winston.error({message: name + `:  GRID_CONNECT_RECEIVE: ${err}`})
+          }
+        }.bind(this))
+        
+/*
         //
         this.client.on('data', async function (data) { //Receives packets from network and process individual Messages
           this.lastCbusTrafficTime = Date.now()     // store this time stamp
@@ -75,6 +92,7 @@ class cbusAdmin extends EventEmitter {
                 }
             }
         }.bind(this))
+*/
 
         this.client.on('error', (err) => {
             winston.debug({message: 'mergAdminNode: TCP ERROR ' + err});
