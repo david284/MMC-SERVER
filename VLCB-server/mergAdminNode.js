@@ -45,6 +45,7 @@ class cbusAdmin extends EventEmitter {
         this.lastMessageWasQNN = false
         this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
         this.CBUS_Queue = []
+        this.CBUS_Queue2 = []
         setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
         this.eventsChanged = false
         // update client if anything changed
@@ -113,6 +114,8 @@ class cbusAdmin extends EventEmitter {
           '00': async (cbusMsg) => { // ACK
               winston.info({message: "mergAdminNode: ACK (00) : No Action"});
           },
+         
+          /*
           '21': async (cbusMsg) => { // KLOC
               winston.info({message: `mergAdminNode: Session Cleared : ${cbusMsg.session}`});
               let session = cbusMsg.session
@@ -161,10 +164,13 @@ class cbusAdmin extends EventEmitter {
               this.dccSessions[session].speed = speed
               this.emit('dccSessions', this.dccSessions)
           },
+          */
+
           '50': async (cbusMsg) => {// RQNN -  Node Number
             winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
             this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
             this.CBUS_Queue.push(this.RQMN())   // push node onto queue to read module name from node
+            this.CBUS_Queue2.push(cbusLib.encodeRQMN())   // push node onto queue to read module name from node
           },
           '52': async (cbusMsg) => {
             // NNACK - Node number acknowledge
@@ -259,8 +265,10 @@ class cbusAdmin extends EventEmitter {
             this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
             this.saveNode(cbusMsg.nodeNumber)
             this.CBUS_Queue.push(this.NNEVN(cbusMsg.nodeNumber)) // always request available space left
+            this.CBUS_Queue2.push(cbusLib.encodeNNEVN(cbusMsg.nodeNumber)) // always request available space left
             if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
               this.CBUS_Queue.push(this.NERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
+              this.CBUS_Queue2.push(cbusLib.encodeNERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
             }
           },
           '90': async (cbusMsg) => {//Accessory On Long Event
@@ -305,6 +313,7 @@ class cbusAdmin extends EventEmitter {
               this.saveNode(cbusMsg.nodeNumber)
               if (cbusMsg.ServiceIndex > 0){
                 this.CBUS_Queue.push(this.RQSD(cbusMsg.nodeNumber, cbusMsg.ServiceIndex))
+                this.CBUS_Queue2.push(cbusLib.encodeRQSD(cbusMsg.nodeNumber, cbusMsg.ServiceIndex))
               }
           },
           'AF': async (cbusMsg) => {//GRSP
@@ -341,6 +350,7 @@ class cbusAdmin extends EventEmitter {
             if (nodeNumber > 0){
               // push node onto queue to read all events
               this.CBUS_Queue.push(this.RQEVN(cbusMsg.nodeNumber))
+              this.CBUS_Queue2.push(cbusLib.encodeRQEVN(cbusMsg.nodeNumber))
             }
             this.saveNode(cbusMsg.nodeNumber)
             // now get file list & send event to socketServer
@@ -568,6 +578,9 @@ class cbusAdmin extends EventEmitter {
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, 8))   // flags
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, 1))   // ManufacturerID
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, 3))   // ModuleID
+        this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
+        this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+        this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
         updated = true
       }
       // if status wasn't true, change it & mark as needs updating
@@ -801,6 +814,22 @@ class cbusAdmin extends EventEmitter {
       }
     }
 
+    async cbusTransmit(msg) {
+      if (typeof msg !== 'undefined') {
+        winston.debug({message: name + `: CBUS Transmit >>>  ${msg}`})
+        this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
+        this.lastCbusTrafficTime = Date.now()     // store this time stamp
+        //
+        let tmp = cbusLib.decode(msg)   // decode to get text
+        this.emit('cbusTraffic', {direction: 'Out', json: tmp});
+        if (tmp.mnemonic == "QNN"){
+          this.QNN_sent_time = Date.now()   // gets milliseconds now
+          this.lastMessageWasQNN = true
+        }
+      }
+    }
+
+
     refreshEvents() {
       this.eventsChanged = true
     }
@@ -1016,12 +1045,19 @@ class cbusAdmin extends EventEmitter {
           // remove the one we've used from queue
           this.CBUS_Queue.shift()
         }
+        if (this.CBUS_Queue2.length > 0){
+          // get first out of queue
+          var msg = this.CBUS_Queue2[0]
+          winston.info({message: name + `: cbusTransmit ${msg}`})
+          //this.cbusTransmit(msg)
+          // remove the one we've used from queue
+          this.CBUS_Queue2.shift()
+        }
       } else {
         //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
       }
     }
       
-
     //
     // Function to check on a regular basis if anything has changed
     // and update client if so
@@ -1079,13 +1115,17 @@ class cbusAdmin extends EventEmitter {
     this.moduleDescriptorFilesTimeStamp = Date.now()
     this.saveConfig()
     this.CBUS_Queue.push(this.QNN())
+    this.CBUS_Queue2.push(cbusLib.encodeQNN())
   }
 
   async event_unlearn(nodeNumber, eventName) {
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
     this.CBUS_Queue.push(this.EVULN(eventName))
+    this.CBUS_Queu2.push(cbusLib.encodeNNLRN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeEVULN(eventName))
     await sleep(300); // allow a bit more time after NNCLR
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
     await this.request_all_node_events(nodeNumber)
   }
 
@@ -1105,8 +1145,11 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
     this.CBUS_Queue.push(this.NNCLR(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNCLR(nodeNumber))
     await sleep(500); // allow a bit more time after NNCLR
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
   }
 
   //
@@ -1123,6 +1166,7 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].eventCount = undefined
     this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
     this.CBUS_Queue.push(this.RQEVN(nodeNumber)) // get number of events for each node
+    this.CBUS_Queue2.push(cbusLib.encodeRQEVN(nodeNumber)) // get number of events for each node
     // NUMEV response to RQEVN will trigger a NERD command as well
   }
 
@@ -1133,6 +1177,7 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].parameters = {}
     this.nodeConfig.nodes[nodeNumber].paramsUpdated = false
     this.CBUS_Queue.push(this.RQNPN(nodeNumber, 0))     // get number of node parameters
+    this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, 0))     // get number of node parameters
     await utils.sleep(200) // allow time for message to be sent & initial response
     // allow a gap in case we get multiple responses
     var timeGap = 400
@@ -1153,6 +1198,7 @@ class cbusAdmin extends EventEmitter {
       if (nodeParameterCount == undefined){nodeParameterCount = 20}
       for (let i = 1; i <= nodeParameterCount; i++) {
         this.CBUS_Queue.push(this.RQNPN(nodeNumber, i))
+        this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, i))
       }
     }
   }
@@ -1162,7 +1208,23 @@ class cbusAdmin extends EventEmitter {
   async request_node_variable(nodeNumber, nodeVariableIndex){
     winston.debug({message: name + `:  request_node_variable ${nodeNumber} ${nodeVariableIndex}`});
     this.CBUS_Queue.push(this.NVRD(nodeNumber, nodeVariableIndex))
+    this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, nodeVariableIndex))
   }
+
+  //
+  //
+  async update_node_variable_in_learnMode(nodeNumber, nodeVariableIndex, nodeVariableValue){
+    winston.debug({message: name + `: update_node_variable_in_learnMode ${nodeNumber} ${nodeVariableIndex}  ${nodeVariableValue}`});
+    this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.CBUS_Queue.push(this.NVSET(nodeNumber, nodeVariableIndex, nodeVariableValue))
+    this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNVSET(nodeNumber, nodeVariableIndex, nodeVariableValue))
+    this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
+}
+
+
+
 
   //
   //
@@ -1176,9 +1238,11 @@ class cbusAdmin extends EventEmitter {
     let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       this.CBUS_Queue.push(this.NVRD(nodeNumber, 0))
+      this.CBUS_Queue2.push(cbudLib.encodeNVRD(nodeNumber, 0))
     } else {
       for (let i = 1; i <= nodeVariableCount; i++) {
         this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
+        this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, i))
         await sleep(50); // allow time between requests
       }
     }
@@ -1198,6 +1262,9 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
     this.CBUS_Queue.push(this.EVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeEVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
+    this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
 
     // don't reload variables if reload is false - like when restoring a node
     if (reLoad){
@@ -1205,6 +1272,7 @@ class cbusAdmin extends EventEmitter {
         // adding new event may change event indexes, so need to refresh
         // get number of events for each node - response NUMEV will trigger NERD if event count changes
         this.CBUS_Queue.push(this.RQEVN(nodeNumber))
+        this.CBUS_Queue2.push(cbusLib.encodeRQEVN(nodeNumber))
         var timeOut = (this.inUnitTest) ? 1 : 250
         await sleep(timeOut); // allow a bit more time after EVLRN
         this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
@@ -1227,6 +1295,9 @@ class cbusAdmin extends EventEmitter {
         this.CBUS_Queue.push(this.NNLRN(nodeNumber))
         this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
         this.CBUS_Queue.push(this.NNULN(nodeNumber))
+        this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
+        this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventIdentifier, eventVariableIndex))
+        this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
       } else {
         // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
         // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
@@ -1234,6 +1305,7 @@ class cbusAdmin extends EventEmitter {
         var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
         if (eventIndex){
           this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, eventVariableIndex))
+          this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
         } else {
           winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
         }
@@ -1276,9 +1348,12 @@ class cbusAdmin extends EventEmitter {
   //
   async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex){
     this.CBUS_Queue.push(this.NNLRN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
     this.CBUS_Queue.push(this.REQEV(eventIdentifier, eventVariableIndex))
     this.CBUS_Queue.push(this.NNULN(nodeNumber))
+    this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventIdentifier, eventVariableIndex))
+    this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
   }
 
 
@@ -1291,9 +1366,11 @@ class cbusAdmin extends EventEmitter {
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       // VLCB - so should return all variables just by reading 0
       this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
+      this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
     } else {
       // 'legacy' CBUS, so try reading EV0 - should return number of event variables
       this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, 0))
+      this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
       var timeGap = this.inUnitTest ? 100 : 300
       await sleep(timeGap); // wait for a response before trying to use it
       // now assume number of variables from param 5, but use the value in EV0 if it exists
@@ -1305,6 +1382,7 @@ class cbusAdmin extends EventEmitter {
       // now read all the rest of the event variables
       for (let i = 1; i <= numberOfVariables; i++) {
         this.CBUS_Queue.push(this.REVAL(nodeNumber, eventIndex, i))
+        this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, i))
       }
     }
   }
@@ -1359,6 +1437,12 @@ class cbusAdmin extends EventEmitter {
           output['nodeNumber'] = nodeNumber
           return output
       }
+  }
+
+  // 0x42
+  //
+  sendSNN(nodeNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeSNN(nodeNumber))
   }
 
   // 0x4F NNCLR
@@ -1427,7 +1511,13 @@ class cbusAdmin extends EventEmitter {
     output['mnemonic'] = 'ENUM'
     output['nodeNumber'] = nodeNumber
     return output;
-}
+  }
+
+  // 0x5D ENUM
+  //
+  sendENUM(nodeNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeENUM(nodeNumber))
+  }
 
   // 0x5E NNRST
   //
@@ -1438,7 +1528,13 @@ class cbusAdmin extends EventEmitter {
     return output;
 }
 
-// 0x72 NENRD
+  // 0x5E NNRST
+  //
+  sendNNRST(nodeNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeNNRST(nodeNumber))
+  }
+
+  // 0x72 NENRD
   //
   NENRD(nodeNumber, eventNumber) { //Request specific event
       let output = {}
@@ -1451,14 +1547,20 @@ class cbusAdmin extends EventEmitter {
   // 0x73 RQNPN
   //
   RQNPN(nodeNumber, param) {//Read Node Parameter
-      let output = {}
-      output['mnemonic'] = 'RQNPN'
-      output['nodeNumber'] = nodeNumber
-      output['parameterIndex'] = param
-      return output
+    let output = {}
+    output['mnemonic'] = 'RQNPN'
+    output['nodeNumber'] = nodeNumber
+    output['parameterIndex'] = param
+    return output
   }
 
   // 0x73 RQNPN
+  //
+  sendRQNPN(nodeNumber, param) {//Read Node Parameter
+    this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, param))
+  }
+
+  // 0x75 CANID
   //
   CANID(nodeNumber, CAN_ID) {//Read Node Parameter
     let output = {}
@@ -1466,9 +1568,15 @@ class cbusAdmin extends EventEmitter {
     output['nodeNumber'] = nodeNumber
     output['CAN_ID'] = CAN_ID
     return output
-}
+  }
 
-// 0x78 RQSD
+  // 0x75 CANID
+  //
+  sendCANID(nodeNumber, CAN_ID) {//Read Node Parameter
+    this.CBUS_Queue2.push(cbusLib.encodeCANID(nodeNumber, CAN_ID))
+  }
+
+  // 0x78 RQSD
   //
   RQSD(nodeNumber, service) { //Request Service Delivery
       let output = {}
@@ -1477,6 +1585,98 @@ class cbusAdmin extends EventEmitter {
       output['ServiceIndex'] = service
       return output
       //return cbusLib.encodeRQSD(nodeNumber, ServiceNumber);
+  }
+
+  // 0x78 RQSD
+  //
+  sendRQSD(nodeNumber, service) { //Request Service Delivery
+    this.CBUS_Queue2.push(cbusLib.encodeRQSD(nodeNumber, service))
+  }
+
+  // 0x90 AC0N
+  //
+  ACON(nodeNumber, eventNumber) {
+    this.eventSend(nodeNumber, eventNumber, 'on' , 'long')
+      let output = {}
+      output['mnemonic'] = 'ACON'
+      output['nodeNumber'] = nodeNumber
+      output['eventNumber'] = eventNumber
+      return output
+  }
+
+  // 0x90 AC0N
+  //
+  sendACON(nodeNumber, eventNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeACON(nodeNumber, eventNumber))
+  }
+
+  // 0x91 AC0F
+  //
+  ACOF(nodeNumber, eventNumber) {
+    this.eventSend(nodeNumber, eventNumber, 'off' , 'long')
+      let output = {}
+      output['mnemonic'] = 'ACOF'
+      output['nodeNumber'] = nodeNumber
+      output['eventNumber'] = eventNumber
+      return output
+  }
+
+  // 0x91 AC0F
+  //
+  sendACOF(nodeNumber, eventNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeACOF(nodeNumber, eventNumber))
+  }
+
+  // 0x96
+  //
+  NVSET(nodeNumber, variableId, variableVal) {// Read Node Variable
+    this.nodeConfig.nodes[nodeNumber].nodeVariables[variableId] = variableVal
+    let output = {}
+    output['mnemonic'] = 'NVSET'
+    output['nodeNumber'] = nodeNumber
+    output['nodeVariableIndex'] = variableId
+    output['nodeVariableValue'] = variableVal
+    return output
+  }
+
+  // 0x96
+  //
+  sendNVSET(nodeNumber, variableId, variableVal) { // Read Node Variable
+    this.CBUS_Queue2.push(cbusLib.encodeNVSET(nodeNumber, variableId, variableVal))
+  }
+
+  // 0x98 ASON
+  //
+  ASON(nodeNumber, deviceNumber) {
+    this.eventSend(nodeNumber, deviceNumber, 'on' , 'short')
+    let output = {}
+    output['mnemonic'] = 'ASON'
+    output['nodeNumber'] = nodeNumber
+    output['deviceNumber'] = deviceNumber
+    return output
+  }
+
+  // 0x98 ASON
+  //
+  sendASON(nodeNumber, deviceNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeASON(nodeNumber, deviceNumber))
+  }
+
+  // 0x99 ASOF
+  //
+  ASOF(nodeNumber, deviceNumber) {
+    this.eventSend(nodeNumber, deviceNumber, 'off' , 'short')
+    let output = {}
+    output['mnemonic'] = 'ASOF'
+    output['nodeNumber'] = nodeNumber
+    output['deviceNumber'] = deviceNumber
+    return output
+  }
+
+  // 0x99 ASOF
+  //
+  sendASOF(nodeNumber, deviceNumber) {
+    this.CBUS_Queue2.push(cbusLib.encodeASOF(nodeNumber, deviceNumber))
   }
 
   // 0x9C REVAL
@@ -1492,15 +1692,25 @@ class cbusAdmin extends EventEmitter {
       //return cbusLib.encodeREVAL(nodeNumber, eventNumber, valueId);
   }
 
+  // 0x9C REVAL
+  //
+  sendREVAL(nodeNumber, eventNumber, valueId) {//Read an Events EV by index
+    this.CBUS_Queue2.push(cbusLib.encodeACON(nodeNumber, eventNumber))
+  }
+
   RDGN(nodeNumber, service, diagCode) { //Request Diagnostics
-      let output = {}
-      output['mnemonic'] = 'RDGN'
-      output['nodeNumber'] = nodeNumber
-      output['ServiceIndex'] = service
-      output['DiagnosticCode'] = diagCode
-      winston.info({message: 'mergAdminNode: RDGN : ' + JSON.stringify(output)})
-      return output
-      //return cbusLib.encodeRDGN(nodeNumber ServiceNumber, DiagnosticCode);
+    let output = {}
+    output['mnemonic'] = 'RDGN'
+    output['nodeNumber'] = nodeNumber
+    output['ServiceIndex'] = service
+    output['DiagnosticCode'] = diagCode
+    winston.info({message: 'mergAdminNode: RDGN : ' + JSON.stringify(output)})
+    return output
+    //return cbusLib.encodeRDGN(nodeNumber ServiceNumber, DiagnosticCode);
+  }
+
+  sendRDGN(nodeNumber, service, diagCode) { //Request Diagnostics
+    this.CBUS_Queue2.push(cbusLib.encodeACON(nodeNumber, service, diagCode))
   }
 
   update_event(nodeNumber, eventIdentifier, variableId, value){
@@ -1508,7 +1718,7 @@ class cbusAdmin extends EventEmitter {
   }
 
 
-  // 0x9C REVAL
+  //
   //
   REQEV(eventIdentifier, variableIndex) {//Read an Events EV by identifier - must be in learn mode
     //winston.info({message: 'mergAdminNode: REQEV '})
@@ -1553,54 +1763,6 @@ EVLRN(nodeNumber, eventIdentifier, variableId, value) {
       //return cbusLib.encodeNVRD(nodeNumber, variableId);
   }
 
-  NVSET(nodeNumber, variableId, variableVal) {// Read Node Variable
-      this.nodeConfig.nodes[nodeNumber].nodeVariables[variableId] = variableVal
-      let output = {}
-      output['mnemonic'] = 'NVSET'
-      output['nodeNumber'] = nodeNumber
-      output['nodeVariableIndex'] = variableId
-      output['nodeVariableValue'] = variableVal
-      return output
-
-      //return cbusLib.encodeNVSET(nodeNumber, variableId, variableVal);
-
-  }
-
-  ACON(nodeNumber, eventNumber) {
-    this.eventSend(nodeNumber, eventNumber, 'on' , 'long')
-      let output = {}
-      output['mnemonic'] = 'ACON'
-      output['nodeNumber'] = nodeNumber
-      output['eventNumber'] = eventNumber
-      return output
-  }
-
-  ACOF(nodeNumber, eventNumber) {
-    this.eventSend(nodeNumber, eventNumber, 'off' , 'long')
-      let output = {}
-      output['mnemonic'] = 'ACOF'
-      output['nodeNumber'] = nodeNumber
-      output['eventNumber'] = eventNumber
-      return output
-  }
-
-  ASON(nodeNumber, deviceNumber) {
-    this.eventSend(nodeNumber, deviceNumber, 'on' , 'short')
-    let output = {}
-    output['mnemonic'] = 'ASON'
-    output['nodeNumber'] = nodeNumber
-    output['deviceNumber'] = deviceNumber
-    return output
-  }
-
-  ASOF(nodeNumber, deviceNumber) {
-    this.eventSend(nodeNumber, deviceNumber, 'off' , 'short')
-    let output = {}
-    output['mnemonic'] = 'ASOF'
-    output['nodeNumber'] = nodeNumber
-    output['deviceNumber'] = deviceNumber
-    return output
-  }
 
 };
 

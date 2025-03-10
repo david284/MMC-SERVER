@@ -40,6 +40,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if (data) { 
         if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
           node.CBUS_Queue.push(node.ACOF(data.nodeNumber, data.eventNumber))
+          node.sendACOF(data.nodeNumber, data.eventNumber)
         } else { winston.warn({message: name + `: ACCESSORY_LONG_OFF - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_LONG_OFF - missing arguments`});
@@ -53,6 +54,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if (data) { 
         if((data.nodeNumber != undefined) && (data.eventNumber != undefined)){
           node.CBUS_Queue.push(node.ACON(data.nodeNumber, data.eventNumber))
+          node.sendACON(data.nodeNumber, data.eventNumber)
         } else { winston.warn({message: name + `: ACCESSORY_LONG_ON - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_LONG_ON - missing arguments`});
@@ -66,6 +68,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if (data) { 
         if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
           node.CBUS_Queue.push(node.ASOF(data.nodeNumber, data.deviceNumber))
+          node.sendASOF(data.nodeNumber, data.deviceNumber)
         } else { winston.warn({message: name + `: ACCESSORY_SHORT_OFF - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_SHORT_OFF - missing arguments`});
@@ -79,6 +82,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       if (data) { 
         if((data.nodeNumber != undefined) && (data.deviceNumber != undefined)){
           node.CBUS_Queue.push(node.ASON(data.nodeNumber, data.deviceNumber))
+          node.sendASON(data.nodeNumber, data.deviceNumber)
         } else { winston.warn({message: name + `: ACCESSORY_SHORT_ON - missing arguments`}); }
       } else {
         winston.warn({message: name + `: ACCESSORY_SHORT_ON - missing arguments`});
@@ -90,6 +94,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('CANID_ENUM', function(nodeNumber){
       winston.info({message: name + `:  CANID_ENUM ${nodeNumber}`});
       node.CBUS_Queue.push(node.ENUM(nodeNumber))
+      node.sendENUM(nodeNumber)
     })
 
     //
@@ -313,6 +318,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
       winston.info({message: `socketServer:  REQUEST_DIAGNOSTICS ${JSON.stringify(data)}`});
       if (data.serviceIndex == undefined){data.serviceIndex = 0;}
       node.CBUS_Queue.push(node.RDGN(data.nodeNumber, data.serviceIndex, 0))
+      node.sendRDGN(data.nodeNumber, data.serviceIndex, 0)
     })
 
     //
@@ -320,6 +326,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('REQUEST_EVENT_VARIABLE', function(data){
       winston.info({message: `socketServer: REQUEST_EVENT_VARIABLE ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.REVAL(data.nodeNumber, data.eventIndex, data.eventVariableId))
+      node.sendREVAL(data.nodeNumber, data.eventIndex, data.eventVariableId)
     })
 
     //
@@ -350,6 +357,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('REQUEST_SERVICE_DISCOVERY', function(data){
       winston.info({message: `socketServer:  REQUEST_SERVICE_DISCOVERY ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.RQSD(data.nodeNumber, 0))
+      node.sendRQSD(data.nodeNumber, 0)
     })
 
     //
@@ -412,6 +420,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('RESET_NODE', function(nodeNumber){
       winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
       node.CBUS_Queue.push(node.NNRST(nodeNumber))
+      node.sendNNRST(nodeNumber)
     })
 
     //
@@ -419,6 +428,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('RQNPN', function(data){ //Request Node Parameter
       winston.info({message: `socketServer:  RQNPN ${JSON.stringify(data)}`});
       node.CBUS_Queue.push(node.RQNPN(data.nodeNumber, data.parameter))
+      node.sendRQNPN(data.nodeNumber, data.parameter)
     })
 
     //
@@ -447,6 +457,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('SET_CAN_ID', function(data){
       winston.info({message: `socketServer: SET_CAN_ID ` + data});
       node.CBUS_Queue.push(node.CANID(data.nodeNumber, data.CAN_ID))
+      node.sendCANID(data.nodeNumber, data.CAN_ID)
     })
     
     //
@@ -454,6 +465,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     socket.on('SET_NODE_NUMBER', function(nodeNumber){
       winston.info({message: `socketServer: SET_NODE_NUMBER ` + nodeNumber});
       node.CBUS_Queue.push(node.SNN(nodeNumber))
+      node.sendSNN(nodeNumber)
       node.setNodeNumberIssued = true
     })
     
@@ -508,6 +520,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('UPDATE_NODE_VARIABLE', function(data){
       node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
+      node.sendNVSET(data.nodeNumber, data.variableId, data.variableValue)
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE ${JSON.stringify(data)}`});
       //
       // Only read variable(s) back if reLoad not false
@@ -529,9 +542,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
-      node.CBUS_Queue.push(node.NNLRN(data.nodeNumber))
-      node.CBUS_Queue.push(node.NVSET(data.nodeNumber, data.variableId, data.variableValue))
-      node.CBUS_Queue.push(node.NNULN(data.nodeNumber))
+      update_node_variable_in_learnMode(data.nodeNumber, data.VariableId, data.variableValueariableValue)
       if (data.reLoad != false){
         node.request_all_node_variables(data.nodeNumber)
       }

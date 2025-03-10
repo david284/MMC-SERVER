@@ -180,6 +180,8 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+/*
+
   // 0x22 QLOC
   //
   itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {
@@ -190,7 +192,7 @@ describe('mergAdminNode tests', function(){
     expect(result.session).to.equal(value.session);
     winston.info({message: 'unit_test: END QLOC test'});
   })
-
+*/
 
   function GetTestCase_nodeNumber() {
     var arg1, testCases = [];
@@ -370,7 +372,7 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   //****************************************************************************************** */
 
-
+/*
   // 0x23 DKEEP
   //
   itParam("DKEEP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
@@ -387,7 +389,7 @@ describe('mergAdminNode tests', function(){
 			done();
 		}, 50);
   })
-
+*/
 
   // 0x50 RQNN
   //
