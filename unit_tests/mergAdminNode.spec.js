@@ -207,6 +207,7 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+/*  
   // 0x42 SNN
   //
   itParam("SNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -217,8 +218,9 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END SNN test'});
   })
+*/
 
-
+/*
   // 0x53 NNLRN
   //
   itParam("NNLRN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -229,8 +231,9 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END NNLRN test'});
   })
+*/
 
-
+/*
   // 0x54 NNULN
   //
   itParam("NNULN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -241,8 +244,9 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END NNULN test'});
   })
+*/
 
-
+/*
   // 0x57 NERD
   //
   itParam("NERD test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -253,8 +257,9 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END NERD test'});
   })
+*/
 
-
+/*
   // 0x58 RQEVN
   //
   itParam("RQEVN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
@@ -265,8 +270,9 @@ describe('mergAdminNode tests', function(){
     expect(result.nodeNumber).to.equal(value.nodeNumber)
     winston.info({message: 'unit_test: END RQEVN test'});
   })
+*/
 
-
+/*
   function GetTestCase_NENRD() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -294,8 +300,9 @@ describe('mergAdminNode tests', function(){
     expect(result.parameterIndex).to.equal(value.parameterIndex);
     winston.info({message: 'unit_test: END NENRD test'});
   })
+*/
 
-
+/*
   function GetTestCase_RQNPN() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -323,8 +330,9 @@ describe('mergAdminNode tests', function(){
     expect(result.parameterIndex).to.equal(value.parameterIndex);
     winston.info({message: 'unit_test: END RQNPN test'});
   })
+*/
 
-
+/*
   // 0x75 CANID
   //
   itParam("CANID test ${JSON.stringify(value)}", GetTestCase_nodeNumberAndOneByte(), async function (value) {
@@ -336,8 +344,9 @@ describe('mergAdminNode tests', function(){
     expect(result.CAN_ID).to.equal(value.param1);
     winston.info({message: 'unit_test: END CANID test'});
   })
+*/
 
-
+/*
   function GetTestCase_RQSD() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -366,7 +375,7 @@ describe('mergAdminNode tests', function(){
     expect(result.ServiceIndex).to.equal(value.serviceIndex);
     winston.info({message: 'unit_test: END RQSD test'});
   })
-
+*/
 
   //****************************************************************************************** */
   //****************************************************************************************** */
