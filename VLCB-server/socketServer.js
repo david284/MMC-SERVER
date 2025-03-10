@@ -15,7 +15,7 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, node, jsonServer, cbusServer, programNode, status) {
+exports.socketServer = function(config, node, messageRouter, cbusServer, programNode, status) {
 
 
   //*************************************************************************************** */
@@ -439,7 +439,7 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
     //
     socket.on('SEND_CBUS_MESSAGE', function(data){
       winston.info({message: `socketServer: SEND_CBUS_MESSAGE ` + data});
-      jsonServer.sendCbusMessage(data)
+      messageRouter.sendCbusMessage(data)
     })
     
     //
@@ -484,11 +484,11 @@ exports.socketServer = function(config, node, jsonServer, cbusServer, programNod
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
         }
-        winston.info({message: name + `: START_CONNECTION: connect JsonServer using in-built cbusServer `});
+        winston.info({message: name + `: START_CONNECTION: using in-built cbusServer `});
       }
-      // now connect the jsonServer to the configured CbusServer
-      await jsonServer.connect(config.getCbusServerHost(), config.getCbusServerPort())
-      await node.connect("localhost", config.getJsonServerPort());
+      // now connect the messageRouter to the configured CbusServer
+      await messageRouter.connect(config.getCbusServerHost(), config.getCbusServerPort())
+      await node.onConnect();
       status.mode = 'RUNNING'
     })
 

@@ -21,17 +21,16 @@ config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
 
 // set config items
-config.setJsonServerPort(5551);
 config.setSocketServerPort(5552);
 config.setCurrentLayoutFolder() // use default layout
 
 
 const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 
-const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
+const mock_messageRouter = require('./mock_messageRouter')(config)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
 //let node = new admin.cbusAdmin(config);
-node.connect('localhost', config.getJsonServerPort())
+node.onConnect()
 
 function stringToHex(string) {
   // expects UTF-8 string
@@ -78,7 +77,7 @@ describe('mergAdminNode tests', function(){
 
 	beforeEach(function() {
    		winston.info({message: ' '});   // blank line to separate tests
-      mock_jsonServer.messagesIn = []
+      mock_messageRouter.messagesIn = []
   });
 
 	after(function(done) {
@@ -389,10 +388,10 @@ describe('mergAdminNode tests', function(){
   itParam("DKEEP test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN DKEEP test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeDKEEP(value.session)
-    mock_jsonServer.messagesIn = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.messagesIn = []
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
-      var result = mock_jsonServer.messagesIn[0]
+      var result = mock_messageRouter.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
       expect(result.mnemonic).to.equal("QLOC")
       expect(result.session).to.equal(value.session)
@@ -407,9 +406,9 @@ describe('mergAdminNode tests', function(){
   itParam("RQNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN RQNN test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       for (let i = 0; i < nodeTraffic.length; i++) {
         winston.info({message: 'unit_test: nodeTraffic: ' + JSON.stringify(nodeTraffic[i])});
@@ -432,9 +431,9 @@ describe('mergAdminNode tests', function(){
   itParam("WRACK test ${JSON.stringify(value)}", GetTestCase_session(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN WRACK test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeWRACK(1)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("WRACK")
@@ -452,14 +451,14 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN NUMEV test ' + JSON.stringify(value)});
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     var testMessage = cbusLib.encodeNUMEV(value.nodeNumber, 1)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("NUMEV")
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNEVN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NERD")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNEVN")
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END NUMEV test'});
 			done();
 		}, 200);
@@ -497,9 +496,9 @@ describe('mergAdminNode tests', function(){
   itParam("GRSP test ${JSON.stringify(value)}", GetTestCase_GRSP(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN GRSP test '});
     var testMessage = cbusLib.encodeGRSP(value.nodeNumber, value.opCode, value.serviceIndex, value.result)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("GRSP")
@@ -520,9 +519,9 @@ describe('mergAdminNode tests', function(){
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":eventIdentifier}
 
     var testMessage = cbusLib.encodeNEVAL(value.nodeNumber, value.eventIndex, value.eventVariableIndex, value.eventVariableValue)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("NEVAL")
@@ -542,18 +541,18 @@ describe('mergAdminNode tests', function(){
   itParam("PNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN PNN test '});
     var testMessage = cbusLib.encodePNN(value.nodeNumber, 2, 3, 4)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("PNN")
-      winston.info({message: 'unit_test: output ' + JSON.stringify(mock_jsonServer.messagesIn)});
+      winston.info({message: 'unit_test: output ' + JSON.stringify(mock_messageRouter.messagesIn)});
       if (value.nodeNumber > 0){
-        expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("RQEVN")
+        expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
       } else {
         // node 0 should be ignored
-        expect(mock_jsonServer.messagesIn.length).to.equal(0)
+        expect(mock_messageRouter.messagesIn.length).to.equal(0)
       }
       winston.info({message: 'unit_test: END PNN test'});
 			done();
@@ -592,7 +591,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN DGN test ' + JSON.stringify(value)});
     //     encodeDGN(nodeNumber, ServiceIndex, DiagnosticCode, DiagnosticValue) {
     var testMessage = cbusLib.encodeDGN(value.nodeNumber, value.ServiceIndex, value.DiagnosticCode, value.DiagnosticValue)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     // create entry for service index
@@ -600,7 +599,7 @@ describe('mergAdminNode tests', function(){
       "ServiceIndex": value.ServiceIndex,
       "diagnostics": {}
     }
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.debug({message: 'unit_test: nodeConfig ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].services[value.ServiceIndex])});      
       expect(nodeTraffic[0].json.mnemonic).to.equal("DGN")
@@ -650,9 +649,9 @@ describe('mergAdminNode tests', function(){
     node.nodeNumberInLearnMode = nodeUnderTest    // tell MMC that nodeUnderTest is in learn mode
 
     var testMessage = cbusLib.encodeEVANS(value.nodeNumber, value.eventNumber, value.eventVariableIndex, value.eventVariableValue)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     const eventIdentifier = utils.decToHex(value.nodeNumber, 4) + utils.decToHex(value.eventNumber, 4)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
@@ -671,7 +670,7 @@ describe('mergAdminNode tests', function(){
   itParam("NAME test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN NAME test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeNAME("ABCDEFG")
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
     var receivedNodeNumber = undefined
@@ -681,7 +680,7 @@ describe('mergAdminNode tests', function(){
       receivedNAME = name
       winston.debug({message: 'unit_test: node.once - requestNodeNumber ' + nodeNumber});
     })
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       for (let i = 0; i < nodeTraffic.length; i++) {
@@ -702,11 +701,11 @@ describe('mergAdminNode tests', function(){
   itParam("ENRSP test ${JSON.stringify(value)}", GetTestCase_eventIdentifier(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN ENRSP test ' + JSON.stringify(value)});
     var testMessage = cbusLib.encodeENRSP(value.nodeNumber, value.eventIdentifier, 1)
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber]['ENRSP_request_variables'] = true
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       expect(nodeTraffic[0].json.mnemonic).to.equal("ENRSP")
       winston.info({message: 'unit_test: END ENRSP test'});
@@ -799,16 +798,16 @@ describe('mergAdminNode tests', function(){
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal('REVAL')
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal('REVAL')
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
       winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
       done();
     }, 200);
@@ -875,7 +874,7 @@ describe('mergAdminNode tests', function(){
   //
   itParam("event_teach_by_identifier test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN event_teach_by_identifier test '});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     // create node config for node we're testing
     node.createNodeConfig(value.nodeNumber)
     // ensure event does exist, so shouldn't refresh events, but will just refresh variable
@@ -883,14 +882,14 @@ describe('mergAdminNode tests', function(){
     //
     node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
-      expect(mock_jsonServer.messagesIn.length).to.equal(4)
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
+      expect(mock_messageRouter.messagesIn.length).to.equal(4)
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
 			done();
 		}, 180);
@@ -902,19 +901,19 @@ describe('mergAdminNode tests', function(){
   //
   it("new_event_teach_2_by_identifier test", function (done) {
     winston.info({message: 'unit_test: BEGIN new_event_teach_2_by_identifier test'});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     // ensure event doesn't exist, so should always refresh all events
     node.createNodeConfig(1)
     //
     node.event_teach_by_identifier(1, "12345678", 1, 0 )
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("RQEVN")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("RQEVN")
       winston.info({message: 'unit_test: END new_event_teach_2_by_identifier test'});
 			done();
 		}, 150);
@@ -926,15 +925,15 @@ describe('mergAdminNode tests', function(){
   //
   itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN delete_all_events test '});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     await node.delete_all_events(value.nodeNumber)
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NNCLR")
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NNCLR")
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
       winston.info({message: 'unit_test: END delete_all_events test'});
 			done();
 		}, 50);
@@ -948,7 +947,7 @@ describe('mergAdminNode tests', function(){
   itParam("requestEventVariableByIdentifier test ${JSON.stringify(value)}", GetTestCase_event_read(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN requestEventVariableByIdentifier test: ' + JSON.stringify(value) });
     
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     node.nodeConfig.nodes = {}          // start with clean slate
     var data = {"nodeNumber": value.nodeNumber,
       "eventName": value.eventIdentifier,
@@ -960,10 +959,10 @@ describe('mergAdminNode tests', function(){
     await node.requestEventVariableByIdentifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex) 
   
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("REVAL")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END requestEventVariableByIdentifier test'});
 			done();
 		}, 100);
@@ -977,16 +976,16 @@ describe('mergAdminNode tests', function(){
   itParam("request_all_node_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN request_all_node_events test: ' + JSON.stringify(value) });
     
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
 
     await node.request_all_node_events(value.nodeNumber) 
   
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("RQEVN")
-//      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("NERD")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
+//      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NERD")
       winston.info({message: 'unit_test: END request_all_node_events test'});
 			done();
 		}, 30);
@@ -1062,17 +1061,17 @@ describe('mergAdminNode tests', function(){
   itParam("request_node_variable test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN request_node_variable test: ' + JSON.stringify(value) });
     
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
 
     await node.request_node_variable(value.nodeNumber, 2) 
   
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NVRD")
-      expect(mock_jsonServer.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
-      expect(mock_jsonServer.messagesIn[0].nodeVariableIndex).to.equal(2)
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NVRD")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(2)
       winston.info({message: 'unit_test: END request_node_variable test'});
 			done();
 		}, 300);

@@ -1,9 +1,9 @@
-const net = require('net')
-const cbusLib = require('cbuslibrary')
+'use strict';
 const winston = require('winston');		// use config from root instance
+const cbusLib = require('cbuslibrary')
 const utils = require('./../VLCB-server/utilities.js');
 
-const name = 'mock_jsonServer'
+const name = 'mock_messageRouter'
 
 // bit weights
 const CTLBT_WRITE_UNLOCK = 0
@@ -12,7 +12,6 @@ const CTLBT_AUTO_ERASE = 2
 const CTLBT_AUTO_INC = 3
 const CTLBT_ACK = 4
 
-//
 //
 //
 function  arrayChecksum(array, start) {
@@ -29,12 +28,11 @@ function  arrayChecksum(array, start) {
 }
 
 
-class mock_jsonServer{
-  constructor(JSON_SERVER_PORT, config) {
-    winston.info({message:`mock_jsonServer: Constructor - Port ` + JSON_SERVER_PORT})
+class mock_messageRouter{
+  constructor(config) {
+    winston.info({message:name + `: Constructor`})
 
     this.config = config
-    this.clients = [];
     this.messagesIn = [];
     this.learnNodeNumber = 0;
     this.ackRequested = false
@@ -48,19 +46,23 @@ class mock_jsonServer{
     
   } // end constructor
 
-
+  //
+  //
   connect(remoteAddress, cbusPort){
     winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
-    // connect to remote socket for CBUS messages
+    // connect to remote socket for cbusServer or remote equivalent
   }
 
 
   // this expects gridconnect data
+  //
   inject(outMsg){
-    winston.info({message:`mock_jsonServer: inject ` + outMsg})
+    winston.info({message:name + `: inject ` + outMsg})
     this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg)
   }
 
+  //
+  //
   processMessagesIn(message){
     if (message.ID_TYPE == 'X'){
       this.processExtended(message)
@@ -69,6 +71,8 @@ class mock_jsonServer{
     }
   }
 
+  //
+  //
   processStandard(message){
     switch(message.mnemonic){
       case "EVLRN":
@@ -98,26 +102,28 @@ class mock_jsonServer{
     }
   }
 
+  //
+  //
   processExtended(message){
-    winston.info({message:`mock_jsonServer: processMessagesIn: Extended header message`})
+    winston.info({message:name + `: processMessagesIn: Extended header message`})
     if (message.type == 'CONTROL') {
       switch (message.SPCMD) {
           case 0:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_NOP <<< '});
+              winston.debug({message: name + ': <<< Received control message CMD_NOP <<< '});
               break;
           case 1:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RESET  <<< '});
+              winston.debug({message: name + ': <<< Received control message CMD_RESET  <<< '});
               this.firmware = []
               break;
           case 2:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_RST_CHKSM <<< '});
+              winston.debug({message: name + ': <<< Received control message CMD_RST_CHKSM <<< '});
               this.firmware = []
-              winston.debug({message: 'mock_jsonServer: <<< Received CMD_RST_CHKSM - new checksum ' + arrayChecksum(this.firmware, 0)});
+              winston.debug({message: name + ': <<< Received CMD_RST_CHKSM - new checksum ' + arrayChecksum(this.firmware, 0)});
               break;
           case 3:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_CHK_RUN <<< '});
+              winston.debug({message: name + ': <<< Received control message CMD_CHK_RUN <<< '});
               this.firmwareChecksum = arrayChecksum(this.firmware, 0)
-              winston.info({message: 'mock_jsonServer: CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum
+              winston.info({message: name + ': CMD_CHK_RUN: calculated checksum: ' + this.firmwareChecksum
                 + ' length ' + this.firmware.length
                 + ' received checksum: ' + utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)});
               if (this.firmwareChecksum == utils.decToHex(message.CPDTH, 2) + utils.decToHex(message.CPDTL, 2)) {
@@ -127,23 +133,23 @@ class mock_jsonServer{
               }
               break;
           case 4:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message CMD_BOOT_TEST <<< '});
+              winston.debug({message: name + ': <<< Received control message CMD_BOOT_TEST <<< '});
               this.outputExtResponse(2)   // 2 = confirm boot load
               this.firmware = []
               break;
           default:
-              winston.debug({message: 'mock_jsonServer: <<< Received control message UNKNOWN COMMAND ' + message.text});
+              winston.debug({message: name + ': <<< Received control message UNKNOWN COMMAND ' + message.text});
               break
         }
         if(message.CTLBT & (2**CTLBT_ACK))  {
-          //winston.debug({message: 'mock_jsonServer: ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
+          //winston.debug({message: name + ': ACK requested : CTLBT ' + message.CTLBT + ' ' + (2**CTLBT_ACK)});
           this.ackRequested = true
         }
     }
     if (message.type == 'DATA') {
       for (var i = 0; i < 8; i++) {this.firmware.push(message.data[i])}
-      winston.debug({message: 'mock_jsonServer: <<< Received DATA - new length ' + this.firmware.length});
-      winston.debug({message: 'mock_jsonServer: <<< Received DATA - new checksum ' + arrayChecksum(this.firmware, 0)});
+      winston.debug({message: name + ': <<< Received DATA - new length ' + this.firmware.length});
+      winston.debug({message: name + ': <<< Received DATA - new checksum ' + arrayChecksum(this.firmware, 0)});
         if(this.ackRequested){
           this.outputExtResponse(1)   // 1 = ok          
         }
@@ -151,16 +157,15 @@ class mock_jsonServer{
 
   }
 
-
+  //
+  //
   outputExtResponse(value) {
 		var cbusMsg = cbusLib.encode_EXT_RESPONSE(value)
     this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', cbusMsg)
   }
 
-
-
 }
 
-module.exports = (JsonPort, configuration) => { return new mock_jsonServer(JsonPort, configuration) }
+module.exports = (configuration) => { return new mock_messageRouter(configuration) }
 
 

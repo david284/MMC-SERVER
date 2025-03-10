@@ -19,11 +19,10 @@ config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
 
 // set config items
-config.setJsonServerPort(5591);
 config.setSocketServerPort(5572);
 
 
-const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
+const mock_messageRouter = require('./mock_messageRouter')(config)
 
 const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 
@@ -47,7 +46,7 @@ describe('programNode tests', async function(){
       winston.debug({message: '  '});   // blank line to separate tests
       winston.debug({message: '  '});   // blank line to separate tests
       winston.debug({message: '  '});   // blank line to separate tests
-      mock_jsonServer.messagesIn = []
+      mock_messageRouter.messagesIn = []
     })
 
 	after(function(done) {
@@ -227,7 +226,7 @@ describe('programNode tests', async function(){
     //
     //
     // expect first message to be BOOTM
-    var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
+    var firstMsg = cbusLib.decode(mock_messageRouter.messagesIn[0])
     winston.info({message: 'UNIT_TEST: short download: first message: ' + JSON.stringify(firstMsg)});
     expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
     expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
@@ -239,8 +238,8 @@ describe('programNode tests', async function(){
 //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
     //
     // check last message is a reset command
-    winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
-    var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
+    winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_messageRouter.messagesIn.length});
+    var lastMsg = mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1]
     winston.info({message: 'UNIT_TEST: short download: last message: ' + JSON.stringify(lastMsg)});
     var lastMsg = cbusLib.decode(lastMsg)
     winston.debug({message: 'UNIT_TEST: short download: last message: ' + lastMsg.text});
@@ -264,7 +263,7 @@ describe('programNode tests', async function(){
       //
       //
       // expect first message to be BOOTM
-      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
+      var firstMsg = cbusLib.decode(mock_messageRouter.messagesIn[0])
       winston.info({message: 'UNIT_TEST: program configOnly: first message: ' + JSON.stringify(firstMsg)});
       expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
@@ -276,8 +275,8 @@ describe('programNode tests', async function(){
   //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
-      winston.info({message: 'UNIT_TEST: program configOnly: number of message: ' + mock_jsonServer.messagesIn.length});
-      var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
+      winston.info({message: 'UNIT_TEST: program configOnly: number of message: ' + mock_messageRouter.messagesIn.length});
+      var lastMsg = mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1]
       winston.info({message: 'UNIT_TEST: program configOnly: last message: ' + JSON.stringify(lastMsg)});
       var lastMsg = cbusLib.decode(lastMsg)
       winston.debug({message: 'UNIT_TEST: program configOnly: last message: ' + lastMsg.text});
@@ -300,7 +299,7 @@ describe('programNode tests', async function(){
       //
       //
       // expect first message to be BOOTM
-      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
+      var firstMsg = cbusLib.decode(mock_messageRouter.messagesIn[0])
       winston.info({message: 'UNIT_TEST: short download: first message: ' + JSON.stringify(firstMsg)});
       expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
@@ -312,8 +311,8 @@ describe('programNode tests', async function(){
   //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
-      winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_jsonServer.messagesIn.length});
-      var lastMsg = mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1]
+      winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_messageRouter.messagesIn.length});
+      var lastMsg = mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1]
       winston.info({message: 'UNIT_TEST: short download: last message: ' + JSON.stringify(lastMsg)});
       var lastMsg = cbusLib.decode(lastMsg)
       winston.debug({message: 'UNIT_TEST: short download: last message: ' + lastMsg.text});
@@ -343,7 +342,7 @@ describe('programNode tests', async function(){
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
 		await programNode.program(300, 1, 3, intelHexString);
     //
-    expect (mock_jsonServer.messagesIn.length).to.equal(0, "check sent messages")
+    expect (mock_messageRouter.messagesIn.length).to.equal(0, "check sent messages")
     expect(corruptFileData.status).to.equal("Failure", 'Download event');
     expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
     //
@@ -418,8 +417,8 @@ describe('programNode tests', async function(){
     //
 	it('programBootMode test', async function() {
 		winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: programBootMode:'});
-    mock_jsonServer.firmware = []   // don't have a change to boot mode to reset captured firmware
-    mock_jsonServer.ackRequested = true
+    mock_messageRouter.firmware = []   // don't have a change to boot mode to reset captured firmware
+    mock_messageRouter.ackRequested = true
 
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;
@@ -434,7 +433,7 @@ describe('programNode tests', async function(){
 //      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
-      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
+      var lastMsg = cbusLib.decode(mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1])
 			winston.debug({message: 'UNIT_TEST: programBootMode: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
@@ -466,7 +465,7 @@ describe('programNode tests', async function(){
       var FIRMWARE = programNode.FIRMWARE
     //
       // expect first message to be BOOTM
-      var firstMsg = cbusLib.decode(mock_jsonServer.messagesIn[0])
+      var firstMsg = cbusLib.decode(mock_messageRouter.messagesIn[0])
       winston.debug({message: 'UNIT_TEST: full download: first message: ' + firstMsg.text});
       expect(firstMsg.ID_TYPE).to.equal('S', 'first message ID_TYPE');
       expect(firstMsg.opCode).to.equal('5C', 'first message BOOTM 5C');
@@ -476,7 +475,7 @@ describe('programNode tests', async function(){
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
       //
       // check last message is a reset command
-      var lastMsg = cbusLib.decode(mock_jsonServer.messagesIn[mock_jsonServer.messagesIn.length - 1])
+      var lastMsg = cbusLib.decode(mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1])
       winston.debug({message: 'UNIT_TEST: full download: last message: ' + lastMsg.text});
       expect(lastMsg.ID_TYPE).to.equal('X', 'last message ID_TYPE');
       expect(lastMsg.type).to.equal('CONTROL', 'last message control type');

@@ -450,16 +450,6 @@ describe('configuration tests', function(){
   }
 
   //
-  itParam("jsonServerPort test ${JSON.stringify(value)}", GetTestCase_port(), function (value) {
-    winston.info({message: 'unit_test: BEGIN jsonServerPort test '});
-    config.setJsonServerPort(value.port);
-    result = config.getJsonServerPort();
-    winston.info({message: 'result: ' + result});
-    expect(result).to.equal(value.port);
-    winston.info({message: 'unit_test: END jsonServerPort test'});
-  })
-
-  //
   itParam("socketServerPort test ${JSON.stringify(value)}", GetTestCase_port(), function (value) {
     winston.info({message: 'unit_test: BEGIN socketServerPort test '});
     config.setSocketServerPort(value.port);

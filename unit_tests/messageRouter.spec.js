@@ -1,5 +1,5 @@
 const winston = require('./config/winston_test.js')
-winston.info({message: 'FILE: jsonServer.spec.js'});
+winston.info({message: 'FILE: messageRouter.spec.js'});
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 
@@ -12,23 +12,22 @@ const itParam = require('mocha-param');
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
 
-const mock_cbusServer = new (require('./mock_cbusServer'))(9998)
-const jsonServer = require('../VLCB-server/jsonServer.js')(9997, config)
+const cbusServerPort = 9990
 
+const mock_cbusServer = new (require('./mock_cbusServer'))(cbusServerPort)
+const messageRouter = require('../VLCB-server/messageRouter.js')(config)
 
-const name = 'unit_test: jsonServer'
-
-
+const name = 'unit_test: messageRouter'
   
-describe('jsonServer tests', function(){
+describe('messageRouter tests', function(){
 
-  jsonServer.connect('localhost', 9998)
+  messageRouter.connect('localhost', cbusServerPort)
 
 	before(function(done) {
 		winston.info({message: ' '});
 		winston.info({message: '================================================================================'});
     //                      12345678901234567890123456789012345678900987654321098765432109876543210987654321
-		winston.info({message: '------------------------------- jsonServer tests -------------------------------'});
+		winston.info({message: '----------------------------- messageRouter tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
     //
@@ -66,7 +65,7 @@ describe('jsonServer tests', function(){
     })
 
     let testMessage = ":SB780N0D;"  // QNN
-    var result = jsonServer.sendCbusMessage(testMessage)
+    var result = messageRouter.sendCbusMessage(testMessage)
 
     setTimeout(function(){
       winston.info({message: name +': sendCbusMessage test: result ' + mock_cbusServer.messagesIn[0].toString()});

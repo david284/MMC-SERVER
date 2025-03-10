@@ -1,30 +1,28 @@
+'use strict';
 const net = require('net')
 const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
 const utils = require('./utilities.js');
 
 //
-// JSON Server - a many to one interface
-// listens for MGC message events
-// Connects to a cbusServer to send MGC messages to CAN - cbusClient
-// MGC = 'Modified Grid Connect'
+// messageRouter for 'Modified Grid Connect' (MGC) messages
+// links event based send/receive messages to a socket connection (cbusServer or remote equivalent)
 //
 
-const name = 'jsonServer'
+const name = 'messageRouter'
 
-class jsonServer{
+class messageRouter{
 
-  constructor(JsonPort, configuration) {
+  constructor(configuration) {
     winston.info({message: name + ':  Constructor:'});
     this.cbusClient = new net.Socket()
     this.config = configuration
     this.eventBus = configuration.eventBus
-//    this.JsonPort = JsonPort
     setInterval(this.connectIntervalFunction.bind(this), 5000);
     this.enableReconnect = false
     this.connected = false
-    this.clientHost = null
-    this.clientPort = null
+    this.cbusClientHost = null
+    this.cbusClientPort = null
 
     //
     // Setup the handlers for cbusClient events
@@ -32,7 +30,7 @@ class jsonServer{
     //
 
     this.cbusClient.on('data', function (data) {
-      winston.debug({message:`jsonServer: cbusClient: data : ${data}`})
+      winston.debug({message:name + `: cbusClient: data : ${data}`})
       this.connected = true
       this.cbusClient.setKeepAlive(true, 60000);
       let outMsg = data.toString().split(";");
@@ -67,11 +65,10 @@ class jsonServer{
 
   //
   // method to actually connect to cbusServer
-  // and start listening for MGC messages from multiple sources
   //
   connect(remoteAddress, cbusPort){
-    this.clientHost = remoteAddress
-    this.clientPort = cbusPort
+    this.cbusClientHost = remoteAddress
+    this.cbusClientPort = cbusPort
     winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
     // connect to remote socket for CBUS messages
     try{
@@ -101,7 +98,7 @@ class jsonServer{
         winston.debug({message:name + ': cbusClient still connected:'})
       } else {
         winston.info({message:name + ': cbusClient not connected:'})
-        this.connect(this.clientHost, this.clientPort)
+        this.connect(this.cbusClientHost, this.cbusClientPort)
       }
     }
   }
@@ -118,5 +115,5 @@ class jsonServer{
 
 }
 
-module.exports = (JsonPort, configuration) => { return new jsonServer(JsonPort, configuration) }
+module.exports = (configuration) => { return new messageRouter(configuration) }
 

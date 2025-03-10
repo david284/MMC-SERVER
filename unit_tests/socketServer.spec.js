@@ -27,11 +27,10 @@ config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
 
 // set config items
-config.setJsonServerPort(5571);
 config.setSocketServerPort(5552);
 
 
-const mock_jsonServer = require('./mock_jsonServer')(config.getJsonServerPort(), config)
+const mock_messageRouter = require('./mock_messageRouter')(config)
 
 
 let status = {"busConnection":{
@@ -43,9 +42,9 @@ const cbusServer = require('../VLCB-server/cbusServer')(config, 9998)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
 const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 
-node.connect('localhost', config.getJsonServerPort())
+node.onConnect()
 node.inUnitTest = true
-socketServer.socketServer(config, node, mock_jsonServer, cbusServer, programNode, status)
+socketServer.socketServer(config, node, mock_messageRouter, cbusServer, programNode, status)
 
 
 function stringToHex(string) {
@@ -158,7 +157,7 @@ describe('socketServer tests', async function(){
 
   itParam("ACCESSORY_LONG_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_LONG_OFF test  ' + JSON.stringify(value)});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
       // special case - don't send any arguments
       socket.emit('ACCESSORY_LONG_OFF')
@@ -171,15 +170,15 @@ describe('socketServer tests', async function(){
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
-        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = mock_jsonServer.messagesIn[0]
+        winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
+        CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
       } else {
         // if either parameter is undefined, then no message should be generated
-        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+        expect(mock_messageRouter.messagesIn.length).to.equal(0);
       }
       winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
 			done();
@@ -189,7 +188,7 @@ describe('socketServer tests', async function(){
 
   itParam("ACCESSORY_LONG_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name + ': BEGIN ACCESSORY_LONG_ON test ' + JSON.stringify(value)});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
       // special case - don't send any arguments
       socket.emit('ACCESSORY_LONG_ON')
@@ -202,15 +201,15 @@ describe('socketServer tests', async function(){
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
-        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = mock_jsonServer.messagesIn[0]
+        winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
+        CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
       } else {
         // if either parameter is undefined, then no message should be generated
-        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+        expect(mock_messageRouter.messagesIn.length).to.equal(0);
       }
       winston.info({message: name +': END ACCESSORY_LONG_ON test'});
 			done();
@@ -220,7 +219,7 @@ describe('socketServer tests', async function(){
 
   itParam("ACCESSORY_SHORT_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_OFF test  ' + JSON.stringify(value)});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
       // special case - don't send any arguments
       socket.emit('ACCESSORY_SHORT_OFF')
@@ -233,15 +232,15 @@ describe('socketServer tests', async function(){
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
-        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = mock_jsonServer.messagesIn[0]
+        winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
+        CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
       } else {
         // if either parameter is undefined, then no message should be generated
-        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+        expect(mock_messageRouter.messagesIn.length).to.equal(0);
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
 			done();
@@ -251,7 +250,7 @@ describe('socketServer tests', async function(){
 
   itParam("ACCESSORY_SHORT_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_ON test  ' + JSON.stringify(value)});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
       // special case - don't send any arguments
       socket.emit('ACCESSORY_SHORT_ON')
@@ -264,15 +263,15 @@ describe('socketServer tests', async function(){
     //
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
-        winston.info({message: name + ': raw result ' + mock_jsonServer.messagesIn[0]});
-        CbusMsg = mock_jsonServer.messagesIn[0]
+        winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
+        CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
       } else {
         // if either parameter is undefined, then no message should be generated
-        expect(mock_jsonServer.messagesIn.length).to.equal(0);
+        expect(mock_messageRouter.messagesIn.length).to.equal(0);
       }
       winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
 			done();
@@ -357,7 +356,7 @@ describe('socketServer tests', async function(){
 
   itParam("SET_CAN_ID test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN SET_CAN_ID test - nodeNumber ' + value.nodeNumber});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     var data = {
       nodeNumber:value.nodeNumber,
       CAN_ID: 1
@@ -365,7 +364,7 @@ describe('socketServer tests', async function(){
     socket.emit('SET_CAN_ID', data)
 
     setTimeout(function(){
-      CbusMsg = mock_jsonServer.messagesIn[0]
+      CbusMsg = mock_messageRouter.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
       expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
       expect(CbusMsg.CAN_ID).to.equal(1)
@@ -377,11 +376,11 @@ describe('socketServer tests', async function(){
 
   itParam("SET_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN SET_NODE_NUMBER test - nodeNumber ' + value.nodeNumber});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     socket.emit('SET_NODE_NUMBER', value.nodeNumber)
 
     setTimeout(function(){
-      CbusMsg = mock_jsonServer.messagesIn[0]
+      CbusMsg = mock_messageRouter.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
       expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});
@@ -396,7 +395,7 @@ describe('socketServer tests', async function(){
   itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
     var testMessage = cbusLib.encodeNAME("ABCDEFGH")
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
     var receivedNodeNumber = undefined
@@ -406,7 +405,7 @@ describe('socketServer tests', async function(){
       receivedNAME = name
       winston.debug({message: 'unit_test: node.once - REQUEST_NODE_NUMBER ' + nodeNumber});
     })
-    mock_jsonServer.inject(testMessage)
+    mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       expect(receivedNodeNumber).to.equal(value.nodeNumber)
       expect(receivedNAME).to.equal("ABCDEFG")
@@ -462,7 +461,7 @@ describe('socketServer tests', async function(){
 
   itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTIFIER test '});
-    mock_jsonServer.messagesIn = []
+    mock_messageRouter.messagesIn = []
     node.nodeConfig.nodes = {}          // start with clean slate
     var data = {"nodeNumber": value.nodeNumber,
       "eventIdentifier": value.eventIdentifier,
@@ -473,13 +472,13 @@ describe('socketServer tests', async function(){
     socket.emit('EVENT_TEACH_BY_IDENTIFIER', data)
 
     setTimeout(function(){
-      for (let i = 0; i < mock_jsonServer.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_jsonServer.messagesIn[i])});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_jsonServer.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_jsonServer.messagesIn[1].mnemonic).to.equal("EVLRN")
-      expect(mock_jsonServer.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_jsonServer.messagesIn[3].mnemonic).to.equal("REVAL")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
       winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
 		}, 300);

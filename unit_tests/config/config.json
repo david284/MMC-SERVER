@@ -1,7 +1,6 @@
 {
   "serverAddress": "localhost",
   "cbusServerPort": 5550,
-  "jsonServerPort": 5551,
   "socketServerPort": 5552,
   "currentLayoutFolder": "default",
   "remoteAddress": "127.0.0.1"

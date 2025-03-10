@@ -413,7 +413,7 @@ class configuration {
     // does folder exist?
     if (this.getCurrentLayoutFolder() == undefined) {
       winston.info({message: className + `: readLayoutData: currentLayoutFolder undefined`});
-      this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
+      this.setCurrentLayoutFolder(defaultLayoutData.layoutDetails.title)
     }
     if(this.currentUserDirectory){
       var filePath = path.join( this.currentUserDirectory, "layouts", this.getCurrentLayoutFolder())
@@ -749,14 +749,6 @@ class configuration {
   setCbusServerPort(port){
     this.cbusServerPort = port
   }
-
-  //
-  //
-  getJsonServerPort(){return (this.jsonServerPort != undefined) ? this.jsonServerPort : 5551}
-  setJsonServerPort(port){
-    this.jsonServerPort = port
-  }
-
 
   //
   //
