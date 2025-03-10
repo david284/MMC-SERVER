@@ -93,7 +93,7 @@ class mock_jsonServer{
     this.clients.forEach(function (client) {
         let output = JSON.stringify(cbusLibMsg);
         winston.debug({message:`mock_jsonServer: inject output` + output})
-        client.write(output);
+//        client.write(output);
     });
   }
 
@@ -194,7 +194,7 @@ class mock_jsonServer{
     var msgData = cbusLib.decode(cbusMsg)
 		winston.info({message: 'mock_jsonServer: Network OUT >>>  ' + msgData.text + " >>> "});
     this.clients.forEach(function (client) {
-      client.write(JSON.stringify(msgData));
+//      client.write(JSON.stringify(msgData));
   });
 }
 

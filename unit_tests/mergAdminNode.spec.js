@@ -147,6 +147,7 @@ describe('mergAdminNode tests', function(){
   // outgoing messages
   //****************************************************************************************** */
 
+  /*
   // 0x0D QNN
   //
   it("QNN test ", async function () {
@@ -156,8 +157,9 @@ describe('mergAdminNode tests', function(){
     expect(result.mnemonic).to.equal('QNN');
     winston.info({message: 'unit_test: END QNN test'});
   })
+    */
 
-
+/*
   // 0x10 RQNP
   //
   it("RQNP test ", async function () {
@@ -167,7 +169,7 @@ describe('mergAdminNode tests', function(){
     expect(result.mnemonic).to.equal('RQNP');
     winston.info({message: 'unit_test: END RQNP test'});
   })
-
+*/
 
   function GetTestCase_session() {
     var arg1, testCases = [];

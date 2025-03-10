@@ -1041,7 +1041,7 @@ class cbusAdmin extends EventEmitter {
         if (this.CBUS_Queue.length > 0){
           // get first out of queue
           var msg = this.CBUS_Queue[0]
-          this.cbusSend(msg)
+//          this.cbusSend(msg)
           // remove the one we've used from queue
           this.CBUS_Queue.shift()
         }
@@ -1049,7 +1049,7 @@ class cbusAdmin extends EventEmitter {
           // get first out of queue
           var msg = this.CBUS_Queue2[0]
           winston.info({message: name + `: cbusTransmit ${msg}`})
-          //this.cbusTransmit(msg)
+          this.cbusTransmit(msg)
           // remove the one we've used from queue
           this.CBUS_Queue2.shift()
         }
@@ -1114,7 +1114,6 @@ class cbusAdmin extends EventEmitter {
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.moduleDescriptorFilesTimeStamp = Date.now()
     this.saveConfig()
-    this.CBUS_Queue.push(this.QNN())
     this.CBUS_Queue2.push(cbusLib.encodeQNN())
   }
 
@@ -1238,7 +1237,7 @@ class cbusAdmin extends EventEmitter {
     let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       this.CBUS_Queue.push(this.NVRD(nodeNumber, 0))
-      this.CBUS_Queue2.push(cbudLib.encodeNVRD(nodeNumber, 0))
+      this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, 0))
     } else {
       for (let i = 1; i <= nodeVariableCount; i++) {
         this.CBUS_Queue.push(this.NVRD(nodeNumber, i))
@@ -1395,14 +1394,7 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */    
   
-  // 0x0D QNN
-  //
-  QNN() {//Query Node Number
-    let output = {}
-    output['mnemonic'] = 'QNN'
-    return output;
-  }
-
+/*
   // 0x10 RQNP
   //
   RQNP() {//Request Node Parameters
@@ -1410,6 +1402,7 @@ class cbusAdmin extends EventEmitter {
       output['mnemonic'] = 'RQNP'
       return output;
   }
+*/
 
   // 0x11 RQMN
   //
