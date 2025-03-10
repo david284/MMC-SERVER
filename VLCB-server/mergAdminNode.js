@@ -169,7 +169,6 @@ class cbusAdmin extends EventEmitter {
           '50': async (cbusMsg) => {// RQNN -  Node Number
             winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
             this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
-            this.CBUS_Queue.push(this.RQMN())   // push node onto queue to read module name from node
             this.CBUS_Queue2.push(cbusLib.encodeRQMN())   // push node onto queue to read module name from node
           },
           '52': async (cbusMsg) => {
@@ -1404,6 +1403,7 @@ class cbusAdmin extends EventEmitter {
   }
 */
 
+/*
   // 0x11 RQMN
   //
   RQMN() {//Request Module Name
@@ -1411,7 +1411,9 @@ class cbusAdmin extends EventEmitter {
     output['mnemonic'] = 'RQMN'
     return output;
 }
+    */
 
+/*
 // 0x22 QLOC
   //
   QLOC(sessionId) {
@@ -1420,6 +1422,7 @@ class cbusAdmin extends EventEmitter {
       output['session'] = sessionId
       return output
   }
+      */
 
   // 0x42
   //
