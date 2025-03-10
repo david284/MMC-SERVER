@@ -39,36 +39,6 @@ class mock_jsonServer{
     this.learnNodeNumber = 0;
     this.ackRequested = false
 
-    const server = net.createServer(function (socket) {
-      socket.setKeepAlive(true, 60000);
-      this.clients.push(socket);
-      winston.info({message:`mock_jsonServer: remote Client Connected: ` + JSON.stringify(socket.address())})
-  
-      socket.on('connect', function (data) {
-        winston.info({message:`mock_jsonServer: On remote Client connected :`})
-      }.bind(this));
-
-      socket.on('data', function (data) {
-          winston.debug({message:`mock_jsonServer: on data received start: ${data}`})
-          try{
-            let indata = data.toString().replace(/}{/g, "}|{")
-            const outMsg = indata.toString().split("|")
-            var cbusMsg = JSON.parse(outMsg[0])
-            this.messagesIn.push(cbusMsg)
-            this.processMessagesIn(cbusMsg)
-          } catch (err){
-            winston.error({message:`mock_jsonServer: Data Received ` + err})
-            winston.error({message:`mock_jsonServer: Data Received ` + JSON.stringify(data)})
-          }
-      }.bind(this));
-
-      socket.on('error', function (data) {
-        winston.info({message:`mock_jsonServer: error Received :`})
-      }.bind(this));
-    }.bind(this));
-
-    server.listen(JSON_SERVER_PORT)
-
     this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
       winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
       let cbusMsg = cbusLib.decode(data)
@@ -85,16 +55,10 @@ class mock_jsonServer{
   }
 
 
-  // this accept gridconnect data
+  // this expects gridconnect data
   inject(outMsg){
     winston.info({message:`mock_jsonServer: inject ` + outMsg})
     this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg)
-    let cbusLibMsg = cbusLib.decode(outMsg)
-    this.clients.forEach(function (client) {
-        let output = JSON.stringify(cbusLibMsg);
-        winston.debug({message:`mock_jsonServer: inject output` + output})
-//        client.write(output);
-    });
   }
 
   processMessagesIn(message){
@@ -191,12 +155,7 @@ class mock_jsonServer{
   outputExtResponse(value) {
 		var cbusMsg = cbusLib.encode_EXT_RESPONSE(value)
     this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', cbusMsg)
-    var msgData = cbusLib.decode(cbusMsg)
-		winston.info({message: 'mock_jsonServer: Network OUT >>>  ' + msgData.text + " >>> "});
-    this.clients.forEach(function (client) {
-//      client.write(JSON.stringify(msgData));
-  });
-}
+  }
 
 
 
