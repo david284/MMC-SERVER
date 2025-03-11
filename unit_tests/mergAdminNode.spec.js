@@ -375,6 +375,41 @@ describe('mergAdminNode tests', function(){
     }, 10);
   })
 
+  // 0x98 sendASON
+  //
+  it("sendASON test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendASON test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendASON(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ASON')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].deviceNumber).to.equal(2)
+      winston.info({message: 'unit_test: END sendASON test'});
+      done();
+    }, 10);
+  })
+
+  // 0x99 sendASOF
+  //
+  it("sendASOF test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendASOF test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendASOF(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ASOF')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].deviceNumber).to.equal(2)
+      winston.info({message: 'unit_test: END sendASOF test'});
+      done();
+    }, 10);
+  })
+
+
 
 
 /*
