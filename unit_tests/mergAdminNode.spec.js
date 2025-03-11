@@ -704,6 +704,7 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: output ' + JSON.stringify(mock_messageRouter.messagesIn)});
       if (value.nodeNumber > 0){
         expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
+        expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       } else {
         // node 0 should be ignored
         expect(mock_messageRouter.messagesIn.length).to.equal(0)
@@ -966,6 +967,30 @@ describe('mergAdminNode tests', function(){
       done();
     }, 200);
   })
+
+  // updateNodeStatus
+  //
+  it("updateNodeStatus test", function (done) {
+    winston.info({message: 'unit_test: BEGIN updateNodeStatus test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    node.updateNodeStatus(1)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(8)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[1].parameterIndex).to.equal(1)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[2].parameterIndex).to.equal(3)
+      winston.info({message: 'unit_test: END updateNodeStatus test'});
+      done();
+    }, 300);
+  })
+
 
 
 
