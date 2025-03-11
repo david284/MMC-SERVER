@@ -357,6 +357,23 @@ describe('mergAdminNode tests', function(){
     }, 10);
   })
 
+  // 0x96 sendNVSET
+  //
+  it("sendNVSET test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendNVSET test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendNVSET(1, 2, 3)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NVSET')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(2)
+      expect(mock_messageRouter.messagesIn[0].nodeVariableValue).to.equal(3)
+      winston.info({message: 'unit_test: END sendNVSET test'});
+      done();
+    }, 10);
+  })
 
 
 
@@ -472,50 +489,7 @@ describe('mergAdminNode tests', function(){
   })
 */
 
-/*
-  // 0x75 CANID
-  //
-  itParam("CANID test ${JSON.stringify(value)}", GetTestCase_nodeNumberAndOneByte(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN CANID test '});
-    var result = node.CANID(value.nodeNumber, value.param1)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('CANID');
-    expect(result.nodeNumber).to.equal(value.nodeNumber);
-    expect(result.CAN_ID).to.equal(value.param1);
-    winston.info({message: 'unit_test: END CANID test'});
-  })
-*/
 
-/*
-  function GetTestCase_RQSD() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {arg2 = 0}
-        if (b == 2) {arg2 = 1}
-        if (b == 3) {arg2 = 255}
-        testCases.push({'nodeNumber':arg1, 'serviceIndex': arg2});
-      }
-    }
-    return testCases;
-  }
-
-  
-  // 0x78 RQSD
-  //
-  itParam("RQSD test ${JSON.stringify(value)}", GetTestCase_RQSD(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN RQSD test '});
-    var result = node.RQSD(value.nodeNumber, value.serviceIndex)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('RQSD');
-    expect(result.nodeNumber).to.equal(value.nodeNumber);
-    expect(result.ServiceIndex).to.equal(value.serviceIndex);
-    winston.info({message: 'unit_test: END RQSD test'});
-  })
-*/
 
   //****************************************************************************************** */
   //****************************************************************************************** */
