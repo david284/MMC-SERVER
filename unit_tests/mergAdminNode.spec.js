@@ -637,6 +637,30 @@ describe('mergAdminNode tests', function(){
 		}, 30);
   })
 
+  // 0xAC SD
+  //
+  it("SD test", function (done) {
+    winston.info({message: 'unit_test: BEGIN SD test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    // nodeNumber, serviceIndex, serviceType, serviceVersion
+    var testMessage = cbusLib.encodeSD(1, 2, 3, 4)
+    mock_messageRouter.inject(testMessage)
+
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[3])}`});
+      expect(nodeTraffic[0].json.mnemonic).to.equal("SD")
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('RQSD')
+      expect(mock_messageRouter.messagesIn[3].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[3].ServiceIndex).to.equal(2)
+      winston.info({message: 'unit_test: END SD test'});
+      done();
+    }, 300);
+  })
+
 
   // 0xB5 NEVAL
   //
