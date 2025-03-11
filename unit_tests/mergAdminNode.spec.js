@@ -134,6 +134,16 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+  function GetTestCase_session() {
+    var arg1, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 255}
+      testCases.push({'session':arg1});
+    }
+    return testCases;
+  }
   
 
   //****************************************************************************************** */
@@ -145,66 +155,24 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   // outgoing messages
   //****************************************************************************************** */
-
-  /*
+  
   // 0x0D QNN
   //
-  it("QNN test ", async function () {
-    winston.info({message: 'unit_test: BEGIN QNN test '});
-    var result = node.QNN()
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('QNN');
-    winston.info({message: 'unit_test: END QNN test'});
+  it("query_all_nodes test ", function (done) {
+    winston.info({message: 'unit_test: BEGIN query_all_nodes test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.query_all_nodes()
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('QNN')
+      winston.info({message: 'unit_test: END query_all_nodes test'});
+      done();
+    }, 10);
   })
-    */
 
-/*
-  // 0x10 RQNP
-  //
-  it("RQNP test ", async function () {
-    winston.info({message: 'unit_test: BEGIN RQNP test '});
-    var result = node.RQNP()
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('RQNP');
-    winston.info({message: 'unit_test: END RQNP test'});
-  })
-*/
-
-  function GetTestCase_session() {
-    var arg1, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 255}
-      testCases.push({'session':arg1});
-    }
-    return testCases;
-  }
-
-/*
-
-  // 0x22 QLOC
-  //
-  itParam("QLOC test ${JSON.stringify(value)}", GetTestCase_session(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN QLOC test ' + JSON.stringify(value)});
-    var result = node.QLOC(value.session)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('QLOC');
-    expect(result.session).to.equal(value.session);
-    winston.info({message: 'unit_test: END QLOC test'});
-  })
-*/
-
-  function GetTestCase_nodeNumber() {
-    var arg1, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 65535}
-      testCases.push({'nodeNumber':arg1});
-    }
-    return testCases;
-  }
+  // 0x11 RQMN
+  // see RQNN
 
   // 0x42 sendSNN
   //
@@ -456,18 +424,12 @@ describe('mergAdminNode tests', function(){
   })
 */
 
-/*
-  // 0x57 NERD
-  //
-  itParam("NERD test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN NERD test '});
-    var result = node.NERD(value.nodeNumber)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('NERD');
-    expect(result.nodeNumber).to.equal(value.nodeNumber)
-    winston.info({message: 'unit_test: END NERD test'});
-  })
-*/
+// 0x56 NNEVN
+// see NUMEV
+
+// 0x57 NERD
+// see NUMEV
+
 
 /*
   // 0x58 RQEVN

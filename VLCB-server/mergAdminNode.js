@@ -255,7 +255,7 @@ class cbusAdmin extends EventEmitter {
           winston.debug({message: `mergAdminNode: Heartbeat ${cbusMsg.nodeNumber} ${Date.now()}`})
           this.heartbeats[cbusMsg.nodeNumber] = Date.now()
       },
-      'AC': async (cbusMsg) => {//Service Discovery
+      'AC': async (cbusMsg) => {// SD Service Discovery
           winston.info({message: `mergAdminNode: SD ${cbusMsg.nodeNumber} ${cbusMsg.text}`})
           utils.createServiceEntry(this.nodeConfig, 
             cbusMsg.nodeNumber,
