@@ -219,7 +219,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendSNN test'});
       done();
-    }, 200);
+    }, 10);
   })
 
   // 0x5D sendENUM
@@ -235,7 +235,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendENUM test'});
       done();
-    }, 200);
+    }, 10);
   })
 
   // 0x5E sendNNRST
@@ -251,7 +251,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendNNRST test'});
       done();
-    }, 200);
+    }, 10);
   })
 
   // 0x73 sendRQNPN
@@ -268,7 +268,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(2)
       winston.info({message: 'unit_test: END sendRQNPN test'});
       done();
-    }, 200);
+    }, 10);
   })
 
   // 0x75 sendCANID
@@ -285,9 +285,43 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].CAN_ID).to.equal(2)
       winston.info({message: 'unit_test: END sendCANID test'});
       done();
-    }, 200);
+    }, 10);
   })
 
+  // 0x75 sendRQSD
+  //
+  it("sendRQSD test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendRQSD test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendRQSD(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQSD')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].ServiceIndex).to.equal(2)
+      winston.info({message: 'unit_test: END sendRQSD test'});
+      done();
+    }, 10);
+  })
+
+  // 0x87 sendRDGN
+  //
+  it("sendRDGN test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendRDGN test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendRDGN(1, 2, 3)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RDGN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].ServiceIndex).to.equal(2)
+      expect(mock_messageRouter.messagesIn[0].DiagnosticCode).to.equal(3)
+      winston.info({message: 'unit_test: END sendRDGN test'});
+      done();
+    }, 10);
+  })
 
 /*
   // 0x53 NNLRN
