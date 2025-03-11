@@ -1309,79 +1309,131 @@ class cbusAdmin extends EventEmitter {
   // 0x42
   //
   sendSNN(nodeNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeSNN(nodeNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeSNN(nodeNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendSNN: ${err}`});
+    }
   }
 
   // 0x5D ENUM
   //
   sendENUM(nodeNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeENUM(nodeNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeENUM(nodeNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendENUM: ${err}`});
+    }
   }
 
   // 0x5E NNRST
   //
   sendNNRST(nodeNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeNNRST(nodeNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeNNRST(nodeNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendNNRST: ${err}`});
+    }
   }
 
   // 0x73 RQNPN
   //
   sendRQNPN(nodeNumber, param) {//Read Node Parameter
-    this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, param))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeRQNPN(nodeNumber, param))
+    } catch (err) {
+      winston.error({message: name + `: sendRQNPN: ${err}`});
+    }
   }
 
   // 0x75 CANID
   //
   sendCANID(nodeNumber, CAN_ID) {//Read Node Parameter
-    this.CBUS_Queue2.push(cbusLib.encodeCANID(nodeNumber, CAN_ID))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeCANID(nodeNumber, CAN_ID))
+    } catch (err) {
+      winston.error({message: name + `: sendCANID: ${err}`});
+    }
   }
 
   // 0x78 RQSD
   //
   sendRQSD(nodeNumber, service) { //Request Service Delivery
-    this.CBUS_Queue2.push(cbusLib.encodeRQSD(nodeNumber, service))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeRQSD(nodeNumber, service))
+    } catch (err) {
+      winston.error({message: name + `: sendRQSD: ${err}`});
+    }
   }
 
   // 0x87 RDGN
   //
   sendRDGN(nodeNumber, service, diagCode) { //Request Diagnostics
-    this.CBUS_Queue2.push(cbusLib.encodeRDGN(nodeNumber, service, diagCode))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeRDGN(nodeNumber, service, diagCode))
+    } catch (err) {
+      winston.error({message: name + `: sendRDGN: ${err}`});
+    }
   }
 
   // 0x90 AC0N
   //
   sendACON(nodeNumber, eventNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeACON(nodeNumber, eventNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeACON(nodeNumber, eventNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendACON: ${err}`});
+    }
   }
 
   // 0x91 AC0F
   //
   sendACOF(nodeNumber, eventNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeACOF(nodeNumber, eventNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeACOF(nodeNumber, eventNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendACOF: ${err}`});
+    }
   }
 
   // 0x96
   //
   sendNVSET(nodeNumber, variableId, variableVal) { // Read Node Variable
-    this.CBUS_Queue2.push(cbusLib.encodeNVSET(nodeNumber, variableId, variableVal))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeNVSET(nodeNumber, variableId, variableVal))
+    } catch (err) {
+      winston.error({message: name + `: sendNVSET: ${err}`});
+    }
   }
 
   // 0x98 ASON
   //
   sendASON(nodeNumber, deviceNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeASON(nodeNumber, deviceNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeASON(nodeNumber, deviceNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendASON: ${err}`});
+    }
   }
 
   // 0x99 ASOF
   //
   sendASOF(nodeNumber, deviceNumber) {
-    this.CBUS_Queue2.push(cbusLib.encodeASOF(nodeNumber, deviceNumber))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeASOF(nodeNumber, deviceNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendASOF: ${err}`});
+    }
   }
 
   // 0x9C REVAL
   //
   sendREVAL(nodeNumber, eventIndex, eventVariableIndex) {//Read an Events EV by index
-    this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
+    try{
+      this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
+    } catch (err) {
+      winston.error({message: name + `: sendREVAL: ${err}`});
+    }
   }
 
 };
