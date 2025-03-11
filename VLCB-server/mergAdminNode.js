@@ -1185,7 +1185,9 @@ class cbusAdmin extends EventEmitter {
     // updated variable, so add to config
     this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
     this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
-    this.CBUS_Queue2.push(cbusLib.encodeEVLRN(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue))
+    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+    this.CBUS_Queue2.push(cbusLib.encodeEVLRN(eventNodeNumber, eventNumber, eventVariableIndex, eventVariableValue))
     this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
 
     // don't reload variables if reload is false - like when restoring a node
