@@ -221,7 +221,52 @@ describe('mergAdminNode tests', function(){
     }, 200);
   })
 
+  // 0x5D sendENUM
+  //
+  itParam("sendENUM test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN sendENUM test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendENUM(value.nodeNumber)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ENUM')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END sendENUM test'});
+      done();
+    }, 200);
+  })
 
+  // 0x5E sendNNRST
+  //
+  itParam("sendNNRST test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN sendNNRST test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendNNRST(value.nodeNumber)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNRST')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END sendNNRST test'});
+      done();
+    }, 200);
+  })
+
+  // 0x73 sendRQNPN
+  //
+  it("sendRQNPN test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendRQNPN test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendRQNPN(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(2)
+      winston.info({message: 'unit_test: END sendRQNPN test'});
+      done();
+    }, 200);
+  })
 
 
 
