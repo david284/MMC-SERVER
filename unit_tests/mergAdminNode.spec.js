@@ -206,18 +206,24 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
-/*  
-  // 0x42 SNN
+  // 0x42 sendSNN
   //
-  itParam("SNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN SNN test '});
-    var result = node.SNN(value.nodeNumber)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('SNN');
-    expect(result.nodeNumber).to.equal(value.nodeNumber)
-    winston.info({message: 'unit_test: END SNN test'});
+  itParam("sendSNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+    winston.info({message: 'unit_test: BEGIN sendSNN test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendSNN(value.nodeNumber)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('SNN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END sendSNN test'});
+      done();
+    }, 200);
   })
-*/
+
+
+
+
 
 /*
   // 0x53 NNLRN

@@ -235,7 +235,7 @@ describe('programNode tests', async function(){
     // verify checksum when process is signalled as complete
     expect(downloadData.status).to.equal('Success', 'Download event');
     expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-//    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+//    expect(mock_messageRouter.firmwareChecksum).to.equal('C68E', 'Checksum');
     //
     // check last message is a reset command
     winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_messageRouter.messagesIn.length});
@@ -272,7 +272,7 @@ describe('programNode tests', async function(){
       // verify checksum when process is signalled as complete
       expect(downloadData.status).to.equal('Success', 'Download event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-  //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+  //    expect(mock_messageRouter.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
       winston.info({message: 'UNIT_TEST: program configOnly: number of message: ' + mock_messageRouter.messagesIn.length});
@@ -308,7 +308,7 @@ describe('programNode tests', async function(){
       // verify checksum when process is signalled as complete
       expect(downloadData.status).to.equal('Success', 'Download event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-  //    expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+  //    expect(mock_messageRouter.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
       winston.info({message: 'UNIT_TEST: short download: number of message: ' + mock_messageRouter.messagesIn.length});
@@ -430,7 +430,7 @@ describe('programNode tests', async function(){
       // verify process is signalled as complete & checksum correct
       expect(downloadData.status).to.equal("Success", 'programBootMode: expected event');
       expect(downloadData.text).to.equal('Success: programing completed', 'Download event');
-//      expect(mock_jsonServer.firmwareChecksum).to.equal('C68E', 'Checksum');
+//      expect(mock_messageRouter.firmwareChecksum).to.equal('C68E', 'Checksum');
       //
       // check last message is a reset command
       var lastMsg = cbusLib.decode(mock_messageRouter.messagesIn[mock_messageRouter.messagesIn.length - 1])
