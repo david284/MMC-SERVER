@@ -214,6 +214,7 @@ describe('mergAdminNode tests', function(){
     nodeTraffic = []
     var result = node.sendSNN(value.nodeNumber)
     setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('SNN')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendSNN test'});
@@ -229,6 +230,7 @@ describe('mergAdminNode tests', function(){
     nodeTraffic = []
     var result = node.sendENUM(value.nodeNumber)
     setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ENUM')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendENUM test'});
@@ -244,6 +246,7 @@ describe('mergAdminNode tests', function(){
     nodeTraffic = []
     var result = node.sendNNRST(value.nodeNumber)
     setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNRST')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END sendNNRST test'});
@@ -268,6 +271,22 @@ describe('mergAdminNode tests', function(){
     }, 200);
   })
 
+  // 0x75 sendCANID
+  //
+  it("sendCANID test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendCANID test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendCANID(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('CANID')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].CAN_ID).to.equal(2)
+      winston.info({message: 'unit_test: END sendCANID test'});
+      done();
+    }, 200);
+  })
 
 
 /*
