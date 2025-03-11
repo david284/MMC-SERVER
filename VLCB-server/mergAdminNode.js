@@ -1380,8 +1380,8 @@ class cbusAdmin extends EventEmitter {
 
   // 0x9C REVAL
   //
-  sendREVAL(nodeNumber, eventNumber, valueId) {//Read an Events EV by index
-    this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventNumber))
+  sendREVAL(nodeNumber, eventIndex, eventVariableIndex) {//Read an Events EV by index
+    this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
   }
 
 };

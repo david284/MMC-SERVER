@@ -409,6 +409,24 @@ describe('mergAdminNode tests', function(){
     }, 10);
   })
 
+  // 0x9C sendREVAL
+  //
+  it("sendREVAL test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendREVAL test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendREVAL(1, 2, 3)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].eventIndex).to.equal(2)
+      expect(mock_messageRouter.messagesIn[0].eventVariableIndex).to.equal(3)
+      winston.info({message: 'unit_test: END sendREVAL test'});
+      done();
+    }, 10);
+  })
+
 
 
 
