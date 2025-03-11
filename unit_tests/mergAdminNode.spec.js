@@ -323,6 +323,43 @@ describe('mergAdminNode tests', function(){
     }, 10);
   })
 
+  // 0x90 sendACON
+  //
+  it("sendACON test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendACON test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendACON(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ACON')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].eventNumber).to.equal(2)
+      winston.info({message: 'unit_test: END sendACON test'});
+      done();
+    }, 10);
+  })
+
+  // 0x91 sendACOF
+  //
+  it("sendACOF test", function (done) {
+    winston.info({message: 'unit_test: BEGIN sendACOF test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    var result = node.sendACOF(1, 2)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ACOF')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].eventNumber).to.equal(2)
+      winston.info({message: 'unit_test: END sendACOF test'});
+      done();
+    }, 10);
+  })
+
+
+
+
 /*
   // 0x53 NNLRN
   //
