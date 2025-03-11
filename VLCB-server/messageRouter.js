@@ -45,7 +45,8 @@ class messageRouter{
 
     this.cbusClient.on('error', async function (err) {
       winston.error({message: name + `: Client error: ` + err.stack});
-      let caption = `IP: ${this.clientHost}  Port: ${this.clientPort}` 
+      let caption = `IP: ${this.cbusClientHost}  Port: ${this.cbusClientPort}` 
+      winston.error({message: name + `: Client error: ` + caption});
       let eventData = {
         message: "Network error - retrying connection",
         caption: caption,
@@ -83,8 +84,8 @@ class messageRouter{
           timeout: 500
         }
         this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
-        }.bind(this));
-      this.enableReconnect = true
+        this.enableReconnect = true
+      }.bind(this));
     } catch(e){
       winston.info({message:name + ': cbusClient connection failed: ' + e})
     }    
