@@ -395,117 +395,6 @@ describe('mergAdminNode tests', function(){
     }, 10);
   })
 
-
-
-
-/*
-  // 0x53 NNLRN
-  //
-  itParam("NNLRN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN NNLRN test '});
-    var result = node.NNLRN(value.nodeNumber)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('NNLRN');
-    expect(result.nodeNumber).to.equal(value.nodeNumber)
-    winston.info({message: 'unit_test: END NNLRN test'});
-  })
-*/
-
-/*
-  // 0x54 NNULN
-  //
-  itParam("NNULN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN NNULN test '});
-    var result = node.NNULN(value.nodeNumber)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('NNULN');
-    expect(result.nodeNumber).to.equal(value.nodeNumber)
-    winston.info({message: 'unit_test: END NNULN test'});
-  })
-*/
-
-// 0x56 NNEVN
-// see NUMEV
-
-// 0x57 NERD
-// see NUMEV
-
-
-/*
-  // 0x58 RQEVN
-  //
-  itParam("RQEVN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN RQEVN test '});
-    var result = node.RQEVN(value.nodeNumber)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('RQEVN');
-    expect(result.nodeNumber).to.equal(value.nodeNumber)
-    winston.info({message: 'unit_test: END RQEVN test'});
-  })
-*/
-
-/*
-  function GetTestCase_NENRD() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {arg2 = 0}
-        if (b == 2) {arg2 = 1}
-        if (b == 3) {arg2 = 255}
-        testCases.push({'nodeNumber':arg1, 'eventIndex': arg2});
-      }
-    }
-    return testCases;
-  }
-
-  // 0x72 NENRD
-  //
-  itParam("NENRD test ${JSON.stringify(value)}", GetTestCase_NENRD(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN NENRD test '});
-    var result = node.NENRD(value.nodeNumber, value.eventIndex)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('NENRD');
-    expect(result.nodeNumber).to.equal(value.nodeNumber);
-    expect(result.parameterIndex).to.equal(value.parameterIndex);
-    winston.info({message: 'unit_test: END NENRD test'});
-  })
-*/
-
-/*
-  function GetTestCase_RQNPN() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {arg2 = 0}
-        if (b == 2) {arg2 = 1}
-        if (b == 3) {arg2 = 255}
-        testCases.push({'nodeNumber':arg1, 'parameterIndex': arg2});
-      }
-    }
-    return testCases;
-  }
-
-  // 0x73 RQNPN
-  //
-  itParam("RQNPN test ${JSON.stringify(value)}", GetTestCase_RQNPN(), async function (value) {
-    winston.info({message: 'unit_test: BEGIN RQNPN test '});
-    var result = node.RQNPN(value.nodeNumber, value.parameterIndex)
-    winston.info({message: 'unit_test: result ' + JSON.stringify(result)});
-    expect(result.mnemonic).to.equal('RQNPN');
-    expect(result.nodeNumber).to.equal(value.nodeNumber);
-    expect(result.parameterIndex).to.equal(value.parameterIndex);
-    winston.info({message: 'unit_test: END RQNPN test'});
-  })
-*/
-
-
-
   //****************************************************************************************** */
   //****************************************************************************************** */
   // incoming messages
@@ -1194,7 +1083,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
       expect(mock_messageRouter.messagesIn[1].eventidentifier).to.equal(value.eventidentifier)
-      expect(mock_messageRouter.messagesIn[1].eventVariableIndex).to.equal(value.eventVariableIndexz)
+      expect(mock_messageRouter.messagesIn[1].eventVariableIndex).to.equal(value.eventVariableIndex)
       expect(mock_messageRouter.messagesIn[1].eventVariableValue).to.equal(value.eventVariableValue)
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
       expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
