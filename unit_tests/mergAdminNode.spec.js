@@ -884,6 +884,30 @@ describe('mergAdminNode tests', function(){
   // Internal functions
   //****************************************************************************************** */
   //****************************************************************************************** */
+  
+  // event_unlearn test
+  //
+  it("event_unlearn test", function (done) {
+    winston.info({message: 'unit_test: BEGIN event_unlearn test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    let nodeNumber = 1
+    let eventIdentifier = '00000001'
+//    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+//    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+    node.event_unlearn(nodeNumber, eventIdentifier)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNLRN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('EVULN')
+      expect(mock_messageRouter.messagesIn[1].eventIdentifier).to.equal(eventIdentifier)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('NNULN')
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
+      winston.info({message: 'unit_test: END event_unlearn test'});
+      done();
+    }, 50);
+  })
+
   function GetTestCase_event_by_index() {
     var argA, argB, argC, argD, testCases = [];
     for (var a = 1; a<= 3; a++) {

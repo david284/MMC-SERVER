@@ -1057,10 +1057,13 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue2.push(cbusLib.encodeQNN())
   }
 
-  async event_unlearn(nodeNumber, eventName) {
+  async event_unlearn(nodeNumber, eventIdentifier) {
     this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
-    this.CBUS_Queue2.push(cbusLib.encodeEVULN(eventName))
-    await sleep(300); // allow a bit more time
+    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+    this.CBUS_Queue2.push(cbusLib.encodeEVULN(eventNodeNumber, eventNumber))
+    let timeGap = this.inUnitTest ? 1 : 300
+    await sleep(timeGap); // allow a bit more time
     this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
     await this.request_all_node_events(nodeNumber)
   }
