@@ -906,7 +906,6 @@ describe('mergAdminNode tests', function(){
 		}, 50);
   })
 
-
   // event_unlearn test
   //
   it("event_unlearn test", function (done) {
@@ -926,6 +925,33 @@ describe('mergAdminNode tests', function(){
       winston.info({message: 'unit_test: END event_unlearn test'});
       done();
     }, 50);
+  })
+
+  //
+  // Test to check requesting EV's by index
+  // initial REVAL should return number of subsequent EV's which should then be requested
+  // so check the number of REVAL's is correct - should be 3 in total
+  // response to REVAL - NEVAL is tested elsewhere
+  //
+  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
+    // ensure event does exist with correct eventIndex
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
+      winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
+      done();
+    }, 200);
   })
 
   function GetTestCase_event_by_index() {
@@ -996,33 +1022,6 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
-  //
-  // Test to check requesting EV's by index
-  // initial REVAL should return number of subsequent EV's which should then be requested
-  // so check the number of REVAL's is correct - should be 3 in total
-  // response to REVAL - NEVAL is tested elsewhere
-  //
-  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
-    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
-    // ensure event does exist with correct eventIndex
-    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
-    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
-    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
-    mock_messageRouter.messagesIn = []
-    nodeTraffic = []
-    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
-    setTimeout(function(){
-      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
-      }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
-      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
-      winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
-      done();
-    }, 200);
-  })
-
   // updateNodeStatus
   // use node number that doesn't exist
   //
@@ -1048,6 +1047,29 @@ describe('mergAdminNode tests', function(){
     }, 300);
   })
 
+
+  // event_unlearn test
+  //
+  it("update_node_variable_in_learnMode test", function (done) {
+    winston.info({message: 'unit_test: BEGIN update_node_variable_in_learnMode test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    let nodeNumber = 1
+    let nodeVariableIndex = 2
+    let nodeVariableValue = 3
+    node.update_node_variable_in_learnMode(nodeNumber, nodeVariableIndex, nodeVariableValue)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNLRN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('NVSET')
+      expect(mock_messageRouter.messagesIn[1].nodeVariableIndex).to.equal(nodeVariableIndex)
+      expect(mock_messageRouter.messagesIn[1].nodeVariableValue).to.equal(nodeVariableValue)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('NNULN')
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
+      winston.info({message: 'unit_test: END update_node_variable_in_learnMode test'});
+      done();
+    }, 50);
+  })
 
 
 
@@ -1207,6 +1229,25 @@ describe('mergAdminNode tests', function(){
 
   })
 
+  // request_all_node_parameters test
+  //
+  it("request_all_node_parameters test", function (done) {
+    winston.info({message: 'unit_test: BEGIN request_all_node_parameters test: '});
+    mock_messageRouter.messagesIn = []
+    let nodeNumber = 1
+    node.request_all_node_parameters(nodeNumber) 
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQNPN")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(0)
+      winston.info({message: 'unit_test: END request_all_node_parameters test'});
+			done();
+		}, 30);
+  })
+
 
   function GetTestCase_events() {
     var arg1, arg2, arg3, testCases = [];
@@ -1275,11 +1316,8 @@ describe('mergAdminNode tests', function(){
   //
   itParam("request_node_variable test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN request_node_variable test: ' + JSON.stringify(value) });
-    
     mock_messageRouter.messagesIn = []
-
     await node.request_node_variable(value.nodeNumber, 2) 
-  
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
