@@ -1186,9 +1186,7 @@ describe('mergAdminNode tests', function(){
 
   })
 
-
-  //
-  //
+  // request_all_node_events test
   //
   itParam("request_all_node_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN request_all_node_events test: ' + JSON.stringify(value) });
@@ -1202,7 +1200,7 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
-//      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NERD")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END request_all_node_events test'});
 			done();
 		}, 30);
