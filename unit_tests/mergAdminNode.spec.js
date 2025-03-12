@@ -885,6 +885,28 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   //****************************************************************************************** */
   
+  // delete_all_events test
+  //
+  itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN delete_all_events test '});
+    mock_messageRouter.messagesIn = []
+    await node.delete_all_events(value.nodeNumber)
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NNCLR")
+      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
+      winston.info({message: 'unit_test: END delete_all_events test'});
+			done();
+		}, 50);
+  })
+
+
   // event_unlearn test
   //
   it("event_unlearn test", function (done) {
@@ -893,8 +915,6 @@ describe('mergAdminNode tests', function(){
     nodeTraffic = []
     let nodeNumber = 1
     let eventIdentifier = '00000001'
-//    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
-//    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
     node.event_unlearn(nodeNumber, eventIdentifier)
     setTimeout(function(){
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNLRN')
@@ -1135,25 +1155,6 @@ describe('mergAdminNode tests', function(){
 		}, 150);
   })
 
-
-  //
-  //
-  //
-  itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
-    winston.info({message: 'unit_test: BEGIN delete_all_events test '});
-    mock_messageRouter.messagesIn = []
-    await node.delete_all_events(value.nodeNumber)
-    setTimeout(function(){
-      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
-      }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NNCLR")
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
-      winston.info({message: 'unit_test: END delete_all_events test'});
-			done();
-		}, 50);
-  })
 
 
 

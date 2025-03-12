@@ -1086,7 +1086,8 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + ': delete_all_events: node ' + nodeNumber});
     this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
     this.CBUS_Queue2.push(cbusLib.encodeNNCLR(nodeNumber))
-    await sleep(500); // allow a bit more time after NNCLR
+    let timeGap = this.inUnitTest ? 1 : 500
+    await sleep(timeGap); // allow a bit more time
     this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
   }
 
