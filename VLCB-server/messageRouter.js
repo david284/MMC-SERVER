@@ -43,10 +43,26 @@ class messageRouter{
       }
     }.bind(this));
 
+    this.cbusClient.on('connection', function (data) {
+      winston.debug({message:name + `: cbusClient: on connection:`})
+    })
+
+    this.cbusClient.on('connectionAttempt', function (data) {
+      winston.debug({message:name + `: cbusClient: on connectionAttempt:`})
+    })
+
+    this.cbusClient.on('connectionAttemptFailed', function (data) {
+      winston.debug({message:name + `: cbusClient: on connectionAttemptFailed:`})
+    })
+
+    this.cbusClient.on('connectionTimeout', function (data) {
+      winston.debug({message:name + `: cbusClient: on connectionTimeout:`})
+    })
+
     this.cbusClient.on('error', async function (err) {
-      winston.error({message: name + `: Client error: ` + err.stack});
+      winston.error({message: name + `: cbusClient error: ` + err.stack});
       let caption = `IP: ${this.cbusClientHost}  Port: ${this.cbusClientPort}` 
-      winston.error({message: name + `: Client error: ` + caption});
+      winston.error({message: name + `: cbusClient error: ` + caption});
       let eventData = {
         message: "Network error - retrying connection",
         caption: caption,
@@ -54,6 +70,7 @@ class messageRouter{
         timeout: 3000
       }
       this.eventBus.emit ('NETWORK_CONNECTION_FAILURE', eventData)
+      this.enableReconnect = true
       this.connected = false
     }.bind(this))
 
@@ -86,6 +103,13 @@ class messageRouter{
         this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
         this.enableReconnect = true
       }.bind(this));
+      if (this.cbusClient){
+        winston.info({message:name + ': cbusClient connection succeeded: '})
+        winston.info({message:name + ': cbusClient socket: ' +JSON.stringify(this.cbusClient)})
+        winston.info({message:name + ': cbusClient: readyState ' + this.cbusClient.readyState})
+      } else {
+        winston.info({message:name + ': cbusClient connection failed: '})
+      }
     } catch(e){
       winston.info({message:name + ': cbusClient connection failed: ' + e})
     }    
@@ -93,6 +117,15 @@ class messageRouter{
 
   connectIntervalFunction(){
     winston.debug({message:name + ': cbusClient check connection:'})
+    if (this.cbusClient.readyState == 'opening'){
+      this.connected = true
+      let data = {
+        message: "Network port opening",
+        type: "info",
+        timeout: 500
+      }
+      this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
+    }
     if(this.enableReconnect){
       winston.debug({message:name + ': cbusClient reconnect enabled:'})
       if(this.connected){
