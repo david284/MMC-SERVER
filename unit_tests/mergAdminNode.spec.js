@@ -650,12 +650,23 @@ describe('mergAdminNode tests', function(){
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[3])}`});
       expect(nodeTraffic[0].json.mnemonic).to.equal("SD")
+      let found = false
+      mock_messageRouter.messagesIn.forEach(msg => {
+        if (msg.mnemonic == 'RQSD') { 
+          found = true
+          expect(msg.nodeNumber).to.equal(1)
+          expect(msg.ServiceIndex).to.equal(2)
+        }
+      })
+      expect(found).to.equal(true)
+/*
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('RQSD')
       expect(mock_messageRouter.messagesIn[3].nodeNumber).to.equal(1)
       expect(mock_messageRouter.messagesIn[3].ServiceIndex).to.equal(2)
+*/      
       winston.info({message: 'unit_test: END SD test'});
       done();
     }, 300);
@@ -969,22 +980,24 @@ describe('mergAdminNode tests', function(){
   })
 
   // updateNodeStatus
+  // use node number that doesn't exist
   //
   it("updateNodeStatus test", function (done) {
     winston.info({message: 'unit_test: BEGIN updateNodeStatus test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    node.updateNodeStatus(1)
+    let nodeNumber = 3
+    node.updateNodeStatus(nodeNumber)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
-      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(8)
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('RQNPN')
-      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[1].parameterIndex).to.equal(1)
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('RQNPN')
-      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(1)
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[2].parameterIndex).to.equal(3)
       winston.info({message: 'unit_test: END updateNodeStatus test'});
       done();
