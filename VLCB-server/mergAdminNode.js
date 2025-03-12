@@ -54,6 +54,7 @@ class cbusAdmin extends EventEmitter {
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
       winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
       try{
+        this.lastCbusTrafficTime = Date.now()     // store this time stamp
         let cbusMsg = cbusLibrary.decode(data)
         winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
         //
