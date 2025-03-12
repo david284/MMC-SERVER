@@ -1272,7 +1272,9 @@ class cbusAdmin extends EventEmitter {
   async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex){
     this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
     this.nodeNumberInLearnMode = nodeNumber
-    this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventIdentifier, eventVariableIndex))
+    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+    this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventNodeNumber, eventNumber, eventVariableIndex))
     this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
   }
 

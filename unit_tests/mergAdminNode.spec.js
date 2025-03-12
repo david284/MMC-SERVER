@@ -927,6 +927,29 @@ describe('mergAdminNode tests', function(){
     }, 50);
   })
 
+  // Read_EV_in_learn_mode test
+  //
+  it("Read_EV_in_learn_mode test", function (done) {
+    winston.info({message: 'unit_test: BEGIN Read_EV_in_learn_mode test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    let nodeNumber = 1
+    let eventIdentifier = '00000002'
+    let eventVariableIndex = 3
+    node.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex)
+    setTimeout(function(){
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNLRN')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REQEV')
+      expect(mock_messageRouter.messagesIn[1].eventIdentifier).to.equal(eventIdentifier)
+      expect(mock_messageRouter.messagesIn[1].eventVariableIndex).to.equal(eventVariableIndex)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('NNULN')
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
+      winston.info({message: 'unit_test: END Read_EV_in_learn_mode test'});
+      done();
+    }, 50);
+  })
+
   //
   // Test to check requesting EV's by index
   // initial REVAL should return number of subsequent EV's which should then be requested
@@ -953,6 +976,30 @@ describe('mergAdminNode tests', function(){
       done();
     }, 200);
   })
+
+  // request_all_node_variables
+  //
+  it("request_all_node_variables test ", function (done) {
+    winston.info({message: 'unit_test: BEGIN request_all_node_variables test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    let nodeNumber = 1
+    node.createNodeConfig(1)    // create node config for node we're testing
+    node.nodeConfig.nodes[nodeNumber].parameters[6] = 1
+    var result = node.request_all_node_variables(nodeNumber)
+    setTimeout(function(){
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NVRD')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(1)
+      winston.info({message: 'unit_test: END request_all_node_variables test'});
+      done();
+    }, 300);
+  })
+
+
+
+
 
   function GetTestCase_event_by_index() {
     var argA, argB, argC, argD, testCases = [];
@@ -1048,7 +1095,7 @@ describe('mergAdminNode tests', function(){
   })
 
 
-  // event_unlearn test
+  // update_node_variable_in_learnMode test
   //
   it("update_node_variable_in_learnMode test", function (done) {
     winston.info({message: 'unit_test: BEGIN update_node_variable_in_learnMode test '});
@@ -1144,8 +1191,13 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
+      expect(mock_messageRouter.messagesIn[1].eventidentifier).to.equal(value.eventidentifier)
+      expect(mock_messageRouter.messagesIn[1].eventVariableIndex).to.equal(value.eventVariableIndexz)
+      expect(mock_messageRouter.messagesIn[1].eventVariableValue).to.equal(value.eventVariableValue)
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
       expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
       expect(mock_messageRouter.messagesIn.length).to.equal(4)
       winston.info({message: 'unit_test: END event_teach_by_identifier test'});
