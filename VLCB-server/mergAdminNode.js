@@ -237,7 +237,8 @@ class cbusAdmin extends EventEmitter {
         try{
           this.saveNodeVariable(cbusMsg.nodeNumber, cbusMsg.nodeVariableIndex, cbusMsg.nodeVariableValue)
           if (cbusMsg.nodeVariableIndex > 0){
-            this.nodeConfig.nodes[nodeNumber]['lastNVANSTimestamp'] = Date.now()
+            this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastNVANSTimestamp'] = Date.now()
+            winston.error({message: name + `: lastNVANSTimestamp: ${this.nodeConfig.nodes[cbusMsg.nodeNumber].lastNVANSTimestamp}`})
           }
         } catch (err){ winston.error({message: name + `: NVANS: ` + err}) }
       },
