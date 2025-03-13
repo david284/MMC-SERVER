@@ -34,6 +34,21 @@
 					"2":{"name":"Unused"},
 					"3":{"name":"Unused"}
 				}
+			},
+			"2": {
+				"diagnostics":{
+					"1":{"name":"STATUS"},
+					"2":{"name":"UPTIME upper word"},
+					"3":{"name":"UPTIME lower word"},
+					"4":{"name":"Memory Fault Indicator"},
+					"5":{"name":"Node ID change count"},
+					"6":{"name":"Message Processed Count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
 			}
 		}
 	},
@@ -52,6 +67,17 @@
 				}
 			},
 			"1": {
+				"diagnostics":{
+					"1":{"name":"Access Count"},
+					"2":{"name":"Failure Count"}
+				},
+        "ESD":{
+					"1":{"name":"Number of NVs"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
+			},
+			"2": {
 				"diagnostics":{
 					"1":{"name":"Access Count"},
 					"2":{"name":"Failure Count"}
@@ -168,6 +194,16 @@
 					"2":{"name":"Unused"},
 					"3":{"name":"Unused"}
 				}
+			},
+			"2": {
+				"diagnostics":{
+					"1":{"name":"Events taught count"}
+				},
+        "ESD":{
+					"1":{"name":"Unused"},
+					"2":{"name":"Unused"},
+					"3":{"name":"Unused"}
+				}
 			}
 		}
 	},
@@ -218,6 +254,17 @@
 					"2":{"name":"Additional data"},
 					"3":{"name":"Unused"}
 				}
+			},
+			"2": {
+				"diagnostics":{
+					"1":{"name":"Events consumed count"},
+					"2":{"name":"Events acknowledged count"}
+				},
+        "ESD":{
+					"1":{"name":"EV Usage"},
+					"2":{"name":"Additional data"},
+					"3":{"name":"Unused"}
+				}
 			}
 		}
 
@@ -246,7 +293,6 @@
 				}
 			}
 		}
-
 	},
 	"8":{
 		"name":"Consume Own Events Service",
