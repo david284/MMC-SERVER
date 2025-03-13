@@ -443,9 +443,19 @@ class cbusAdmin extends EventEmitter {
 
   //
   //
+  clear_FCU_compatibility(){
+    let nodeNumber = 0      // global (all nodes)
+    let ModeNumber = 0x11   // Turn off FCU compatibility
+    this.CBUS_Queue2.push(cbusLib.encodeMODE(nodeNumber, ModeNumber))
+    winston.info({message: name + `: clear_FCU_compatibility`});
+  }
+
+  //
+  //
   onConnect(){
-    winston.info({message: `mergAdminNode: onConnect`});
+    winston.info({message: name + `: onConnect`});
     this.addLayoutNodes(this.config.readLayoutData())
+    this.clear_FCU_compatibility()
     this.query_all_nodes()
   }
 

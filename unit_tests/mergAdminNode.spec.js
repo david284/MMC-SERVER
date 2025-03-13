@@ -774,6 +774,25 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   //****************************************************************************************** */
   
+  // clear_FCU_compatibility test
+  //
+  it("clear_FCU_compatibility test", function (done) {
+    winston.info({message: 'unit_test: BEGIN clear_FCU_compatibility test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    node.clear_FCU_compatibility()
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('MODE')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(0)
+      expect(mock_messageRouter.messagesIn[0].ModeNumber).to.equal(0x11)
+      winston.info({message: 'unit_test: END clear_FCU_compatibility test'});
+      done();
+    }, 50);
+  })
+
   // delete_all_events test
   //
   itParam("delete_all_events test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
