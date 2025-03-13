@@ -235,7 +235,10 @@ class cbusAdmin extends EventEmitter {
       },
       '97': async (cbusMsg) => { // NVANS - Receive Node Variable Value
         try{
-        this.saveNodeVariable(cbusMsg.nodeNumber, cbusMsg.nodeVariableIndex, cbusMsg.nodeVariableValue)
+          this.saveNodeVariable(cbusMsg.nodeNumber, cbusMsg.nodeVariableIndex, cbusMsg.nodeVariableValue)
+          if (cbusMsg.nodeVariableIndex > 0){
+            this.nodeConfig.nodes[nodeNumber]['lastNVANSTimestamp'] = Date.now()
+          }
         } catch (err){ winston.error({message: name + `: NVANS: ` + err}) }
       },
       '98': async (cbusMsg) => {//Accessory On Short Event
@@ -1161,18 +1164,35 @@ class cbusAdmin extends EventEmitter {
   //
   async request_all_node_variables(nodeNumber){
     winston.debug({message: name + `:  request_all_node_variables ${nodeNumber}`});
-    // get number of node variables - but wait till it exists
-    while (1){
-      if (this.nodeConfig.nodes[nodeNumber].parameters[6] != undefined) {break}
-      await sleep(50); // allow time between requests
-    }
-    let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
-    if (this.nodeConfig.nodes[nodeNumber].VLCB){
-      this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, 0))
-    } else {
-      for (let i = 1; i <= nodeVariableCount; i++) {
-        this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, i))
-        await sleep(50); // allow time between requests
+    // only continue if we know number of node variables
+    if (this.nodeConfig.nodes[nodeNumber].parameters[6] != undefined){
+      let nodeVariableCount = this.nodeConfig.nodes[nodeNumber].parameters[6]
+      if (this.nodeConfig.nodes[nodeNumber].VLCB){
+        // expect to get all NV's back when requesting NV0
+        // but check if we get at least one other NV, and if not, then request them all one-by-one
+        this.nodeConfig.nodes[nodeNumber]['lastNVANSTimestamp'] = Date.now()
+        let startTime = Date.now()
+        this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, 0))
+        // reduce wait time if doing unit tests
+        let waitTime = this.inUnitTest ? 10 : 400
+        while(Date.now() < startTime + waitTime){
+          // wait to see if we get a non-zero NV back, if so we assume all NV's returned
+          await sleep(1)
+          if (this.nodeConfig.nodes[nodeNumber].lastNVANSTimestamp > startTime){ break }
+        }
+        if (this.nodeConfig.nodes[nodeNumber].lastNVANSTimestamp <= startTime) {
+          // didn't get at least one other NV, so request them all one-by-one
+          for (let i = 1; i <= nodeVariableCount; i++) {
+            this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, i))
+            await sleep(50); // allow time between requests
+          }  
+        }
+      } else {
+        // legacy CBUS, so request each variable one-by-one
+        for (let i = 1; i <= nodeVariableCount; i++) {
+          this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, i))
+          await sleep(50); // allow time between requests
+        }
       }
     }
   }

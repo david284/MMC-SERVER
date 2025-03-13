@@ -6,7 +6,9 @@ const utils = require('./utilities.js');
 
 //
 // messageRouter for 'Modified Grid Connect' (MGC) messages
-// links event based send/receive messages to a socket connection (cbusServer or remote equivalent)
+// many to one connection
+// links event based send/receive messages to a single socket connection (cbusServer or remote equivalent)
+// also writes the busTraffic events
 //
 
 const name = 'messageRouter'

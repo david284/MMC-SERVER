@@ -874,16 +874,45 @@ describe('mergAdminNode tests', function(){
     nodeTraffic = []
     let nodeNumber = 1
     node.createNodeConfig(1)    // create node config for node we're testing
-    node.nodeConfig.nodes[nodeNumber].parameters[6] = 1
+    node.nodeConfig.nodes[nodeNumber].parameters[6] = 2
     var result = node.request_all_node_variables(nodeNumber)
     setTimeout(function(){
-      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn.length).to.equal(2)
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NVRD')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(1)
+      expect(mock_messageRouter.messagesIn.length).to.equal(2)
       winston.info({message: 'unit_test: END request_all_node_variables test'});
       done();
     }, 300);
+  })
+
+
+  // request_all_node_variables_vlcb
+  //
+  it("request_all_node_variables_vlcb test ", function (done) {
+    winston.info({message: 'unit_test: BEGIN request_all_node_variables_vlcb test '});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    let nodeNumber = 1
+    node.createNodeConfig(1)    // create node config for node we're testing
+    node.nodeConfig.nodes[nodeNumber].parameters[6] = 2
+    node.nodeConfig.nodes[nodeNumber].VLCB = true
+    var result = node.request_all_node_variables(nodeNumber)
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn.length).to.equal(3)
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NVRD')
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(0)
+      winston.info({message: 'unit_test: END request_all_node_variables_vlcb test'});
+      done();
+    }, 100);
   })
 
 
