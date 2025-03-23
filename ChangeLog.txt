@@ -1,3 +1,10 @@
+version 0.8.7
+  Added support for VLCB 'FCU Compatibility' mode
+  Reworked & Renamed 'jsonServer' to 'messageRouter'
+  - replaced socket connection with events
+  - Reworked data passed from JSON encoding to Grid Connect encoding
+  - Retained a socket connection for the embedded cbusServer (so other clients like FCU can connect)
+
 version 0.8.6
   Added 'send cbus message' menu option
   Made 'view toggle' ('view only short events' etc..) sticky and common across all views
