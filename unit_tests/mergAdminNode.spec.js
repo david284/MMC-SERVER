@@ -21,7 +21,6 @@ config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
 
 // set config items
-config.setSocketServerPort(5552);
 config.setCurrentLayoutFolder() // use default layout
 
 
@@ -29,8 +28,6 @@ const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
 
 const mock_messageRouter = require('./mock_messageRouter')(config)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
-//let node = new admin.cbusAdmin(config);
-node.onConnect()
 
 function stringToHex(string) {
   // expects UTF-8 string
@@ -52,9 +49,9 @@ function hexToString(hex) {
 
 
 var nodeTraffic = []
-node.on('cbusTraffic', function (data) {
+node.on('nodeTraffic', function (data) {
   nodeTraffic.push(data)
-  winston.debug({message: `mergAdminNode test: cbusTraffic:  ${JSON.stringify(data)}`})
+  winston.debug({message: `mergAdminNode test: nodeTraffic:  ${JSON.stringify(data)}`})
 })
 
 
@@ -776,19 +773,19 @@ describe('mergAdminNode tests', function(){
   
   // clear_FCU_compatibility test
   //
-  it("clear_FCU_compatibility test", function (done) {
-    winston.info({message: 'unit_test: BEGIN clear_FCU_compatibility test '});
+  it("set_FCU_compatibility test", function (done) {
+    winston.info({message: 'unit_test: BEGIN set_FCU_compatibility test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    node.clear_FCU_compatibility()
+    node.set_FCU_compatibility(true)
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('MODE')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(0)
-      expect(mock_messageRouter.messagesIn[0].ModeNumber).to.equal(0x11)
-      winston.info({message: 'unit_test: END clear_FCU_compatibility test'});
+      expect(mock_messageRouter.messagesIn[0].ModeNumber).to.equal(0x10)
+      winston.info({message: 'unit_test: END set_FCU_compatibility test'});
       done();
     }, 50);
   })
@@ -870,9 +867,10 @@ describe('mergAdminNode tests', function(){
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
     node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
+    winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI)});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier)
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});

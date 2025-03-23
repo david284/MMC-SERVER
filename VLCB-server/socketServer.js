@@ -459,20 +459,20 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     
     //
     //
-    socket.on('START_CONNECTION', async function(data){
-      winston.info({message: name + `: START_CONNECTION ${JSON.stringify(data)}`});
-      if (data.mode == 'Network'){
+    socket.on('START_CONNECTION', async function(connectionDetails){
+      winston.info({message: name + `: START_CONNECTION ${JSON.stringify(connectionDetails)}`});
+      if (connectionDetails.mode == 'Network'){
         // expect network CbusServer (or equivalent)
         winston.info({message: name + `: START_CONNECTION: Network mode `});
-        config.setCbusServerHost(data.host)
-        config.setCbusServerPort(data.hostPort)
+        config.setCbusServerHost(connectionDetails.host)
+        config.setCbusServerPort(connectionDetails.hostPort)
       } else {
         // use inbuilt cbusServer
         config.setCbusServerHost('localhost')
         config.setCbusServerPort(5550)
-        if(data.mode == 'SerialPort'){
+        if(connectionDetails.mode == 'SerialPort'){
           winston.info({message: name + `: START_CONNECTION: SerialPort mode `});
-          if(await cbusServer.connect(5550, data.serialPort) == false){
+          if(await cbusServer.connect(5550, connectionDetails.serialPort) == false){
             status.busConnection.state = false
             winston.info({message: name + `: START_CONNECTION: failed `});
           }
@@ -488,7 +488,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       }
       // now connect the messageRouter to the configured CbusServer
       await messageRouter.connect(config.getCbusServerHost(), config.getCbusServerPort())
-      await node.onConnect();
+      await node.onConnect(connectionDetails);
       status.mode = 'RUNNING'
     })
 
@@ -600,13 +600,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     io.emit('CBUS_NO_SUPPORT', cbusNoSupport);
   })
 
-  //
-  //
-  node.on('cbusTraffic', function (data) {
-    winston.info({message: `socketServer: cbusTraffic : ` + data.direction + " : " + data.json.text});
-    //winston.debug({message: `socketServer: cbusTraffic : ` + data.direction + " : " + JSON.stringify(data.json)});
-    io.emit('CBUS_TRAFFIC', data);
-  })
 
   //
   //

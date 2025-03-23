@@ -42,6 +42,7 @@ class messageRouter{
         this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg[i] + ';')
         let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
         this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
+        this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'In', json: cbusLibMsg})
       }
     }.bind(this));
 

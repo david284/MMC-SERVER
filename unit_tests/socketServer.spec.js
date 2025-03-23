@@ -42,7 +42,6 @@ const cbusServer = require('../VLCB-server/cbusServer')(config, 9998)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
 const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 
-node.onConnect()
 node.inUnitTest = true
 socketServer.socketServer(config, node, mock_messageRouter, cbusServer, programNode, status)
 

@@ -58,7 +58,7 @@ class cbusAdmin extends EventEmitter {
         let cbusMsg = cbusLibrary.decode(data)
         winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
         //
-        this.emit('cbusTraffic', {direction: 'In', json: cbusMsg});
+        this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
         if (this.isMessageValid(cbusMsg)){
           this.action_message(cbusMsg)
         }
@@ -364,7 +364,7 @@ class cbusAdmin extends EventEmitter {
         var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
         this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
         winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
-
+        this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastEVANSTimestamp'] = Date.now()
       },
       'D8': async (cbusMsg) => {//Accessory On Short Event 2
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
@@ -443,19 +443,27 @@ class cbusAdmin extends EventEmitter {
 
   //
   //
-  clear_FCU_compatibility(){
-    let nodeNumber = 0      // global (all nodes)
+  set_FCU_compatibility(FCU_Compatibility){
+    winston.info({message: name + `: set_FCU_compatibility ${FCU_Compatibility}`});
     let ModeNumber = 0x11   // Turn off FCU compatibility
+    if (FCU_Compatibility == true){
+        ModeNumber = 0x10   // Turn on FCU compatibility
+    }
+    let nodeNumber = 0      // global (all nodes)
     this.CBUS_Queue2.push(cbusLib.encodeMODE(nodeNumber, ModeNumber))
-    winston.info({message: name + `: clear_FCU_compatibility`});
+    winston.info({message: name + `: set_FCU_compatibility`});
   }
 
   //
   //
-  onConnect(){
+  onConnect(connectionDetails){
     winston.info({message: name + `: onConnect`});
     this.addLayoutNodes(this.config.readLayoutData())
-    this.clear_FCU_compatibility()
+    if (connectionDetails != undefined){
+      if("FCU_Compatibility" in connectionDetails){
+        this.set_FCU_compatibility(connectionDetails.FCU_Compatibility)
+      }
+    }
     this.query_all_nodes()
   }
 
@@ -778,7 +786,7 @@ class cbusAdmin extends EventEmitter {
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
       //
       let tmp = cbusLib.decode(msg)   // decode to get text
-      this.emit('cbusTraffic', {direction: 'Out', json: tmp});
+      this.emit('nodeTraffic', {direction: 'Out', json: tmp});
       if (tmp.mnemonic == "QNN"){
         this.QNN_sent_time = Date.now()   // gets milliseconds now
         this.lastMessageWasQNN = true
@@ -1279,21 +1287,26 @@ class cbusAdmin extends EventEmitter {
 
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       // if VLCB, we can use REQEV to read all event variables with one command
+      // expect to get all Event Variables's back when requesting EventVariableIndex 0
+      // but check if we get at least one other eventVariableIndex, and if not, then request them all one-by-one
+      this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
+      let startTime = Date.now()
       this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
-    } else {
-      // 'legacy' CBUS
-      // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
-      // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
-      try{
-        var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-        if (eventIndex){
-          await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex)
-        } else {
-          winston.info({message: name + ': requestAllEventVariablesByIdentifier: no event index found for ' + eventIdentifier});
-        }
-      } catch (err){
-        winston.error({message: name + ': requestAllEventVariablesByIdentifier: failed to get eventIndex: ' + err});
+      // reduce wait time if doing unit tests
+      let waitTime = this.inUnitTest ? 10 : 400
+      while(Date.now() < startTime + waitTime){
+        // wait to see if we get a non-zero EV# back, if so we assume all EV's returned
+        await sleep(1)
+        if (this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp > startTime){ break }
       }
+      if (this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp <= startTime) {
+        // didn't get at least one other NV,
+        // so request them all one-by-one using 'legacy' CBUS mechanism
+        await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier)
+      }
+    } else {
+      // request them all one-by-one using 'legacy' CBUS mechanism
+      await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier)
     }
   }
 
@@ -1312,32 +1325,37 @@ class cbusAdmin extends EventEmitter {
 
 
   //  
-  // need to use event index here, as used outside of learn mode
+  // used for 'legacy' CBUS, as REQEV/EVANS can't be used due to bug in EVANS response
+  // So uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
+  // Used outside of learn mode
   //
-  async requestAllEventVariablesByIndex(nodeNumber, eventIdentifier, eventIndex){
-    winston.debug({message: name + ': requestAllEventVariablesByIndex: '});
-    //
-    if (this.nodeConfig.nodes[nodeNumber].VLCB){
-      // VLCB - so should return all variables just by reading 0
-      this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
-    } else {
-      // 'legacy' CBUS, so try reading EV0 - should return number of event variables
-      this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
-      var timeGap = this.inUnitTest ? 100 : 300
-      await sleep(timeGap); // wait for a response before trying to use it
-      // now assume number of variables from param 5, but use the value in EV0 if it exists
-      var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
-      if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
-        numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
-        winston.debug({message: name + ': requestAllEventVariablesByIndex: EV0 ' + numberOfVariables});
+  async requestAllEventVariablesByIndex(nodeNumber, eventIdentifier){
+    winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIdentifier ${eventIdentifier}`});
+    try {
+      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+      if (eventIndex != undefined){
+        //
+        // 'legacy' CBUS, so try reading EV0 - should return number of event variables
+        this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
+        var timeGap = this.inUnitTest ? 100 : 300
+        await sleep(timeGap); // wait for a response before trying to use it
+        // now assume number of variables from param 5, but use the value in EV0 if it exists
+        var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+        if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
+          numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
+          winston.debug({message: name + ': requestAllEventVariablesByIndex: EV0 ' + numberOfVariables});
+        }
+        // now read all the rest of the event variables
+        for (let i = 1; i <= numberOfVariables; i++) {
+          this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, i))
+        }
+      } else {
+        winston.info({message: name + ': requestAllEventVariablesByIndex: no event index found for ' + eventIdentifier});
       }
-      // now read all the rest of the event variables
-      for (let i = 1; i <= numberOfVariables; i++) {
-        this.CBUS_Queue2.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, i))
-      }
+    } catch (err) {
+      winston.error({message: name + ': requestAllEventVariablesByIndex: ' + err});
     }
   }
-
 
 //************************************************************************ */
 //
