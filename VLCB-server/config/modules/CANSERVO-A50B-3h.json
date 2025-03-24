@@ -1,5 +1,5 @@
 {
-  "timestamp": "202411152027",
+  "timestamp": "202502152150",
   "moduleName":"CANSERVO",
   "nodeVariables": [
     {
@@ -188,7 +188,7 @@
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 2,
           "displayTitle": "Test",
-          "bit": 46
+          "bit": 4
         }
       ]
     },

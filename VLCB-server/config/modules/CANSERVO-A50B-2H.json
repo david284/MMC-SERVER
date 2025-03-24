@@ -1,5 +1,5 @@
 {
-  "timestamp": "202411092105",
+  "timestamp": "202502162254",
   "moduleName":"CANSERVO",
   "NVsetNeedsLearnMode": true,
   "nodeVariables": [
@@ -189,7 +189,7 @@
           "type": "NodeVariableBitSingle",
           "nodeVariableIndex": 2,
           "displayTitle": "Test",
-          "bit": 46
+          "bit": 4
         }
       ]
     },
