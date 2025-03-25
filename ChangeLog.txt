@@ -1,3 +1,7 @@
+version 0.8.8
+  Fixed issue with FCU Compatibility mode not always reading event variables
+  Added access to "program in boot mode" if node offline or via nodeView general 'advanced' menu
+
 version 0.8.7
   Added support for VLCB 'FCU Compatibility' mode
   Reworked & Renamed 'jsonServer' to 'messageRouter'
