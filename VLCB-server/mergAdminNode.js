@@ -364,7 +364,9 @@ class cbusAdmin extends EventEmitter {
         var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
         this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
         winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
-        this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastEVANSTimestamp'] = Date.now()
+        if (cbusMsg.eventVariableIndex > 0){
+          this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastEVANSTimestamp'] = Date.now()
+        }
       },
       'D8': async (cbusMsg) => {//Accessory On Short Event 2
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
