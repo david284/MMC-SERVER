@@ -1,3 +1,7 @@
+version 0.8.9
+  Bug in notification not showing a dismiss option if no timeout
+  Changed display of timestamp in MFD manager - User file timestamp in red if newer System file exists
+
 version 0.8.8
   Fixed issue with FCU Compatibility mode not always reading event variables
   Added access to "program in boot mode" if node offline or via nodeView general 'advanced' menu
