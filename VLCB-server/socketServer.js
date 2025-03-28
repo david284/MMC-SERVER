@@ -1,6 +1,7 @@
 const winston = require('winston');		// use config from root instance
 const name = 'socketServer'
-const jsonfile = require('jsonfile')
+const jsonfile = require('jsonfile');
+const { isUndefined } = require('util');
 const packageInfo = require(process.cwd()+'/package.json')
 
 const server = require('http').createServer()
@@ -461,6 +462,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     //
     socket.on('START_CONNECTION', async function(connectionDetails){
       winston.info({message: name + `: START_CONNECTION ${JSON.stringify(connectionDetails)}`});
+      status.busConnection.state = undefined
       if (connectionDetails.mode == 'Network'){
         // expect network CbusServer (or equivalent)
         winston.info({message: name + `: START_CONNECTION: Network mode `});
@@ -486,10 +488,13 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         }
         winston.info({message: name + `: START_CONNECTION: using in-built cbusServer `});
       }
-      // now connect the messageRouter to the configured CbusServer
-      await messageRouter.connect(config.getCbusServerHost(), config.getCbusServerPort())
-      await node.onConnect(connectionDetails);
-      status.mode = 'RUNNING'
+      // don't try futher connections if busConnection failed
+      if (status.busConnection.state != false){
+        // now connect the messageRouter to the configured CbusServer
+        await messageRouter.connect(config.getCbusServerHost(), config.getCbusServerPort())
+        await node.onConnect(connectionDetails);
+        status.mode = 'RUNNING'
+      }
     })
 
     //
