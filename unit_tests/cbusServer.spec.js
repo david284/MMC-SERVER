@@ -55,15 +55,18 @@ describe('cbusServer tests', function(){
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
-      //if (a == 2) {arg1 = "COM99", arg2 = false}
       if (a == 2) {arg1 = "COM99", arg2 = true}
-      if (a == 3) {arg1 = "", arg2 = false}
+      if (a == 3) {arg1 = "", arg2 = true}
       testCases.push({'targetSerial':arg1, 'result':arg2});
     }
     return testCases;
   }
 
-
+  //
+  // cbusServer.connect will return true if the server starts listening
+  // it doesn't mean the serial port has connected
+  // see serialGC.spec.js for serial port tests
+  //
   itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (done, value) {
 
     winston.info({message: name + ': BEGIN connect test: ' + JSON.stringify(value)});

@@ -54,7 +54,7 @@ class serialGC  extends EventEmitter {
         parity: 'none',
         stopBits: 1
       })
-      if (!this.serialPort) {result = false}
+      if (!this.serialPort) {return false}
     } else{
       // no connection found
       winston.error({message: name + `: no connection to ${this.targetSerialPort}`})
@@ -95,6 +95,10 @@ class serialGC  extends EventEmitter {
       }.bind(this));
 
     return true
+  }  // end connect
+
+  close(){
+    this.serialPort.close()
   }
     
   write(data){

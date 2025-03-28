@@ -30,6 +30,8 @@ class cbusServer {
       this.clients.push(socket)
       winston.info({message: name + `: Client Connection received`})
 
+      //
+      //
       socket.on('data', function (data) {
           let outMsg = data.toString().split(";");
           for (let i = 0; i < outMsg.length - 1; i++) {
@@ -38,30 +40,36 @@ class cbusServer {
           }
       }.bind(this));
 
+      //
+      //
       socket.on('end', function () {
           this.clients.splice(this.clients.indexOf(socket), 1)
           winston.info({message: name + `: Client Disconnected`})
       }.bind(this))
 
+      //
+      //
       socket.on("error", (err) => {
         winston.error({message: name + `: socket error:`})
       })
 
     }.bind(this)) //end create server
 
-    this.server.on("error", (err) => {
+    //
+    //
+    this.server.on("error", function (err) {
       winston.error({message: name + `: server error: ` + err})
-      let captionText = JSON.stringify(err)
+      let captionText = err.toString()
       let data = {
         message: "cbusServer error",
         caption: captionText,
-        type: "error",
+        type: "warning",
         timeout: 0
       }
       this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
-    })
+    }.bind(this))
 
-  //
+    //
     //
     serialGC.on('data', function (data) {
       //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
@@ -95,7 +103,7 @@ class cbusServer {
       winston.info({message: name + `: serial port error:  ${JSON.stringify(data)}`})
       this.serialConnected = false
       let eventData = {
-        message: "Serial port error - not connected",
+        message: `Serial port error - not connected: ${this.targetSerial}`,
         caption: data,
         type: "warning",
         timeout: 3000
@@ -158,7 +166,8 @@ class cbusServer {
   } // end connect
 
   //
-  //
+  // method to connect to serial port
+  // can be called again to re-connect if initial connection lost
   //
   async connectSerialGC(targetSerial){
 
@@ -168,12 +177,13 @@ class cbusServer {
     let result = await serialGC.connect(this.targetSerial)
 
     if (result == false){
+      // connection failed
       // restart timer so we start with the correct time gap
       clearInterval(this.reconnectTimer);
       this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
       winston.info({message: name + ': failed to connect to serial port ' + this.targetSerial});
       let data = {
-        message: "Serial port failed to connect",
+        message: `Serial port failed to connect: ${this.targetSerial}`,
         caption: this.targetSerial,
         type: "warning",
         timeout: 3000
@@ -182,10 +192,9 @@ class cbusServer {
       this.serialConnected = false
       this.enableSerialReconnect = true
     }  else {
+      // connection worked, so set reconnection flags to true
       this.serialConnected = true
       this.enableSerialReconnect = true
-      // we'll get an open event, which will have the port number in it
-      // so we can raise a notification in the event handler
     }
     return result
   }
@@ -198,6 +207,9 @@ class cbusServer {
     winston.info({message: name + ': close:'});
     this.server.removeAllListeners()
     this.server.close()
+    if (this.serialGC){
+      this.serialGC.close()
+    }
   }
 
   //
@@ -217,6 +229,8 @@ class cbusServer {
   } // end broadcast
 
   //
+  // Will be called on a regular basis to reconnect to serial port if connection lost
+  // but checks if reconnect is enabled first
   //
   serialConnectIntervalFunction(){
     winston.debug({message:name + `: serialConnectIntervalFunction: ${this.targetSerial}`})
@@ -226,18 +240,10 @@ class cbusServer {
         winston.debug({message:name + `: serial port still connected: ${this.targetSerial}`})
       } else {
         winston.info({message:name + `: serial port not connected: ${this.targetSerial}`})
-        this.connect(this.cbusServerPort, this.targetSerial)
-        let data = {
-          message: "Serial port not connected",
-          caption: this.targetSerial,
-          type: "warning",
-          timeout: 1000
-        }
-//        this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', data)
-        }
+        this.connectSerialGC(this.targetSerial)
+      }
     }
   }
-
 
 }
 
