@@ -1,3 +1,7 @@
+version 0.8.10
+  Bug in default setting of 'FCU Compatibility' mode when adding new layout fixed
+  Improved error handling from inbuilt cbusServer (specifically to handle instance of port in use)
+
 version 0.8.9
   Bug in notification not showing a dismiss option if no timeout
   Changed display of timestamp in MFD manager - User file timestamp in red if newer System file exists
