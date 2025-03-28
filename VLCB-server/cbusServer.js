@@ -141,8 +141,22 @@ class cbusServer {
       })
     }
 
-    await this.connectSerialGC(targetSerial)
+    let result = false
+    let startTime = Date.now()
+    while (Date.now() < startTime + 2000){
+      if (this.server.listening){
+        result = true
+        break
+      }
+    }
 
+    if (result){
+      await this.connectSerialGC(targetSerial)
+    } else {
+      winston.error({message: name + ': connect: listen failed '})
+    }
+
+    return result
   } // end connect
 
   //
