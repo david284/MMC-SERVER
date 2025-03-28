@@ -18,7 +18,6 @@ class cbusServer {
     winston.info({message: name + `: Constructor`});
     this.config = config
     this.clients = []
-    this.enableCbusServerReconnect = true
     this.enableSerialReconnect = false
     this.serialConnected = false
     this.targetSerial = null
@@ -51,7 +50,6 @@ class cbusServer {
     }.bind(this)) //end create server
 
     this.server.on("error", (err) => {
-      this.enableCbusServerReconnect = false
       winston.error({message: name + `: server error: ` + err})
       let captionText = JSON.stringify(err)
       let data = {
@@ -222,7 +220,7 @@ class cbusServer {
   //
   serialConnectIntervalFunction(){
     winston.debug({message:name + `: serialConnectIntervalFunction: ${this.targetSerial}`})
-    if((this.enableSerialReconnect) && (this.enableCbusServerReconnect)){
+    if(this.enableSerialReconnect){
       winston.debug({message:name + `: serial port reconnect enabled: ${this.targetSerial}`})
       if(this.serialConnected){
         winston.debug({message:name + `: serial port still connected: ${this.targetSerial}`})
