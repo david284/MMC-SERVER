@@ -429,9 +429,9 @@ class configuration {
       } catch(e){
         winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
         // couldn't read the layout, so get the default layout instead...
-        this.setCurrentLayoutFolder() = defaultLayoutData.layoutDetails.title
-        filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder())
         try {
+          this.setCurrentLayoutFolder(defaultLayoutData.layoutDetails.title)
+          filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder())
           winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
           file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
         } catch(e){
@@ -440,6 +440,13 @@ class configuration {
           winston.info({message: className + `: readLayoutData: defaults loaded`});
           file = defaultLayoutData
         }
+        let data = {
+          message: "LayoutData file read failed",
+          caption: "reverting to default layout",
+          type: "warning",
+          timeout: 0
+        }
+        this.eventBus.emit ('SERVER_NOTIFICATION', data) 
       }
     }
     if (file.layoutDetails == undefined){
