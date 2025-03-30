@@ -1,3 +1,7 @@
+version 0.8.11
+  Fixed bug in error handling when reading layoutData file
+  Also display notification if file fails to read and default settings used
+
 version 0.8.10
   Bug in default setting of 'FCU Compatibility' mode when adding new layout fixed
   Improved error handling from inbuilt cbusServer (specifically to handle instance of port in use)
