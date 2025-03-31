@@ -1257,12 +1257,14 @@ class cbusAdmin extends EventEmitter {
   // request individual event variable
   //
   async requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex){
-    winston.info({message: name + ': requestEventVariableByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+    winston.info({message: name + `: requestEventVariableByIdentifier ' ${nodeNumber} ${eventIdentifier} ${eventVariableIndex}`});
 
     try{
       if (this.nodeConfig.nodes[nodeNumber].VLCB){
         this.CBUS_Queue2.push(cbusLib.encodeNNLRN(nodeNumber))
-        this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventIdentifier, eventVariableIndex))
+        let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+        let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+        this.CBUS_Queue2.push(cbusLib.encodeREQEV(eventNodeNumber, eventNumber, eventVariableIndex))
         this.CBUS_Queue2.push(cbusLib.encodeNNULN(nodeNumber))
       } else {
         // originally used eventIdentity with REQEV & EVANS - but CBUSLib sends wrong nodeNumber in EVANS
