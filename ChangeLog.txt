@@ -1,6 +1,8 @@
 version 0.8.11
+  Fixed bug introduced in v0.8.7 -  only in VLCB modules - fails to correctly read individual event variable
   Fixed bug in error handling when reading layoutData file
   Also display notification if file fails to read and default settings used
+  Added support for changing checkbox's using space bar (node & event variables)
 
 version 0.8.10
   Bug in default setting of 'FCU Compatibility' mode when adding new layout fixed
