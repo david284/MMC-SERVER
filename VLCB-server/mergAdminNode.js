@@ -1195,7 +1195,7 @@ class cbusAdmin extends EventEmitter {
         let startTime = Date.now()
         this.CBUS_Queue2.push(cbusLib.encodeNVRD(nodeNumber, 0))
         // reduce wait time if doing unit tests
-        let waitTime = this.inUnitTest ? 10 : 400
+        let waitTime = this.inUnitTest ? 10 : 50
         while(Date.now() < startTime + waitTime){
           // wait to see if we get a non-zero NV back, if so we assume all NV's returned
           await sleep(1)
@@ -1297,7 +1297,7 @@ class cbusAdmin extends EventEmitter {
       let startTime = Date.now()
       this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
       // reduce wait time if doing unit tests
-      let waitTime = this.inUnitTest ? 10 : 400
+      let waitTime = this.inUnitTest ? 10 : 50
       while(Date.now() < startTime + waitTime){
         // wait to see if we get a non-zero EV# back, if so we assume all EV's returned
         await sleep(1)
