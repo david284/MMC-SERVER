@@ -35,12 +35,13 @@ class messageRouter{
       winston.debug({message:name + `: cbusClient: data : ${data}`})
       this.connected = true
       this.cbusClient.setKeepAlive(true, 60000);
-      let outMsg = data.toString().split(";");
-      for (let i = 0; i < outMsg.length - 1; i++) {
+      let GCmsg = data.toString().split(";");
+      for (let i = 0; i < GCmsg.length - 1; i++) {
         // restore terminating ';' lost due to split & then decode
-        winston.debug({message:name + `: cbusClient: outMsg : ${outMsg[i] + ';'}`})
-        this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg[i] + ';')
-        let cbusLibMsg = cbusLib.decode(outMsg[i] + ';')
+        //winston.debug({message:name + `: cbusClient: outMsg : ${GCmsg[i] + ';'}`})
+        winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${GCmsg[i] + ';'}`})
+        this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', GCmsg[i] + ';')
+        let cbusLibMsg = cbusLib.decode(GCmsg[i] + ';')
         this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
         this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'In', json: cbusLibMsg})
       }
@@ -78,7 +79,7 @@ class messageRouter{
     }.bind(this))
 
     this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
-      winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
+      winston.debug({message: name + `:  GRID_CONNECT_SEND ${data}`})
       this.sendCbusMessage(data)
     }.bind(this))
 

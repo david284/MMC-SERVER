@@ -674,7 +674,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //
   //
   config.eventBus.on('CBUS_TRAFFIC', function (data) {
-    winston.info({message: name + `: eventBus: CBUS_TRAFFIC: ${data.direction} ${data.json.text}` });
+    winston.debug({message: name + `: eventBus: CBUS_TRAFFIC: ${data.direction} ${data.json.text}` });
     io.emit('CBUS_TRAFFIC', data);
   })
 

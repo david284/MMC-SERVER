@@ -38,7 +38,7 @@ class mock_messageRouter{
     this.ackRequested = false
 
     this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
-      winston.info({message: name + `:  GRID_CONNECT_SEND ${data}`})
+      winston.debug({message: name + `:  GRID_CONNECT_SEND ${data}`})
       let cbusMsg = cbusLib.decode(data)
       this.messagesIn.push(cbusMsg)
       this.processMessagesIn(cbusMsg)
@@ -57,8 +57,10 @@ class mock_messageRouter{
   // this expects gridconnect data
   //
   inject(outMsg){
-    winston.info({message:name + `: inject ` + outMsg})
+    winston.debug({message:name + `: inject ` + outMsg})
     this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg)
+    let cbusMsg = cbusLib.decode(outMsg)
+    winston.info({message:name + `: inject: ` + cbusMsg.text})
   }
 
   //
@@ -74,26 +76,30 @@ class mock_messageRouter{
   //
   //
   processStandard(message){
+    winston.info({message:name + `: processStandard: ` + message.text})
     switch(message.mnemonic){
       case "EVLRN":
-        winston.debug({message:name + `: processMessagesIn: EVLRN` + JSON.stringify(message)})
+        winston.debug({message:name + `: processMessagesIn: EVLRN` + message.text})
         var cbusMsg = cbusLib.encodeWRACK(this.learnNodeNumber)
         winston.debug({message:name + `: processMessagesIn: WRACK ` + cbusMsg})
         this.inject(cbusMsg)
         break
       case "NNLRN":
-        winston.debug({message:name + `: processMessagesIn: NNLRN ` + JSON.stringify(message)})
+        winston.debug({message:name + `: processMessagesIn: NNLRN ` + message.text})
         this.learnNodeNumber = message.nodeNumber
         break
       case "NNULN":
-        winston.debug({message:name + `: processMessagesIn: NNULN ` + JSON.stringify(message)})
+        winston.debug({message:name + `: processMessagesIn: NNULN ` + message.text})
         this.learnNodeNumber = null
         break
       case "REVAL":
-        winston.debug({message:name + `: processMessagesIn: REVAL ` + JSON.stringify(message)})
+        winston.debug({message:name + `: processMessagesIn: REVAL ` + message.text})
         if (message.eventVariableIndex == 0){
           // reply with number of event variables used - for test purposes, just 2
           var cbusMsg = cbusLib.encodeNEVAL(message.nodeNumber, message.eventIndex, message.eventVariableIndex, 2)
+          this.inject(cbusMsg)
+        } else {
+          var cbusMsg = cbusLib.encodeNEVAL(message.nodeNumber, message.eventIndex, message.eventVariableIndex, 255)
           this.inject(cbusMsg)
         }
         break

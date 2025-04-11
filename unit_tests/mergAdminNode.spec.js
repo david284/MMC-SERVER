@@ -51,7 +51,7 @@ function hexToString(hex) {
 var nodeTraffic = []
 node.on('nodeTraffic', function (data) {
   nodeTraffic.push(data)
-  winston.debug({message: `mergAdminNode test: nodeTraffic:  ${JSON.stringify(data)}`})
+  //winston.debug({message: `mergAdminNode test: nodeTraffic:  ${JSON.stringify(data)}`})
 })
 
 
@@ -1175,12 +1175,14 @@ describe('mergAdminNode tests', function(){
     
     mock_messageRouter.messagesIn = []
     node.nodeConfig.nodes = {}          // start with clean slate
+    /*
     var data = {"nodeNumber": value.nodeNumber,
       "eventName": value.eventIdentifier,
       "eventIndex": 1,
       "eventVariableId": value.eventVariableIndex,
       "eventVariableValue": 255
     }
+      */
     node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
     await node.requestEventVariableByIdentifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex) 
   
@@ -1193,6 +1195,27 @@ describe('mergAdminNode tests', function(){
 			done();
 		}, 100);
 
+  })
+
+  //
+  //
+  //
+  it("requestAllEventVariablesForNode", function (done) {
+    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesForNode test: ' });   
+    mock_messageRouter.messagesIn = []
+    node.updateEventInNodeConfig(1, "00001111", 1)
+    node.updateEventInNodeConfig(1, "00002222", 2)
+    node.nodeConfig.nodes[1].parameters[5] = 2
+    node.requestAllEventVariablesForNode(1) 
+  
+    setTimeout(function(){
+      for (let i = 0; i < nodeTraffic.length; i++) {
+        //winston.info({message: `unit_test: nodeTraffic ${JSON.stringify(nodeTraffic[i])}`});
+        winston.info({message: `unit_test: nodeTraffic  ${nodeTraffic[i].direction} ${nodeTraffic[i].json.encoded} ${nodeTraffic[i].json.text}`});
+      }
+      winston.info({message: 'unit_test: END requestAllEventVariablesForNode test'});
+			done();
+		}, 500);
   })
 
   // request_all_node_events test

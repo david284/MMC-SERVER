@@ -1,0 +1,43 @@
+CANMIO-Universal V4a15 26K80
+
+38:51.188 OUT>> :SB780N53012F; NNLRN (53) Node 303
+38:51.252 OUT>> :SB780NB2012F000100; REQEV (B2) nodeNumber 303 eventNumber 1 eventVariableIndex 0
+38:51.267 <<<IN :SA060ND3012F00010014; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 0 Event Variable Value 20
+38:51.293 <<<IN :SA060ND3012F00010108; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 1 Event Variable Value 8
+09:38:51.294 debug	mergAdminNode: requestAllEventVariablesByIdentifier: break time 174
+38:51.323 <<<IN :SA060ND3012F0001020D; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 2 Event Variable Value 13
+38:51.352 <<<IN :SA060ND3012F00010392; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 3 Event Variable Value 146
+38:51.387 <<<IN :SA060ND3012F00010497; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 4 Event Variable Value 151
+38:51.415 <<<IN :SA060ND3012F0001059C; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 5 Event Variable Value 156
+38:51.448 <<<IN :SA060ND3012F000106A1; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 6 Event Variable Value 161
+38:51.479 <<<IN :SA060ND3012F000107A6; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 7 Event Variable Value 166
+38:51.513 <<<IN :SA060ND3012F000108AB; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 8 Event Variable Value 171
+38:51.546 <<<IN :SA060ND3012F00010900; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 9 Event Variable Value 0
+38:51.574 <<<IN :SA060ND3012F00010A00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 10 Event Variable Value 0
+38:51.594 <<<IN :SA060ND3012F00010B00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 11 Event Variable Value 0
+38:51.615 <<<IN :SA060ND3012F00010C00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 12 Event Variable Value 0
+38:51.639 <<<IN :SA060ND3012F00010D00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 13 Event Variable Value 0
+38:51.660 <<<IN :SA060ND3012F00010E00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 14 Event Variable Value 0
+38:51.683 <<<IN :SA060ND3012F00010F00; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 15 Event Variable Value 0
+38:51.705 <<<IN :SA060ND3012F00011000; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 16 Event Variable Value 0
+38:51.726 <<<IN :SA060ND3012F00011100; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 17 Event Variable Value 0
+38:51.744 <<<IN :SA060ND3012F00011200; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 18 Event Variable Value 0
+38:51.764 <<<IN :SA060ND3012F00011300; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 19 Event Variable Value 0
+38:51.781 <<<IN :SA060ND3012F00011400; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 20 Event Variable Value 0
+38:51.835 OUT>> :SB780N54012F; NNULN (54) Node 303
+
+
+CANMIO-Universal V4b1 27Q83
+
+43:54.096 OUT>> :SB780N530130; NNLRN (53) Node 304
+43:54.159 OUT>> :SB780NB2012F000100; REQEV (B2) nodeNumber 303 eventNumber 1 eventVariableIndex 0
+43:54.172 <<<IN :SA080ND3012F00010002; EVANS (D3) nodeNumber 303 eventNumber 1 Event Variable Index 0 Event Variable Value 2
+43:54.222 OUT>> :SB780N540130; NNULN (54) Node 304
+09:43:54.281 debug	mergAdminNode: requestAllEventVariablesByIdentifier: Time 0
+09:43:54.281 info	mergAdminNode: requestAllEventVariablesByIdentifier: fallback to one-by-one 304 012F0001
+43:54.284 OUT>> :SB780N9C01301100; REVAL (9C) Node 304 Event Index 17 Event VariableIndex 0
+43:54.300 <<<IN :SB080NB50130110002; NEVAL (B5) NodeId 304 Event Index 17 Event Variable Index 0 Event Variable Value 2
+43:54.394 OUT>> :SB780N9C01301101; REVAL (9C) Node 304 Event Index 17 Event VariableIndex 1
+43:54.405 <<<IN :SB080NB50130110100; NEVAL (B5) NodeId 304 Event Index 17 Event Variable Index 1 Event Variable Value 0
+43:54.455 OUT>> :SB780N9C01301102; REVAL (9C) Node 304 Event Index 17 Event VariableIndex 2
+43:54.465 <<<IN :SB080NB50130110208; NEVAL (B5) NodeId 304 Event Index 17 Event Variable Index 2 Event Variable Value 8
