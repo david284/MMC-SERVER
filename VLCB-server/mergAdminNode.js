@@ -1263,6 +1263,7 @@ class cbusAdmin extends EventEmitter {
 
     try{
       if (this.nodeConfig.nodes[nodeNumber].VLCB){
+        winston.info({message: name + `: requestEventVariableByIdentifier - VLCB Node'`});
         this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
         let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
         let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
@@ -1294,7 +1295,7 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: eventIdentifier ${eventIdentifier}` });
       this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
       // wait until the traffic has died down before doing next one
-      let timeGap = 100
+      let timeGap = 200
       this.lastCbusTrafficTime = Date.now() // update time
       let startTime = Date.now()
       while ( Date.now() < this.lastCbusTrafficTime + timeGap){
@@ -1312,6 +1313,7 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name + ': requestAllEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
+      winston.info({message: name + `: requestEventVariablesByIdentifier - VLCB Node'`});
       // if VLCB, we can use REQEV to read all event variables with one command
       // expect to get all Event Variables's back when requesting EventVariableIndex 0
       // but check if we get at least one other eventVariableIndex, and if not, then request them all one-by-one
@@ -1320,7 +1322,7 @@ class cbusAdmin extends EventEmitter {
       this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
       // reduce wait time if doing unit tests
       // timeout needs to be long enough to cater for putting into learn mode as well as sending REQEV + receiving 2+ EVANS responses
-      let waitTime = this.inUnitTest ? 10 : 200
+      let waitTime = 200
       while(Date.now() < startTime + waitTime){
         // wait to see if we get a non-zero EV# back, if so we assume all EV's returned
         // if lastEVANSTimestamp is greater than start time, then we have multiple responses

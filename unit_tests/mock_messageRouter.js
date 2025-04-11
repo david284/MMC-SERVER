@@ -57,10 +57,10 @@ class mock_messageRouter{
   // this expects gridconnect data
   //
   inject(outMsg){
-    winston.debug({message:name + `: inject ` + outMsg})
-    this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg)
+    winston.debug({message: name + `: inject: ` + outMsg})
     let cbusMsg = cbusLib.decode(outMsg)
-    winston.info({message:name + `: inject: ` + cbusMsg.text})
+    winston.info({message: name + `: inject: ` + cbusMsg.text})
+    this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', outMsg)
   }
 
   //

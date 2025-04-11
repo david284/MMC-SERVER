@@ -227,6 +227,17 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('REQUEST_ALL_EVENT_VARIABLES_FOR_NODE', function(data){
+      winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES_FOR_NODE ${JSON.stringify(data)}`});
+      if (data.nodeNumber != undefined){
+        node.requestAllEventVariablesForNode(data.nodeNumber)
+      } else {
+        winston.error({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES_FOR_NODE: ERROR ${JSON.stringify(data)}`});
+      }
+    })
+
+    //
+    //
     socket.on('REQUEST_EVENT_VARIABLES_BY_IDENTIFIER', function(data){
       winston.info({message: `socketServer:  REQUEST_EVENT_VARIABLES_BY_IDENTIFIER ${JSON.stringify(data)}`});
       if ((data.nodeNumber != undefined) && (data.eventIdentifier != undefined)){

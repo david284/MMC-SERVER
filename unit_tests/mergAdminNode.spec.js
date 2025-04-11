@@ -54,6 +54,11 @@ node.on('nodeTraffic', function (data) {
   //winston.debug({message: `mergAdminNode test: nodeTraffic:  ${JSON.stringify(data)}`})
 })
 
+/*
+config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
+  winston.info({message: `unit_test:  GRID_CONNECT_RECEIVE ${data}`})
+})
+*/
 
 
 describe('mergAdminNode tests', function(){
@@ -75,6 +80,7 @@ describe('mergAdminNode tests', function(){
 	beforeEach(function() {
    		winston.info({message: ' '});   // blank line to separate tests
       mock_messageRouter.messagesIn = []
+      nodeTraffic=[]
   });
 
 	after(function(done) {
@@ -1197,16 +1203,29 @@ describe('mergAdminNode tests', function(){
 
   })
 
+  function GetTestCase_nodeFlags() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 2; a++) {
+      if (a == 1) {arg1 = 1, arg2=false} // vlcb = false
+      if (a == 2) {arg1 = 1, arg2=true} // vlcb = true
+      testCases.push({'nodeNumber':arg1, 'VLCB':arg2});
+    }
+    return testCases;
+  }
+
   //
   //
   //
-  it("requestAllEventVariablesForNode", function (done) {
-    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesForNode test: ' });   
-    mock_messageRouter.messagesIn = []
-    node.updateEventInNodeConfig(1, "00001111", 1)
-    node.updateEventInNodeConfig(1, "00002222", 2)
-    node.nodeConfig.nodes[1].parameters[5] = 2
-    node.requestAllEventVariablesForNode(1) 
+  itParam("requestAllEventVariablesForNode test ${JSON.stringify(value)}", GetTestCase_nodeFlags(), async function (done, value) {
+    //it("requestAllEventVariablesForNode", function (done) {
+    winston.info({message: `unit_test: BEGIN requestAllEventVariablesForNode test: ${JSON.stringify(value)}` });   
+//    mock_messageRouter.messagesIn = []
+//    nodeTraffic=[]
+    node.updateEventInNodeConfig(value.nodeNumber, "00001111", 1)
+    node.updateEventInNodeConfig(value.nodeNumber, "00002222", 2)
+    node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2       // two events
+    node.nodeConfig.nodes[value.nodeNumber].VLCB = value.VLCB
+    node.requestAllEventVariablesForNode(value.nodeNumber) 
   
     setTimeout(function(){
       for (let i = 0; i < nodeTraffic.length; i++) {
@@ -1215,7 +1234,7 @@ describe('mergAdminNode tests', function(){
       }
       winston.info({message: 'unit_test: END requestAllEventVariablesForNode test'});
 			done();
-		}, 500);
+		}, 1000);
   })
 
   // request_all_node_events test
