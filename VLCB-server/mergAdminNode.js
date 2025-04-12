@@ -522,6 +522,7 @@ class cbusAdmin extends EventEmitter {
       this.opcodeTracker[cbusMsg.opCode].count++
       this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
       if (cbusMsg.nodeNumber){
+        this.nodeConfig.nodes[cbusMsg.nodeNumber]["lastCbusTrafficTime"] = Date.now()
         if (cbusMsg.mnemonic != "PNN"){
           // if the message has a node number, update status
           // but not if PNN, as it's nodeConfig won't exist, and don't want to request duplicate info
@@ -1019,6 +1020,11 @@ class cbusAdmin extends EventEmitter {
         this.cbusTransmit(msg)
         // remove the one we've used from queue
         this.CBUS_Queue.shift()
+        // if aimed at specific node number, update lastCbusTrafficTime
+        let cbusMsg = cbusLibrary.decode(msg)
+        if (cbusMsg.nodeNumber){
+          this.nodeConfig.nodes[cbusMsg.nodeNumber]["lastCbusTrafficTime"] = Date.now()
+        }
       }
     } else {
       //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
@@ -1293,16 +1299,16 @@ class cbusAdmin extends EventEmitter {
     var node = this.nodeConfig.nodes[nodeNumber]
     for (let eventIdentifier in node.storedEventsNI){
       winston.debug({message: name + `: eventIdentifier ${eventIdentifier}` });
-      this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
-      // wait until the traffic has died down before doing next one
-      let timeGap = 200
-      this.lastCbusTrafficTime = Date.now() // update time
       let startTime = Date.now()
-      while ( Date.now() < this.lastCbusTrafficTime + timeGap){
+      await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+      // wait until the traffic from this specific node has died down before doing next one
+      let timeGap = 10
+      while ( Date.now() < this.nodeConfig.nodes[nodeNumber].lastCbusTrafficTime + timeGap){
         //winston.debug({message: name + `: wait on eventIdentifier ${eventIdentifier}` });
         await sleep(1)
       }
       winston.debug({message: name + `: elapsed time  ${Date.now() - startTime}` });
+      winston.debug({message: name + `: node lastCbusTrafficTime  ${this.nodeConfig.nodes[nodeNumber].lastCbusTrafficTime}` });
     }
   }
 
