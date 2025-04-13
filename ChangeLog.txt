@@ -1,3 +1,7 @@
+version 0.8.12
+  Added toggle decimal/hex display to 'raw' variables
+  Improved reading of all event variables for backup procedure
+
 version 0.8.11
   Fixed bug introduced in v0.8.7 -  only in VLCB modules - fails to correctly read individual event variable
   Fixed bug in error handling when reading layoutData file
