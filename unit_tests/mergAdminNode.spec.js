@@ -1204,11 +1204,12 @@ describe('mergAdminNode tests', function(){
   })
 
   function GetTestCase_nodeFlags() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 2; a++) {
-      if (a == 1) {arg1 = 1, arg2=false} // vlcb = false
-      if (a == 2) {arg1 = 1, arg2=true} // vlcb = true
-      testCases.push({'nodeNumber':arg1, 'VLCB':arg2});
+    var arg1, arg2, arg3, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 1, arg2=false, arg3 = true} // vlcb = false, FCU_Compatability = true
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true} // vlcb = true, FCU_Compatability = true
+      if (a == 3) {arg1 = 1, arg2=true, arg3 = false} // vlcb = true, FCU_Compatability = false
+      testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3});
     }
     return testCases;
   }
@@ -1221,6 +1222,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: `unit_test: BEGIN requestAllEventVariablesForNode test: ${JSON.stringify(value)}` });   
 //    mock_messageRouter.messagesIn = []
 //    nodeTraffic=[]
+    mock_messageRouter.FCU_Compatability = value.FCU_Compatability
     node.updateEventInNodeConfig(value.nodeNumber, "00001111", 1)
     node.updateEventInNodeConfig(value.nodeNumber, "00002222", 2)
     node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2       // two events

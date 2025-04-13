@@ -36,6 +36,7 @@ class mock_messageRouter{
     this.messagesIn = [];
     this.learnNodeNumber = 0;
     this.ackRequested = false
+    this.FCU_Compatability=true
 
     this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
       winston.debug({message: name + `:  GRID_CONNECT_SEND ${data}`})
@@ -65,17 +66,17 @@ class mock_messageRouter{
 
   //
   //
-  processMessagesIn(message){
+  async processMessagesIn(message){
     if (message.ID_TYPE == 'X'){
       this.processExtended(message)
     } else {
-      this.processStandard(message)
+      await this.processStandard(message)
     }
   }
 
   //
   //
-  processStandard(message){
+  async processStandard(message){
     winston.info({message:name + `: processStandard: ` + message.text})
     switch(message.mnemonic){
       case "EVLRN":
@@ -92,6 +93,21 @@ class mock_messageRouter{
         winston.debug({message:name + `: processMessagesIn: NNULN ` + message.text})
         this.learnNodeNumber = null
         break
+      case "REQEV":
+          winston.debug({message:name + `: processMessagesIn: REQEV ` + message.text})
+          if (message.eventVariableIndex == 0){
+            // reply with number of event variables used - for test purposes, just 2
+            var cbusMsg = cbusLib.encodeEVANS(message.nodeNumber, message.eventNumber, message.eventVariableIndex, 10)
+            this.inject(cbusMsg)
+            if (this.FCU_Compatability == false){
+              for (var i=1; i <= 10; i++){
+                await utils.sleep(1)
+                var cbusMsg = cbusLib.encodeEVANS(message.nodeNumber, message.eventNumber, i, 255)
+                this.inject(cbusMsg)    
+              }              
+            }
+          } 
+          break
       case "REVAL":
         winston.debug({message:name + `: processMessagesIn: REVAL ` + message.text})
         if (message.eventVariableIndex == 0){

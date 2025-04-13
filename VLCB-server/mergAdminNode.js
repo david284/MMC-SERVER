@@ -365,7 +365,7 @@ class cbusAdmin extends EventEmitter {
         this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
         winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
         if (cbusMsg.eventVariableIndex > 0){
-          this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastEVANSTimestamp'] = Date.now()
+          this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
         }
       },
       'D8': async (cbusMsg) => {//Accessory On Short Event 2
@@ -522,7 +522,6 @@ class cbusAdmin extends EventEmitter {
       this.opcodeTracker[cbusMsg.opCode].count++
       this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
       if (cbusMsg.nodeNumber){
-        this.nodeConfig.nodes[cbusMsg.nodeNumber]["lastCbusTrafficTime"] = Date.now()
         if (cbusMsg.mnemonic != "PNN"){
           // if the message has a node number, update status
           // but not if PNN, as it's nodeConfig won't exist, and don't want to request duplicate info
@@ -1008,7 +1007,7 @@ class cbusAdmin extends EventEmitter {
     // allow larger gap if we've just sent QNN
     var timeGap = this.lastMessageWasQNN ? 400 : 50
     // but reduce gap if doing unit tests
-    timeGap = this.inUnitTest ? 1 : timeGap
+    timeGap = this.inUnitTest ? 10 : timeGap
     if ( Date.now() > this.lastCbusTrafficTime + timeGap){
       // don't reset QNN flag if too soon - avoids flag being cleared after just being set
       if (Date.now() > this.QNN_sent_time + 30){
@@ -1020,11 +1019,6 @@ class cbusAdmin extends EventEmitter {
         this.cbusTransmit(msg)
         // remove the one we've used from queue
         this.CBUS_Queue.shift()
-        // if aimed at specific node number, update lastCbusTrafficTime
-        let cbusMsg = cbusLibrary.decode(msg)
-        if (cbusMsg.nodeNumber){
-          this.nodeConfig.nodes[cbusMsg.nodeNumber]["lastCbusTrafficTime"] = Date.now()
-        }
       }
     } else {
       //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
@@ -1301,14 +1295,14 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: eventIdentifier ${eventIdentifier}` });
       let startTime = Date.now()
       await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
-      // wait until the traffic from this specific node has died down before doing next one
-      let timeGap = 10
-      while ( Date.now() < this.nodeConfig.nodes[nodeNumber].lastCbusTrafficTime + timeGap){
+      // wait until the traffic has died down before doing next one
+      let timeGap = 100
+      while ( Date.now() < this.lastCbusTrafficTime + timeGap){
         //winston.debug({message: name + `: wait on eventIdentifier ${eventIdentifier}` });
         await sleep(1)
       }
       winston.debug({message: name + `: elapsed time  ${Date.now() - startTime}` });
-      winston.debug({message: name + `: node lastCbusTrafficTime  ${this.nodeConfig.nodes[nodeNumber].lastCbusTrafficTime}` });
+      winston.debug({message: name + `: lastCbusTrafficTime  ${this.lastCbusTrafficTime}` });
     }
   }
 
@@ -1363,6 +1357,7 @@ class cbusAdmin extends EventEmitter {
     let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
     this.CBUS_Queue.push(cbusLib.encodeREQEV(eventNodeNumber, eventNumber, eventVariableIndex))
     this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    // don't change nodeNumberInLearnMode value, as we may receive multiple responses to REQEV
   }
 
 
