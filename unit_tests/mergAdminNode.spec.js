@@ -1204,12 +1204,12 @@ describe('mergAdminNode tests', function(){
   })
 
   function GetTestCase_nodeFlags() {
-    var arg1, arg2, arg3, testCases = [];
+    var arg1, arg2, arg3, arg4, testCases = [];
     for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 1, arg2=false, arg3 = true} // vlcb = false, FCU_Compatability = true
-      if (a == 2) {arg1 = 1, arg2=true, arg3 = true} // vlcb = true, FCU_Compatability = true
-      if (a == 3) {arg1 = 1, arg2=true, arg3 = false} // vlcb = true, FCU_Compatability = false
-      testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3});
+      if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 12} // vlcb = false, FCU_Compatability = true
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 20} // vlcb = true, FCU_Compatability = true
+      if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 28} // vlcb = true, FCU_Compatability = false
+      testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3, "count":arg4});
     }
     return testCases;
   }
@@ -1234,6 +1234,7 @@ describe('mergAdminNode tests', function(){
         //winston.info({message: `unit_test: nodeTraffic ${JSON.stringify(nodeTraffic[i])}`});
         winston.info({message: `unit_test: nodeTraffic  ${nodeTraffic[i].direction} ${nodeTraffic[i].json.encoded} ${nodeTraffic[i].json.text}`});
       }
+      expect(nodeTraffic.length).to.equal(value.count)
       winston.info({message: 'unit_test: END requestAllEventVariablesForNode test'});
 			done();
 		}, 1000);
