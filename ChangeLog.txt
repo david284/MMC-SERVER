@@ -1,3 +1,10 @@
+
+version 0.9.0
+  Added viewmode "split/full" to node view to select between default split node/events,
+  or full pane for nodes, with separate dialog for events for selected node
+  Added set mode option for event acknowledge, heartbeat & FCU Compatibility in node->advanced menu
+  Amended input field for node & event variableNumber control
+
 version 0.8.12
   Added toggle decimal/hex display to 'raw' variables
   Improved reading of all event variables for backup procedure
