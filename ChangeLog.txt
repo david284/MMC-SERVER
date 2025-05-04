@@ -1,3 +1,7 @@
+version 0.9.1
+  Client changes to variableBitArray to reduce vertical spacing
+  Client changes to main layout to reduce whitespace & avoid excess vertical scroll bars
+  - Dependant on screen resolution - aimed at 1920x1080 with 125% scaling (most used)
 
 version 0.9.0
   Added viewmode "split/full" to node view to select between default split node/events,
