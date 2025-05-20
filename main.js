@@ -1,8 +1,10 @@
 const fs = require('fs');
 // lets ensure the logs folder is empty
+/*
 if (fs.existsSync("logs")) {
   fs.rmSync("logs", { recursive: true }) 
 }
+*/
 
 let path = require('path')
 const winston = require(path.join(process.cwd(), 'config/winston.js'));
