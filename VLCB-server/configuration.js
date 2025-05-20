@@ -37,8 +37,6 @@ const defaultLayoutData = {
   "eventDetails": {}
   }
 
-  const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
-
   //
   // Application settings are stored in the appSettings.json file
   // This is stored in the 'appStorageDirectory' which is OS dependant
@@ -56,11 +54,12 @@ class configuration {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
-    this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
     this.createDirectories(systemDirectory)
+    let busTrafficPath = path.join(this.appStorageDirectory, "logs", "busTraffic.txt")
+    this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
     winston.debug({message:  name + ': appSettings: '+ JSON.stringify(this.appSettings)});
 	} // end constructor
 
@@ -820,7 +819,8 @@ class configuration {
       // also ensure all the expected folders exists in user directory
       if (this.appStorageDirectory){
         this.createDirectory(path.join(this.appStorageDirectory, 'layouts'))
-        this.createDirectory(path.join(this.appStorageDirectory, '/modules'))
+        this.createDirectory(path.join(this.appStorageDirectory, 'logs'))
+        this.createDirectory(path.join(this.appStorageDirectory, 'modules'))
         // and default layout exists (creates directory if not there also)
         this.createLayoutFile(this.appStorageDirectory, defaultLayoutData.layoutDetails.title)
       }

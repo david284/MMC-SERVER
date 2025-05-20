@@ -1,7 +1,9 @@
 var winston = require('winston');
+var path = require('path');
+const os = require("os");
 
 /*
-for rerference only, default npm logging levels used
+for reference only, default npm logging levels used
 lower number being higher priority
 const levels = { 
   error: 0,
@@ -13,6 +15,13 @@ const levels = {
   silly: 6
 };
 */
+
+const homePath = os.homedir()
+let folder = path.join("C:/ProgramData", "MMC-SERVER", 'logs')
+if (os.platform() != 'win32'){
+  folder = path.join(os.homedir(), "MMC-SERVER", 'logs')
+}
+
 
 // custom format to put timestamp first
 var timeStampFirst = winston.format.combine(
@@ -33,7 +42,7 @@ var messageOnly = winston.format.combine(
 var options = {
   console: {
     level: 'info',
-    filename: `./logs/console.log`,
+    filename: path.join(folder, `console.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -42,7 +51,7 @@ var options = {
   },
   debug: {
     level: 'debug',
-    filename: `./logs/debug.log`,
+    filename: path.join(folder, `debug.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -51,7 +60,7 @@ var options = {
   },
   error: {
     level: 'error',
-    filename: `./logs/error.log`,
+    filename: path.join(folder, `error.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -60,7 +69,7 @@ var options = {
   },
   info: {
     level: 'info',
-    filename: `./logs/info.log`,
+    filename: path.join(folder, `info.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
@@ -69,7 +78,7 @@ var options = {
   },
   warn: {
     level: 'warn',
-    filename: `./logs/warn.log`,
+    filename: path.join(folder, `warn.log`),
 	  options: { flags: 'w' },
     handleExceptions: true,
     maxsize: 1000000,
