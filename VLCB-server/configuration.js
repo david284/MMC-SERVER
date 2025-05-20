@@ -819,6 +819,9 @@ class configuration {
       // also ensure all the expected folders exists in user directory
       if (this.appStorageDirectory){
         this.createDirectory(path.join(this.appStorageDirectory, 'layouts'))
+        if (fs.existsSync(path.join(this.appStorageDirectory, 'logs'))) {
+          fs.rmSync(path.join(this.appStorageDirectory, 'logs'), { recursive: true }) 
+        }
         this.createDirectory(path.join(this.appStorageDirectory, 'logs'))
         this.createDirectory(path.join(this.appStorageDirectory, 'modules'))
         // and default layout exists (creates directory if not there also)
