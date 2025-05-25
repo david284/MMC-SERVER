@@ -34,6 +34,13 @@ const SPCMD_INIT_CHK  = 2
 const SPCMD_CHK_RUN   = 3
 const SPCMD_BOOT_TEST = 4
 
+// FLAGS
+const FLAG_PROGRAM_CONFIG = 1
+const FLAG_PROGRAM_EEPROM = 2
+const FLAG_IGNORE_CPUTYPE = 4
+const FLAG_PROGRAM_IN_BOOTMODE = 8
+
+
 // RESPONSE codes
 // 0 - not ok
 // 1 - ok acknowledge
@@ -78,6 +85,8 @@ class programNode extends EventEmitter  {
     super()
     this.config = config
     this.FIRMWARE = {}
+    this.NEWFIRMWARE = {}
+    this.TRANSMIT_ARRAYS = {}
     this.nodeNumber = null
     this.ackReceived = false
     this.decodeState = {}
@@ -87,8 +96,27 @@ class programNode extends EventEmitter  {
     this.success = false
     this.TxCount = 0
 
+//    this.last_block_address = null
+
   } // end constructor
     
+  // sets any cpu dependent values at run time
+  //
+  setCpuType(cpuType){
+    this.nodeCpuType = cpuType
+    this.area_start = {
+      "BOOT": 0,
+      "FLASH":0x800,
+      "CONFIG":0x300000,
+      "EEPROM":0xF00000
+    }
+    // modify EEPROM_START for certain cpu's
+    if (this.nodeCpuType == 23){
+      this.EEPROM_START = 0x380000        // start for 18F27Q83
+      this.area_start.EEPROM = 0x380000
+    }
+    winston.info({message: name + `:  area_start.EEPROM ${this.area_start.EEPROM}`})
+  }
 
   /** actual download function
   * @param NODENUMBER
@@ -106,9 +134,10 @@ class programNode extends EventEmitter  {
     this.success = false
     this.nodeNumber = NODENUMBER
     this.programState = STATE_START
-    this.nodeCpuType = CPUTYPE
     this.TxCount = 0
 
+    // set any cpu dependent values
+    this.setCpuType(CPUTYPE)
 
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
       winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
@@ -139,7 +168,8 @@ class programNode extends EventEmitter  {
             if (cbusMsg.response == 2) {
               winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
               if (this.programState != STATE_FIRMWARE){
-                this.sendFirmwareNG(FLAGS)
+                //this.sendFirmwareNG(FLAGS)
+                this.send_to_node(FLAGS)
               }
             }
           }
@@ -170,7 +200,8 @@ class programNode extends EventEmitter  {
         if (FLAGS & 0x8) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
-          this.sendFirmwareNG(FLAGS)
+          //this.sendFirmwareNG(FLAGS)
+          this.send_to_node(FLAGS)
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
@@ -201,6 +232,71 @@ class programNode extends EventEmitter  {
     await utils.sleep(300)  // allow time for last messages to be sent
   }
   
+  //
+  //
+  async send_to_node(FLAGS){
+    winston.info({message: `programNode: send_to_node: ${FLAGS}` });
+    this.programState = STATE_FIRMWARE
+
+    let messageCount =0
+    this.last_block_address = null
+
+    // start with SPCMD_INIT_CHK
+    var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
+    winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
+    await this.transmitCBUS(msgData, 80)
+
+    
+    // always do flash
+    // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
+    for (const block in this.TRANSMIT_ARRAYS) {
+      //winston.info({message: `programNode: send_to_node: ${JSON.stringify(block)}` });
+      if ((block >= this.area_start.FLASH) && (block < this.area_start.CONFIG)){
+          this.send_block(block, 'FLASH')
+          messageCount++
+      }
+    }
+
+    //
+    if (FLAGS & FLAG_PROGRAM_CONFIG){
+      for (const block in this.TRANSMIT_ARRAYS) {
+        //winston.info({message: `programNode: send_to_node: ${block}` });
+        if ((block >= this.area_start.CONFIG) && (block < this.area_start.EEPROM)){
+          this.send_block(block, 'CONFIG')
+          messageCount++
+        }
+      }
+    }
+    //
+    if (FLAGS & FLAG_PROGRAM_EEPROM){
+      for (const block in this.TRANSMIT_ARRAYS) {
+        //winston.info({message: `programNode: send_to_node: ${block}` });
+        if (block >= this.area_start.EEPROM){
+          this.send_block(block, 'EEPROM')
+          messageCount++
+        }
+      }
+    }
+    
+    this.programState = STATE_END_FIRMWARE
+    this.programState = STATE_QUIT
+  }
+
+  //
+  //
+  send_block(block, area){  
+    // be careful to ensure value is numeric before addition
+    if (block != parseInt(this.last_block_address) + 8){
+      winston.info({message: `programNode: send_to_node: new data segment: ${utils.decToHex(block, 8)}` });
+    }
+    
+    let string = ""
+    for (let i=0; i<this.TRANSMIT_ARRAYS[block].length; i++ ){
+      string += utils.decToHex(this.TRANSMIT_ARRAYS[block][i],2) + ' '
+    }
+    winston.info({message: `programNode: send_to_node: ${area}: ${utils.decToHex(block,8)} ${string}` });
+    this.last_block_address = block
+  }
 
   //
   //
@@ -373,7 +469,19 @@ class programNode extends EventEmitter  {
           winston.info({message: 'programNode: parseHexFile: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 8) + ' length: ' + this.FIRMWARE[area][block].length});
         }
       } 
+      for (const area in this.NEWFIRMWARE) {
+        winston.info({message: 'programNode: parseHexFile: NEWFIRMWARE: ' + area + ': length: ' + this.NEWFIRMWARE[area].length});
+      } 
+      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_ARRAYS)}` });
+      for (const block in this.TRANSMIT_ARRAYS) {
+        let string = ""
+        for (let i=0; i<this.TRANSMIT_ARRAYS[block].length; i++ ){
+          string += utils.decToHex(this.TRANSMIT_ARRAYS[block][i],2) + ' '
+        }
+        winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
+      } 
     }
+
     return result
   }
 
@@ -529,6 +637,7 @@ class programNode extends EventEmitter  {
           var absoluteAddress = this.decodeState.LBA + OFFSET + i
           var dataByte = parseInt(data[i*2]+data[i*2+1], 16)
           this.processDataByte(absoluteAddress, dataByte)
+          this.processDataByteNG(absoluteAddress, dataByte)
         }
         //winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
         break;
@@ -577,8 +686,26 @@ class programNode extends EventEmitter  {
     return true
   }
 
+  // Build up the Transmit blocks structure
+  //
+  processDataByteNG(absoluteAddress, dataByte){
+    let block = (absoluteAddress & 0xFFFFFFF8)
+    if (this.TRANSMIT_ARRAYS[block] == undefined){
+      // fill new block with FF's
+      this.TRANSMIT_ARRAYS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+      winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` }) 
+    }
+    this.TRANSMIT_ARRAYS[block][absoluteAddress & 7] = dataByte
+  }
+
   processDataByte(absoluteAddress, dataByte){
-//    winston.debug({message: 'programNode: processDataByte: ' + utils.decToHex(absoluteAddress, 8) + ':' + utils.decToHex(dataByte, 2) }) 
+    //winston.debug({message: `programNode: processDataByte:  ${utils.decToHex(absoluteAddress, 8)} data ${utils.decToHex(dataByte, 2)}` }) 
+
+    let area = this.getArea(absoluteAddress, this.nodeCpuType)
+    if (this.NEWFIRMWARE.area == undefined){this.NEWFIRMWARE[area] = []}
+    let area_offset  = absoluteAddress-this.area_start[area]
+    this.NEWFIRMWARE[area][area_offset] = dataByte
+    //winston.debug({message: `programNode: processDataByte:  ${area} ${area_offset} data ${this.NEWFIRMWARE[area][area_offset]}` }) 
 
     this.setCurrentBlock(absoluteAddress)
     // pointer may have changed, so check padding
@@ -665,19 +792,13 @@ class programNode extends EventEmitter  {
 
   //
   // work out which area the absolute address is in
-  // for CPU type = 23, EEPROM start is at 0x380000
   //
-  getArea(absoluteAddress, nodeCpuType){
-    let eepromStart = 0x00F00000    //default
-    if (nodeCpuType == 23){
-      eepromStart = 0x380000        // start for 18F27Q83
-    }
-
+  getArea(absoluteAddress){
     let area = 'BOOT' 
-    if      (absoluteAddress >= eepromStart) { area = 'EEPROM' }
-    else if (absoluteAddress >= 0x00300000) { area = 'CONFIG' }
-    else if (absoluteAddress >= 0x00000800) { area = 'FLASH' }
-    else    { this.decodeState.area = 'BOOT' }
+    if      (absoluteAddress >= this.area_start.EEPROM) { area = 'EEPROM' }
+    else if (absoluteAddress >= this.area_start.CONFIG) { area = 'CONFIG' }
+    else if (absoluteAddress >= this.area_start.FLASH) { area = 'FLASH' }
+    //winston.debug({message: `programNode: getArea: ${absoluteAddress} ${area}`});
     return area
   }
 

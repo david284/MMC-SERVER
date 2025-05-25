@@ -54,7 +54,7 @@ describe('programNode tests', async function(){
         setTimeout(() => {
             winston.debug({message: 'UNIT_TEST: programNode: Tests ended'});
             done();
-        }, 1000)
+        }, 500)
 	});																										
 	
 	//
@@ -135,15 +135,16 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile full test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile full test:'});
-//    let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
-//    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
-    let filename = './unit_tests/test_firmware/Universal-VLCB4a15-18F27Q83-16MHz.HEX'
+    //let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
+    //let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    //let filename = './unit_tests/test_firmware/Universal-VLCB4a15-18F27Q83-16MHz.HEX'
+    let filename = './unit_tests/test_firmware/updated SOD Rules.HEX'
     var intelHexString = fs.readFileSync(filename);
     winston.info({message: 'UNIT_TEST: ParseHexFile full test: Filename: ' + filename});
     //programNode.nodeCpuType = 13    // P18F25K80
     //programNode.nodeCpuType = 15    // P18F26K80
-    programNode.nodeCpuType = 23    // 18F27Q83
-    var result = programNode.parseHexFile( intelHexString );
+    programNode.setCpuType(23)
+    var result = programNode.parseHexFile( intelHexString);
     expect(result).to.equal(true);
     winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile full test:'});
   });
@@ -174,6 +175,24 @@ describe('programNode tests', async function(){
     winston.info({message: 'UNIT_TEST: <<<<<< END: ParseHexFile corrupt test:'});
   });
   
+  //
+  // Use real hex file to ensure correct operation
+  //
+  it('send_to_node test', function() {
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: send_to_node test:'});
+    programNode.setCpuType(23)
+    programNode.TRANSMIT_ARRAYS[0] = [1, 2, 3, 4, 5, 6, 7, 8]
+    programNode.TRANSMIT_ARRAYS[0x820] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
+    programNode.TRANSMIT_ARRAYS[0x2FFFFF] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
+    programNode.TRANSMIT_ARRAYS[0x800] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
+    programNode.TRANSMIT_ARRAYS[0x300000] = [0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28]
+    programNode.TRANSMIT_ARRAYS[0xF00000] = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38]
+    result = programNode.send_to_node(1)
+//    expect(result).to.equal(true);
+    winston.info({message: 'UNIT_TEST: <<<<<< END: send_to_node test:'});
+  });
+
+
   
   function GetTestCase_lines() {
     var arg1, arg2, testCases = [];
@@ -215,14 +234,18 @@ describe('programNode tests', async function(){
   //
   //
   //
-	it('program short test', async function() {
+	it.only('program short test', async function() {
 		winston.info({message: 'UNIT_TEST: BEGIN program short:'});
     programNode.on('programNode_progress', function (data) {
     	downloadData = data;
 	    winston.warn({message: 'UNIT_TEST: short download: ' + JSON.stringify(downloadData)});
 		});	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
-		await programNode.program(3000, 1, 3, intelHexString);
+    //let filename = './unit_tests/test_firmware/updated SOD Rules.HEX'
+    let filename = './unit_tests/test_firmware/shortFile.HEX'
+    var intelHexString = fs.readFileSync(filename);
+    const cpuType =1
+    const flags = 7
+		await programNode.program(3000, cpuType, flags, intelHexString);
     //
     //
     // expect first message to be BOOTM
