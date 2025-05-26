@@ -48,12 +48,14 @@ REM
 FOR /F "delims=" %%i IN ('systeminfo ^| findstr /C:"System Type"') DO (
 	set stype=%%i
 )
-set stype2=%stype:*:                   =%
+REM a string of the form "System Type:                   x64-based PC"
+REM remove the first 31 chars
+set stype2=%stype:~31%
 if "%stype2%"=="x64-based PC" (
 	set SYSTEM_ARCH=x64
 	set GIT_PROCESSOR=64-bit
 )
-if "%stype2%"=="arm64-based PC" (
+if "%stype2%"=="ARM64-based PC" (
 	set SYSTEM_ARCH=arm64
 	set GIT_PROCESSOR=arm64
 )
@@ -61,8 +63,12 @@ if "%stype2%"=="x86-based PC" (
 	set SYSTEM_ARCH=x86
 	set GIT_PROCESSOR=64-bit
 )
+if "%SYSTEM_ARCH%x"=="x" (
+	echo Unknown system architecture
+	pause
+	exit /b 2
+)
 echo Architecture determined to be %SYSTEM_ARCH%
-
 REM 
 REM  **************************************************************************
 REM  The next big block works out what the latest version of npm/Node is. 
@@ -218,7 +224,7 @@ REM Now check that MMC is up to date
 echo Checking if MMC is up to date...
 cd MMC-SERVER
 set cnt=0
-FOR /F %%i IN ('git fetch --dry-run 2^>^&1') DO (
+FOR /F %%i IN ('git fetch --dry-run origin main 2^>^&1') DO (
 	set /a cnt=!cnt!+1
 )
 REM  check if not up to date
