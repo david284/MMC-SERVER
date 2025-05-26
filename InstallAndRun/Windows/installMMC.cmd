@@ -224,7 +224,7 @@ REM Now check that MMC is up to date
 echo Checking if MMC is up to date...
 cd MMC-SERVER
 set cnt=0
-FOR /F %%i IN ('git fetch --dry-run origin main 2^>^&1') DO (
+FOR /F %%i IN ('git fetch --dry-run --porcelain origin main 2^>^&1 ^| FIND /v FETCH_HEAD') DO (
 	set /a cnt=!cnt!+1
 )
 REM  check if not up to date
