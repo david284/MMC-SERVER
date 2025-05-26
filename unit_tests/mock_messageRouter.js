@@ -127,7 +127,7 @@ class mock_messageRouter{
   //
   //
   processExtended(message){
-    winston.info({message:name + `: processMessagesIn: Extended header message`})
+    winston.debug({message:name + `: processMessagesIn: Extended header message`})
     if (message.type == 'CONTROL') {
       switch (message.SPCMD) {
           case 0:

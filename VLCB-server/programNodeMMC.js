@@ -92,6 +92,8 @@ class programNode extends EventEmitter  {
     this.decodeState = {}
     this.programState = STATE_NULL
     this.nodeCpuType = null
+    this.calculatedHexChecksum = '0000'
+    this.assembledDataCount = 0
 
     this.success = false
     this.TxCount = 0
@@ -135,6 +137,7 @@ class programNode extends EventEmitter  {
     this.nodeNumber = NODENUMBER
     this.programState = STATE_START
     this.TxCount = 0
+    this.dataCount = 0
 
     // set any cpu dependent values
     this.setCpuType(CPUTYPE)
@@ -237,23 +240,19 @@ class programNode extends EventEmitter  {
   async send_to_node(FLAGS){
     winston.info({message: `programNode: send_to_node: ${FLAGS}` });
     this.programState = STATE_FIRMWARE
-
-    let messageCount =0
     this.last_block_address = null
 
     // start with SPCMD_INIT_CHK
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
     winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
     await this.transmitCBUS(msgData, 80)
-
     
     // always do flash
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
     for (const block in this.TRANSMIT_ARRAYS) {
       //winston.info({message: `programNode: send_to_node: ${JSON.stringify(block)}` });
       if ((block >= this.area_start.FLASH) && (block < this.area_start.CONFIG)){
-          this.send_block(block, 'FLASH')
-          messageCount++
+          await this.send_block(block, 'FLASH')
       }
     }
 
@@ -262,8 +261,7 @@ class programNode extends EventEmitter  {
       for (const block in this.TRANSMIT_ARRAYS) {
         //winston.info({message: `programNode: send_to_node: ${block}` });
         if ((block >= this.area_start.CONFIG) && (block < this.area_start.EEPROM)){
-          this.send_block(block, 'CONFIG')
-          messageCount++
+          await this.send_block(block, 'CONFIG')
         }
       }
     }
@@ -272,30 +270,64 @@ class programNode extends EventEmitter  {
       for (const block in this.TRANSMIT_ARRAYS) {
         //winston.info({message: `programNode: send_to_node: ${block}` });
         if (block >= this.area_start.EEPROM){
-          this.send_block(block, 'EEPROM')
-          messageCount++
+          await this.send_block(block, 'EEPROM')
         }
       }
     }
-    
+    //
     this.programState = STATE_END_FIRMWARE
+    
+    // Verify Checksum
+    // 00049272: Send: :X00080004N000000000D034122;
+    winston.debug({message: 'programNode: Sending Check firmware'});
+    winston.info({message: 'programNode: calculatedChecksum ' + this.calculatedHexChecksum });
+
+    this.sendMessageToClient('FIRMWARE: checksum: 0x' + this.calculatedHexChecksum + ' length: ' + this.dataCount)
+    //      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
+
+    var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(this.calculatedHexChecksum.substr(2,2), 16), parseInt(this.calculatedHexChecksum.substr(0,2),16))
+    await this.transmitCBUS(msgData, 60)
     this.programState = STATE_QUIT
   }
 
   //
   //
-  send_block(block, area){  
+  async send_block(block_address, area){  
     // be careful to ensure value is numeric before addition
-    if (block != parseInt(this.last_block_address) + 8){
-      winston.info({message: `programNode: send_to_node: new data segment: ${utils.decToHex(block, 8)}` });
+    if (block_address != parseInt(this.last_block_address) + 8){
+      await this.start_new_segment(block_address)
     }
     
     let string = ""
-    for (let i=0; i<this.TRANSMIT_ARRAYS[block].length; i++ ){
-      string += utils.decToHex(this.TRANSMIT_ARRAYS[block][i],2) + ' '
+    for (let i=0; i<this.TRANSMIT_ARRAYS[block_address].length; i++ ){
+      string += utils.decToHex(this.TRANSMIT_ARRAYS[block_address][i],2) + ' '
     }
-    winston.info({message: `programNode: send_to_node: ${area}: ${utils.decToHex(block,8)} ${string}` });
-    this.last_block_address = block
+    winston.info({message: `programNode: send_to_node: ${area}: ${utils.decToHex(block_address,8)} ${string}` });
+    this.last_block_address = block_address
+
+    this.calculatedHexChecksum = this.arrayChecksum(this.TRANSMIT_ARRAYS[block_address], this.calculatedHexChecksum)
+
+    var msgData = cbusLib.encode_EXT_PUT_DATA(this.TRANSMIT_ARRAYS[block_address])
+    winston.debug({message: `programNode: sending ${area} data: ${msgData}` });
+    await this.transmitCBUS(msgData, 60)
+    this.dataCount += 8
+
+    if (true) {
+      // report progress every 16 messages (128 bytes)
+      var progress = (this.dataCount / this.assembledDataCount) * 100
+      var text = `Progress: ${area} ${utils.decToHex(block_address, 6)} : ${Math.round(progress)}%`
+      this.sendBootModeToClient(text)
+    }
+
+  }
+
+  //
+  //
+  async start_new_segment(block){
+    winston.info({message: `programNode: send_to_node: new data segment: ${utils.decToHex(block, 8)}` });
+    var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
+    winston.debug({message: 'programNode: sending segment address: ' + msgData});
+    await this.transmitCBUS(msgData, 60)
   }
 
   //
@@ -307,7 +339,7 @@ class programNode extends EventEmitter  {
       // sending the firmware needs to be done in 8 byte messages
 
       // we need to keep a running checksum of all the data we send, so we can include it in the check message at the end
-      var calculatedChecksum = 0;
+      var calculatedChecksum = '0000';
       var fullArray = []
       // we want to indicate progress for each region, so we keep a counter that we can reset and then incrmeent for each region
       var progressCount = 0
@@ -693,7 +725,8 @@ class programNode extends EventEmitter  {
     if (this.TRANSMIT_ARRAYS[block] == undefined){
       // fill new block with FF's
       this.TRANSMIT_ARRAYS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-      winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` }) 
+      winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` })
+      this.assembledDataCount += 8
     }
     this.TRANSMIT_ARRAYS[block][absoluteAddress & 7] = dataByte
   }
