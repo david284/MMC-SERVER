@@ -14,12 +14,12 @@ REM  **************************************************************************
 REM  First some setting which may be changed but mostly these will be ok
 set NODEJS_DL_URL=https://nodejs.org/en/download
 	REM  Good enough, Git doesn't need to be latest
-set GIT_VERSION=2.49.
+set GIT_VERSION=2.49.0
 set MMCSERVER_URL=https://github.com/david284/MMC-SERVER.git
 set INSTALL_DIR=C:\MMC
 
 setlocal enabledelayedexpansion
-echo Welcome to the MMC installer for Windows.
+echo Welcome to the MMC installer for Windows. Version 27 May 2025 16:58
 echo Checking for Administrator permission...
 net session >nul 2>&1
 if %errorLevel% == 0 (
@@ -45,21 +45,21 @@ REM  order to download the correct version of npm/Node and Git.
 REM  systeminfo has the architect listed under "System Type"
 REM  **************************************************************************
 REM 
-FOR /F "delims=" %%i IN ('systeminfo ^| findstr /C:"System Type"') DO (
+FOR /F "tokens=2 delims=:" %%i IN ('systeminfo ^| findstr /C:"System Type"') DO (
 	set stype=%%i
 )
 REM a string of the form "System Type:                   x64-based PC"
-REM remove the first 31 chars
-set stype2=%stype:~31%
-if "%stype2%"=="x64-based PC" (
+REM REM strip out spaces
+set stype2=%stype: =%
+if "%stype2%"=="x64-basedPC" (
 	set SYSTEM_ARCH=x64
 	set GIT_PROCESSOR=64-bit
 )
-if "%stype2%"=="ARM64-based PC" (
+if "%stype2%"=="ARM64-basedPC" (
 	set SYSTEM_ARCH=arm64
 	set GIT_PROCESSOR=arm64
 )
-if "%stype2%"=="x86-based PC" (
+if "%stype2%"=="x86-basedPC" (
 	set SYSTEM_ARCH=x86
 	set GIT_PROCESSOR=64-bit
 )
@@ -224,7 +224,7 @@ REM Now check that MMC is up to date
 echo Checking if MMC is up to date...
 cd MMC-SERVER
 set cnt=0
-FOR /F %%i IN ('git fetch --dry-run --porcelain origin main 2^>^&1 ^| FIND /v FETCH_HEAD') DO (
+FOR /F %%i IN ('git fetch --dry-run origin main 2^>^&1 ^| findstr /C:origin/main') DO (
 	set /a cnt=!cnt!+1
 )
 REM  check if not up to date
