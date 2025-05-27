@@ -327,7 +327,11 @@ class configuration {
 
   writeBootloaderdata(data){
     // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
-    this.bootloaderDataLogStream.write(data + "\r\n");
+    var time = new Date()
+    var timeStamp = String(time.getHours()).padStart(2, '0') + ':' 
+      + String(time.getMinutes()).padStart(2, '0') + ':' 
+      + String(time.getSeconds()).padStart(2, '0')
+    this.bootloaderDataLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
 
 

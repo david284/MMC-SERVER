@@ -234,7 +234,8 @@ class programNode extends EventEmitter  {
       if(this.programState == STATE_QUIT) {break}
     }
     await utils.sleep(300)  // allow time for last messages to be sent
-    
+    this.config.writeBootloaderdata("****** End download ******");
+
   } /// end program method
   
   //
@@ -243,6 +244,13 @@ class programNode extends EventEmitter  {
     winston.info({message: `programNode: send_to_node: ${FLAGS}` });
     this.programState = STATE_FIRMWARE
     this.last_block_address = null
+
+    this.config.writeBootloaderdata("****** Start download ******");
+    this.config.writeBootloaderdata("CPU TYPE    : " + this.nodeCpuType);
+    this.config.writeBootloaderdata("FLASH  Start: " + utils.decToHex(this.area_start.FLASH, 8));
+    this.config.writeBootloaderdata("CONFIG Start: " + utils.decToHex(this.area_start.CONFIG, 8));
+    this.config.writeBootloaderdata("EEPROM Start: " + utils.decToHex(this.area_start.EEPROM, 8));
+
 
     // start with SPCMD_INIT_CHK
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
@@ -261,13 +269,14 @@ class programNode extends EventEmitter  {
     // Verify Checksum
     // 00049272: Send: :X00080004N000000000D034122;
     winston.debug({message: 'programNode: Sending Check firmware'});
-    winston.info({message: 'programNode: calculatedChecksum ' + this.calculatedHexChecksum });
+    winston.info({message: 'programNode: calculatedHexChecksum ' + this.calculatedHexChecksum });
 
     this.sendMessageToClient('FIRMWARE: checksum: 0x' + this.calculatedHexChecksum + ' length: ' + this.dataCount)
-    //      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
+    //      winston.info({message: 'programNode: calculatedHexChecksum ' + JSON.stringify(fullArray)});
 
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(this.calculatedHexChecksum.substr(2,2), 16), parseInt(this.calculatedHexChecksum.substr(0,2),16))
     await this.transmitCBUS(msgData, 60)
+
   }
 
   //
@@ -310,125 +319,8 @@ class programNode extends EventEmitter  {
     var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
     winston.debug({message: 'programNode: sending segment address: ' + msgData});
     await this.transmitCBUS(msgData, 60)
-    this.config.writeBootloaderdata("new segment " + utils.decToHex(block, 8));
+    this.config.writeBootloaderdata(">> New segment " + utils.decToHex(block, 8));
   }
-
-  //
-  //
-  //
-  async sendFirmwareNG(FLAGS) {
-      this.programState = STATE_FIRMWARE
-      winston.debug({message: 'programNode: Started sending firmware - FLAGS ' + FLAGS});
-      // sending the firmware needs to be done in 8 byte messages
-
-      // we need to keep a running checksum of all the data we send, so we can include it in the check message at the end
-      var calculatedChecksum = '0000';
-      var fullArray = []
-      // we want to indicate progress for each region, so we keep a counter that we can reset and then incrmeent for each region
-      var progressCount = 0
-
-      // start with SPCMD_INIT_CHK
-      var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
-      winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
-      await this.transmitCBUS(msgData, 80)
-
-      
-      // always do FLASH area, but only starting from 00000800
-      for (const block in this.FIRMWARE['FLASH']) {
-        if (block >= 0x800) {
-          var program = this.FIRMWARE['FLASH'][block]
-          //
-          winston.info({message: name + ': sendFirmwareNG: FLASH AREA : ' + utils.decToHex(block, 8) + ' length: ' + program.length});
-          winston.info({message: name + ': sendFirmwareNG: FLASH AREA : ' + utils.decToHex(block, 6)});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
-          winston.debug({message: 'programNode: sending FLASH address: ' + msgData});
-          await this.transmitCBUS(msgData, 60)
-          //
-          progressCount = 0
-          for (let i = 0; i < program.length; i += 8) {
-            var chunk = program.slice(i, i + 8)
-            calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            winston.debug({message: 'programNode: sending FLASH data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-            await this.transmitCBUS(msgData, 60)
-            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
-            if (progressCount <= i) {
-              progressCount += 128    // report progress every 16 messages
-              var text = 'Progress:   FLASH ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/program.length * 100) + '%'
-              this.sendBootModeToClient(text)
-            }
-          }
-        }
-      }
-
-      if (FLAGS & 0x1) {      // Program CONFIG area
-        for (const block in this.FIRMWARE['CONFIG']) {
-          progressCount = 0
-          var config = this.FIRMWARE['CONFIG'][block]
-          //
-          winston.debug({message: 'programNode: CONFIG : ' + utils.decToHex(block, 8) + ' length: ' + config.length});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
-          winston.debug({message: 'programNode: sending CONFIG address: ' + msgData});
-          await this.transmitCBUS(msgData, 80)
-          //
-          for (let configOffset = 0; configOffset < config.length; configOffset += 8) {
-            var chunk = config.slice(configOffset, configOffset + 8)
-            calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            winston.debug({message: 'programNode: sending CONFIG data: ' + configOffset + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-            await this.transmitCBUS(msgData, 80)
-            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
-            if (progressCount <= configOffset) {
-              progressCount += 32    // report progress every 4 messages
-              var text = 'Progress: CONFIG ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(configOffset, 4) + ' : ' + Math.round(configOffset/config.length * 100) + '%'
-              this.sendBootModeToClient(text)
-            }
-          }
-        }
-      }
-      
-      if (FLAGS & 0x2) {      // Program EEPROM area
-        for (const block in this.FIRMWARE['EEPROM']) {
-          progressCount = 0
-          var eeprom = this.FIRMWARE['EEPROM'][block]
-          //
-          winston.debug({message: 'programNode: EEPROM : ' + utils.decToHex(block, 8) + ' length: ' + eeprom.length});
-          var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
-          winston.debug({message: 'programNode: sending EEPROM address: ' + msgData});
-          await this.transmitCBUS(msgData, 80)
-          //
-          for (let i = 0; i < eeprom.length; i += 8) {
-            var chunk = eeprom.slice(i, i + 8)
-            calculatedChecksum = this.arrayChecksum(chunk, calculatedChecksum)
-            var msgData = cbusLib.encode_EXT_PUT_DATA(chunk)
-            winston.debug({message: 'programNode: sending EEPROM data: ' + i + ' ' + msgData + ' Rolling CKSM ' + calculatedChecksum});
-            await this.transmitCBUS(msgData, 80)
-            for (let z=0; z<8; z++){fullArray.push(chunk[z])}
-            if (progressCount <= i) {
-              progressCount += 32    // report progress every 4 messages
-              var text = 'Progress: EEPROM ' + utils.decToHex(block, 8) + ' : ' + utils.decToHex(i, 4) + ' : ' + Math.round(i/eeprom.length * 100) + '%  '
-              this.sendBootModeToClient(text)
-            }
-          }
-        }
-      }
-
-      this.programState = STATE_END_FIRMWARE
-      
-      // Verify Checksum
-      // 00049272: Send: :X00080004N000000000D034122;
-      winston.debug({message: 'programNode: Sending Check firmware'});
-      winston.info({message: 'programNode: calculatedChecksum ' + calculatedChecksum
-        + ' fullChecksum ' + this.arrayChecksum(fullArray, 0)
-        + ' length ' + fullArray.length
-      });
-      this.sendMessageToClient('FIRMWARE: checksum: 0x' + calculatedChecksum + ' length: ' + fullArray.length)
-      //      winston.info({message: 'programNode: calculatedChecksum ' + JSON.stringify(fullArray)});
-
-      var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(calculatedChecksum.substr(2,2), 16), parseInt(calculatedChecksum.substr(0,2),16))
-      await this.transmitCBUS(msgData, 60)
-  }
-      
 
   //
   // function to add the contents of an input array to an existing two's complement checksum
