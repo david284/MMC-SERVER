@@ -247,7 +247,7 @@ describe('programNode tests', async function(){
   //
   //
   //
-	it.only('program short test', async function() {
+	it('program short test', async function() {
 		winston.info({message: 'UNIT_TEST: BEGIN program short:'});
     programNode.on('programNode_progress', function (data) {
     	downloadData = data;
@@ -257,7 +257,7 @@ describe('programNode tests', async function(){
     let filename = './unit_tests/test_firmware/shortFile.HEX'
     var intelHexString = fs.readFileSync(filename);
     const cpuType =1
-    const flags = 7
+    const flags = 3
 		await programNode.program(3000, cpuType, flags, intelHexString);
     //
     //
@@ -406,7 +406,7 @@ describe('programNode tests', async function(){
     //
     // use wrong cpu type, and short file
     //
-    itParam("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
+  itParam.only("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
 		winston.info({message: 'UNIT_TEST: BEGIN: CPUTYPE file:' + JSON.stringify(value)});
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;

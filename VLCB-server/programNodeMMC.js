@@ -192,7 +192,7 @@ class programNode extends EventEmitter  {
       if (this.COMMAND_FLAGS & 0x4) {
         this.sendMessageToClient('CPUTYPE ignored')
       } else {
-        if (this.checkCPUTYPE (CPUTYPE, this.FIRMWARE) != true) {
+        if (this.checkCPUTYPE (CPUTYPE) != true) {
           winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: FAILED'})
           this.sendFailureToClient('CPU mismatch')
           this.programState = STATE_QUIT
@@ -362,15 +362,16 @@ class programNode extends EventEmitter  {
     winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
 
     for (var i = 1; i < lines.length; i++) {
-    winston.debug({message: 'programNode: parseHexFile - line ' + ':' + lines[i]})
+      winston.debug({message: 'programNode: parseHexFile - line ' + ':' + lines[i]})
       // replace MARK symbol lost due to split
       result = this.decodeLineNG(':' + lines[i])
-
       if (result == false) {break}
     }
 
     winston.info({message: name + ': parseHexFile: result: ' + result});
     if (result){
+
+      /*
       for (const area in this.FIRMWARE) {
         for (const block in this.FIRMWARE[area]) {
           winston.info({message: 'programNode: parseHexFile: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 8) + ' length: ' + this.FIRMWARE[area][block].length});
@@ -379,13 +380,15 @@ class programNode extends EventEmitter  {
       for (const area in this.NEWFIRMWARE) {
         winston.info({message: 'programNode: parseHexFile: NEWFIRMWARE: ' + area + ': length: ' + this.NEWFIRMWARE[area].length});
       } 
+      */
+
       winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_DATA_BLOCKS)}` });
       for (const block in this.TRANSMIT_DATA_BLOCKS) {
         let string = ""
         for (let i=0; i<this.TRANSMIT_DATA_BLOCKS[block].length; i++ ){
           string += utils.decToHex(this.TRANSMIT_DATA_BLOCKS[block][i],2) + ' '
         }
-        //winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
+        winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
       } 
     }
 
@@ -396,29 +399,17 @@ class programNode extends EventEmitter  {
   //
   //
   //
-  checkCPUTYPE (nodeCPU, FIRMWARE) {
+  checkCPUTYPE (nodeCPU) {
     //
     // parameters start at offset 0x820 in the firmware download
     // cpu type is a byte value at 0x828
     //
     var result = false
     var targetCPU =null
-    if ( 0x800 in FIRMWARE['FLASH']){
-      if (FIRMWARE['FLASH'][0x800].length > 0x28){
-        targetCPU = FIRMWARE['FLASH'][0x800][0x28]
-      }
+    if(this.TRANSMIT_DATA_BLOCKS[0x828]){
+      targetCPU = this.TRANSMIT_DATA_BLOCKS[0x828][0]
     }
-    if ( 0x810 in FIRMWARE['FLASH']){
-      if (FIRMWARE['FLASH'][0x810].length > 0x18){
-        targetCPU = FIRMWARE['FLASH'][0x810][0x18]
-      }
-    }
-    if ( 0x820 in FIRMWARE['FLASH']){
-      if (FIRMWARE['FLASH'][0x820].length > 0x8){
-        targetCPU = FIRMWARE['FLASH'][0x820][0x8]
-      }
-    }
-    winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: selected target: ' + nodeCPU + ' firmware target: ' + targetCPU})
+    winston.info({message: 'programNode: >>>>>>>>>>>>> cpu check: selected target: ' + nodeCPU + ' firmware target: ' + targetCPU})
     if (nodeCPU == targetCPU) {return true}
     else {return false}    
   }    
