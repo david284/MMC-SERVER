@@ -86,12 +86,9 @@ class programNode extends EventEmitter  {
   constructor(config) {
     super()
     this.config = config
-    this.FIRMWARE = {}
-    this.NEWFIRMWARE = {}
-    this.TRANSMIT_DATA_BLOCKS = {}
+    this.BOOTLOADER_DATA_BLOCKS = {}
     this.nodeNumber = null
     this.ackReceived = false
-    this.decodeState = {}
     this.programState = STATE_NULL
     this.nodeCpuType = null
     this.success = false
@@ -259,7 +256,7 @@ class programNode extends EventEmitter  {
     await this.transmitCBUS(msgData, 80)
     
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
-    for (const block in this.TRANSMIT_DATA_BLOCKS) {
+    for (const block in this.BOOTLOADER_DATA_BLOCKS) {
       //winston.info({message: `programNode: send_to_node: ${JSON.stringify(block)}` });
       await this.send_block(block)
     }
@@ -290,16 +287,16 @@ class programNode extends EventEmitter  {
     }
     
     let string = area + " : " + utils.decToHex(block_address,8) + " "
-    for (let i=0; i<this.TRANSMIT_DATA_BLOCKS[block_address].length; i++ ){
-      string += utils.decToHex(this.TRANSMIT_DATA_BLOCKS[block_address][i],2) + ' '
+    for (let i=0; i<this.BOOTLOADER_DATA_BLOCKS[block_address].length; i++ ){
+      string += utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[block_address][i],2) + ' '
     }
     winston.info({message: `programNode: send_to_node: ${string}` });
     this.config.writeBootloaderdata( string);
     this.last_block_address = block_address
 
-    this.calculatedHexChecksum = this.arrayChecksum(this.TRANSMIT_DATA_BLOCKS[block_address], this.calculatedHexChecksum)
+    this.calculatedHexChecksum = this.arrayChecksum(this.BOOTLOADER_DATA_BLOCKS[block_address], this.calculatedHexChecksum)
 
-    var msgData = cbusLib.encode_EXT_PUT_DATA(this.TRANSMIT_DATA_BLOCKS[block_address])
+    var msgData = cbusLib.encode_EXT_PUT_DATA(this.BOOTLOADER_DATA_BLOCKS[block_address])
     winston.debug({message: `programNode: sending ${area} data: ${msgData}` });
     await this.transmitCBUS(msgData, 60)
     this.dataCount += 8
@@ -348,12 +345,10 @@ class programNode extends EventEmitter  {
 
   //
   // returns true or false
-  // will populate this.FIRMWARE
   //
   parseHexFile(intelHexString) {
-    this.TRANSMIT_DATA_BLOCKS = {}
-    this.FIRMWARE = {}
-    this.decodeState = {}   // keeps state between calls to decodeLine
+    this.BOOTLOADER_DATA_BLOCKS = {}
+    this.ExtendedLinearAddress = 0
     var result = false      // end result
 
     this.sendMessageToClient('Parsing file')
@@ -365,18 +360,18 @@ class programNode extends EventEmitter  {
     for (var i = 1; i < lines.length; i++) {
       winston.debug({message: 'programNode: parseHexFile - line ' + ':' + lines[i]})
       // replace MARK symbol lost due to split
-      result = this.decodeLineNG(':' + lines[i])
+      result = this.decodeLine(':' + lines[i])
       if (result == false) {break}
     }
 
     winston.info({message: name + ': parseHexFile: result: ' + result});
     if (result){
 
-      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_DATA_BLOCKS)}` });
-      for (const block in this.TRANSMIT_DATA_BLOCKS) {
+      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.BOOTLOADER_DATA_BLOCKS)}` });
+      for (const block in this.BOOTLOADER_DATA_BLOCKS) {
         let string = ""
-        for (let i=0; i<this.TRANSMIT_DATA_BLOCKS[block].length; i++ ){
-          string += utils.decToHex(this.TRANSMIT_DATA_BLOCKS[block][i],2) + ' '
+        for (let i=0; i<this.BOOTLOADER_DATA_BLOCKS[block].length; i++ ){
+          string += utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[block][i],2) + ' '
         }
         winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
       } 
@@ -396,8 +391,8 @@ class programNode extends EventEmitter  {
     //
     var result = false
     var targetCPU =null
-    if(this.TRANSMIT_DATA_BLOCKS[0x828]){
-      targetCPU = this.TRANSMIT_DATA_BLOCKS[0x828][0]
+    if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
+      targetCPU = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
     }
     winston.info({message: 'programNode: >>>>>>>>>>>>> cpu check: selected target: ' + nodeCPU + ' firmware target: ' + targetCPU})
     if (nodeCPU == targetCPU) {return true}
@@ -449,17 +444,7 @@ class programNode extends EventEmitter  {
   // ready to downloaded to a node
   // returns true on success, false on failure
   //
-  decodeLineNG(line){
-
-    // check if the persistent values are intialised, if not then do it first
-    if ( typeof this.decodeState.area == 'undefined' ) { 
-      this.decodeState.area = 'BOOT'              // set initial area in FIRMWARE structure
-      this.decodeState.LBA = 0                    // Linear Block Address of input file
-      this.decodeState.blockAddress = 0           // absolute address for block of data in FIRMWARE    
-      this.decodeState.blockAddressPtr = 0        // current pointer into block address
-      this.decodeState.blockPaddingPtr = 0        // where the padding of the current block ends
-      this.FIRMWARE[this.decodeState.area] = {}   // initialise starting area
-    }
+  decodeLine(line){
 
     if (line.length < 11 ){
       winston.error({message: 'programNode: READ LINE: line too short (<11) ' + line});
@@ -522,9 +507,9 @@ class programNode extends EventEmitter  {
       case 0:
         //winston.debug({message: 'programNode: line decode: Data Record: '});
         for (let i =0; i < data.length/2; i++){
-          var absoluteAddress = this.decodeState.LBA + OFFSET + i
+          var absoluteAddress = this.ExtendedLinearAddress + OFFSET + i
           var dataByte = parseInt(data[i*2]+data[i*2+1], 16)
-          this.processDataByteNG(absoluteAddress, dataByte)
+          this.processDataByte(absoluteAddress, dataByte)
         }
         break;
       case 1:
@@ -537,10 +522,9 @@ class programNode extends EventEmitter  {
         winston.warn({message: 'programNode: line decode: Start Segment Address Record:'});
         break;
       case 4:
-        winston.debug({message: 'programNode: line decode: Extended Linear Address Record:'});
-        this.decodeState.LBA = parseInt(data, 16)<<16 + OFFSET
-        winston.debug({message: 'programNode: line decode: LBA: ' 
-          + utils.decToHex(this.decodeState.LBA,8)
+        this.ExtendedLinearAddress = parseInt(data, 16)<<16 + OFFSET
+        winston.debug({message: 'programNode: line decode: ExtendedLinearAddress: ' 
+          + utils.decToHex(this.ExtendedLinearAddress,8)
         });
         break;
       case 5:
@@ -551,19 +535,19 @@ class programNode extends EventEmitter  {
     return true
   }
 
-  // Build up the Transmit blocks structure
+  // Build up the Bootloader blocks structure
   // but only use the area's requested (FLAGS)
   //
-  processDataByteNG(absoluteAddress, dataByte){
+  processDataByte(absoluteAddress, dataByte){
     if (this.checkValidArea(absoluteAddress)){
       let block = (absoluteAddress & 0xFFFFFFF8)
-      if (this.TRANSMIT_DATA_BLOCKS[block] == undefined){
+      if (this.BOOTLOADER_DATA_BLOCKS[block] == undefined){
         // fill new block with FF's
-        this.TRANSMIT_DATA_BLOCKS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-        winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` })
+        this.BOOTLOADER_DATA_BLOCKS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block, 8)}` })
         this.assembledDataCount += 8
       }
-      this.TRANSMIT_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
+      this.BOOTLOADER_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
     }
   }
 
