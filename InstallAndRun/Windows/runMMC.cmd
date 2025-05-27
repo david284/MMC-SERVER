@@ -15,7 +15,7 @@ set INSTALL_DIR=C:\MMC
 REM  check to see if MMC-SERVER is up to date
 cd "%INSTALL_DIR%\MMC-SERVER"
 set cnt=0
-FOR /F %%i IN ('git fetch --dry-run origin main 2^>^&1') DO (
+FOR /F %%i IN ('git fetch --dry-run origin main 2^>^&1 ^| findstr /C:origin/main') DO (
 	set /a cnt=!cnt!+1
 )
 REM  check if not up to date
