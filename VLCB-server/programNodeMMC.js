@@ -94,14 +94,49 @@ class programNode extends EventEmitter  {
     this.decodeState = {}
     this.programState = STATE_NULL
     this.nodeCpuType = null
-    //this.calculatedHexChecksum = '0000'
-    this.assembledDataCount = 0
-    
-
     this.success = false
-    this.TxCount = 0
+    this.COMMAND_FLAGS = 0
 
-//    this.last_block_address = null
+    // event handler for responses from node
+    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function GDR (data) {
+      winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+      let cbusMsg = cbusLib.decode(data)
+      try {
+        if (cbusMsg.ID_TYPE == "X"){
+          winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
+          if (cbusMsg.operation == 'RESPONSE') {
+            if (cbusMsg.response == 0) {
+              winston.debug({message: 'programNode: Check NOT OK received: download failed'});
+              this.sendFailureToClient('Check NOT OK received: download failed')
+              this.programState = STATE_QUIT
+            }
+            if (cbusMsg.response == 1) {
+              this.ackReceived = true
+              if (this.programState == STATE_END_FIRMWARE){
+                winston.debug({message: 'programNode: Check OK received: Sending reset'});
+                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
+                await this.transmitCBUS(msg, 80)
+                this.success = true
+                // 'Success:' is a necessary string in the message to signal the client it's been successful
+                this.sendSuccessToClient('Success: programing completed')
+                this.programState = STATE_QUIT
+              } else {
+                winston.debug({message: 'programNode: ACK received'});
+              }
+            }
+            if (cbusMsg.response == 2) {
+              winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
+              if (this.programState != STATE_FIRMWARE){
+                await this.send_to_node(this.COMMAND_FLAGS)
+              }
+            }
+          }
+        }
+      } catch (err){
+        winston.debug({message: name + ': event handler: ' + err});
+      }
+    }.bind(this))
+
 
   } // end constructor
     
@@ -141,57 +176,20 @@ class programNode extends EventEmitter  {
     this.programState = STATE_START
     this.TxCount = 0
     this.dataCount = 0
+    this.assembledDataCount = 0
     this.COMMAND_FLAGS = FLAGS
     this.calculatedHexChecksum = '0000'
+    this.ackReceived = false
 
     // set any cpu dependent values
     this.setCpuType(CPUTYPE)
-
-    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
-      winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
-      let cbusMsg = cbusLib.decode(data)
-      try {
-        if (cbusMsg.ID_TYPE == "X"){
-          winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
-          if (cbusMsg.operation == 'RESPONSE') {
-            if (cbusMsg.response == 0) {
-              winston.debug({message: 'programNode: Check NOT OK received: download failed'});
-              this.sendFailureToClient('Check NOT OK received: download failed')
-              this.programState = STATE_QUIT
-            }
-            if (cbusMsg.response == 1) {
-              this.ackReceived = true
-              if (this.programState == STATE_END_FIRMWARE){
-                winston.debug({message: 'programNode: Check OK received: Sending reset'});
-                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
-                await this.transmitCBUS(msg, 80)
-                this.success = true
-                // 'Success:' is a necessary string in the message to signal the client it's been successful
-                this.sendSuccessToClient('Success: programing completed')
-                this.programState = STATE_QUIT
-              } else {
-                winston.debug({message: 'programNode: ACK received'});
-              }
-            }
-            if (cbusMsg.response == 2) {
-              winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
-              if (this.programState != STATE_FIRMWARE){
-                await this.send_to_node(FLAGS)
-              }
-            }
-          }
-        }
-      } catch (err){
-        winston.debug({message: name + ': program on data: ' + err});
-      }
-    }.bind(this))
 
     //
     //
     if (this.parseHexFile(INTEL_HEX_STRING)){
       winston.debug({message: 'programNode: parseHexFile success'})
 
-      if (FLAGS & 0x4) {
+      if (this.COMMAND_FLAGS & 0x4) {
         this.sendMessageToClient('CPUTYPE ignored')
       } else {
         if (this.checkCPUTYPE (CPUTYPE, this.FIRMWARE) != true) {
@@ -204,10 +202,10 @@ class programNode extends EventEmitter  {
 
       if (this.programState != STATE_QUIT){
         // not quiting, so proceed...
-        if (FLAGS & 0x8) {
+        if (this.COMMAND_FLAGS & 0x8) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
-          await this.send_to_node(FLAGS)
+          await this.send_to_node(this.COMMAND_FLAGS)
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
@@ -236,7 +234,8 @@ class programNode extends EventEmitter  {
       if(this.programState == STATE_QUIT) {break}
     }
     await utils.sleep(300)  // allow time for last messages to be sent
-  }
+    
+  } /// end program method
   
   //
   //
