@@ -38,6 +38,7 @@ const defaultLayoutData = {
   }
 
   const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
+  const bootloaderDataPath = path.join(__dirname, "..//", "logs", "bootloaderData.txt")
 
   //
   // Application settings are stored in the appSettings.json file
@@ -57,6 +58,7 @@ class configuration {
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
     this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
+    this.bootloaderDataLogStream = fs.createWriteStream(bootloaderDataPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
@@ -309,7 +311,7 @@ class configuration {
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
-  // busTraffic methods
+  // busTraffic & bootloader logging methods
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
 
@@ -323,6 +325,10 @@ class configuration {
     this.busTrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
 
+  writeBootloaderdata(data){
+    // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
+    this.bootloaderDataLogStream.write(data + "\r\n");
+  }
 
 
   //-----------------------------------------------------------------------------------------------

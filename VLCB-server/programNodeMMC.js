@@ -4,6 +4,7 @@ const net = require('net')
 const fs = require('fs');
 const readline = require('readline');
 const jsonfile = require('jsonfile')
+const path = require('path');
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
@@ -77,6 +78,7 @@ const STATE_FIRMWARE = 2
 const STATE_QUIT = 3
 const STATE_END_FIRMWARE = 4
 
+
 //
 //
 //
@@ -86,14 +88,15 @@ class programNode extends EventEmitter  {
     this.config = config
     this.FIRMWARE = {}
     this.NEWFIRMWARE = {}
-    this.TRANSMIT_ARRAYS = {}
+    this.TRANSMIT_DATA_BLOCKS = {}
     this.nodeNumber = null
     this.ackReceived = false
     this.decodeState = {}
     this.programState = STATE_NULL
     this.nodeCpuType = null
-    this.calculatedHexChecksum = '0000'
+    //this.calculatedHexChecksum = '0000'
     this.assembledDataCount = 0
+    
 
     this.success = false
     this.TxCount = 0
@@ -138,12 +141,14 @@ class programNode extends EventEmitter  {
     this.programState = STATE_START
     this.TxCount = 0
     this.dataCount = 0
+    this.COMMAND_FLAGS = FLAGS
+    this.calculatedHexChecksum = '0000'
 
     // set any cpu dependent values
     this.setCpuType(CPUTYPE)
 
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
-      winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+      winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
       let cbusMsg = cbusLib.decode(data)
       try {
         if (cbusMsg.ID_TYPE == "X"){
@@ -171,8 +176,7 @@ class programNode extends EventEmitter  {
             if (cbusMsg.response == 2) {
               winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
               if (this.programState != STATE_FIRMWARE){
-                //this.sendFirmwareNG(FLAGS)
-                this.send_to_node(FLAGS)
+                await this.send_to_node(FLAGS)
               }
             }
           }
@@ -203,8 +207,7 @@ class programNode extends EventEmitter  {
         if (FLAGS & 0x8) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
-          //this.sendFirmwareNG(FLAGS)
-          this.send_to_node(FLAGS)
+          await this.send_to_node(FLAGS)
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
@@ -247,33 +250,12 @@ class programNode extends EventEmitter  {
     winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
     await this.transmitCBUS(msgData, 80)
     
-    // always do flash
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
-    for (const block in this.TRANSMIT_ARRAYS) {
+    for (const block in this.TRANSMIT_DATA_BLOCKS) {
       //winston.info({message: `programNode: send_to_node: ${JSON.stringify(block)}` });
-      if ((block >= this.area_start.FLASH) && (block < this.area_start.CONFIG)){
-          await this.send_block(block, 'FLASH')
-      }
+      await this.send_block(block)
     }
 
-    //
-    if (FLAGS & FLAG_PROGRAM_CONFIG){
-      for (const block in this.TRANSMIT_ARRAYS) {
-        //winston.info({message: `programNode: send_to_node: ${block}` });
-        if ((block >= this.area_start.CONFIG) && (block < this.area_start.EEPROM)){
-          await this.send_block(block, 'CONFIG')
-        }
-      }
-    }
-    //
-    if (FLAGS & FLAG_PROGRAM_EEPROM){
-      for (const block in this.TRANSMIT_ARRAYS) {
-        //winston.info({message: `programNode: send_to_node: ${block}` });
-        if (block >= this.area_start.EEPROM){
-          await this.send_block(block, 'EEPROM')
-        }
-      }
-    }
     //
     this.programState = STATE_END_FIRMWARE
     
@@ -287,27 +269,28 @@ class programNode extends EventEmitter  {
 
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(this.calculatedHexChecksum.substr(2,2), 16), parseInt(this.calculatedHexChecksum.substr(0,2),16))
     await this.transmitCBUS(msgData, 60)
-    this.programState = STATE_QUIT
   }
 
   //
   //
-  async send_block(block_address, area){  
+  async send_block(block_address){  
+    let area = this.getArea(block_address)
     // be careful to ensure value is numeric before addition
     if (block_address != parseInt(this.last_block_address) + 8){
       await this.start_new_segment(block_address)
     }
     
-    let string = ""
-    for (let i=0; i<this.TRANSMIT_ARRAYS[block_address].length; i++ ){
-      string += utils.decToHex(this.TRANSMIT_ARRAYS[block_address][i],2) + ' '
+    let string = area + " : " + utils.decToHex(block_address,8) + " "
+    for (let i=0; i<this.TRANSMIT_DATA_BLOCKS[block_address].length; i++ ){
+      string += utils.decToHex(this.TRANSMIT_DATA_BLOCKS[block_address][i],2) + ' '
     }
-    winston.info({message: `programNode: send_to_node: ${area}: ${utils.decToHex(block_address,8)} ${string}` });
+    winston.info({message: `programNode: send_to_node: ${string}` });
+    this.config.writeBootloaderdata( string);
     this.last_block_address = block_address
 
-    this.calculatedHexChecksum = this.arrayChecksum(this.TRANSMIT_ARRAYS[block_address], this.calculatedHexChecksum)
+    this.calculatedHexChecksum = this.arrayChecksum(this.TRANSMIT_DATA_BLOCKS[block_address], this.calculatedHexChecksum)
 
-    var msgData = cbusLib.encode_EXT_PUT_DATA(this.TRANSMIT_ARRAYS[block_address])
+    var msgData = cbusLib.encode_EXT_PUT_DATA(this.TRANSMIT_DATA_BLOCKS[block_address])
     winston.debug({message: `programNode: sending ${area} data: ${msgData}` });
     await this.transmitCBUS(msgData, 60)
     this.dataCount += 8
@@ -328,6 +311,7 @@ class programNode extends EventEmitter  {
     var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
     winston.debug({message: 'programNode: sending segment address: ' + msgData});
     await this.transmitCBUS(msgData, 60)
+    this.config.writeBootloaderdata("new segment " + utils.decToHex(block, 8));
   }
 
   //
@@ -475,7 +459,7 @@ class programNode extends EventEmitter  {
   // will populate this.FIRMWARE
   //
   parseHexFile(intelHexString) {
-//    var firmware = {}       // ???
+    this.TRANSMIT_DATA_BLOCKS = {}
     this.FIRMWARE = {}
     this.decodeState = {}   // keeps state between calls to decodeLine
     var result = false      // end result
@@ -504,13 +488,13 @@ class programNode extends EventEmitter  {
       for (const area in this.NEWFIRMWARE) {
         winston.info({message: 'programNode: parseHexFile: NEWFIRMWARE: ' + area + ': length: ' + this.NEWFIRMWARE[area].length});
       } 
-      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_ARRAYS)}` });
-      for (const block in this.TRANSMIT_ARRAYS) {
+      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_DATA_BLOCKS)}` });
+      for (const block in this.TRANSMIT_DATA_BLOCKS) {
         let string = ""
-        for (let i=0; i<this.TRANSMIT_ARRAYS[block].length; i++ ){
-          string += utils.decToHex(this.TRANSMIT_ARRAYS[block][i],2) + ' '
+        for (let i=0; i<this.TRANSMIT_DATA_BLOCKS[block].length; i++ ){
+          string += utils.decToHex(this.TRANSMIT_DATA_BLOCKS[block][i],2) + ' '
         }
-        winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
+        //winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
       } 
     }
 
@@ -719,16 +703,54 @@ class programNode extends EventEmitter  {
   }
 
   // Build up the Transmit blocks structure
+  // but only use the area's requested (FLAGS)
   //
   processDataByteNG(absoluteAddress, dataByte){
-    let block = (absoluteAddress & 0xFFFFFFF8)
-    if (this.TRANSMIT_ARRAYS[block] == undefined){
-      // fill new block with FF's
-      this.TRANSMIT_ARRAYS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-      winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` })
-      this.assembledDataCount += 8
+    if (this.checkValidArea(absoluteAddress)){
+      let block = (absoluteAddress & 0xFFFFFFF8)
+      if (this.TRANSMIT_DATA_BLOCKS[block] == undefined){
+        // fill new block with FF's
+        this.TRANSMIT_DATA_BLOCKS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+        winston.debug({message: `programNode: processDataByteNG:  new block ${utils.decToHex(block, 8)}` })
+        this.assembledDataCount += 8
+      }
+      this.TRANSMIT_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
     }
-    this.TRANSMIT_ARRAYS[block][absoluteAddress & 7] = dataByte
+  }
+
+  //
+  //
+  checkValidArea(absoluteAddress){
+    // always do FLASH
+    if ((absoluteAddress >= this.area_start.FLASH) && (absoluteAddress < this.area_start.CONFIG)){
+      return true
+    }
+    if (this.COMMAND_FLAGS & FLAG_PROGRAM_CONFIG){
+      if ((absoluteAddress >= this.area_start.CONFIG) && (absoluteAddress < this.area_start.EEPROM)){
+        return true
+      }
+    }
+    if (this.COMMAND_FLAGS & FLAG_PROGRAM_EEPROM){
+      if (absoluteAddress >= this.area_start.EEPROM){
+        return true
+      }
+    }
+    return false
+  }
+
+  //
+  //
+  getArea(absoluteAddress){
+    if ((absoluteAddress >= this.area_start.FLASH) && (absoluteAddress < this.area_start.CONFIG)){
+      return 'FLASH'
+    }
+    if ((absoluteAddress >= this.area_start.CONFIG) && (absoluteAddress < this.area_start.EEPROM)){
+      return 'CONFIG'
+    }
+    if (absoluteAddress >= this.area_start.EEPROM){
+      return 'EEPROM'
+    }
+    return 'BOOT'
   }
 
   processDataByte(absoluteAddress, dataByte){
