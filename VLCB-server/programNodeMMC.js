@@ -183,6 +183,12 @@ class programNode extends EventEmitter  {
 
     // set any cpu dependent values
     this.setCpuType(CPUTYPE)
+    // can now use the values from setCpuType
+    this.config.writeBootloaderdata("****** Start download ******");
+    this.config.writeBootloaderdata("CPU TYPE    : " + this.nodeCpuType);
+    this.config.writeBootloaderdata("FLASH  Start: " + utils.decToHex(this.area_start.FLASH, 8));
+    this.config.writeBootloaderdata("CONFIG Start: " + utils.decToHex(this.area_start.CONFIG, 8));
+    this.config.writeBootloaderdata("EEPROM Start: " + utils.decToHex(this.area_start.EEPROM, 8));
 
     //
     //
@@ -195,6 +201,7 @@ class programNode extends EventEmitter  {
         if (this.checkCPUTYPE (CPUTYPE) != true) {
           winston.debug({message: 'programNode: >>>>>>>>>>>>> cpu check: FAILED'})
           this.sendFailureToClient('CPU mismatch')
+          this.config.writeBootloaderdata('>>>>>> CPU mismatch');
           this.programState = STATE_QUIT
         }
       }
@@ -223,6 +230,7 @@ class programNode extends EventEmitter  {
       // failed parseHexFile
       winston.warn({message: name + ': parseFileHex failed:'});
       this.sendFailureToClient('Failed: file parsing failed')
+      this.config.writeBootloaderdata('>>>>>> file parsing failed');
       this.programState = STATE_QUIT
     } // end if parseHexFileA...
 
@@ -234,7 +242,7 @@ class programNode extends EventEmitter  {
       if(this.programState == STATE_QUIT) {break}
     }
     await utils.sleep(300)  // allow time for last messages to be sent
-    this.config.writeBootloaderdata("****** End download ******");
+    this.config.writeBootloaderdata("====== End download ======");
 
   } /// end program method
   
@@ -244,13 +252,6 @@ class programNode extends EventEmitter  {
     winston.info({message: `programNode: send_to_node: ${FLAGS}` });
     this.programState = STATE_FIRMWARE
     this.last_block_address = null
-
-    this.config.writeBootloaderdata("****** Start download ******");
-    this.config.writeBootloaderdata("CPU TYPE    : " + this.nodeCpuType);
-    this.config.writeBootloaderdata("FLASH  Start: " + utils.decToHex(this.area_start.FLASH, 8));
-    this.config.writeBootloaderdata("CONFIG Start: " + utils.decToHex(this.area_start.CONFIG, 8));
-    this.config.writeBootloaderdata("EEPROM Start: " + utils.decToHex(this.area_start.EEPROM, 8));
-
 
     // start with SPCMD_INIT_CHK
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
@@ -319,7 +320,7 @@ class programNode extends EventEmitter  {
     var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
     winston.debug({message: 'programNode: sending segment address: ' + msgData});
     await this.transmitCBUS(msgData, 60)
-    this.config.writeBootloaderdata(">> New segment " + utils.decToHex(block, 8));
+    this.config.writeBootloaderdata("++++++ New segment " + utils.decToHex(block, 8));
   }
 
   //
@@ -370,17 +371,6 @@ class programNode extends EventEmitter  {
 
     winston.info({message: name + ': parseHexFile: result: ' + result});
     if (result){
-
-      /*
-      for (const area in this.FIRMWARE) {
-        for (const block in this.FIRMWARE[area]) {
-          winston.info({message: 'programNode: parseHexFile: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 8) + ' length: ' + this.FIRMWARE[area][block].length});
-        }
-      } 
-      for (const area in this.NEWFIRMWARE) {
-        winston.info({message: 'programNode: parseHexFile: NEWFIRMWARE: ' + area + ': length: ' + this.NEWFIRMWARE[area].length});
-      } 
-      */
 
       winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.TRANSMIT_DATA_BLOCKS)}` });
       for (const block in this.TRANSMIT_DATA_BLOCKS) {
@@ -534,10 +524,8 @@ class programNode extends EventEmitter  {
         for (let i =0; i < data.length/2; i++){
           var absoluteAddress = this.decodeState.LBA + OFFSET + i
           var dataByte = parseInt(data[i*2]+data[i*2+1], 16)
-          this.processDataByte(absoluteAddress, dataByte)
           this.processDataByteNG(absoluteAddress, dataByte)
         }
-        //winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
         break;
       case 1:
         winston.debug({message: 'programNode: line decode: End of File Record:'});
@@ -551,18 +539,8 @@ class programNode extends EventEmitter  {
       case 4:
         winston.debug({message: 'programNode: line decode: Extended Linear Address Record:'});
         this.decodeState.LBA = parseInt(data, 16)<<16 + OFFSET
-        // get the area for this
-        this.decodeState.area = this.getArea(this.decodeState.LBA, this.nodeCpuType)
-        // don't overite an existing area
-        if (this.FIRMWARE[this.decodeState.area] == undefined) {
-          this.FIRMWARE[this.decodeState.area] = {} 
-        }
-        this.decodeState.blockAddress = this.decodeState.LBA       // reset block address
-        this.decodeState.blockAddressPtr = 0                        // reset pointer
-        this.decodeState.blockPaddingPtr = 0
         winston.debug({message: 'programNode: line decode: LBA: ' 
           + utils.decToHex(this.decodeState.LBA,8)
-          + ' area ' + this.decodeState.area
         });
         break;
       case 5:
@@ -570,17 +548,6 @@ class programNode extends EventEmitter  {
         break;
       default:
     }
-
-//    winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + JSON.stringify(this.FIRMWARE)});
-
-  /*
-    for (const area in this.FIRMWARE) {
-      for (const block in this.FIRMWARE[area]) {
-        winston.debug({message: name + ': decodeLineNG: FIRMWARE: ' + area + ': ' + utils.decToHex(block, 6) + ' length: ' + this.FIRMWARE[area][block].length});
-      }
-    } 
-  */
-
     return true
   }
 
@@ -621,113 +588,6 @@ class programNode extends EventEmitter  {
   }
 
   //
-  //
-  getArea(absoluteAddress){
-    if ((absoluteAddress >= this.area_start.FLASH) && (absoluteAddress < this.area_start.CONFIG)){
-      return 'FLASH'
-    }
-    if ((absoluteAddress >= this.area_start.CONFIG) && (absoluteAddress < this.area_start.EEPROM)){
-      return 'CONFIG'
-    }
-    if (absoluteAddress >= this.area_start.EEPROM){
-      return 'EEPROM'
-    }
-    return 'BOOT'
-  }
-
-  processDataByte(absoluteAddress, dataByte){
-    //winston.debug({message: `programNode: processDataByte:  ${utils.decToHex(absoluteAddress, 8)} data ${utils.decToHex(dataByte, 2)}` }) 
-
-    let area = this.getArea(absoluteAddress, this.nodeCpuType)
-    if (this.NEWFIRMWARE.area == undefined){this.NEWFIRMWARE[area] = []}
-    let area_offset  = absoluteAddress-this.area_start[area]
-    this.NEWFIRMWARE[area][area_offset] = dataByte
-    //winston.debug({message: `programNode: processDataByte:  ${area} ${area_offset} data ${this.NEWFIRMWARE[area][area_offset]}` }) 
-
-    this.setCurrentBlock(absoluteAddress)
-    // pointer may have changed, so check padding
-    this.checkPadding()
-
-    //
-    // now lets write the data into the FIRMWARE array
-    // we want to write it into the firmware block, at an offset from the block start
-    // so we need to subtract the block address from the input data absolute address
-    // and set the pointer to that value
-    // pointer will have changed, so check padding
-    //
-    this.decodeState.blockAddressPtr = absoluteAddress - this.decodeState.blockAddress
-    this.checkPadding()
-    this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][this.decodeState.blockAddressPtr++] = dataByte
-
-/*    
-    winston.debug({message: 'programNode: write DataByte: ' + utils.decToHex(dataByte, 2) 
-      + ' absolute ' + utils.decToHex(absoluteAddress, 8)
-      + ' to block  ' + utils.decToHex(this.decodeState.blockAddress, 8)
-      + ' + ptr ' + utils.decToHex(this.decodeState.blockAddressPtr, 8)
-    }) 
-*/
-
-  }
-
-  //
-  // Need to check if input absoluteAddress is within the scope of the current block
-  // or do we need to start a new block
-  // we set 16 bytes of padding, on a 16 byte boundary
-  // scope of block is this set of padding, and next set of padding, hence adding 31 bytes
-  // special case when 0x800 boundary is reached
-  //
-  setCurrentBlock(absoluteAddress){
-    var targetAbsoluteAddress = this.decodeState.blockAddress + this.decodeState.blockAddressPtr
-    var targetChunk = (targetAbsoluteAddress & 0xFFFFFFF0) + 31
-
-    if ((targetAbsoluteAddress <= 0x800) & (absoluteAddress >= 0x800)){
-      // need new area & block starting at 0x800
-      this.decodeState.area = 'FLASH'
-      this.decodeState.blockAddress = 0x800
-      this.decodeState.blockAddressPtr = 0
-      this.decodeState.blockPaddingPtr = 0
-      winston.debug({message: 'programNode: line decode: New block at 0x800 : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
-    } 
-    else if (absoluteAddress > targetChunk) {
-      // need new block
-      this.decodeState.blockAddress = absoluteAddress & 0xFFFFFFF0
-      this.decodeState.blockAddressPtr = 0
-      this.decodeState.blockPaddingPtr = 0
-      winston.debug({message: 'programNode: line decode: New block : ' + utils.decToHex(this.decodeState.blockAddress, 8)});
-    }
-
-    // ensure block exists in FIRMWARE structure, it may be a new one
-    if (this.FIRMWARE[this.decodeState.area] == undefined) {
-      this.FIRMWARE[this.decodeState.area] = {} 
-    }
-    if (this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] == undefined) {
-      this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress] = [] 
-    }
-
-  }
-
-  //
-  // Need to check if we need to add anymore padding
-  // The block should already have been set, so we only need to worry about the pointers
-  // blockAddressPtr points to the next index to be written
-  // blockPaddingPtr points to the next index after the end of the paddding
-  // if blockAddressPtr < blockPaddingPtr, we're going to write inside the padding, so all good
-  // if blockAddressPtr >= blockPaddingPtr, we need to extedn the padding
-  // we'll call this everytime the pointer is changed to ensure we're upto date
-  // with the padding, and don't overwrite anything already written 
-  //
-  checkPadding(){
-    if(this.decodeState.blockAddressPtr >= this.decodeState.blockPaddingPtr) {
-      var startIndex = this.decodeState.blockAddressPtr & 0xFFFFFFF0
-      for (let i =0; i < 16; i++){
-        this.FIRMWARE[this.decodeState.area][this.decodeState.blockAddress][startIndex + i] = 0xFF 
-      }
-      // set pointer to next index after padding
-      this.decodeState.blockPaddingPtr = startIndex + 16
-    }
-  }
-
-  //
   // work out which area the absolute address is in
   //
   getArea(absoluteAddress){
@@ -740,6 +600,5 @@ class programNode extends EventEmitter  {
   }
 
 };
-
 
 module.exports = (config) => { return new programNode(config) } 

@@ -406,7 +406,7 @@ describe('programNode tests', async function(){
     //
     // use wrong cpu type, and short file
     //
-  itParam.only("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
+  itParam("CPUTYPE test ${JSON.stringify(value)}", GetTestCase_CPU_TYPE(), async function (value) {
 		winston.info({message: 'UNIT_TEST: BEGIN: CPUTYPE file:' + JSON.stringify(value)});
     programNode.on('programNode_progress', function (data) {
 			downloadData = data;
