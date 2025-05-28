@@ -35,7 +35,7 @@ See the [Git Cloning](GitCloning.md) page for more about cloning a repository
 In the folder where MMC is cloned or copied locally, at the command line run 'npm install' to load all dependancies - this may take a little while, so please be patient
 
 ### Windows
-There is a dedicated [Windows install stript](InstallAndRun/Windows/installMMC.cmd). You may download this to your local machine and "Run as Administrator". After confirming the execution at the Windows prompts the script will check and install NodeJS, Git and MMC. It will also create MMC link icons on the Desktop and in the start menu.
+There is a dedicated [Windows install stript](InstallAndRun/Windows/installMMC.cmd). You may download this to your local machine and "Run as Administrator". After confirming the execution at the Windows prompts the script will check and install NodeJS, Git and MMC. It will also create MMC link icons on the Desktop and in the start menu to run MMC.
 
 ## Connection
 On startup, a dialog will be displayed, expecting a layout to be selected before the 'proceed' option can be clicked
