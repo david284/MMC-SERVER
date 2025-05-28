@@ -35,7 +35,7 @@ const SPCMD_INIT_CHK  = 2
 const SPCMD_CHK_RUN   = 3
 const SPCMD_BOOT_TEST = 4
 
-// FLAGS
+// COMMAND_FLAGS
 const FLAG_PROGRAM_CONFIG = 1
 const FLAG_PROGRAM_EEPROM = 2
 const FLAG_IGNORE_CPUTYPE = 4
@@ -50,18 +50,23 @@ const FLAG_PROGRAM_IN_BOOTMODE = 8
 
 // Sequence of operation
 //
-//  put into bootmode
+//  parse hex file into bootloader 'blocks' structure
+//  these blocks match the 8 byte messages to be sent using CBUS
+//  but only do so for requested 'areas' (e.g. FLASH, CONFIG etc..)
+//  ignore any bytes if not in requested areas
+//  so all blocks now created are expected to be programmed
+//
+//  put node into bootmode
 //  send check_boot - SPCMD_BOOT_TEST (4)
 //  expect response 2 - start send firmware process (||)
 //
-//  || set programState = STATE_FIRMWARE
+//  || set programState = STATE_SEND_DATA
 //  || send intial control message SPCMD_INIT_CHK (2) with address 0000 & CONTROL_BITS
-//  || then for each block.... always starting at block 000800
-//  || send control message SPCMD_NOP (0) with block address & CONTROL_BITS
-//  || send all data messages for that block
-//  || if more blocks, send control with new block address & then data...
-//  || when all data sent...
-//  || set programState = STATE_END_FIRMWARE
+//  || then for each block.... check if continuous with previous block
+//  || if not, send control message SPCMD_NOP (0) with block address & CONTROL_BITS
+//  || then send next block...
+//  || when all blocks sent
+//  || set programState = STATE_END_SEND_DATA
 //  || send control message SPCMD_CHK_RUN with check sum 
 //
 //  expect response message to SPCMD_CHK_RUN (now sendingFirmware == false)
@@ -74,9 +79,9 @@ const FLAG_PROGRAM_IN_BOOTMODE = 8
 
 const STATE_NULL = 0
 const STATE_START = 1
-const STATE_FIRMWARE = 2
-const STATE_QUIT = 3
-const STATE_END_FIRMWARE = 4
+const STATE_SEND_DATA = 2
+const STATE_END_SEND_DATA = 3
+const STATE_QUIT = 4
 
 
 //
@@ -87,7 +92,6 @@ class programNode extends EventEmitter  {
     super()
     this.config = config
     this.BOOTLOADER_DATA_BLOCKS = {}
-    this.nodeNumber = null
     this.ackReceived = false
     this.programState = STATE_NULL
     this.nodeCpuType = null
@@ -95,7 +99,8 @@ class programNode extends EventEmitter  {
     this.COMMAND_FLAGS = 0
 
     // event handler for responses from node
-    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function GDR (data) {
+    // in constructor so only one instance created
+    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
       winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
       let cbusMsg = cbusLib.decode(data)
       try {
@@ -109,7 +114,7 @@ class programNode extends EventEmitter  {
             }
             if (cbusMsg.response == 1) {
               this.ackReceived = true
-              if (this.programState == STATE_END_FIRMWARE){
+              if (this.programState == STATE_END_SEND_DATA){
                 winston.debug({message: 'programNode: Check OK received: Sending reset'});
                 var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
                 await this.transmitCBUS(msg, 80)
@@ -123,7 +128,7 @@ class programNode extends EventEmitter  {
             }
             if (cbusMsg.response == 2) {
               winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
-              if (this.programState != STATE_FIRMWARE){
+              if (this.programState != STATE_SEND_DATA){
                 await this.send_to_node(this.COMMAND_FLAGS)
               }
             }
@@ -134,10 +139,10 @@ class programNode extends EventEmitter  {
       }
     }.bind(this))
 
-
   } // end constructor
     
   // sets any cpu dependent values at run time
+  // separate method so can be called from unit tests
   //
   setCpuType(cpuType){
     this.nodeCpuType = cpuType
@@ -147,12 +152,8 @@ class programNode extends EventEmitter  {
       "CONFIG":0x300000,
       "EEPROM":0xF00000
     }
-    // modify EEPROM_START for certain cpu's
-    if (this.nodeCpuType == 23){
-      this.EEPROM_START = 0x380000        // start for 18F27Q83
-      this.area_start.EEPROM = 0x380000
-    }
-    winston.info({message: name + `:  area_start.EEPROM ${this.area_start.EEPROM}`})
+    // modify EEPROM START for certain cpu's
+    if (this.nodeCpuType == 23){ this.area_start.EEPROM = 0x380000 }         // start for 18F27Q83
   }
 
   /** actual download function
@@ -192,7 +193,7 @@ class programNode extends EventEmitter  {
     if (this.parseHexFile(INTEL_HEX_STRING)){
       winston.debug({message: 'programNode: parseHexFile success'})
 
-      if (this.COMMAND_FLAGS & 0x4) {
+      if (this.COMMAND_FLAGS & FLAG_IGNORE_CPUTYPE) {
         this.sendMessageToClient('CPUTYPE ignored')
       } else {
         if (this.checkCPUTYPE (CPUTYPE) != true) {
@@ -206,7 +207,7 @@ class programNode extends EventEmitter  {
 
       if (this.programState != STATE_QUIT){
         // not quiting, so proceed...
-        if (this.COMMAND_FLAGS & 0x8) {
+        if (this.COMMAND_FLAGS & FLAG_PROGRAM_IN_BOOTMODE) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
           await this.send_to_node(this.COMMAND_FLAGS)
@@ -247,7 +248,7 @@ class programNode extends EventEmitter  {
   //
   async send_to_node(FLAGS){
     winston.info({message: `programNode: send_to_node: ${FLAGS}` });
-    this.programState = STATE_FIRMWARE
+    this.programState = STATE_SEND_DATA
     this.last_block_address = null
 
     // start with SPCMD_INIT_CHK
@@ -262,7 +263,7 @@ class programNode extends EventEmitter  {
     }
 
     //
-    this.programState = STATE_END_FIRMWARE
+    this.programState = STATE_END_SEND_DATA
     
     // Verify Checksum
     // 00049272: Send: :X00080004N000000000D034122;
