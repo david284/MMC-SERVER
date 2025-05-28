@@ -257,7 +257,12 @@
     },
     "A556": {
       "name": "CANSMARTTD"
+    },
+    "A557": {
+      "name": "CANARGB"
     }
+
+    
 
   },
   "cbusErrors": {
