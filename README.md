@@ -27,15 +27,15 @@ Useful guide to installing NodeJS ->https://www.pluralsight.com/resources/blog/g
 Get Node.js from -> https://nodejs.org/en/download/package-manager/
 
 ## Installation:
+### All Platforms
 Once Node.js is installed, clone the application, or take the zip file, & extract to your location of choice   
 Use the green 'code' button near the top of this page
 See the [Git Cloning](GitCloning.md) page for more about cloning a repository
 
 In the folder where MMC is cloned or copied locally, at the command line run 'npm install' to load all dependancies - this may take a little while, so please be patient
 
-On windows, once installed, if you then get npm failing to run (I get mixed '\' and '/' trying to load files),  you may need to "Set the npm run shell" by running the following
-	npm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"   
-Original source for this fix -> https://digipie.github.io/digidocs/nodejs/set-npm-run-shell/
+### Windows
+There is a dedicated [Windows install stript](InstallAndRun/Windows/installMMC.cmd). You may download this to your local machine and "Run as Administrator". After confirming the execution at the Windows prompts the script will check and install NodeJS, Git and MMC. It will also create MMC link icons on the Desktop and in the start menu to run MMC.
 
 ## Connection
 On startup, a dialog will be displayed, expecting a layout to be selected before the 'proceed' option can be clicked
