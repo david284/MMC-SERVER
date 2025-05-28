@@ -538,15 +538,23 @@ class programNode extends EventEmitter  {
 
   // Build up the Bootloader blocks structure
   // but only use the area's requested (FLAGS)
+  // the 8 byte block directly maps onto the bootloader messages
+  // Pairs of blocks are always created, as the PIC bootloader needs 16 bytes
   //
   processDataByte(absoluteAddress, dataByte){
+    //winston.debug({message: `programNode: processDataByte: ${utils.decToHex(absoluteAddress, 8)} ${utils.decToHex(dataByte, 2)}` })
     if (this.checkValidArea(absoluteAddress)){
-      let block = (absoluteAddress & 0xFFFFFFF8)
+      let block = (absoluteAddress & 0xFFFFFFF8)  // claculate 8 byte block start address
       if (this.BOOTLOADER_DATA_BLOCKS[block] == undefined){
+        // do a pair of 8 bytes blocks - 16 bytes
+        let block1 = (absoluteAddress & 0xFFFFFFF0)
+        let block2 = (absoluteAddress & 0xFFFFFFF0) + 8
         // fill new block with FF's
-        this.BOOTLOADER_DATA_BLOCKS[block] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block, 8)}` })
-        this.assembledDataCount += 8
+        this.BOOTLOADER_DATA_BLOCKS[block1] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+        this.BOOTLOADER_DATA_BLOCKS[block2] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block1, 8)}` })
+        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block2, 8)}` })
+        this.assembledDataCount += 16
       }
       this.BOOTLOADER_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
     }
