@@ -6,7 +6,6 @@ const EventEmitter = require('events').EventEmitter;
 //const SerialPort = require("chrome-apps-serialport").SerialPort;
 const { SerialPort } = require("serialport");
 const { MockBinding } = require('@serialport/binding-mock')
-let cbusLib = require('cbuslibrary')
 
 
 /*
@@ -80,8 +79,7 @@ class serialGC  extends EventEmitter {
           //winston.debug({message: name + `: ${targetSerialPort} Rx ${messageArray[i]};`})
           let message = this.getValidMessage(messageArray[i]);    // rebuild message as string
           if (message) {
-              let cbusMsg = cbusLib.decode(message)
-              winston.info({message: name + `: ${targetSerialPort} RX <- ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+              winston.debug({message: name + `: ${this.targetSerialPort} RX <- ${message}`})
               this.emit('data', message)
           }
         }
@@ -107,8 +105,7 @@ class serialGC  extends EventEmitter {
       for (let i = 0; i < outMsg.length - 1; i++) {
         let message = this.getValidMessage(outMsg[i]);    // rebuild message as string
         if (message) {
-          let cbusMsg = cbusLib.decode(message)
-          winston.info({message: name + `: ${this.targetSerialPort} TX -> ${message} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`})
+          winston.debug({message: name + `: ${this.targetSerialPort} TX -> ${message}`})
           this.serialPort.write(message)
           //winston.debug({message: name + `: ${this.targetSerialPort} Tx ${message}`})
         }
