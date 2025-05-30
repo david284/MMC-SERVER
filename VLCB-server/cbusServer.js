@@ -219,7 +219,9 @@ class cbusServer {
         // Don't want to send it to sender
         if (client === sender)
             return
-        if (data.length > 8) {
+        if (data.length >= 8) {
+          // 12345678
+          // :S0000N;
             client.write(data)
             //winston.info({message: `CbusServer Broadcast : ${data.toString()}`})
         } else {
