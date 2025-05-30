@@ -129,7 +129,7 @@ class programNode extends EventEmitter  {
             if (cbusMsg.response == 2) {
               winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
               if (this.programState != STATE_SEND_DATA){
-                await this.send_to_node(this.COMMAND_FLAGS)
+                await this.send_bootloader_data(this.COMMAND_FLAGS)
               }
             }
           }
@@ -210,7 +210,7 @@ class programNode extends EventEmitter  {
         if (this.COMMAND_FLAGS & FLAG_PROGRAM_IN_BOOTMODE) {
           // already in boot mode, so proceed with download
           winston.debug({message: 'programNode: already in BOOT MODE: starting download'});
-          await this.send_to_node(this.COMMAND_FLAGS)
+          await this.send_bootloader_data(this.COMMAND_FLAGS)
         } else {
           // set boot mode
           var msg = cbusLib.encodeBOOTM(NODENUMBER)
@@ -246,8 +246,8 @@ class programNode extends EventEmitter  {
   
   //
   //
-  async send_to_node(FLAGS){
-    winston.info({message: `programNode: send_to_node: ${FLAGS}` });
+  async send_bootloader_data(FLAGS){
+    winston.info({message: `programNode: send_bootloader_data: ${FLAGS}` });
     this.programState = STATE_SEND_DATA
     this.last_block_address = null
 
@@ -258,7 +258,7 @@ class programNode extends EventEmitter  {
     
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
     for (const block in this.BOOTLOADER_DATA_BLOCKS) {
-      //winston.info({message: `programNode: send_to_node: ${JSON.stringify(block)}` });
+      //winston.info({message: `programNode: send_bootloader_data: ${JSON.stringify(block)}` });
       await this.send_block(block)
     }
 
@@ -291,7 +291,7 @@ class programNode extends EventEmitter  {
     for (let i=0; i<this.BOOTLOADER_DATA_BLOCKS[block_address].length; i++ ){
       string += utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[block_address][i],2) + ' '
     }
-    winston.info({message: `programNode: send_to_node: ${string}` });
+    winston.info({message: `programNode: send_bootloader_data: ${string}` });
     this.config.writeBootloaderdata( string);
     this.last_block_address = block_address
 
@@ -314,7 +314,7 @@ class programNode extends EventEmitter  {
   //
   //
   async start_new_segment(block){
-    winston.info({message: `programNode: send_to_node: new data segment: ${utils.decToHex(block, 8)}` });
+    winston.info({message: `programNode: send_bootloader_data: new data segment: ${utils.decToHex(block, 8)}` });
     var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
     winston.debug({message: 'programNode: sending segment address: ' + msgData});
     await this.transmitCBUS(msgData, 60)
@@ -346,6 +346,7 @@ class programNode extends EventEmitter  {
 
   //
   // returns true or false
+  // populates BOOTLOADER_DATA_BLOCKS structure
   //
   parseHexFile(intelHexString) {
     this.BOOTLOADER_DATA_BLOCKS = {}
@@ -374,7 +375,7 @@ class programNode extends EventEmitter  {
         for (let i=0; i<this.BOOTLOADER_DATA_BLOCKS[block].length; i++ ){
           string += utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[block][i],2) + ' '
         }
-        winston.info({message: `programNode: parseHexFile: TRANSMIT_ARRAYS: ${utils.decToHex(block,8)} ${string}` });
+        winston.debug({message: `programNode: parseHexFile: BOOTLOADER_DATA_BLOCK: ${utils.decToHex(block,8)} ${string}` });
       } 
     }
 

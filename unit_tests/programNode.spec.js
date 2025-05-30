@@ -185,8 +185,8 @@ describe('programNode tests', async function(){
   //
   // Use real hex file to ensure correct operation
   //
-  it('send_to_node test', function(done) {
-    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: send_to_node test:'});
+  it('send_bootloader_data test', function(done) {
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: send_bootloader_data test:'});
     programNode.setCpuType(23)
     programNode.BOOTLOADER_DATA_BLOCKS[0] = [1, 2, 3, 4, 5, 6, 7, 8]
     programNode.BOOTLOADER_DATA_BLOCKS[0x820] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
@@ -194,12 +194,12 @@ describe('programNode tests', async function(){
     programNode.BOOTLOADER_DATA_BLOCKS[0x800] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
     programNode.BOOTLOADER_DATA_BLOCKS[0x300000] = [0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28]
     programNode.BOOTLOADER_DATA_BLOCKS[0xF00000] = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38]
-    result = programNode.send_to_node(1)
+    result = programNode.send_bootloader_data(1)
     // as we're testing this function outside the event handling, allow some time for events to be received
     // before moving onto next test
     setTimeout(() => {
       //expect(result).to.equal(true);
-      winston.info({message: 'UNIT_TEST: <<<<<< END: send_to_node test:'});
+      winston.info({message: 'UNIT_TEST: <<<<<< END: send_bootloader_data test:'});
       done();
     }, 100)
   });
