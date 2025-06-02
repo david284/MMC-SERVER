@@ -1,0 +1,112 @@
+{
+  "timestamp": "202505290839",
+  "moduleName" : "CAN4IN4OUT",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 1,
+      "displayTitle" : "Switch 1",
+      "options": [
+        {"label": "None", "value": 0},
+        {"label": "On/Off", "value": 1},
+        {"label": "On only", "value": 2},
+        {"label": "Off only", "value": 3},
+        {"label": "Toggle", "value": 4}
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 2,
+      "displayTitle" : "Switch 2",
+      "options": [
+        {"label": "None", "value": 0},
+        {"label": "On/Off", "value": 1},
+        {"label": "On only", "value": 2},
+        {"label": "Off only", "value": 3},
+        {"label": "Toggle", "value": 4}
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 3,
+      "displayTitle" : "Switch 3",
+      "options": [
+        {"label": "None", "value": 0},
+        {"label": "On/Off", "value": 1},
+        {"label": "On only", "value": 2},
+        {"label": "Off only", "value": 3},
+        {"label": "Toggle", "value": 4}
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 4,
+      "displayTitle" : "Switch 4",
+      "options": [
+        {"label": "None", "value": 0},
+        {"label": "On/Off", "value": 1},
+        {"label": "On only", "value": 2},
+        {"label": "Off only", "value": 3},
+        {"label": "Toggle", "value": 4}
+      ]
+    }
+  ],
+  "eventVariables":[
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 1,
+      "displayTitle": "Consumer/Producer",
+      "options": [
+        {"label": "Consumer", "value": 0},
+        {"label": "Switch 1", "value": 1},
+        {"label": "Switch 2", "value": 2},
+        {"label": "Switch 3", "value": 3},
+        {"label": "Switch 4", "value": 4}
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 2,
+      "displayTitle": "LED 1",
+      "options": [
+        {"label": "No Action", "value": 0},
+        {"label": "Normal", "value": 1},
+        {"label": "Slow Blink", "value": 2},
+        {"label": "Fast Blink", "value": 3}
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 3,
+      "displayTitle": "LED 2",
+      "options": [
+        {"label": "No Action", "value": 0},
+        {"label": "Normal", "value": 1},
+        {"label": "Slow Blink", "value": 2},
+        {"label": "Fast Blink", "value": 3}
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 4,
+      "displayTitle": "LED 3",
+      "options": [
+        {"label": "No Action", "value": 0},
+        {"label": "Normal", "value": 1},
+        {"label": "Slow Blink", "value": 2},
+        {"label": "Fast Blink", "value": 3}
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 5,
+      "displayTitle": "LED 4",
+      "options": [
+        {"label": "No Action", "value": 0},
+        {"label": "Normal", "value": 1},
+        {"label": "Slow Blink", "value": 2},
+        {"label": "Fast Blink", "value": 3}
+      ]
+    }
+  ]
+}
