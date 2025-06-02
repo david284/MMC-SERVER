@@ -1477,6 +1477,7 @@ class cbusAdmin extends EventEmitter {
   sendACON(nodeNumber, eventNumber) {
     try{
       this.CBUS_Queue.push(cbusLib.encodeACON(nodeNumber, eventNumber))
+      this.eventSend(nodeNumber, eventNumber, 'on', 'long')
     } catch (err) {
       winston.error({message: name + `: sendACON: ${err}`});
     }
@@ -1487,6 +1488,7 @@ class cbusAdmin extends EventEmitter {
   sendACOF(nodeNumber, eventNumber) {
     try{
       this.CBUS_Queue.push(cbusLib.encodeACOF(nodeNumber, eventNumber))
+      this.eventSend(nodeNumber, eventNumber, 'off', 'long')
     } catch (err) {
       winston.error({message: name + `: sendACOF: ${err}`});
     }
@@ -1507,6 +1509,7 @@ class cbusAdmin extends EventEmitter {
   sendASON(nodeNumber, deviceNumber) {
     try{
       this.CBUS_Queue.push(cbusLib.encodeASON(nodeNumber, deviceNumber))
+      this.eventSend(nodeNumber, deviceNumber, 'on', 'short')
     } catch (err) {
       winston.error({message: name + `: sendASON: ${err}`});
     }
@@ -1517,6 +1520,7 @@ class cbusAdmin extends EventEmitter {
   sendASOF(nodeNumber, deviceNumber) {
     try{
       this.CBUS_Queue.push(cbusLib.encodeASOF(nodeNumber, deviceNumber))
+      this.eventSend(nodeNumber, deviceNumber, 'off', 'short')
     } catch (err) {
       winston.error({message: name + `: sendASOF: ${err}`});
     }
