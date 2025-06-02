@@ -1,5 +1,11 @@
 Version 0.9.2
+  Major restructing of node programming
+    - now supports download of CANCOMPUTE rule set hex files
+    - progress display is now a % of the whole amount being programmed, not each segment as before
+    - Creates a log file 'bootloaderData.text' with the data sent to the node
   Updated client to fix problem with warning in raw variables on entering '0'
+  Added CAN4IN4OUT-0D52-1a.json MDF
+  Added module ID for CANARGB
 
 version 0.9.1
   Client changes to variableBitArray to reduce vertical spacing
