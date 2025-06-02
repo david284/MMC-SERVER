@@ -1,3 +1,6 @@
+Version 0.9.2
+  Updated client to fix problem with warning in raw variables on entering '0'
+
 version 0.9.1
   Client changes to variableBitArray to reduce vertical spacing
   Client changes to main layout to reduce whitespace & avoid excess vertical scroll bars
