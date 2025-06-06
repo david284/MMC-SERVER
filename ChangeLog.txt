@@ -1,3 +1,8 @@
+Version 0.9.3
+  Added 'named' option to event view modes (all, short, long)
+   - this option will only display events that have been named by the User
+  Made the node view option (spli, full) sticky, so it's remembered after changing views
+
 Version 0.9.2
   Major restructing of node programming
     - now supports download of CANCOMPUTE rule set hex files
