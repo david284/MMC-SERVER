@@ -52,18 +52,18 @@ class cbusAdmin extends EventEmitter {
     this.opcodeTracker = {}
 
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
-      winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+      winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${data}`})
       try{
         this.lastCbusTrafficTime = Date.now()     // store this time stamp
         let cbusMsg = cbusLibrary.decode(data)
-        winston.info({message: name + `:  GRID_CONNECT_RECEIVE ${cbusMsg.text}`})
+        winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${cbusMsg.text}`})
         //
         this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
         if (this.isMessageValid(cbusMsg)){
           this.action_message(cbusMsg)
         }
       } catch (err) {
-        winston.error({message: name + `:  GRID_CONNECT_RECEIVE: ${err}`})
+        winston.error({message: name + `: GRID_CONNECT_RECEIVE: ${err}`})
       }
     }.bind(this))
 
@@ -791,8 +791,8 @@ class cbusAdmin extends EventEmitter {
         this.QNN_sent_time = Date.now()   // gets milliseconds now
         this.lastMessageWasQNN = true
       }
-      winston.info({message: name + `:  GRID_CONNECT_SEND ${GCmsg}`})
-      winston.info({message: name + `:  GRID_CONNECT_SEND ${cbusMSG.text}`})
+      winston.debug({message: name + `: GRID_CONNECT_SEND ${GCmsg}`})
+      winston.debug({message: name + `: GRID_CONNECT_SEND ${cbusMSG.text}`})
       this.config.eventBus.emit ('GRID_CONNECT_SEND', GCmsg)
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
       //

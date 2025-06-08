@@ -80,7 +80,7 @@ const FLAG_PROGRAM_IN_BOOTMODE = 8
 const STATE_NULL = 0
 const STATE_START = 1
 const STATE_SEND_DATA = 2
-const STATE_END_SEND_DATA = 3
+const STATE_CHECK = 3
 const STATE_QUIT = 4
 
 
@@ -101,33 +101,35 @@ class programNode extends EventEmitter  {
     // event handler for responses from node
     // in constructor so only one instance created
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
-      winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
+      //winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${data}`})
       let cbusMsg = cbusLib.decode(data)
       try {
         if (cbusMsg.ID_TYPE == "X"){
-          winston.info({message: 'programNode: CBUS Receive  <<<: ' + cbusMsg.text});
+          winston.debug({message: name + ': GRID_CONNECT_RECEIVE ' + cbusMsg.text});
           if (cbusMsg.operation == 'RESPONSE') {
             if (cbusMsg.response == 0) {
-              winston.debug({message: 'programNode: Check NOT OK received: download failed'});
+              winston.info({message: name + ': Check NOT OK received: download failed'});
               this.sendFailureToClient('Check NOT OK received: download failed')
+              this.config.writeBootloaderdata("====== download failed ======");
               this.programState = STATE_QUIT
             }
             if (cbusMsg.response == 1) {
               this.ackReceived = true
-              if (this.programState == STATE_END_SEND_DATA){
-                winston.debug({message: 'programNode: Check OK received: Sending reset'});
-                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x01, 0, 0)
+              if (this.programState == STATE_CHECK){
+                this.programState = STATE_QUIT
+                winston.info({message: name + ': Check OK received: Sending reset'});
+                var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_RESET, 0, 0)
                 await this.transmitCBUS(msg, 80)
                 this.success = true
                 // 'Success:' is a necessary string in the message to signal the client it's been successful
                 this.sendSuccessToClient('Success: programing completed')
-                this.programState = STATE_QUIT
+                this.config.writeBootloaderdata("====== download succeded ======");
               } else {
                 winston.debug({message: 'programNode: ACK received'});
               }
             }
             if (cbusMsg.response == 2) {
-              winston.debug({message: 'programNode: BOOT MODE Confirmed received:'});
+              winston.info({message: name + ': BOOT MODE Confirmed received:'});
               if (this.programState != STATE_SEND_DATA){
                 await this.send_bootloader_data(this.COMMAND_FLAGS)
               }
@@ -219,7 +221,7 @@ class programNode extends EventEmitter  {
           
           // need to allow a small time for module to go into boot mode
           await utils.sleep(100)
-          var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x04, 0, 0)
+          var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_BOOT_TEST, 0, 0)
           await this.transmitCBUS(msg, 80)
         }
       }    
@@ -239,21 +241,21 @@ class programNode extends EventEmitter  {
       // terminate early if quit
       if(this.programState == STATE_QUIT) {break}
     }
-    await utils.sleep(300)  // allow time for last messages to be sent
     this.config.writeBootloaderdata("====== End download ======");
+    await utils.sleep(300)  // allow time for last messages to be sent
 
   } /// end program method
   
   //
   //
   async send_bootloader_data(FLAGS){
-    winston.info({message: `programNode: send_bootloader_data: ${FLAGS}` });
+    winston.info({message: name + `: send_bootloader_data: ${FLAGS}` });
     this.programState = STATE_SEND_DATA
     this.last_block_address = null
 
     // start with SPCMD_INIT_CHK
     var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_INIT_CHK, 0, 0)
-    winston.debug({message: 'programNode: sending SPCMD_INIT_CHK: ' + msgData});
+    winston.debug({message: name + ': sending SPCMD_INIT_CHK: ' + msgData});
     await this.transmitCBUS(msgData, 80)
     
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
@@ -262,18 +264,21 @@ class programNode extends EventEmitter  {
       await this.send_block(block)
     }
 
-    //
-    this.programState = STATE_END_SEND_DATA
+    await utils.sleep(200) // allow time for any acknowledge from sending data to be received
+
+    // now change state so next acknowledge will be processed as check command ack
+    this.programState = STATE_CHECK
     
-    // Verify Checksum
+    // Verify Checksum - send check command
     // 00049272: Send: :X00080004N000000000D034122;
-    winston.debug({message: 'programNode: Sending Check firmware'});
-    winston.info({message: 'programNode: calculatedHexChecksum ' + this.calculatedHexChecksum });
+    winston.info({message: name + ': Sending Check firmware'});
+    winston.info({message: name + ': calculatedHexChecksum ' + this.calculatedHexChecksum });
 
     this.sendMessageToClient('FIRMWARE: checksum: 0x' + this.calculatedHexChecksum + ' length: ' + this.dataCount)
-    //      winston.info({message: 'programNode: calculatedHexChecksum ' + JSON.stringify(fullArray)});
+    this.config.writeBootloaderdata("Calculated checksum: " + this.calculatedHexChecksum);
+    this.config.writeBootloaderdata("Data length: " + this.dataCount);
 
-    var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, 0x03, parseInt(this.calculatedHexChecksum.substr(2,2), 16), parseInt(this.calculatedHexChecksum.substr(0,2),16))
+    var msgData = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_CHK_RUN, parseInt(this.calculatedHexChecksum.substr(2,2), 16), parseInt(this.calculatedHexChecksum.substr(0,2),16))
     await this.transmitCBUS(msgData, 60)
 
   }
@@ -315,7 +320,7 @@ class programNode extends EventEmitter  {
   //
   async start_new_segment(block){
     winston.info({message: `programNode: send_bootloader_data: new data segment: ${utils.decToHex(block, 8)}` });
-    var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, 0x00, 0, 0)
+    var msgData = cbusLib.encode_EXT_PUT_CONTROL(utils.decToHex(block, 6), CONTROL_BITS, SPCMD_NOP, 0, 0)
     winston.debug({message: 'programNode: sending segment address: ' + msgData});
     await this.transmitCBUS(msgData, 60)
     this.config.writeBootloaderdata("++++++ New segment " + utils.decToHex(block, 8));
@@ -413,6 +418,7 @@ class programNode extends EventEmitter  {
     this.ackReceived = false  // set to false before writing
     winston.debug({message: `programNode: CBUS Transmit ${this.TxCount} ${msg}`})
     this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
+    winston.debug({message: name + `:  GRID_CONNECT_SEND ${cbusLib.decode(msg).text}`})
 
     // need to add a delay between write to the module
     //
