@@ -44,8 +44,11 @@ const FLAG_PROGRAM_IN_BOOTMODE = 8
 
 // RESPONSE codes
 // 0 - not ok
-// 1 - ok acknowledge
+// 1 - check ok acknowledge
 // 2 - confirm boot mode
+// 3 - unused?
+// 4 - data NAK
+// 5 - data ACK
 
 
 // Sequence of operation
@@ -97,6 +100,7 @@ class programNode extends EventEmitter  {
     this.nodeCpuType = null
     this.success = false
     this.COMMAND_FLAGS = 0
+    this.processedDataBytes = 0
 
     // event handler for responses from node
     // in constructor so only one instance created
@@ -133,6 +137,10 @@ class programNode extends EventEmitter  {
               if (this.programState != STATE_SEND_DATA){
                 await this.send_bootloader_data(this.COMMAND_FLAGS)
               }
+            }
+            if (cbusMsg.response == 5) {
+              this.ackReceived = true
+              winston.debug({message: name + ': DATA_ACK received'});
             }
           }
         }
@@ -194,6 +202,7 @@ class programNode extends EventEmitter  {
     //
     if (this.parseHexFile(INTEL_HEX_STRING)){
       winston.debug({message: 'programNode: parseHexFile success'})
+      this.config.writeBootloaderdata("ProcessedDataBytes: " + this.processedDataBytes);
 
       if (this.COMMAND_FLAGS & FLAG_IGNORE_CPUTYPE) {
         this.sendMessageToClient('CPUTYPE ignored')
@@ -264,7 +273,7 @@ class programNode extends EventEmitter  {
       await this.send_block(block)
     }
 
-    await utils.sleep(200) // allow time for any acknowledge from sending data to be received
+    await utils.sleep(1000) // allow time for any acknowledge from sending data to be received
 
     // now change state so next acknowledge will be processed as check command ack
     this.programState = STATE_CHECK
@@ -357,6 +366,7 @@ class programNode extends EventEmitter  {
     this.BOOTLOADER_DATA_BLOCKS = {}
     this.ExtendedLinearAddress = 0
     var result = false      // end result
+    this.processedDataBytes = 0
 
     this.sendMessageToClient('Parsing file')
 //        winston.debug({message: 'programNode: parseHexFile - hex ' + intelHexString})
@@ -416,18 +426,18 @@ class programNode extends EventEmitter  {
   {
     if (delay == undefined){ delay = 50}
     this.ackReceived = false  // set to false before writing
-    winston.debug({message: `programNode: CBUS Transmit ${this.TxCount} ${msg}`})
-    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
+    //winston.debug({message: name + `: CBUS Transmit ${this.TxCount} ${msg}`})
     winston.debug({message: name + `:  GRID_CONNECT_SEND ${cbusLib.decode(msg).text}`})
+    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
 
     // need to add a delay between write to the module
     //
     var startTime = Date.now()
-    await utils.sleep(1) // always allow at least 1mSecs anyway
+    await utils.sleep(5) // always allow at least 5mSecs anyway
     while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
       await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
     }       
-    winston.debug({message: name + `: CBUS Transmit time ${this.TxCount++} ${(Date.now() - startTime)}`})
+    winston.debug({message: name + `: CBUS Transmit time ${(Date.now() - startTime)} msg count ${this.TxCount++}`})
   }
 
 
@@ -564,6 +574,7 @@ class programNode extends EventEmitter  {
         this.assembledDataCount += 16
       }
       this.BOOTLOADER_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
+      this.processedDataBytes++
     }
   }
 

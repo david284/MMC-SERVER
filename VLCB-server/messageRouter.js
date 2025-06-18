@@ -39,10 +39,10 @@ class messageRouter{
       for (let i = 0; i < GCmsg.length - 1; i++) {
         // restore terminating ';' lost due to split & then decode
         winston.debug({message: name + `:  GRID_CONNECT_RECEIVE ${GCmsg[i] + ';'}`})
-        this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', GCmsg[i] + ';')
         let cbusLibMsg = cbusLib.decode(GCmsg[i] + ';')
         winston.info({message: name + ': GRID_CONNECT_RECEIVE ' + cbusLibMsg.text});
         this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
+        this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', GCmsg[i] + ';')
         this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'In', json: cbusLibMsg})
       }
     }.bind(this));
