@@ -1,11 +1,12 @@
 Version 0.9.4
-  Added node reset at end of node restore
   Node programming changes
   - Wrong placement of state change meant there was potential of multiple resets being sent
   - Delay added before checksum check command sent to ensure all ack's for data have been received
   - logging tidied up & extra statements added to bootloaderdata.txt file
+  Client updated
+  - Added node reset at end of node restore
   cbusLibrary updated
-  - Header for 29 bit messages changed to exactly match FCU (bit 2 set)
+  - Header for 29 bit messages changed to match Mike Boltons document (bit 2 set)
 
 Version 0.9.3
   Added 'named' option to event view modes (all, short, long)
