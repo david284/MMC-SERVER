@@ -1,3 +1,11 @@
+MMC Version 0.10.0
+  Updated client with optional 'channel names' functionality
+  - includes import & export of channel names
+  - existing MDF's will work as before, fully backward compatible
+  - MDF's need updating to use the optional channel names feature
+  added global set_FCU_compatibility() after node reset and program node,
+  as nodes will revert to default after reset
+
 Version 0.9.5
   Updated client with 'DELETE UNUSED' option in Event view
   - This will delete an event in the 'Events View' list,
