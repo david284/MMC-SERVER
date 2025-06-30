@@ -1,8 +1,10 @@
 MMC Version 0.10.0
-  Updated client with optional 'channel names' functionality
+  Updated client
+  - added optional 'channel names' functionality
   - includes import & export of channel names
   - existing MDF's will work as before, fully backward compatible
   - MDF's need updating to use the optional channel names feature
+  - Fixed NodeVariableDual max value
   added global set_FCU_compatibility() after node reset and program node,
   as nodes will revert to default after reset
 
