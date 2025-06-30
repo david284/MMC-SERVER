@@ -777,20 +777,31 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
   //****************************************************************************************** */
   
+    function GetTestCase_FCU_compatibility() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 2; a++) {
+      if (a == 1) {arg1 = true, arg2 = 0x10}
+      if (a == 2) {arg1 = false, arg2 = 0x11 }
+      testCases.push({'FCU_Compatibility':arg1, "expected_ModeNumber":arg2});
+    }
+    return testCases;
+  }
+
   // clear_FCU_compatibility test
   //
-  it("set_FCU_compatibility test", function (done) {
+  itParam("set_FCU_compatibility test ${JSON.stringify(value)}", GetTestCase_FCU_compatibility(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN set_FCU_compatibility test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    node.set_FCU_compatibility(true)
+    node.connectionDetails = {"FCU_Compatibility": value.FCU_Compatibility}
+    node.set_FCU_compatibility()
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('MODE')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(0)
-      expect(mock_messageRouter.messagesIn[0].ModeNumber).to.equal(0x10)
+      expect(mock_messageRouter.messagesIn[0].ModeNumber).to.equal(value.expected_ModeNumber)
       winston.info({message: 'unit_test: END set_FCU_compatibility test'});
       done();
     }, 50);

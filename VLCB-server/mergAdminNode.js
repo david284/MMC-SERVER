@@ -50,6 +50,7 @@ class cbusAdmin extends EventEmitter {
     // update client if anything changed
     setInterval(this.updateClients.bind(this), 500);
     this.opcodeTracker = {}
+    this.connectionDetails = null
 
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
       //winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${data}`})
@@ -443,29 +444,31 @@ class cbusAdmin extends EventEmitter {
     }
   } // end constructor
 
+
   //
+  // Reads connection details and sets FCU_Compatibility accordingly
   //
-  set_FCU_compatibility(FCU_Compatibility){
-    winston.info({message: name + `: set_FCU_compatibility ${FCU_Compatibility}`});
-    let ModeNumber = 0x11   // Turn off FCU compatibility
-    if (FCU_Compatibility == true){
-        ModeNumber = 0x10   // Turn on FCU compatibility
-    }
-    let nodeNumber = 0      // global (all nodes)
-    this.CBUS_Queue.push(cbusLib.encodeMODE(nodeNumber, ModeNumber))
+  set_FCU_compatibility(){
     winston.info({message: name + `: set_FCU_compatibility`});
+    try {
+      let ModeNumber = 0x11   // Turn off FCU compatibility
+      if (this.connectionDetails.FCU_Compatibility == true){
+          ModeNumber = 0x10   // Turn on FCU compatibility
+      }
+      let nodeNumber = 0      // global (all nodes)
+      this.CBUS_Queue.push(cbusLib.encodeMODE(nodeNumber, ModeNumber))
+    } catch (err){
+      winston.info({message: name + `: set_FCU_compatibility: ` + err});
+    }
   }
 
   //
   //
   onConnect(connectionDetails){
     winston.info({message: name + `: onConnect`});
+    this.connectionDetails = connectionDetails
     this.addLayoutNodes(this.config.readLayoutData())
-    if (connectionDetails != undefined){
-      if("FCU_Compatibility" in connectionDetails){
-        this.set_FCU_compatibility(connectionDetails.FCU_Compatibility)
-      }
-    }
+    this.set_FCU_compatibility()
     this.query_all_nodes()
   }
 
