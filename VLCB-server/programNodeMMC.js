@@ -84,7 +84,8 @@ const STATE_NULL = 0
 const STATE_START = 1
 const STATE_SEND_DATA = 2
 const STATE_CHECK = 3
-const STATE_QUIT = 4
+const STATE_FINISH = 4
+const STATE_QUIT = 5
 
 
 //
@@ -120,7 +121,7 @@ class programNode extends EventEmitter  {
             if (cbusMsg.response == 1) {
               this.ackReceived = true
               if (this.programState == STATE_CHECK){
-                this.programState = STATE_QUIT
+                this.programState = STATE_FINISH
                 winston.info({message: name + ': Check OK received: Sending reset'});
                 var msg = cbusLib.encode_EXT_PUT_CONTROL('000000', CONTROL_BITS, SPCMD_RESET, 0, 0)
                 await this.transmitCBUS(msg, 80)
@@ -128,6 +129,7 @@ class programNode extends EventEmitter  {
                 // 'Success:' is a necessary string in the message to signal the client it's been successful
                 this.sendSuccessToClient('Success: programing completed')
                 this.config.writeBootloaderdata("====== download succeded ======");
+                this.programState = STATE_QUIT
               } else {
                 winston.debug({message: 'programNode: ACK received'});
               }

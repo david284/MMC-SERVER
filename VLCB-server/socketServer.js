@@ -2,6 +2,7 @@ const winston = require('winston');		// use config from root instance
 const name = 'socketServer'
 const jsonfile = require('jsonfile');
 const { isUndefined } = require('util');
+const { sleep } = require('./utilities');
 const packageInfo = require(process.cwd()+'/package.json')
 
 const server = require('http').createServer()
@@ -186,15 +187,18 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('PROGRAM_NODE', function(data){
+    socket.on('PROGRAM_NODE', async function(data){
       winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
-      programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
+      await programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
+      await sleep(200)              // allow time for programming to complete
+      node.set_FCU_compatibility()
     })
 
     //
     //
     socket.on('QUERY_ALL_NODES', function(){
       winston.info({message: 'socketServer:  QUERY_ALL_NODES'});
+      node.set_FCU_compatibility()
       node.query_all_nodes()
     })
 
@@ -421,9 +425,11 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('RESET_NODE', function(nodeNumber){
+    socket.on('RESET_NODE', async function(nodeNumber){
       winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
       node.sendNNRST(nodeNumber)
+      await sleep(500)        // wait for module to reset 
+      node.set_FCU_compatibility()
     })
 
     //
