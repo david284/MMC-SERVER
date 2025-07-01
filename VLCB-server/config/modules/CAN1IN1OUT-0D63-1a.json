@@ -1,18 +1,23 @@
 {
-  "timestamp": "202411092105",
+  "timestamp": "202507012135",
   "moduleName" : "CAN1IN1OUT",
+  "numberOfChannels": 2,
+  "channelNames": {
+    "1" : "Switch 1",
+    "2" : "LED 1"
+  },
   "nodeVariables": [
     {
       "type": "NodeVariableNumber",
       "nodeVariableIndex": 1,
-      "displayTitle" : "Nothing"
+      "displayTitle" : "${channel1}"
     }
   ],
   "eventVariables":[
     {
       "type": "EventVariableSelect",
       "eventVariableIndex": 2,
-      "displayTitle": "LED Control",
+      "displayTitle": "${channel2}",
       "options": [
         {"label": "Normal", "value": 1},
         {"label": "Blink", "value": 2}
