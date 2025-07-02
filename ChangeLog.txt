@@ -1,3 +1,12 @@
+MMC Version 0.10.1
+  Updated client
+    - Added error notification to MFD upload dialog
+    - Amended scroll on MDF Dialog
+    - Changed text on exit button
+    - fixed bug in eventVariableInformation
+  Updated 24 MDF's with channel names update
+
+
 MMC Version 0.10.0
   Updated client
   - added optional 'channel names' functionality
