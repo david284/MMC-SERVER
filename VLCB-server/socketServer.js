@@ -551,9 +551,20 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     //
     socket.on('UPDATE_NODE_VARIABLE_IN_LEARN_MODE', function(data){
       winston.info({message: `socketServer:  UPDATE_NODE_VARIABLE_IN_LEARN_MODE ${JSON.stringify(data)}`});
-      update_node_variable_in_learnMode(data.nodeNumber, data.VariableId, data.variableValueariableValue)
+      node.update_node_variable_in_learnMode(data.nodeNumber, data.variableId, data.variableValue)
+      //
+      // Only read variable(s) back if reLoad not false
+      // but decide if just changed variable, or list
       if (data.reLoad != false){
-        node.request_all_node_variables(data.nodeNumber)
+        // just read back the variable we've changed
+        node.request_node_variable(data.nodeNumber, data.variableId)
+        //
+        // now check if we need to read back linked variables
+        if(data.linkedVariableList != undefined){
+          for (let i = 0; i < data.linkedVariableList.length; i++) {
+            node.request_node_variable(data.nodeNumber, data.linkedVariableList[i])
+          }        
+        }
       }
     })
 

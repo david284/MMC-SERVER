@@ -1,3 +1,7 @@
+MMC Version 
+  updated UPDATE_NODE_VARIABLE_IN_LEARN_MODE to fix bug & implement changes made to UPDATE_NODE_VARIABLE
+  
+
 MMC Version 0.10.1
   Updated client
     - Added error notification to MFD upload dialog
