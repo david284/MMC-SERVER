@@ -1,5 +1,7 @@
-MMC Version 
+MMC Version 0.10.2
   updated UPDATE_NODE_VARIABLE_IN_LEARN_MODE to fix bug & implement changes made to UPDATE_NODE_VARIABLE
+  Updated Client
+    - Dialog opening delays - modified watches so that token replacement is only called when dialog opened
   
 
 MMC Version 0.10.1
