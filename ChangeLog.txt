@@ -1,3 +1,9 @@
+MMC Version 0.10.3
+  Updated client
+    - Added NodeVariableButtons
+    - Added scaling, offset & units to NodeVariableDual
+  Added try/catch around all incoming websocket events
+
 MMC Version 0.10.2
   updated UPDATE_NODE_VARIABLE_IN_LEARN_MODE to fix bug & implement changes made to UPDATE_NODE_VARIABLE
   Updated Client
