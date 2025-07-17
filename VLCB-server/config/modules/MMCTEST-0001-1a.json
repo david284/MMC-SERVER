@@ -1,14 +1,14 @@
 {
-  "timestamp": "202507021120",
+  "timestamp": "202507161720",
   "moduleName": "MMCTEST",
-  "comment":"this MDF is used to test specific aspects of MMC, and not intended to represent any specific module",
+  "comment": "this MDF is used to test specific aspects of MMC, and not intended to represent any specific module",
   "nodeVariableInformation": "You can place any text here to help explain the context of the node variables...",
   "numberOfChannels": 8,
   "channelNames": {
-    "1" : "MFD name 1",
-    "3" : "MFD name 3",
-    "5" : "MFD name 5",
-    "7" : "MFD name 7"
+    "1": "MFD name 1",
+    "3": "MFD name 3",
+    "5": "MFD name 5",
+    "7": "MFD name 7"
   },
   "nodeVariables": [
     {
@@ -24,14 +24,26 @@
       "displayTitle": "Bit 2",
       "displaySubTitle": "linked 2,3,4",
       "bit": 2,
-      "linkedVariables":{"NV":[2,3,4]}
+      "linkedVariables": {
+        "NV": [
+          2,
+          3,
+          4
+        ]
+      }
     },
     {
       "type": "NodeVariableBitArray",
       "nodeVariableIndex": 2,
       "displayTitle": "Bit Array",
       "displaySubTitle": "linked 4,5,6",
-      "linkedVariables":{"NV":[4,5,6]},
+      "linkedVariables": {
+        "NV": [
+          4,
+          5,
+          6
+        ]
+      },
       "bitCollection": [
         {
           "bitPosition": 0,
@@ -68,122 +80,38 @@
       ]
     },
     {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 10,
-      "displayTitle": "Number - NV10",
-      "displaySubTitle": "linked 12,13,14",
-      "linkedVariables":{"NV":[12,13,14]}
-    },
-    {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 11,
-      "displayTitle": "Number - NV11",
-      "displaySubTitle": "range 2 to 12",
-      "max": 12,
-      "min": 2
-    },
-    {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 12,
-      "displayTitle": "Number - NV12",
-      "displaySubTitle": "range 100 to 355",
-      "displayOffset": 100
-    },
-    {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 13,
-      "displayTitle": "Number - NV13",
-      "displaySubTitle": "range 0 to 25500",
-      "displayScale": 100,
-      "displayUnits": "mS"
-    },
-    {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 14,
-      "displayTitle": "Number - NV14",
-      "displaySubTitle": "high 3 bits test",
-      "displayOffset": 1,
-      "startBit": 5,
-      "endBit": 7,
-      "max": 7,
-      "min": 0
-    },
-    {
-      "type": "NodeVariableNumber",
-      "nodeVariableIndex": 15,
-      "displayTitle": "Number - NV15",
-      "displaySubTitle": "scaled high 3 bits",
-      "displayScale": 10,
-      "displayOffset": 10,
-      "startBit": 5,
-      "endBit": 7,
-      "max": 7,
-      "min": 0
-    },
-    {
-      "type": "NodeVariableSlider",
-      "nodeVariableIndex": 21,
-      "displayTitle": "Slider",
-      "displaySubTitle": "linked 22,23",
-      "displayScale": 1,
-      "displayUnits": "Milli Seconds",
-      "max": 180,
-      "min": 40,
-      "outputOnWrite": true,
-      "linkedVariables":{"NV":[22,23]}
-    },
-    {
       "type": "NodeVariableSlider",
       "nodeVariableIndex": 22,
-      "displayTitle": "Slider",
-      "displaySubTitle": "NV22",
-      "displayScale": 0.1,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0,
+      "displayTitle": "Basic Servo",
       "outputOnWrite": true
     },
     {
-      "type": "NodeVariableSlider",
-      "nodeVariableIndex": 23,
-      "displayTitle": "Slider",
-      "displaySubTitle": "NV23",
-      "displayScale": 0.01,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0,
-      "outputOnWrite": true
-    },
-    {
-      "type": "NodeVariableSlider",
-      "nodeVariableIndex": 24,
-      "displayTitle": "Slider",
-      "displaySubTitle": "NV24",
-      "displayScale": 0.001,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0,
-      "outputOnWrite": true
-    },
-    {
-      "type": "NodeVariableSlider",
-      "nodeVariableIndex": 25,
-      "displayTitle": "Slider - hiNibble - NV25",
-      "displaySubTitle": "range 10 to 120 milli seconds",
-      "displayScale": 10,
-      "displayUnits": "Milli Seconds",
-      "startBit": 4,
-      "endBit": 7,
-      "displayOffset": 10,
-      "max": 11,
-      "min": 0
+      "displayTitle": "Button test",
+      "displaySubTitle": "NV22, overload using NV10",
+      "type": "NodeVariableButtons",
+      "nodeVariableIndex": 22,
+      "buttonCollection": [
+        {"label": "Min", "value": 0},
+        {"label": "Centre", "value": 127},
+        {"label": "Max", "value": 255},
+        {"overload":{"nv": 10, "labels": [
+          {"value": 0, "label": "overload 0 (5)"},
+          {"value": 1, "label": "overload 1 (5)"},
+          {"value": 2, "label": "overload 2 (5)"}]}, 
+        "value": 5}
+      ]
     },
     {
       "type": "NodeVariableSelect",
       "nodeVariableIndex": 30,
       "displayTitle": "Select",
       "displaySubTitle": "linked 8,9",
-      "linkedVariables":{"NV":[8,9]},
+      "linkedVariables": {
+        "NV": [
+          8,
+          9
+        ]
+      },
       "bitMask": 3,
       "options": [
         {
@@ -205,13 +133,230 @@
       ]
     },
     {
-      "type": "NodeVariableDual",
-      "nodeVariableIndexHigh": 40,
-      "nodeVariableIndexLow": 41,
-      "displayTitle": "Dual",
-      "displaySubTitle": "linked 7,8",
-      "linkedVariables":{"NV":[7,8]}      
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableDual tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 40,
+          "nodeVariableIndexLow": 41,
+          "displayTitle": "Dual",
+          "displaySubTitle": "linked 7,8",
+          "displayUnits": "mS",
+          "linkedVariables": {
+            "NV": [
+              7,
+              8
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 40,
+          "nodeVariableIndexLow": 41,
+          "displayTitle": "Dual",
+          "displaySubTitle": "min & max",
+          "max": 12,
+          "min": 2
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.1,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.01,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "offset",
+          "displayOffset": 100,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "12 bits",
+          "startBit": 0,
+          "endBit": 11
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "Hi 12 bits",
+          "startBit": 4,
+          "endBit": 15
+        }
+      ]
     },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableNumber tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 10,
+          "displayTitle": "Number - NV10",
+          "displaySubTitle": "linked 12,13,14",
+          "linkedVariables": {
+            "NV": [
+              12,
+              13,
+              14
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 11,
+          "displayTitle": "Number - NV11",
+          "displaySubTitle": "range 2 to 12",
+          "max": 12,
+          "min": 2
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 12,
+          "displayTitle": "Number - NV12",
+          "displaySubTitle": "offset 100",
+          "displayOffset": 100,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range 0 to 25500",
+          "displayScale": 100
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range test",
+          "displayScale": 0.1
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range test",
+          "displayScale": 0.01
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "Number - NV14",
+          "displaySubTitle": "3 bits test",
+          "startBit": 0,
+          "endBit": 2
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "Number - NV14",
+          "displaySubTitle": "high 3 bits test",
+          "displayOffset": 1,
+          "startBit": 5,
+          "endBit": 7,
+          "max": 7,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 15,
+          "displayTitle": "Number - NV15",
+          "displaySubTitle": "scaled high 3 bits",
+          "displayScale": 10,
+          "displayOffset": 10,
+          "startBit": 5,
+          "endBit": 7,
+          "max": 7,
+          "min": 0
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableSlider tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 21,
+          "displayTitle": "Slider",
+          "displaySubTitle": "linked 22,23",
+          "displayScale": 1,
+          "displayUnits": "Milli Seconds",
+          "max": 180,
+          "min": 40,
+          "outputOnWrite": true,
+          "linkedVariables": {
+            "NV": [
+              22,
+              23
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 22,
+          "displayTitle": "Basic Servo",
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 23,
+          "displayTitle": "Slider",
+          "displaySubTitle": "NV23",
+          "displayScale": 0.01,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0,
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 24,
+          "displayTitle": "Slider",
+          "displaySubTitle": "NV24",
+          "displayScale": 0.001,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0,
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 25,
+          "displayTitle": "Slider - hiNibble - NV25",
+          "displaySubTitle": "range 10 to 120 milli seconds",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 10,
+          "max": 11,
+          "min": 0
+        }
+      ]
+    },    
     {
       "type": "NodeVariableGroup",
       "displayTitle": "NodeVariableGroup",
@@ -221,7 +366,6 @@
           "type": "NodeVariableBitArray",
           "nodeVariableIndex": 1,
           "displayTitle": "Bit Array",
-          "displaySubTitle": "NV1",
           "bitCollection": [
             {
               "bitPosition": 0,
@@ -964,7 +1108,13 @@
       "eventVariableIndex": 1,
       "displayTitle": "Event Bit Array",
       "displaySubTitle": "linked 7,8,9",
-      "linkedVariables":{"EV":[7,8,9]},
+      "linkedVariables": {
+        "EV": [
+          7,
+          8,
+          9
+        ]
+      },
       "bitCollection": [
         {
           "bitPosition": 0,
@@ -1005,7 +1155,13 @@
       "eventVariableIndex": 2,
       "displayTitle": "Event Bit Single",
       "displaySubTitle": "EVI-2 linked 4,5,6",
-      "linkedVariables":{"EV":[4,5,6]},
+      "linkedVariables": {
+        "EV": [
+          4,
+          5,
+          6
+        ]
+      },
       "bit": 0,
       "visibilityLogic": {
         "evBit": {
@@ -1016,38 +1172,17 @@
       }
     },
     {
-      "type": "EventVariableNumber",
-      "eventVariableIndex": 3,
-      "displayTitle": "EventVariableNumber",
-      "displaySubTitle": "setting value to 6 enables select, linked 10,11,12",
-      "linkedVariables":{"EV":[10,11,12]}
-    },
-    {
-      "type": "EventVariableNumber",
-      "eventVariableIndex": 4,
-      "displayTitle": "EventVariableNumber",
-      "displaySubTitle": "scaling + offset",
-      "displayScale": 10,
-      "displayOffset": 10,
-      "displayUnits": "Milli Seconds"
-    },
-    {
-      "type": "EventVariableNumber",
-      "eventVariableIndex": 5,
-      "displayTitle": "number - high 4 bits",
-      "displaySubTitle": "EVI-5",
-      "startBit": 4,
-      "endBit": 7,
-      "displayOffset": 1,
-      "max": 15,
-      "min": 0
-    },
-    {
       "type": "EventVariableSelect",
       "eventVariableIndex": 6,
       "displayTitle": "EventVariable Select",
       "displaySubTitle": "EVI-6 linked 20,21,22",
-      "linkedVariables":{"EV":[20,21,22]},
+      "linkedVariables": {
+        "EV": [
+          20,
+          21,
+          22
+        ]
+      },
       "options": [
         {
           "label": "select 0",
@@ -1072,58 +1207,123 @@
       }
     },
     {
-      "type": "EventVariableSlider",
-      "eventVariableIndex": 7,
-      "displayTitle": "Event Slider",
-      "displaySubTitle": "NV7 linked 11,12,13",
-      "linkedVariables":{"EV":[11,12,13]},
-      "displayScale": 10,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0
+      "type": "EventVariableGroup",
+      "displayTitle": "EventVariableNumber Test",
+      "groupItems": [
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 3,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "Basic - setting value to 6 enables select"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 4,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "linked 10,11,12",
+          "linkedVariables": {
+            "EV": [
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 5,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "scaling + offset",
+          "displayScale": 10,
+          "displayOffset": 10,
+          "displayUnits": "Milli Seconds"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 6,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.01,
+          "displayUnits": "Seconds"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 7,
+          "displayTitle": "number - high 4 bits",
+          "displaySubTitle": "EVI-5",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 1,
+          "max": 15,
+          "min": 0
+        }
+      ]
     },
     {
-      "type": "EventVariableSlider",
-      "eventVariableIndex": 8,
-      "displayTitle": "Event Slider",
-      "displaySubTitle": "Group slider - NV8",
-      "displayScale": 0.1,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0
-    },
-    {
-      "type": "EventVariableSlider",
-      "eventVariableIndex": 9,
-      "displayTitle": "Event Slider",
-      "displaySubTitle": "Group slider - NV9",
-      "displayScale": 0.01,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0
-    },
-    {
-      "type": "EventVariableSlider",
-      "eventVariableIndex": 10,
-      "displayTitle": "Event Slider",
-      "displaySubTitle": "Group slider - NV10",
-      "displayScale": 0.001,
-      "displayUnits": "Milli Seconds",
-      "max": 255,
-      "min": 0
-    },
-    {
-      "type": "EventVariableSlider",
-      "eventVariableIndex": 17,
-      "displayTitle": "Event Slider - hiNibble",
-      "displaySubTitle": "range 10 to 120 milli seconds - NV17",
-      "displayScale": 10,
-      "displayUnits": "Milli Seconds",
-      "startBit": 4,
-      "endBit": 7,
-      "displayOffset": 10,
-      "max": 11,
-      "min": 0
+      "type": "EventVariableGroup",
+      "displayTitle": "EventVariableSlider Test",
+      "groupItems": [
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "linked 11,12,13",
+          "linkedVariables": {
+            "EV": [
+              11,
+              12,
+              13
+            ]
+          },
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.1,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.01,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 10,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.001,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 17,
+          "displayTitle": "Event Slider - hiNibble",
+          "displaySubTitle": "bits test",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 10,
+          "max": 11,
+          "min": 0
+        }
+      ]
     },
     {
       "type": "EventVariableGroup",
@@ -1569,5 +1769,7 @@
         }
       ]
     }
-  ]
+  ],
+  "moduleDescriptorFilename": "MMCTEST-0001-1a.json",
+  "moduleDescriptorLocation": "SYSTEM"
 }

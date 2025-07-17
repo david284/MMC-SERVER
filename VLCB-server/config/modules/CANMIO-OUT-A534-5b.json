@@ -1,10 +1,29 @@
 {
-  "timestamp": "202412131442",
+  "timestamp": "202507072002",
   "moduleName":"MIO-OUT",
+  "numberOfChannels": 16,
+  "channelNames": {
+    "1" : "Output 1",
+    "2" : "Output 2",
+    "3" : "Output 3",
+    "4" : "Output 4",
+    "5" : "Output 5",
+    "6" : "Output 6",
+    "7" : "Output 7",
+    "8" : "Output 8",
+    "9" : "Input 1",
+    "10" : "Input 2",
+    "11" : "Input 3",
+    "12" : "Input 4",
+    "13" : "Input 5",
+    "14" : "Input 6",
+    "15" : "Input 7",
+    "16" : "Input 8"
+  },
   "nodeVariables": [
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 1",
+      "displayTitle": "${channel 1}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -41,7 +60,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 2",
+      "displayTitle": "${channel 2}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -78,7 +97,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 3",
+      "displayTitle": "${channel 3}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -115,7 +134,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 4",
+      "displayTitle": "${channel 4}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -152,7 +171,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 5",
+      "displayTitle": "${channel 5}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -189,7 +208,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 6",
+      "displayTitle": "${channel 6}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -226,7 +245,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 7",
+      "displayTitle": "${channel 7}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -263,7 +282,7 @@
     },
     {
       "type": "NodeVariableGroup",
-      "displayTitle": "Output 8",
+      "displayTitle": "${channel 8}",
       "groupItems": [
         {
           "type": "NodeVariableSlider",
@@ -348,35 +367,35 @@
           "bitCollection": [
             {
               "bitPosition": 0,
-              "label": "output 1"
+              "label": "${channel 1}"
             },
             {
               "bitPosition": 1,
-              "label": "output 2"
+              "label": "${channel 2}"
             },
             {
               "bitPosition": 2,
-              "label": "output 3"
+              "label": "${channel 3}"
             },
             {
               "bitPosition": 3,
-              "label": "output 4"
+              "label": "${channel 4}"
             },
             {
               "bitPosition": 4,
-              "label": "output 5"
+              "label": "${channel 5}"
             },
             {
               "bitPosition": 5,
-              "label": "output 6"
+              "label": "${channel 6}"
             },
             {
               "bitPosition": 6,
-              "label": "output 7"
+              "label": "${channel 7}"
             },
             {
               "bitPosition": 7,
-              "label": "output 8"
+              "label": "${channel 8}"
             }
           ]
         },
@@ -392,35 +411,35 @@
           "bitCollection": [
             {
               "bitPosition": 0,
-              "label": "output 1"
+              "label": "${channel 1}"
             },
             {
               "bitPosition": 1,
-              "label": "output 2"
+              "label": "${channel 2}"
             },
             {
               "bitPosition": 2,
-              "label": "output 3"
+              "label": "${channel 3}"
             },
             {
               "bitPosition": 3,
-              "label": "output 4"
+              "label": "${channel 4}"
             },
             {
               "bitPosition": 4,
-              "label": "output 5"
+              "label": "${channel 5}"
             },
             {
               "bitPosition": 5,
-              "label": "output 6"
+              "label": "${channel 6}"
             },
             {
               "bitPosition": 6,
-              "label": "output 7"
+              "label": "${channel 7}"
             },
             {
               "bitPosition": 7,
-              "label": "output 8"
+              "label": "${channel 8}"
             }
           ]
         },
@@ -465,35 +484,35 @@
           "bitMask": 28,
           "options": [
             {
-              "label": "Output 1",
+              "label": "${channel 1}",
               "value": 0
             },
             {
-              "label": "Output 2",
+              "label": "${channel 2}",
               "value": 4
             },
             {
-              "label": "Output 3",
+              "label": "${channel 3}",
               "value": 8
             },
             {
-              "label": "Output 4",
+              "label": "${channel 4}",
               "value": 12
             },
             {
-              "label": "Output 5",
+              "label": "${channel 5}",
               "value": 16
             },
             {
-              "label": "Output 6",
+              "label": "${channel 6}",
               "value": 20
             },
             {
-              "label": "Output 7",
+              "label": "${channel 7}",
               "value": 24
             },
             {
-              "label": "Output 8",
+              "label": "${channel 8}",
               "value": 28
             }
           ]

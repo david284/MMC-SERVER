@@ -1,8 +1,16 @@
 MMC Version 0.10.3
   Updated client
     - Added NodeVariableButtons
-    - Added scaling, offset & units to NodeVariableDual
+    - Amended NodeVariableNumber to support scaling down to 0.01 (2 decimal places)
+    - Added scaling & units to NodeVariableDual to match NodeVariableNumber
+    - Amended EventVariableNumber to match NodeVariableNumber
+    - Added 'updating channel names' popup to Event & Node Variable dialogs
+    - Added 'channels' to import spreadsheet info
+    - Added defaults when swapping connection modes
+    - Fixed Event & Node variableInformation entry display
   Added try/catch around all incoming websocket events
+  Updated cbuslibrary to 2.11.1 to use CANID 123
+  Updated many MDF's, mainly to support channel names
 
 MMC Version 0.10.2
   updated UPDATE_NODE_VARIABLE_IN_LEARN_MODE to fix bug & implement changes made to UPDATE_NODE_VARIABLE

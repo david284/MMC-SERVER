@@ -374,6 +374,7 @@ class configuration {
           // use defaultLayoutDetails
           var newLayout = defaultLayoutData
           newLayout.layoutDetails.title = name
+          this.createDirectory(path.join(directory, 'layouts', name))
           jsonfile.writeFileSync(path.join(directory, 'layouts', name, 'layoutData.json'), newLayout, {spaces: 2, EOL: '\r\n'})
           result = true
       }

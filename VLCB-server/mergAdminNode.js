@@ -361,12 +361,16 @@ class cbusAdmin extends EventEmitter {
       },
       'D3': async (cbusMsg) => {// EVANS - response to REQEV
         //
-        var nodeNumber = this.nodeNumberInLearnMode
-        var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
-        this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
-        winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
-        if (cbusMsg.eventVariableIndex > 0){
-          this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
+        try {
+          var nodeNumber = this.nodeNumberInLearnMode
+          var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
+          this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
+          winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
+          if (cbusMsg.eventVariableIndex > 0){
+            this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
+          }
+        } catch(err){
+          winston.deerrorbug({message: name + `: EVANS(D3): node ${nodeNumber} ${err}`});          
         }
       },
       'D8': async (cbusMsg) => {//Accessory On Short Event 2
@@ -1268,6 +1272,7 @@ class cbusAdmin extends EventEmitter {
       if (this.nodeConfig.nodes[nodeNumber].VLCB){
         winston.info({message: name + `: requestEventVariableByIdentifier - VLCB Node'`});
         this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
+        this.nodeNumberInLearnMode = nodeNumber
         let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
         let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
         this.CBUS_Queue.push(cbusLib.encodeREQEV(eventNodeNumber, eventNumber, eventVariableIndex))
