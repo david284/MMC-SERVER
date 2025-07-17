@@ -621,6 +621,20 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('SAVE_SETTING', function(data){ //save setting to appSetting
+      try{
+        winston.info({message: name + `:  SAVE_SETTING ${JSON.stringify(data)}`})
+        //winston.info({message: name + `:  SAVE_SETTING ${JSON.stringify(config.appSettings)}`})
+        config.appSettings = Object.assign(config.appSettings, data)
+        //winston.info({message: name + `:  SAVE_SETTING ${JSON.stringify(config.appSettings)}`})
+        config.writeAppSettings()
+      }catch(err){
+        winston.error({message: name + `: SAVE_SETTING: ${err}`});
+      }
+    })
+ 
+    //
+    //
     socket.on('SAVE_BACKUP', function(data){ //save backup
       try{
         winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
@@ -815,6 +829,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     status["customUserDirectory"] = config.appSettings.customUserDirectory
     status["singleUserDirectory"] = config.singleUserDirectory
     status["systemDirectory"] = config.systemDirectory
+    status["appSettings"] = config.appSettings
     status["opcodeTracker"] = node.opcodeTracker 
   //  winston.debug({message: name + ': send SERVER_STATUS ' + JSON.stringify(status)});
     io.emit('SERVER_STATUS', status)

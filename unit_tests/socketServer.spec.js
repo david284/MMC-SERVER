@@ -21,10 +21,12 @@ const socketServer = require('../VLCB-server/socketServer.js')
 
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
+const testAppStoragePath = "./unit_tests/test_output"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
 // override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory
+config.appStorageDirectory =  testAppStoragePath
 
 // set config items
 config.setSocketServerPort(5552);
@@ -277,7 +279,7 @@ describe('socketServer tests', async function(){
 		}, 50);
   })
 
-
+  //
   //
   it("request_layout_list test", function (done) {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
@@ -481,6 +483,20 @@ describe('socketServer tests', async function(){
       winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
 			done();
 		}, 300);
+  })
+
+  //
+  //
+  it("SAVE_SETTING test", function (done) {
+    winston.info({message: 'unit_test: BEGIN SAVE_SETTING test '});
+    //
+    socket.emit('SAVE_SETTING',{"lastUsedExportFolder":"xxxx"})
+    //
+    setTimeout(function(){
+      expect(config.appSettings.lastUsedExportFolder).to.equal("xxxx")
+      winston.info({message: 'unit_test: END SAVE_SETTING test'});
+			done();
+		}, 100);
   })
 
 
