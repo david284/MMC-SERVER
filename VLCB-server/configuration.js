@@ -37,8 +37,10 @@ const defaultLayoutData = {
   "eventDetails": {}
   }
 
-  const busTrafficPath = path.join(__dirname, "..//", "logs", "busTraffic.txt")
-  const bootloaderDataPath = path.join(__dirname, "..//", "logs", "bootloaderData.txt")
+  const logsPath = path.join(__dirname, "..//", "logs")
+
+  const busTrafficPath = path.join(logsPath, "busTraffic.txt")
+  const bootloaderDataPath = path.join(logsPath, "bootloaderData.txt")
 
   //
   // Application settings are stored in the appSettings.json file
@@ -314,8 +316,21 @@ class configuration {
   // busTraffic & bootloader logging methods
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
+  
+  //
+  //
+  readLogFile(fileName){
+    try{
+    var filePath = path.join(logsPath, fileName)
+    let data = btoa(fs.readFileSync(filePath))
+    return data
+    } catch(err){
+      winston.error({message: className + `: readLogFile: ` + err});      
+    }
+  }
 
-
+  //
+  //
   writeBusTraffic(data){
     // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
     var time = new Date()
@@ -325,6 +340,8 @@ class configuration {
     this.busTrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
 
+  //
+  //
   writeBootloaderdata(data){
     // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
     var time = new Date()
@@ -379,7 +396,7 @@ class configuration {
           result = true
       }
     } catch(err){
-      winston.debug({message: className + `: createLayoutFile: ` + err});      
+      winston.error({message: className + `: createLayoutFile: ` + err});      
     }
     return result
   }

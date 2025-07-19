@@ -499,6 +499,31 @@ describe('socketServer tests', async function(){
 		}, 100);
   })
 
+  //
+  //
+  it.only("REQUEST_LOG_FILE test", function (done) {
+    winston.info({message: name + ': BEGIN REQUEST_LOG_FILE test '});
+    var result = false
+    var text = null
+    socket.once('LOG_FILE', function (data) {
+      winston.debug({message: name + `: LOG_FILE: data: ${JSON.stringify(data)}`});
+      text = atob(data.logFile)
+      result = true
+    })
+    let targetData = {fileName:"BusTraffic.txt"}
+    socket.emit('REQUEST_LOG_FILE', targetData)
+    //
+    setTimeout(function(){
+      winston.info({message: name + ': result ' + result});
+      //winston.info({message: name + ': text ' + text});
+      expect (result).to.equal(true)
+      expect (text.length).to.be.above(0)
+      winston.info({message: name + ': END REQUEST_LOG_FILE test'});
+			done();
+		}, 500);
+  })
+
+
 
 
 

@@ -402,6 +402,21 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('REQUEST_LOG_FILE', function(data){
+      try{
+        winston.info({message: name + `: REQUEST_LOG_FILE ` + JSON.stringify(data)});
+        const logFile = config.readLogFile(data.fileName)
+        if (logFile.length > 0) {
+          io.emit('LOG_FILE', {fileName:data.fileName, logFile:logFile})
+        }
+        winston.info({message: `socketServer: sent LOG_FILE ${data.fileName}`});
+      }catch(err){
+        winston.error({message: name + `: REQUEST_LOG_FILE: ${err}`});
+      }
+    })
+
+    //
+    //
     socket.on('REQUEST_NODE_BACKUP', function(data){
       try{
         winston.info({message: name + `: REQUEST_NODE_BACKUP ` + JSON.stringify(data)});
