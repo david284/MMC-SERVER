@@ -39,7 +39,7 @@ const defaultLayoutData = {
 
   const logsPath = path.join(__dirname, "..//", "logs")
 
-  const busTrafficPath = path.join(logsPath, "busTraffic.txt")
+  const bustrafficPath = path.join(logsPath, "bustraffic.txt")
   const bootloaderDataPath = path.join(logsPath, "bootloaderData.txt")
 
   //
@@ -59,7 +59,7 @@ class configuration {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
-    this.busTrafficLogStream = fs.createWriteStream(busTrafficPath, {flags: 'a+'});
+    this.bustrafficLogStream = fs.createWriteStream(bustrafficPath, {flags: 'a+'});
     this.bootloaderDataLogStream = fs.createWriteStream(bootloaderDataPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.userModuleDescriptorFileList = []
@@ -313,7 +313,7 @@ class configuration {
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
-  // busTraffic & bootloader logging methods
+  // bustraffic & bootloader logging methods
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
   
@@ -337,7 +337,7 @@ class configuration {
     var timeStamp = String(time.getMinutes()).padStart(2, '0') + ':' 
       + String(time.getSeconds()).padStart(2, '0') + '.' 
       + String(time.getMilliseconds()).padStart(3, '0')
-    this.busTrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
+    this.bustrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
 
   //
