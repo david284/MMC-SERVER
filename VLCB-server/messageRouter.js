@@ -43,7 +43,7 @@ class messageRouter{
         winston.info({message: name + ': GRID_CONNECT_RECEIVE ' + cbusLibMsg.text});
         this.config.writeBusTraffic('<<<IN ' + cbusLibMsg.encoded + ' ' + cbusLibMsg.text)
         this.config.eventBus.emit ('GRID_CONNECT_RECEIVE', GCmsg[i] + ';')
-        this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'In', json: cbusLibMsg})
+        this.config.eventBus.emit ('CBUS_TRAFFIC', {timeStamp: utils.getTimestamp(), direction: 'In', json: cbusLibMsg})
       }
     }.bind(this));
 
@@ -149,7 +149,7 @@ class messageRouter{
   sendCbusMessage(cbusMSG){
     let outMsg = cbusLib.decode(cbusMSG)
     this.config.writeBusTraffic('OUT>> ' + outMsg.encoded + ' ' + outMsg.text)
-    this.config.eventBus.emit ('CBUS_TRAFFIC', {direction: 'Out', json: outMsg})
+    this.config.eventBus.emit ('CBUS_TRAFFIC', {timeStamp: utils.getTimestamp(), direction: 'Out', json: outMsg})
     this.cbusClient.write(cbusMSG)
   }
 

@@ -823,7 +823,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //
   //
   function send_SERVER_STATUS(config, status){
-    status["userDataMode"] = config.appSettings.userDataMode
     status["currentUserDirectory"] = config.currentUserDirectory
     status["appStorageDirectory"] = config.appStorageDirectory
     status["customUserDirectory"] = config.appSettings.customUserDirectory

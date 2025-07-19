@@ -167,3 +167,11 @@ exports.createTimestamp = function createTimestamp(){
     date.getMilliseconds().toString().padStart(3, '0')
   return timestamp
 }
+
+exports.getTimestamp = function getTimestamp(){
+  var time = new Date()
+  var timeStamp = String(time.getMinutes()).padStart(2, '0') + ':' 
+  + String(time.getSeconds()).padStart(2, '0') + '.' 
+  + String(time.getMilliseconds()).padStart(3, '0')
+  return timeStamp
+}
