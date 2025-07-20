@@ -129,6 +129,9 @@ class cbusAdmin extends EventEmitter {
         winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
         this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
         this.CBUS_Queue.push(cbusLib.encodeRQMN())   // push node onto queue to read module name from node
+        this.CBUS_Queue.push(cbusLib.encodeRQNP())   // push node onto queue to read module name from node
+        // now get the user to enter a node number
+        this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
       },
       '52': async (cbusMsg) => {
         // NNACK - Node number acknowledge
@@ -398,7 +401,7 @@ class cbusAdmin extends EventEmitter {
       },
       'E2': async (cbusMsg) => { // NAME
         winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
-        this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
+        //this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
       },
       'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
         try{
