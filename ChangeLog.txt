@@ -1,3 +1,15 @@
+MMC Version 0.10.4
+  Updated client
+    - export filename now has underscores in place of spaces
+    - export now ensures headers on channels sheet even if no data
+    - Started work on BusTrafficLogDialog - but not completed, so not enabled
+    - Added prototype MDF channeList support
+    Changed sequencing after RQNN so it doesn't wait on a response to RQMN
+    Added timestamp to CBUS_TRAFFIC message to client
+    Added SAVE_SETTING to socketServer API
+    Added REQUEST_LOG_FILE to socketServer API
+
+
 MMC Version 0.10.3
   Updated client
     - Added NodeVariableButtons
