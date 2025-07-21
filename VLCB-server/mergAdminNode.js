@@ -220,11 +220,11 @@ class cbusAdmin extends EventEmitter {
       },
       '70': async (cbusMsg) => { // EVNLF - response to NNEVN
         this.nodeConfig.nodes[cbusMsg.nodeNumber]["eventSpaceLeft"] = cbusMsg.EVSPC
-        this.saveNode(cbusMsg.nodeNumber)
+        this.updateNodeConfig(cbusMsg.nodeNumber)
       },
       '74': async (cbusMsg) => { // NUMEV - response to RQEVN
         this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-        this.saveNode(cbusMsg.nodeNumber)
+        this.updateNodeConfig(cbusMsg.nodeNumber)
         this.CBUS_Queue.push(cbusLib.encodeNNEVN(cbusMsg.nodeNumber)) // always request available space left
         if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
           this.CBUS_Queue.push(cbusLib.encodeNERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
@@ -257,7 +257,7 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[cbusMsg.nodeNumber].parameters[cbusMsg.parameterIndex] = cbusMsg.parameterValue
         // mark paramsUpdated if we get index 10
         if (cbusMsg.parameterIndex == 10){ this.nodeConfig.nodes[cbusMsg.nodeNumber].paramsUpdated = true}
-        this.saveNode(cbusMsg.nodeNumber)
+        this.updateNodeConfig(cbusMsg.nodeNumber)
         } catch (err){ winston.error({message: name + `: PARAN: ` + err}) }
       },
       'AB': async (cbusMsg) => {//Heartbeat
@@ -273,7 +273,7 @@ class cbusAdmin extends EventEmitter {
             cbusMsg.ServiceVersion,
             this.ServiceDefs
           )
-          this.saveNode(cbusMsg.nodeNumber)
+          this.updateNodeConfig(cbusMsg.nodeNumber)
           if (cbusMsg.ServiceIndex > 0){
             this.CBUS_Queue.push(cbusLib.encodeRQSD(cbusMsg.nodeNumber, cbusMsg.ServiceIndex))
           }
@@ -313,7 +313,7 @@ class cbusAdmin extends EventEmitter {
           // push node onto queue to read all events
           this.CBUS_Queue.push(cbusLib.encodeRQEVN(cbusMsg.nodeNumber))
         }
-        this.saveNode(cbusMsg.nodeNumber)
+        this.updateNodeConfig(cbusMsg.nodeNumber)
         // now get file list & send event to socketServer
         const moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
         this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
@@ -345,7 +345,7 @@ class cbusAdmin extends EventEmitter {
                   winston.warn({message: name + `: DGN: failed to get diagnostic name for diagnostic code ${cbusMsg.DiagnosticCode} ` + err});
                 }
                 this.nodeConfig.nodes[nodeNumber]["services"][cbusMsg.ServiceIndex]['diagnostics'][cbusMsg.DiagnosticCode] = output
-                this.saveNode(cbusMsg.nodeNumber)
+                this.updateNodeConfig(cbusMsg.nodeNumber)
               }
               else {
                     winston.warn({message: name + `: DGN: node config services does not exist for node ${cbusMsg.nodeNumber}`});
@@ -409,7 +409,7 @@ class cbusAdmin extends EventEmitter {
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 1, cbusMsg.Data1)
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 2, cbusMsg.Data2)
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 3, cbusMsg.Data3)
-          this.saveNode(cbusMsg.nodeNumber)
+          this.updateNodeConfig(cbusMsg.nodeNumber)
         } catch (err){ winston.error({message: name + `: ESD: ` + err}) }
       },
       'EF': async (cbusMsg) => {//Request Node Parameter in setup
@@ -569,6 +569,18 @@ class cbusAdmin extends EventEmitter {
       this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
       updated = true
     }
+    if(this.nodeConfig.nodes[nodeNumber].versionRequested == false){
+      if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
+      }
+      if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
+      }
+      if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
+      }
+      this.nodeConfig.nodes[nodeNumber].versionRequested = true
+    }
     // if status wasn't true, change it & mark as needs updating
     if (this.nodeConfig.nodes[nodeNumber].status != true){
       this.nodeConfig.nodes[nodeNumber].status = true
@@ -576,7 +588,7 @@ class cbusAdmin extends EventEmitter {
     }
     // store the timestamp
     this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
-    if (updated) {this.saveNode(nodeNumber)}
+    if (updated) {this.updateNodeConfig(nodeNumber)}
   }
 
   //
@@ -650,11 +662,12 @@ class cbusAdmin extends EventEmitter {
         "eventCount": 0,
         "services": {},
         "lastReceiveTimestamp": undefined,
-        "checkNodeDescriptorTimeStamp": 0
+        "checkNodeDescriptorTimeStamp": 0,
+        "versionRequested": false
     }
     this.nodeConfig.nodes[nodeNumber] = output
     winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
-    this.saveNode(nodeNumber)
+    this.updateNodeConfig(nodeNumber)
   }
 
   //
@@ -676,7 +689,7 @@ class cbusAdmin extends EventEmitter {
     // this may change even if it already exists
     this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
     //
-    this.saveNode(nodeNumber)
+    this.updateNodeConfig(nodeNumber)
   }
 
 
@@ -702,7 +715,7 @@ class cbusAdmin extends EventEmitter {
         }
         // now store it
         node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
-        this.saveNode(nodeNumber)
+        this.updateNodeConfig(nodeNumber)
       } else {
         winston.debug({message: name + `: storeEventVariableByIdentifier: node undefined`});
       }
@@ -871,12 +884,12 @@ class cbusAdmin extends EventEmitter {
   }
 
   //
-  // Function to save data for a node into nodeConfig
+  // Function to update data for a node into nodeConfig
   // fills in various derived elements from node data
   // marks node as changed so that the timed process will pick it up and send to client
   //
-  saveNode(nodeNumber) {
-    winston.info({message: 'mergAdminNode: Save Node : ' + nodeNumber});
+  updateNodeConfig(nodeNumber) {
+    winston.info({message: 'mergAdminNode: updateNodeConfig : ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){
       this.createNodeConfig(nodeNumber, false)
     }
@@ -898,7 +911,6 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].interfaceName = this.merg.interfaceName[this.nodeConfig.nodes[nodeNumber].parameters[10]]
     this.nodeConfig.nodes[nodeNumber].cpuManufacturerName = this.nodeConfig.nodes[nodeNumber].parameters[19]
     this.nodeConfig.nodes[nodeNumber].Beta = this.nodeConfig.nodes[nodeNumber].parameters[20]
-    //winston.debug({message: 'mergAdminNode: Save Node P2: ' + JSON.stringify(this.nodeConfig.nodes[nodeNumber])});
 
     // ensure moduleIdentifier is created (if params 1 & 3 exist)
     if ((this.nodeConfig.nodes[nodeNumber].manufacturerId != undefined) && (this.nodeConfig.nodes[nodeNumber].moduleId != undefined)){
@@ -909,8 +921,16 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
       this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
     }
-    if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined)){
-      // if version number exist, try to get module descriptor
+    if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined)){
+      // get & store the version
+      this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
+    }
+    if (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined){
+      // get & store the processorType
+      this.nodeConfig.nodes[nodeNumber].processorType = this.nodeConfig.nodes[nodeNumber].parameters[9]
+    }
+    if ((this.nodeConfig.nodes[nodeNumber].moduleVersion) && (this.nodeConfig.nodes[nodeNumber].processorType)){
+      // if version number & processor type exists, try to get module descriptor
       this.checkNodeDescriptor(nodeNumber, false); // do before emit node
     }
     this.config.writeNodeConfig(this.nodeConfig)
@@ -977,13 +997,10 @@ class cbusAdmin extends EventEmitter {
         if (this.nodeConfig.nodes[nodeNumber]){
           // get the module identifier...
           let moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
-          if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined))
-          {
-            // get & store the version & processor type 
-            let moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
-            this.nodeConfig.nodes[nodeNumber].moduleVersion = moduleVersion
-            var processorType = "P" + this.nodeConfig.nodes[nodeNumber].parameters[9]
-
+          // can only continue if we have the moduleVersion & processor type
+          if ((this.nodeConfig.nodes[nodeNumber].moduleVersion != undefined) && (this.nodeConfig.nodes[nodeNumber].processorType != undefined)){
+            let moduleVersion = this.nodeConfig.nodes[nodeNumber].moduleVersion
+            let processorType = "P" + this.nodeConfig.nodes[nodeNumber].processorType
             // ok, parameters prepared, so lets go get the file
             const moduleDescriptor = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, moduleVersion, processorType)
             this.nodeConfig.nodes[nodeNumber]['checkNodeDescriptorTimeStamp'] = Date.now()
