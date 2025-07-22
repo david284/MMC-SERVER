@@ -1113,7 +1113,9 @@ class cbusAdmin extends EventEmitter {
   async query_all_nodes(){
     winston.info({message: name + ': query_all_nodes'});
     for (let node in this.nodeConfig.nodes) {
+      try{
       this.nodeConfig.nodes[node].status = false
+      } catch{}
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.moduleDescriptorFilesTimeStamp = Date.now()

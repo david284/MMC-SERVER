@@ -1,3 +1,14 @@
+MMC Version 0.10.5
+  Updated client
+    - Amended columns in export
+    - Amended import to match export changes
+    - Added module version in nodes list
+  Now requests params 2,7 & 9 to create version number & processor type on startup
+  This allows the display of version numbers in client node list
+  Also triggers reading of Module Descriptor Files (MDF) once it has these params, so
+  exports can contains channels without user names
+  Added initial Linux install scripts
+
 MMC Version 0.10.4
   Updated client
     - export filename now has underscores in place of spaces
