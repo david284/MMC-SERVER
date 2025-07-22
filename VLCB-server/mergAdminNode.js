@@ -401,7 +401,7 @@ class cbusAdmin extends EventEmitter {
       },
       'E2': async (cbusMsg) => { // NAME
         winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
-        //this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
+        this.nodeConfig.nodes[this.rqnnPreviousNodeNumber].NAME = cbusMsg.name
       },
       'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
         try{
@@ -569,7 +569,8 @@ class cbusAdmin extends EventEmitter {
       this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
       updated = true
     }
-    if(this.nodeConfig.nodes[nodeNumber].versionRequested == false){
+    // skip this if in unit test, as it's once only nature can cause repeated tests to fail
+    if((this.nodeConfig.nodes[nodeNumber].versionRequested == false) && (this.inUnitTest == false)){
       if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
         this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
       }

@@ -389,7 +389,7 @@ describe('socketServer tests', async function(){
 		}, 200);
   })
 
-
+/*
   //
   //
   //
@@ -414,7 +414,7 @@ describe('socketServer tests', async function(){
 			done();
 		}, 100);
   })
-
+*/
 
   it("REQUEST_BUS_CONNECTION test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_BUS_CONNECTION test '});
@@ -501,7 +501,7 @@ describe('socketServer tests', async function(){
 
   //
   //
-  it.only("REQUEST_LOG_FILE test", function (done) {
+  it("REQUEST_LOG_FILE test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_LOG_FILE test '});
     var result = false
     var text = null

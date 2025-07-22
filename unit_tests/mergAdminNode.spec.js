@@ -745,8 +745,9 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: ' + JSON.stringify(nodeTraffic[i])});
       }
       expect(nodeTraffic[0].json.mnemonic).to.equal("NAME")
-      expect(receivedNodeNumber).to.equal(value.nodeNumber)
-      expect(receivedNAME).to.equal("ABCDEFG")
+      expect(node.nodeConfig.nodes[value.nodeNumber].NAME).to.equal("ABCDEFG")
+//      expect(receivedNodeNumber).to.equal(value.nodeNumber)
+//      expect(receivedNAME).to.equal("ABCDEFG")
       winston.info({message: 'unit_test: END NAME test'});
 			done();
 		}, 300);
