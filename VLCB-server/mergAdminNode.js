@@ -574,7 +574,7 @@ class cbusAdmin extends EventEmitter {
       updated = true
     }
     // skip this if in unit test, as it's once only nature can cause repeated tests to fail
-    if((this.nodeConfig.nodes[nodeNumber].versionRequested == false) && (this.inUnitTest == false)){
+    if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
       if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
         this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
       }
@@ -584,7 +584,7 @@ class cbusAdmin extends EventEmitter {
       if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
         this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
       }
-      this.nodeConfig.nodes[nodeNumber].versionRequested = true
+      this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
     }
     // if status wasn't true, change it & mark as needs updating
     if (this.nodeConfig.nodes[nodeNumber].status != true){
@@ -668,7 +668,7 @@ class cbusAdmin extends EventEmitter {
         "services": {},
         "lastReceiveTimestamp": undefined,
         "checkNodeDescriptorTimeStamp": 0,
-        "versionRequested": false
+        "versionAlreadyRequested": false
     }
     this.nodeConfig.nodes[nodeNumber] = output
     winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
@@ -1042,7 +1042,7 @@ class cbusAdmin extends EventEmitter {
   //
   sendCBUSIntervalFunc(){
     // allow larger gap if we've just sent QNN
-    var timeGap = this.lastMessageWasQNN ? 400 : 50
+    var timeGap = this.lastMessageWasQNN ? 400 : 40
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 10 : timeGap
     if ( Date.now() > this.lastCbusTrafficTime + timeGap){
