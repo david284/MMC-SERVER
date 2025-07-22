@@ -131,7 +131,7 @@ class cbusAdmin extends EventEmitter {
         this.CBUS_Queue.push(cbusLib.encodeRQMN())   // push node onto queue to read module name from node
         this.CBUS_Queue.push(cbusLib.encodeRQNP())   // push node onto queue to read module name from node
         // now get the user to enter a node number
-        this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, cbusMsg.name)
+        this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.nodes[this.rqnnPreviousNodeNumber].NAME)
       },
       '52': async (cbusMsg) => {
         // NNACK - Node number acknowledge

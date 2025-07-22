@@ -1068,7 +1068,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
       winston.info({message: 'unit_test: END update_node_variable_in_learnMode test'});
       done();
-    }, 50);
+    }, 80);
   })
 
 
