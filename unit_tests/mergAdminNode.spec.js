@@ -437,10 +437,13 @@ describe('mergAdminNode tests', function(){
       }
       expect(nodeTraffic[0].json.mnemonic).to.equal("RQNN")
       let found_RQMN = false
+      let found_RQNP = false
       for (let index in nodeTraffic) {
         if (nodeTraffic[index].json.mnemonic == "RQMN"){ found_RQMN = true }
+        if (nodeTraffic[index].json.mnemonic == "RQNP"){ found_RQNP = true }
       }
       expect(found_RQMN).to.equal(true)
+      expect(found_RQNP).to.equal(true)
       expect(node.rqnnPreviousNodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END RQNN test'});
 			done();
@@ -745,7 +748,7 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: ' + JSON.stringify(nodeTraffic[i])});
       }
       expect(nodeTraffic[0].json.mnemonic).to.equal("NAME")
-      expect(node.nodeConfig.nodes[value.nodeNumber].NAME).to.equal("ABCDEFG")
+      expect(node.nodeConfig.nodes.setupMode_NAME).to.equal("ABCDEFG")
 //      expect(receivedNodeNumber).to.equal(value.nodeNumber)
 //      expect(receivedNAME).to.equal("ABCDEFG")
       winston.info({message: 'unit_test: END NAME test'});

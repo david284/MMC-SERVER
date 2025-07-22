@@ -391,10 +391,6 @@ describe('socketServer tests', async function(){
 
 
   //
-  // Slight bodge as it pre-creates the node so we can pre-poulate the NAME
-  // so we can check it does get sent
-  // But creating a node on RQNN is tested in other tests
-  // we're testing the message is sent correctly here
   //
   itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
@@ -402,8 +398,8 @@ describe('socketServer tests', async function(){
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
-    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
-    node.nodeConfig.nodes[value.nodeNumber].NAME = "ABCDEFG"
+    //node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes.setupMode_NAME = "ABCDEFG"
     var receivedNodeNumber = undefined
     var receivedNAME = undefined
     socket.once('REQUEST_NODE_NUMBER', function (nodeNumber, name) {
@@ -417,7 +413,7 @@ describe('socketServer tests', async function(){
       expect(receivedNAME).to.equal("ABCDEFG")
       winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
 			done();
-		}, 100);
+		}, 300);
   })
 
 
