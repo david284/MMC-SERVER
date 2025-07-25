@@ -908,7 +908,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //
   //
   node.on('node', function (node) {
-    winston.info({message: `socketServer: Node Sent `});
+    winston.info({message: `socketServer: Node ${node.nodeNumber} Sent to client `});
     //winston.info({message: `socketServer: Node Sent ` + JSON.stringify(node)});
     io.emit('NODE', node);
   })

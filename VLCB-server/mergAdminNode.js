@@ -1074,7 +1074,7 @@ class cbusAdmin extends EventEmitter {
       // returns keyword, in this case the nodeNumber
       if(this.nodeConfig.nodes[nodeNumber].hasChanged){
         this.nodeConfig.nodes[nodeNumber].hasChanged = false
-        winston.info({message: name + ': checkIfNodeschanged: node ' + nodeNumber + ' has changed'})
+        winston.debug({message: name + ': checkIfNodeschanged: node ' + nodeNumber + ' has changed'})
         this.emit('node', this.nodeConfig.nodes[nodeNumber])
       }
     }
