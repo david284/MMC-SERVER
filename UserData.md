@@ -8,7 +8,8 @@ The location of this data is dependant on the Operating System being used
 
 This location also contains the “appSettings.json” file  
 Note that for windows, all users share the same user data  
-But for the other platforms, the 'user' data is specific to the user thats signed-in
+But for the other platforms, the 'user' data is specific to the user thats signed-in  
+Important - you may have to select 'Show hidden files, folders and drives' from Windows Explorer under "options->view" to see this folder
 
 ### appSettings.json
 
