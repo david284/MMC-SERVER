@@ -1,3 +1,8 @@
+MMC Version 0.10.6
+  Updated client
+    - Node parameters not being loaded - problem introduced in last version because param9 already loaded
+
+
 MMC Version 0.10.5
   Updated client
     - Amended columns in export
