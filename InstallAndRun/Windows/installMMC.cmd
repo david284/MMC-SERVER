@@ -182,6 +182,10 @@ set GIT_DL_FILE=Git-%GIT_VERSION%-%GIT_PROCESSOR%.exe
 set GIT_DL_URL=https://github.com/git-for-windows/git/releases/download/v%GIT_VERSION%.windows.1/%GIT_DL_FILE%
 
 REM  get Git if not already installed
+REM
+REM  A problem has been reported in which after installing Git the Git commands don't work.
+REM  Unsure if this is a timing problem or whether a new shell is required to pick up the Git path
+REM  For now just adding a delay after installing Git to see if it helps
 git --version > NUL
 if %ERRORLEVEL% NEQ 0 (
 	echo Git is not present so it will be installed...
@@ -191,6 +195,7 @@ if %ERRORLEVEL% NEQ 0 (
 	) else (echo Git installer already downloaded.)
 	echo Installing Git...
 	.\%GIT_DL_FILE%
+	ping 127.0.0.1 -n 6 > nul
 ) else (echo Git is already installed.)
 
 REM 
@@ -236,9 +241,11 @@ if NOT !cnt!==0 (
 		echo Updating MMC...
 		git pull
 		npm update
+		pause
 	) 
 ) else (
 	echo MMC is up to date.
+	pause
 )
 cd ..
 
