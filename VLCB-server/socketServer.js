@@ -402,6 +402,19 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('REQUEST_FIRMWARE_INFO', async function(hexFile){
+      try{
+        winston.info({message: name +':  REQUEST_FIRMWARE_INFO:'});
+        let returnData = programNode.getFirmwareInformation(hexFile)
+        winston.info({message: name + `:  FIRMWARE_INFO: ${JSON.stringify(returnData)}`});
+        io.emit('FIRMWARE_INFO', returnData)
+      }catch(err){
+        winston.error({message: name + `: REQUEST_FIRMWARE_INFO: ${err}`});
+      }
+    })
+
+    //
+    //
     socket.on('REQUEST_LOG_FILE', function(data){
       try{
         winston.info({message: name + `: REQUEST_LOG_FILE ` + JSON.stringify(data)});

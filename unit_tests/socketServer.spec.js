@@ -502,6 +502,37 @@ describe('socketServer tests', async function(){
 
   //
   //
+  it("REQUEST_FIRMWARE_INFO test", function (done) {
+    winston.info({message: name + ': BEGIN REQUEST_FIRMWARE_INFO test '});
+    var result = false
+    let returnData = null
+    socket.once('FIRMWARE_INFO', function (data) {
+      returnData = data
+      winston.debug({message: name + `: FIRMWARE_INFO: data: ${JSON.stringify(data)}`});
+      result = true
+    })
+    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    winston.info({message: 'UNIT_TEST: REQUEST_FIRMWARE_INFO test: Filename: ' + filename});
+    var intelHexString = fs.readFileSync(filename);
+    //    
+    socket.emit('REQUEST_FIRMWARE_INFO', intelHexString)
+    //
+    setTimeout(function(){
+      winston.info({message: name + ': result ' + result});
+      winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
+      expect (result).to.equal(true)
+      expect (returnData.valid).to.equal(true)
+      expect (returnData.moduleID).to.equal(2)
+      expect (returnData.targetCpuType).to.equal(1)
+      winston.info({message: name + ': END REQUEST_FIRMWARE_INFO test'});
+			done();
+		}, 50);
+  })
+
+
+
+  //
+  //
   it("REQUEST_LOG_FILE test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_LOG_FILE test '});
     var result = false
