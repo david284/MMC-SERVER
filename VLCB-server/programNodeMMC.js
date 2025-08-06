@@ -102,6 +102,14 @@ class programNode extends EventEmitter  {
     this.success = false
     this.COMMAND_FLAGS = 0
     this.processedDataBytes = 0
+    // set defaults for area starts
+    this.area_start = {
+      "BOOT": 0,
+      "FLASH":0x800,
+      "CONFIG":0x300000,
+      "EEPROM":0xF00000
+    }
+
 
     // event handler for responses from node
     // in constructor so only one instance created
@@ -158,12 +166,6 @@ class programNode extends EventEmitter  {
   //
   setCpuType(cpuType){
     this.nodeCpuType = cpuType
-    this.area_start = {
-      "BOOT": 0,
-      "FLASH":0x800,
-      "CONFIG":0x300000,
-      "EEPROM":0xF00000
-    }
     // modify EEPROM START for certain cpu's
     if (this.nodeCpuType == 23){ this.area_start.EEPROM = 0x380000 }         // start for 18F27Q83
   }
@@ -179,6 +181,32 @@ class programNode extends EventEmitter  {
   * 4 = Ignore CPUTYPE
   * 8 = program in BootMode
   */
+
+  //
+  // defined values
+  // 0x822 - module ID
+  // 0x828 - cpu type
+  //
+  getFirmwareInformation(INTEL_HEX_STRING){
+    let data = {"valid":"false"}
+    winston.debug({message: name + `: getFirmwareInformation: data ${JSON.stringify(data)}`});
+    try{
+      if (this.parseHexFile(INTEL_HEX_STRING)){
+        if(this.BOOTLOADER_DATA_BLOCKS[0x820]){
+          data['moduleID'] = this.BOOTLOADER_DATA_BLOCKS[0x820][2]
+        }
+        if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
+          data['targetCpuType'] = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
+        }
+        data.valid = true
+      }
+    } catch (err){
+      
+    }
+    winston.debug({message: name + `: getFirmwareInformation: return ${JSON.stringify(data)}`});
+    return data
+  }
+
 
   async program (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
     this.success = false
@@ -377,16 +405,18 @@ class programNode extends EventEmitter  {
     winston.debug({message: 'programNode: parseHexFile - line count ' + lines.length})
 
     for (var i = 1; i < lines.length; i++) {
-      winston.debug({message: 'programNode: parseHexFile - line ' + ':' + lines[i]})
+      winston.debug({message: 'programNode: parseHexFile - line :' + lines[i]})
       // replace MARK symbol lost due to split
       result = this.decodeLine(':' + lines[i])
-      if (result == false) {break}
+      if (result == false) {
+        winston.info({message: `programNode: parseHexFile: line fault` });
+        break
+      }
     }
 
     winston.info({message: name + ': parseHexFile: result: ' + result});
     if (result){
-
-      winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.BOOTLOADER_DATA_BLOCKS)}` });
+      //winston.info({message: `programNode: parseHexFile: ${JSON.stringify(this.BOOTLOADER_DATA_BLOCKS)}` });
       for (const block in this.BOOTLOADER_DATA_BLOCKS) {
         let string = ""
         for (let i=0; i<this.BOOTLOADER_DATA_BLOCKS[block].length; i++ ){
@@ -394,6 +424,8 @@ class programNode extends EventEmitter  {
         }
         winston.debug({message: `programNode: parseHexFile: BOOTLOADER_DATA_BLOCK: ${utils.decToHex(block,8)} ${string}` });
       } 
+    } else {
+        winston.info({message: `programNode: parseHexFile: fault - no result` });
     }
 
     return result
@@ -515,6 +547,7 @@ class programNode extends EventEmitter  {
     }
 
     // ok, line is valid so start processing it
+    winston.debug({message: name + `: READ LINE: line valid ${line}`});
 
     //
     // Area's are used to describe the type of content, and have no effect on addressing
@@ -525,12 +558,13 @@ class programNode extends EventEmitter  {
 
     switch (RECTYP){
       case 0:
-        //winston.debug({message: 'programNode: line decode: Data Record: '});
+        winston.debug({message: 'programNode: line decode: Data Record: '});
         for (let i =0; i < data.length/2; i++){
           var absoluteAddress = this.ExtendedLinearAddress + OFFSET + i
           var dataByte = parseInt(data[i*2]+data[i*2+1], 16)
           this.processDataByte(absoluteAddress, dataByte)
         }
+        winston.debug({message: 'programNode: line decode: Data Record processed: '});
         break;
       case 1:
         winston.debug({message: 'programNode: line decode: End of File Record:'});
@@ -551,6 +585,7 @@ class programNode extends EventEmitter  {
         winston.warn({message: 'programNode: line decode: Start Linear Address Record:'});
         break;
       default:
+        winston.debug({message: 'programNode: line decode: unknown record type '})
     }
     return true
   }

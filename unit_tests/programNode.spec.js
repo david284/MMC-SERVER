@@ -79,6 +79,23 @@ describe('programNode tests', async function(){
   //
   // Use real hex file to ensure correct operation
   //
+  it('getFirmwareInformation short test', function() {
+    winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: getFirmwareInformation short test:'});
+    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    winston.info({message: 'UNIT_TEST: getFirmwareInformation short test: Filename: ' + filename});
+    var intelHexString = fs.readFileSync(filename);
+    var data = programNode.getFirmwareInformation( intelHexString );
+    winston.info({message: `UNIT_TEST: getFirmwareInformation: result ${JSON.stringify(data)}`});
+    expect(data.valid).to.equal(true);
+    expect(data.moduleID).to.equal(2);
+    expect(data.targetCpuType).to.equal(1);
+    winston.info({message: 'UNIT_TEST: <<<<<< END: getFirmwareInformation short test:'});
+  });
+
+
+  //
+  // Use real hex file to ensure correct operation
+  //
   it('ParseHexFile short test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile short test:'});
     let filename = './unit_tests/test_firmware/shortFile.HEX'
