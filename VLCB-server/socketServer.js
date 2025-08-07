@@ -29,10 +29,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   io.on('connection', function(socket){
     winston.info({message: 'socketServer:  a user connected'});
     send_SERVER_STATUS(config, status)
+    io.emit('MODULE_NAMES', config.readMergConfig().modules)
+    winston.info({message: name + `: sent MODULE_NAMES`});
     if (status.mode == "RUNNING"){
       // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
-      io.emit('MODULE_NAMES', config.readMergConfig().modules)
+      winston.info({message: name + `: sent LAYOUT_DATA`});
       node.query_all_nodes()
     }
     

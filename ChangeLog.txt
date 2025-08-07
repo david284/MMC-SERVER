@@ -1,3 +1,8 @@
+MMC Version 0.10.7
+  Updated client
+    - Modified ProgramNode to display file information & enforce options on mismatch
+  Added REQUEST_FIRMWARE_INFO
+
 MMC Version 0.10.6
   Updated client
     - Node parameters not being loaded - problem introduced in last version because param9 already loaded
