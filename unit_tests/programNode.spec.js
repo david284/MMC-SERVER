@@ -82,13 +82,18 @@ describe('programNode tests', async function(){
   it('getFirmwareInformation short test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: getFirmwareInformation short test:'});
     let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    // expected result {"valid":true,"manufacturerID":165,"moduleID":2,"moduleIdentifier":"A502","versionNumber":"2V","targetCpuType":1,"betaNumber":0}
     winston.info({message: 'UNIT_TEST: getFirmwareInformation short test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     var data = programNode.getFirmwareInformation( intelHexString );
     winston.info({message: `UNIT_TEST: getFirmwareInformation: result ${JSON.stringify(data)}`});
     expect(data.valid).to.equal(true);
+    expect(data.manufacturerID).to.equal(165);
     expect(data.moduleID).to.equal(2);
+    expect(data.moduleIdentifier).to.equal("A502");
+    expect(data.versionNumber).to.equal("2V");
     expect(data.targetCpuType).to.equal(1);
+    expect(data.betaNumber).to.equal(0);
     winston.info({message: 'UNIT_TEST: <<<<<< END: getFirmwareInformation short test:'});
   });
 

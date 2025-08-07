@@ -184,8 +184,12 @@ class programNode extends EventEmitter  {
 
   //
   // defined values
-  // 0x822 - module ID
-  // 0x828 - cpu type
+  // 0x820 - param 1 - manufacturerID 
+  // 0x821 - param 2 - minor version number
+  // 0x822 - param 3 - module ID
+  // 0x826 - param 7 - major version number
+  // 0x828 - param 9 - cpu type
+  // 0x833 - param 20 - beta number
   //
   getFirmwareInformation(INTEL_HEX_STRING){
     let data = {"valid":"false"}
@@ -193,10 +197,17 @@ class programNode extends EventEmitter  {
     try{
       if (this.parseHexFile(INTEL_HEX_STRING)){
         if(this.BOOTLOADER_DATA_BLOCKS[0x820]){
-          data['moduleID'] = this.BOOTLOADER_DATA_BLOCKS[0x820][2]
+          data["manufacturerID"] = this.BOOTLOADER_DATA_BLOCKS[0x820][0]
+          data["moduleID"] = this.BOOTLOADER_DATA_BLOCKS[0x820][2]
+          data["moduleIdentifier"] = utils.decToHex(data.manufacturerID,2) + utils.decToHex(data.moduleID,2)
+          data["versionNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x820][6] +
+							String.fromCharCode(this.BOOTLOADER_DATA_BLOCKS[0x820][1])
         }
         if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
-          data['targetCpuType'] = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
+          data["targetCpuType"] = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
+        }
+        if(this.BOOTLOADER_DATA_BLOCKS[0x830]){
+          data["betaNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x830][3]
         }
         data.valid = true
       }

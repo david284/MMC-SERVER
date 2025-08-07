@@ -32,6 +32,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     if (status.mode == "RUNNING"){
       // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
+      io.emit('MODULE_NAMES', config.readMergConfig().modules)
       node.query_all_nodes()
     }
     
