@@ -1184,7 +1184,7 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 0))     // get number of node parameters
     await utils.sleep(200) // allow time for message to be sent & initial response
     // allow a gap in case we get multiple responses
-    var timeGap = 400
+    var timeGap = 200
     var count = 0   // add safety counter so while loop can't get stuck
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 1 : timeGap
@@ -1192,7 +1192,7 @@ class cbusAdmin extends EventEmitter {
     // incase there was multiple responses (VLCB style)
     while ( Date.now() < this.lastCbusTrafficTime + timeGap){
       winston.debug({message: name +': request_all_node_parameters: timeGap '})
-      await utils.sleep(100)
+      await utils.sleep(10)
       if (count++ > 100){break} // safety escape
     }
     // if we haven't received all the parameters, then we need to request them individually
