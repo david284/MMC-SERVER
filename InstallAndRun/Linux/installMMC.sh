@@ -16,7 +16,7 @@
 MMCSERVER_URL="https://github.com/david284/MMC-SERVER.git"
 INSTALL_DIR="$HOME/MMC"
 
-echo "Welcome to the MMC installer for Windows. Version 16 June 2025 17:49"
+echo "Welcome to the MMC installer for Linux. Version 29 July 2025 20:24"
 
 echo "Installation directory set to $INSTALL_DIR"
 #  ensure installation directory can be created
@@ -69,7 +69,7 @@ if [ $? -eq 0 ]; then
 else
 	# not present so do an install
 	sudo apt-get update
-	sudo apt-get get install git
+	sudo apt-get install git
 fi
 
 # 
