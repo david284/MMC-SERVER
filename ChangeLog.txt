@@ -1,7 +1,9 @@
 MMC Version 0.10.7
   Updated client
     - Modified ProgramNode to display file information & enforce options on mismatch
+    - Modified reading events variables to allow more time for refreshing event indexes
   Added REQUEST_FIRMWARE_INFO
+  Updated multiple MDF's
 
 MMC Version 0.10.6
   Updated client

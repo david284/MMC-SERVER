@@ -312,10 +312,12 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
         // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
         this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
+        // bit of a fudge for nodes that don't respond to RQEVN
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
         // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
         if (nodeNumber > 0){
           // push node onto queue to read all events
-          this.CBUS_Queue.push(cbusLib.encodeRQEVN(cbusMsg.nodeNumber))
+          this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
         }
         this.updateNodeConfig(cbusMsg.nodeNumber)
         // now get file list & send event to socketServer
