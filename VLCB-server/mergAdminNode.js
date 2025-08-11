@@ -1206,8 +1206,8 @@ class cbusAdmin extends EventEmitter {
       await utils.sleep(10)
       if (count++ > 100){break} // safety escape
     }
-    // if we haven't received all the parameters, then we need to request them individually
-    if (this.nodeConfig.nodes[nodeNumber].paramsUpdated == false){
+    // if we haven't received more than param 0, then we need to request them individually
+    if (this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
       winston.debug({message: name +': request_all_node_parameters: request individually for node ' + nodeNumber})
       let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
       if (nodeParameterCount == undefined){nodeParameterCount = 20}
