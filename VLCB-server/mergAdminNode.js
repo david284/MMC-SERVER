@@ -48,7 +48,7 @@ class cbusAdmin extends EventEmitter {
     setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
     this.eventsChanged = false
     // update client if anything changed
-    setInterval(this.updateClients.bind(this), 500);
+    setInterval(this.updateClients.bind(this), 200);
     this.opcodeTracker = {}
     this.connectionDetails = null
 
@@ -1195,7 +1195,7 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 0))     // get number of node parameters
     await utils.sleep(200) // allow time for message to be sent & initial response
     // allow a gap in case we get multiple responses
-    var timeGap = 200
+    var timeGap = 300
     var count = 0   // add safety counter so while loop can't get stuck
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 1 : timeGap
