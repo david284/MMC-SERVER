@@ -660,7 +660,7 @@ class configuration {
     } else {
       folder = path.join(this.currentUserDirectory, 'modules')
     }
-    winston.info({message: className + ': getMatchingMDFList: ' + folder + ' ' + match})
+    winston.debug({message: className + ': getMatchingMDFList: ' + folder + ' ' + match})
     var result =[]
     var fileList
     try{

@@ -312,8 +312,6 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
         // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
         this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
-        // bit of a fudge for nodes that don't respond to RQEVN
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
         // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
         if (nodeNumber > 0){
           // push node onto queue to read all events
@@ -497,7 +495,7 @@ class cbusAdmin extends EventEmitter {
       }
     }
     var list = this.config.getModuleDescriptorFileList(moduleIdentifier)
-    winston.info({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
+    winston.debug({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
     if (list[0]){
       var index = list[0].toString().search(moduleIdentifier)
       winston.debug({message: name + `: getModuleDescriptorFileList: moduleIdentifier position: ` + index});
@@ -538,12 +536,8 @@ class cbusAdmin extends EventEmitter {
       this.opcodeTracker[cbusMsg.opCode].count++
       this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
       if (cbusMsg.nodeNumber){
-        if (cbusMsg.mnemonic != "PNN"){
-          // if the message has a node number, update status
-          // but not if PNN, as it's nodeConfig won't exist, and don't want to request duplicate info
-          // but this might have been a node added without doing a refresh
-          this.updateNodeStatus(cbusMsg.nodeNumber)
-        }
+        // if the message has a node number, update status
+        this.updateNodeStatus(cbusMsg)
       }
       if (this.actions[cbusMsg.opCode]) {
           await this.actions[cbusMsg.opCode](cbusMsg);
@@ -564,15 +558,21 @@ class cbusAdmin extends EventEmitter {
   // but don't call on PNN, as PNN will create the node & gets the minimum params anyway
   // and we'd be generating 3 unnecessary commands if we did
   //
-  updateNodeStatus(nodeNumber){
+  updateNodeStatus(cbusMsg){
+    let nodeNumber = cbusMsg.nodeNumber
     var updated = false
-    // if node doesn't exist, create it & request minimum params
+    // if node doesn't exist, create it
     if (this.nodeConfig.nodes[nodeNumber] == undefined){
       this.createNodeConfig(nodeNumber, false)
-      // get param 8, 1 & 3 as needed as a minimum if new node
-      this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
-      this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
-      this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+      // if node didn't exist request minimum params
+      // but not if PNN, as we don't want to request duplicate info that PNN will do anyway
+      // but this might have been a node added without doing a refresh
+      if (cbusMsg.mnemonic != "PNN"){
+        // get param 8, 1 & 3 as needed as a minimum if new node
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+      }
       updated = true
     }
     // skip this if in unit test, as it's once only nature can cause repeated tests to fail
@@ -1021,7 +1021,16 @@ class cbusAdmin extends EventEmitter {
               this.emit('nodeDescriptor', payload);
               // saveNode will populate moduleName if it doesn't exist
               //this.saveNode(nodeNumber)
+            } else {
+            winston.info({message: name + `: checkNodeDescriptor: failed to load file
+                moduleIdentifier ${moduleIdentifier}
+                moduleVersion ${moduleVersion}
+                processorType ${this.nodeConfig.nodes[nodeNumber].processorType}`});
             }
+          } else {
+            winston.info({message: name + `: checkNodeDescriptor: failed to load file
+                moduleVersion ${this.nodeConfig.nodes[nodeNumber].moduleVersion}
+                processorType ${this.nodeConfig.nodes[nodeNumber].processorType}`});
           }
         }
       } catch (err){
