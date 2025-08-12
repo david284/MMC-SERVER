@@ -1381,6 +1381,35 @@ describe('mergAdminNode tests', function(){
 
   })
 
+  function GetTestCase_getTimeGap() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 7; a++) {
+      if (a == 1) {arg1 = cbusLib.decode(cbusLib.encodeNERD(1)), arg2=300}
+      if (a == 2) {arg1 = cbusLib.decode(cbusLib.encodeNVRD(1, 0)), arg2=300}
+      if (a == 3) {arg1 = cbusLib.decode(cbusLib.encodeQNN()), arg2=400}
+      if (a == 4) {arg1 = cbusLib.decode(cbusLib.encodeREVAL(1, 1, 0)), arg2=300}
+      if (a == 5) {arg1 = cbusLib.decode(cbusLib.encodeREQEV(1, 1, 0)), arg2=300}
+      if (a == 6) {arg1 = cbusLib.decode(cbusLib.encodeRQNPN(1, 0)), arg2=300}
+      if (a == 7) {arg1 = cbusLib.decode(cbusLib.encodeWRACK(1)), arg2=40}
+      testCases.push({'cbusMsg':arg1, 'timeGap': arg2});
+    }
+    return testCases;
+  }
+
+  //
+  // For this test, we don't want the unit test override in getTimeGap
+  //
+  itParam("getTimeGap test ${JSON.stringify(value)}", GetTestCase_getTimeGap(), async function (value) {
+    winston.info({message: 'unit_test: BEGIN getTimeGap test: ' + JSON.stringify(value) });
+    node.inUnitTest = false
+    node.LastCbusMessage = value.cbusMsg
+    let result = node.getTimeGap() 
+    winston.info({message: `unit_test: getTimeGap test: result ${result}`});
+    expect(result).to.equal(value.timeGap)
+    node.inUnitTest = true
+    winston.info({message: 'unit_test: END getTimeGap test'});
+  })
+
 
 
 })
