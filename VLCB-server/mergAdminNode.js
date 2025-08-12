@@ -1074,34 +1074,28 @@ class cbusAdmin extends EventEmitter {
       switch (this.LastCbusMessage.mnemonic)
       {
         case "NERD":
-          winston.info({message: name + `: getTimeGap: LastCbusMessage: NERD` });
           timeGap = 300
           break;
         case "NVRD":
           if ( this.LastCbusMessage.nodeVariableIndex == 0){
-            winston.info({message: name + `: getTimeGap: LastCbusMessage: NVRD #0` });
             timeGap = 300
           }
           break;
         case "QNN":
-          winston.info({message: name + `: getTimeGap: LastCbusMessage: QNN` });
           timeGap = 400
           break;
         case "REVAL":
           if ( this.LastCbusMessage.eventVariableIndex == 0){
-            winston.info({message: name + `: getTimeGap: LastCbusMessage: REVAL #0` });
             timeGap = 300
           }
           break;
         case "REQEV":
           if ( this.LastCbusMessage.eventVariableIndex == 0){
-            winston.info({message: name + `: getTimeGap: LastCbusMessage: REQEV #0` });
             timeGap = 300
           }
           break;
         case "RQNPN":
           if ( this.LastCbusMessage.parameterIndex == 0){
-            winston.info({message: name + `: getTimeGap: LastCbusMessage: RQNPN #0` });
             timeGap = 300
           }
           break;
