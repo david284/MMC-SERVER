@@ -41,7 +41,6 @@ class cbusAdmin extends EventEmitter {
     this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
 
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
-    this.lastMessageWasQNN = false
     this.LastCbusMessage = null
     this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
     this.CBUS_Queue = []
@@ -825,7 +824,6 @@ class cbusAdmin extends EventEmitter {
       this.emit('nodeTraffic', {direction: 'Out', json: cbusMSG});
       if (cbusMSG.mnemonic == "QNN"){
         this.QNN_sent_time = Date.now()   // gets milliseconds now
-        this.lastMessageWasQNN = true
       }
       winston.debug({message: name + `: GRID_CONNECT_SEND ${GCmsg}`})
       winston.debug({message: name + `: GRID_CONNECT_SEND ${JSON.stringify(cbusMSG)}`})
@@ -1056,14 +1054,7 @@ class cbusAdmin extends EventEmitter {
   sendCBUSIntervalFunc(){
     // allow larger gap if we've just sent QNN
     var timeGap = this.getTimeGap()
-    //var timeGap = this.lastMessageWasQNN ? 400 : 40
-    // but reduce gap if doing unit tests
-    //timeGap = this.inUnitTest ? 10 : timeGap
     if ( Date.now() > this.lastCbusTrafficTime + timeGap){
-      // don't reset QNN flag if too soon - avoids flag being cleared after just being set
-      if (Date.now() > this.QNN_sent_time + 30){
-        this.lastMessageWasQNN = false
-      }
       if (this.CBUS_Queue.length > 0){
         // get first out of queue
         var msg = this.CBUS_Queue[0]

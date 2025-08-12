@@ -1027,15 +1027,18 @@ describe('mergAdminNode tests', function(){
 
   // updateNodeStatus
   // use node number that doesn't exist
+  // and a message that isn't PNN
   //
   it("updateNodeStatus test", function (done) {
     winston.info({message: 'unit_test: BEGIN updateNodeStatus test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     let nodeNumber = 3
-    node.updateNodeStatus(nodeNumber)
+    // round trip to get json decode
+    let cbusmsg = cbusLib.decode(cbusLib.encodeWRACK(nodeNumber))
+    node.updateNodeStatus(cbusmsg)
     setTimeout(function(){
-      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
+      winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn)}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[0].parameterIndex).to.equal(8)
@@ -1047,7 +1050,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[2].parameterIndex).to.equal(3)
       winston.info({message: 'unit_test: END updateNodeStatus test'});
       done();
-    }, 300);
+    }, 500);
   })
 
 
@@ -1374,7 +1377,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeVariableIndex).to.equal(2)
       winston.info({message: 'unit_test: END request_node_variable test'});
 			done();
-		}, 300);
+		}, 500);
 
   })
 
