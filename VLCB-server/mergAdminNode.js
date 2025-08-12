@@ -42,7 +42,6 @@ class cbusAdmin extends EventEmitter {
 
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
     this.LastCbusMessage = null
-    this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
     this.CBUS_Queue = []
     this.CBUS_Queue = []
     setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
@@ -817,19 +816,17 @@ class cbusAdmin extends EventEmitter {
   // expects a Grid Connect encoded message
   // And generates a 'GRID_CONNECT_SEND' eventbus message
   // as well as a 'nodeTraffic' logging event with more verbous data
+  // stores the current message & timestamp
   //
   async cbusTransmit(GCmsg) {
+    //winston.debug({message: name + `: cbusTransmit: ${GCmsg}`});
     if (typeof GCmsg !== 'undefined') {
       let cbusMSG = cbusLib.decode(GCmsg)   // decode to get text
       this.emit('nodeTraffic', {direction: 'Out', json: cbusMSG});
-      if (cbusMSG.mnemonic == "QNN"){
-        this.QNN_sent_time = Date.now()   // gets milliseconds now
-      }
-      winston.debug({message: name + `: GRID_CONNECT_SEND ${GCmsg}`})
       winston.debug({message: name + `: GRID_CONNECT_SEND ${JSON.stringify(cbusMSG)}`})
       this.config.eventBus.emit ('GRID_CONNECT_SEND', GCmsg)
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
-      this.LastCbusMessage = cbusMSG
+      this.LastCbusMessage = cbusMSG            // used in conjunction with timesatmp above
       //
     }
   }
@@ -1049,15 +1046,16 @@ class cbusAdmin extends EventEmitter {
 
   //
   // Function to send CBUS messages one at a time, ensuring a gap between them
-  // but allow longer time gap if last message was QNN to allow all PNN's to be
+  // Gap is dynamic depending on last message
   //
   sendCBUSIntervalFunc(){
-    // allow larger gap if we've just sent QNN
+    // get calculated time gap to leave after last message
     var timeGap = this.getTimeGap()
     if ( Date.now() > this.lastCbusTrafficTime + timeGap){
       if (this.CBUS_Queue.length > 0){
         // get first out of queue
         var msg = this.CBUS_Queue[0]
+        //winston.debug({message: name + `: sendCBUSIntervalFunc: dequeued ${msg}` });
         this.cbusTransmit(msg)
         // remove the one we've used from queue
         this.CBUS_Queue.shift()
@@ -1067,6 +1065,9 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+  // calculate a new time gap between CBUS tranmits dependant on the type of the last message
+  // allow an override if unit tests in progress
+  //
   getTimeGap(){
     let timeGap = 40
     try{
