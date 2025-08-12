@@ -42,6 +42,7 @@ class cbusAdmin extends EventEmitter {
 
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
     this.lastMessageWasQNN = false
+    this.LastCbusMessage = null
     this.QNN_sent_time = Date.now()   // put valid milliseconds in to start
     this.CBUS_Queue = []
     this.CBUS_Queue = []
@@ -57,7 +58,7 @@ class cbusAdmin extends EventEmitter {
       try{
         this.lastCbusTrafficTime = Date.now()     // store this time stamp
         let cbusMsg = cbusLibrary.decode(data)
-        winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${cbusMsg.text}`})
+        winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
         //
         this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
         if (this.isMessageValid(cbusMsg)){
@@ -827,9 +828,10 @@ class cbusAdmin extends EventEmitter {
         this.lastMessageWasQNN = true
       }
       winston.debug({message: name + `: GRID_CONNECT_SEND ${GCmsg}`})
-      winston.debug({message: name + `: GRID_CONNECT_SEND ${cbusMSG.text}`})
+      winston.debug({message: name + `: GRID_CONNECT_SEND ${JSON.stringify(cbusMSG)}`})
       this.config.eventBus.emit ('GRID_CONNECT_SEND', GCmsg)
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
+      this.LastCbusMessage = cbusMSG
       //
     }
   }
@@ -1053,9 +1055,10 @@ class cbusAdmin extends EventEmitter {
   //
   sendCBUSIntervalFunc(){
     // allow larger gap if we've just sent QNN
-    var timeGap = this.lastMessageWasQNN ? 400 : 40
+    var timeGap = this.getTimeGap()
+    //var timeGap = this.lastMessageWasQNN ? 400 : 40
     // but reduce gap if doing unit tests
-    timeGap = this.inUnitTest ? 10 : timeGap
+    //timeGap = this.inUnitTest ? 10 : timeGap
     if ( Date.now() > this.lastCbusTrafficTime + timeGap){
       // don't reset QNN flag if too soon - avoids flag being cleared after just being set
       if (Date.now() > this.QNN_sent_time + 30){
@@ -1071,6 +1074,51 @@ class cbusAdmin extends EventEmitter {
     } else {
       //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
     }
+  }
+
+  getTimeGap(){
+    let timeGap = 40
+    try{
+      switch (this.LastCbusMessage.mnemonic)
+      {
+        case "NERD":
+          winston.info({message: name + `: getTimeGap: LastCbusMessage: NERD` });
+          timeGap = 300
+          break;
+        case "NVRD":
+          if ( this.LastCbusMessage.nodeVariableIndex == 0){
+            winston.info({message: name + `: getTimeGap: LastCbusMessage: NVRD #0` });
+            timeGap = 300
+          }
+          break;
+        case "QNN":
+          winston.info({message: name + `: getTimeGap: LastCbusMessage: QNN` });
+          timeGap = 400
+          break;
+        case "REVAL":
+          if ( this.LastCbusMessage.eventVariableIndex == 0){
+            winston.info({message: name + `: getTimeGap: LastCbusMessage: REVAL #0` });
+            timeGap = 300
+          }
+          break;
+        case "REQEV":
+          if ( this.LastCbusMessage.eventVariableIndex == 0){
+            winston.info({message: name + `: getTimeGap: LastCbusMessage: REQEV #0` });
+            timeGap = 300
+          }
+          break;
+        case "RQNPN":
+          if ( this.LastCbusMessage.parameterIndex == 0){
+            winston.info({message: name + `: getTimeGap: LastCbusMessage: RQNPN #0` });
+            timeGap = 300
+          }
+          break;
+        default:
+      }
+    } catch {}
+    // reduce gap if doing unit tests
+    timeGap = this.inUnitTest ? 10 : timeGap
+    return timeGap
   }
     
   //
@@ -1195,7 +1243,7 @@ class cbusAdmin extends EventEmitter {
     this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 0))     // get number of node parameters
     await utils.sleep(200) // allow time for message to be sent & initial response
     // allow a gap in case we get multiple responses
-    var timeGap = 300
+    var timeGap = 400
     var count = 0   // add safety counter so while loop can't get stuck
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 1 : timeGap
@@ -1247,7 +1295,7 @@ class cbusAdmin extends EventEmitter {
         let startTime = Date.now()
         this.CBUS_Queue.push(cbusLib.encodeNVRD(nodeNumber, 0))
         // reduce wait time if doing unit tests
-        let waitTime = this.inUnitTest ? 10 : 100
+        let waitTime = this.inUnitTest ? 10 : 400
         while(Date.now() < startTime + waitTime){
           // wait to see if we get a non-zero NV back, if so we assume all NV's returned
           await sleep(1)
