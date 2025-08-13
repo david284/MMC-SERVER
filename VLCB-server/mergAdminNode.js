@@ -1236,7 +1236,7 @@ class cbusAdmin extends EventEmitter {
     // so now wait for the specified timeGap after the last message recieved
     // incase there was multiple responses (VLCB style)
     while ( Date.now() < this.lastCbusTrafficTime + timeGap){
-      winston.debug({message: name +': request_all_node_parameters: timeGap '})
+      //winston.debug({message: name +': request_all_node_parameters: timeGap '})
       await utils.sleep(10)
       if (count++ > 100){break} // safety escape
     }

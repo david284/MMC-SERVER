@@ -1,3 +1,18 @@
+MMC Version 0.10.8
+  - Added function to increase interval between transmitted messages on certain opcodes
+    CANMIO-Universal V3 onwards has a setting for the interval between messages for some opcodes
+    And updating from older versions can leave this setting at maximum (255mS)
+    Failure to allow for this can result in lost messages
+    Startup time has increased by about 20% as a result
+  - Time delay after node reset increased to allow for recent firmware changes
+  Updated Client
+    - Increased time after node reset in RestoreNodeDialog to reflect changes in universal firmware V4bs onwards.
+    - Increased timeout in WaitingOnBusTrafficDialog to allow for gaps in received traffic from server
+      when it's busy (e.g. reading MDF's).
+    - Fixed issue with export not working due to undefined field entries from import
+
+
+
 MMC Version 0.10.7
   Updated client
     - Modified ProgramNode to display file information & enforce options on mismatch
