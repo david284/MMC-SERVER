@@ -1,3 +1,6 @@
+MMC Version 0.10.9
+  Added NODE_BACKUP_SAVED message to client
+
 MMC Version 0.10.8
   - Added function to increase interval between transmitted messages on certain opcodes
     CANMIO-Universal V3 onwards has a setting for the interval between messages for some opcodes
