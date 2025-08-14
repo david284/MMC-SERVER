@@ -246,6 +246,7 @@ class configuration {
         backupNode: backupNode
       }
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
+      this.eventBus.emit ('NODE_BACKUP_SAVED', fileName) 
     } catch(err){
       winston.info({message: className + `: writeBackup: ` + err});
     }

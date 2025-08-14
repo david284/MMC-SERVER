@@ -978,6 +978,13 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     io.emit('NETWORK_CONNECTION_FAILURE', data)
   })
 
+  // 
+  //
+  config.eventBus.on('NODE_BACKUP_SAVED', function (filename) {
+    winston.info({message: `socketServer: NODE_BACKUP_SAVED: ${filename}`});
+    io.emit('NODE_BACKUP_SAVED', filename)
+  })
+  
   // data JSON elements: message, caption, type, timeout
   //
   config.eventBus.on('SERVER_NOTIFICATION', function (data) {

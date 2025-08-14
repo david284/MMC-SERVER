@@ -32,3 +32,9 @@ Note that this Linux installer does not compare the versions of nodeJS and git b
 The run script does NOT currently check the MMC version when MMC is started.
 
 Ian Hogg
+
+**Using USB (CANUSB / CANUSB4)**
+
+The user account may not have permissions to access the usb ports. This may be solved this by running the following:
+
+*sudo usermod -aG dialout `<username>`*
