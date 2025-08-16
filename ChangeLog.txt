@@ -1,5 +1,13 @@
 MMC Version 0.10.9
-  Added NODE_BACKUP_SAVED message to client
+  Added NODE_BACKUP_SAVED message to send to client
+  Client
+    - Changed RestoreNodeDialog to NodeBackupAndRestoreDialog
+    - added link to NodeBackupDialog in NodeBackupAndRestoreDialog
+    - Added upload & download to NodeBackupAndRestoreDialog
+    - Added support for NODE_BACKUP_SAVED message from server
+    - Added BusTrafficDialog to display all of the BusTrafficLog
+    - Added 'ALL' to BusTraffic sidebar to invoke the new BusTrafficDialog
+
 
 MMC Version 0.10.8
   - Added function to increase interval between transmitted messages on certain opcodes
