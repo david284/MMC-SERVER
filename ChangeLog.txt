@@ -2,7 +2,7 @@ MMC Version 0.10.9
   Added NODE_BACKUP_SAVED message to send to client
   Added nodeDescripter_Queue to pace loading MDF's
   MDF delete now refreshes user file list
-  Updated CANLED64 V2g with channel names
+  Updated CANLED64 V2g MDF with channel names
   Client
     - Changed RestoreNodeDialog to NodeBackupAndRestoreDialog
     - added link to NodeBackupDialog in NodeBackupAndRestoreDialog
