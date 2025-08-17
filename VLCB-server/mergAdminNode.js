@@ -36,6 +36,8 @@ class cbusAdmin extends EventEmitter {
     this.rqnnPreviousNodeNumber = null
     // keep a record of when any module descriptors are updated, so we know when to recheck
     this.moduleDescriptorFilesTimeStamp = Date.now()   // put valid milliseconds in to start
+    this.nodeDescripter_Queue = []      // create a queue for reading MDF's for nodes
+    setInterval(this.checkNodeDescriptorIntervalFunc.bind(this), 20);
 
     const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
     this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -935,7 +937,8 @@ class cbusAdmin extends EventEmitter {
     }
     if ((this.nodeConfig.nodes[nodeNumber].moduleVersion) && (this.nodeConfig.nodes[nodeNumber].processorType)){
       // if version number & processor type exists, try to get module descriptor
-      this.checkNodeDescriptor(nodeNumber, false); // do before emit node
+      this.nodeDescripter_Queue.push(nodeNumber)
+      //this.checkNodeDescriptor(nodeNumber, false); // do before emit node
     }
     this.config.writeNodeConfig(this.nodeConfig)
     // mark node has changed, so regular check will send the node to the client
@@ -971,8 +974,8 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + ': refreshNodeDescriptors'});
     // refresh time stamp so that node descriptors will be refreshed
     this.moduleDescriptorFilesTimeStamp = Date.now()
-    Object.keys(this.nodeConfig.nodes).forEach(nodeNumber => {
-      this.checkNodeDescriptor(nodeNumber, true)
+    Object.keys(this.nodeConfig.nodes).forEach(async nodeNumber => {
+      this.nodeDescripter_Queue.push(nodeNumber)
     })
   }
 
@@ -1043,6 +1046,20 @@ class cbusAdmin extends EventEmitter {
 // in alphabetical order
 //
 //************************************************************************ */
+
+//
+// Function to allow checking of MDF's without blocking
+//
+checkNodeDescriptorIntervalFunc(){
+  if (this.nodeDescripter_Queue.length > 0){
+    // get first out of queue
+    var nodeNumber = this.nodeDescripter_Queue[0]
+    winston.info({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
+    this.checkNodeDescriptor(nodeNumber, false)
+    // remove the one we've used from queue
+    this.nodeDescripter_Queue.shift()
+  }
+}
 
   //
   // Function to send CBUS messages one at a time, ensuring a gap between them

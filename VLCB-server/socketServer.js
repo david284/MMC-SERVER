@@ -237,12 +237,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         var filename = data.moduleDescriptor.moduleDescriptorFilename
         winston.info({message: 'socketServer: IMPORT_MODULE_DESCRIPTOR ' + data.nodeNumber + ' ' + filename});
         config.writeModuleDescriptor(data.moduleDescriptor)
-        node.refreshNodeDescriptors()   // force refresh of nodeDescriptors
         // refresh matching list, if there's an associated nodeNumber
         if (data.nodeNumber != undefined){
           var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
           io.emit('MATCHING_MDF_LIST', "USER", data.nodeNumber, config.getMatchingMDFList("USER", match))
         }
+        node.refreshNodeDescriptors()   // force refresh of nodeDescriptors
       }catch(err){
         winston.error({message: name + `: IMPORT_MODULE_DESCRIPTOR: ${err}`});
       }
@@ -592,6 +592,11 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         winston.info({message: `socketServer:  REQUEST_MDF_DELETE: ` + data.filename})
         // uses synchronous file system calls
         config.deleteMDF(data.filename)
+        // refresh matching list, if there's an associated nodeNumber
+        if (data.nodeNumber != undefined){
+          var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
+          io.emit('MATCHING_MDF_LIST', "USER", data.nodeNumber, config.getMatchingMDFList("USER", match))
+        }
         node.refreshNodeDescriptors()   // force refresh
       }catch(err){
         winston.error({message: name + `: REQUEST_MDF_DELETE: ${err}`});

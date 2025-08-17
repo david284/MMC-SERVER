@@ -1,5 +1,7 @@
 MMC Version 0.10.9
   Added NODE_BACKUP_SAVED message to send to client
+  Added nodeDescripter_Queue to pace loading MDF's
+  MDF delete now refreshes user file list
   Client
     - Changed RestoreNodeDialog to NodeBackupAndRestoreDialog
     - added link to NodeBackupDialog in NodeBackupAndRestoreDialog
@@ -7,6 +9,7 @@ MMC Version 0.10.9
     - Added support for NODE_BACKUP_SAVED message from server
     - Added BusTrafficDialog to display all of the BusTrafficLog
     - Added 'ALL' to BusTraffic sidebar to invoke the new BusTrafficDialog
+    - removed refresh_user_list on MDF delete from client, now done in server
 
 
 MMC Version 0.10.8
