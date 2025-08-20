@@ -10,6 +10,7 @@
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000 --exit"
   },
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "cbuslibrary": "^2.11.1",
     "chrome-apps-serialport": "^1.0.9",
     "cookie-parser": "~1.4.4",

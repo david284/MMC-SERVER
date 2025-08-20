@@ -132,6 +132,15 @@ describe('utilities tests', function(){
     return testCases;
   }
 
+  //
+  //
+  it.only("createLogsArchive test ", async function () {
+    winston.info({message: 'unit_test: BEGIN createLogsArchive test '});
+    await utils.createLogsArchive()
+    winston.info({message: 'unit_test: END createLogsArchive test'});
+  })
+
+
 
 
 
