@@ -16,17 +16,16 @@
 MMCSERVER_URL="https://github.com/david284/MMC-SERVER.git"
 INSTALL_DIR="$HOME/MMC"
 
-echo "Welcome to the MMC installer for Linux. Version 29 July 2025 20:24"
+echo "Welcome to the MMC installer for Linux. Version 20 August 2025 17:02"
 
 echo "Installation directory set to $INSTALL_DIR"
 #  ensure installation directory can be created
 mkdir $INSTALL_DIR
 if [ ! -d $INSTALL_DIR ]; then
-	echo "You need to run this as Administrator."
+	echo "Unable to create installation directyory."
 	read
 	exit 1
 fi
-
 
 # 
 #  **************************************************************************
@@ -35,10 +34,10 @@ fi
 # 
 #  **************************************************************************
 # 
-nodejs --version 2>/dev/nul
-if [ $? -ne 0 ]; then
+nodejs --version 2>/dev/null
+if [ $? -eq 0 ]; then
 	read -p "Do you wish to ensure NodeJS is up to date? (Y/N)" input
-	if [ "X$input" = "XY" ]; then
+	if [ "X$input" = "XY" ] || [ "X$input" = "Xy" ]; then
 		# ensure it is up to date
 		sudo apt-get update
 		sudo apt-get install nodejs
@@ -61,7 +60,7 @@ fi
 git --version 2>/dev/null
 if [ $? -eq 0 ]; then
 	read -p "Do you wish to ensure Git is up to date? (Y/N)" input
-	if [ "X$input" = "XY" ]; then
+	if [ "X$input" = "XY" ] || [ "X$input" = "Xy" ]; then
 		# ensure it is up to date
 		sudo apt-get update
 		sudo apt-get install git
@@ -108,7 +107,7 @@ cnt=`git fetch --dry-run origin main | wc -l`
 if [ $cnt -ne 0 ]; then 
 	echo "MMC is out of date."
 	read -p "Do you want to upgrade MMC now? (Y/N)" input
-	if [ "X$input" = "XY" ]; then 
+	if [ "X$input" = "XY" ] || [ "X$input" = "Xy" ]; then
 		echo "Updating MMC..."
 		git pull
 		npm update
@@ -118,7 +117,6 @@ else
 fi
 cd ..
 
-
 # 
 #  **************************************************************************
 #  ADD Links from Desktop for all users at end of this code block
@@ -126,7 +124,7 @@ cd ..
 #  **************************************************************************
 # Create a link from users Desktop and System menu
 echo "Creating link from Desktop and System menu..."
-cat << _EOF_ > $HOME/MMC/MMC.desktop
+cat << _EOF_ > $INSTALL_DIR/MMC.desktop
 [Desktop Entry] 
 Encoding=UTF-8
 Version=1.0
@@ -140,8 +138,8 @@ Exec=bash -c "cd $INSTALL_DIR/MMC-SERVER;npm start"
 Icon=$INSTALL_DIR/MMC-SERVER/InstallAndRun/Linux/MMCicon-256.png
 _EOF_
 
-cp $INSTALL_DIR/MMC.desktop $HOME/Desktop
-cp $INSTALL_DIR/MMC.desktop $HOME/.local/share/applications
+sudo cp $INSTALL_DIR/MMC.desktop $HOME/Desktop
+sudo cp $INSTALL_DIR/MMC.desktop $HOME/.local/share/applications
 
 
 echo Completed installation of MMC!
