@@ -133,6 +133,19 @@ class configuration {
     }
   }
 
+  readBinaryFile(directory, fileName){
+    winston.info({message: className + ` readFile ` + fileName });
+    var filePath = path.join(directory, fileName)
+    winston.debug({message: className + ` readFile: ` + filePath });
+    var data = null
+    try{
+      data = btoa(fs.readFileSync(filePath))
+    } catch(err){
+      winston.info({message: className + `: readFile: ` + err});
+    }
+    return data
+  }
+
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
   // Archive methods
@@ -180,6 +193,28 @@ class configuration {
     }
 
     winston.info({message: name + `: ArchiveLogs: archive saved ${archiveFile}`});
+  }
+
+  //
+  //
+  getArchivesList(){
+    winston.debug({message: className + `: getArchivesList:`});
+    try{
+      if (this.currentUserDirectory){
+        var achivesFolder = path.join(this.appStorageDirectory, './archives')
+        if (!fs.existsSync(achivesFolder)){
+          // doesn't exist, so create
+          this.createDirectory(achivesFolder)      
+        }
+        var list = fs.readdirSync(achivesFolder).filter(function (file) {
+          return fs.statSync(path.join(achivesFolder, file)).isFile();
+        },(this));
+        winston.debug({message: className + `: getArchivesList: ` + list});
+        return list
+      }
+    } catch (err){
+      winston.error({message: className + `: getArchivesList: ` + err});
+    }
   }
 
   //-----------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 const winston = require('winston');		// use config from root instance
 const name = 'socketServer'
 const jsonfile = require('jsonfile');
+var path = require('path');
 const { isUndefined } = require('util');
 const { sleep } = require('./utilities');
 const packageInfo = require(process.cwd()+'/package.json')
@@ -374,6 +375,19 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         node.request_all_node_variables(data.nodeNumber)
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_NODE_VARIABLES: ${err}`});
+      }
+    })
+
+    //
+    //
+    socket.on('REQUEST_ARCHIVES_LIST', function(){
+      try{
+        winston.info({message: `socketServer: REQUEST_ARCHIVES_LIST`});
+        const list = config.getArchivesList()
+        io.emit('ARCHIVES_LIST', {"directory":path.join(config.appStorageDirectory, 'archives'),"list":list})
+        winston.info({message: `socketServer: sent ARCHIVES_LIST ` + data.nodeNumber});
+      }catch(err){
+        winston.error({message: name + `: REQUEST_ARCHIVES_LIST: ${err}`});
       }
     })
 

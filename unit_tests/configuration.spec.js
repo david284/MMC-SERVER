@@ -519,8 +519,33 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: END archiveLogs test'});
   })
 
+  //
+  //
+  it("getArchivesList test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getArchivesList test '})
+    var list = config.getArchivesList()
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(list)})
+      winston.info({message: 'count: ' + list.length})
+      expect(list.length).to.be.above(0)
+      winston.info({message: 'unit_test: END getArchivesList test'})
+      done();
+		}, 50);
+  })
 
-
+  //
+  //
+  it("readBinaryFile test", function (done) {
+    winston.info({message: 'unit_test: BEGIN readBinaryFile test '})
+    var data = config.readBinaryFile(config.appStorageDirectory,'appSettings.json')
+    var file = atob(data)
+    setTimeout(function(){
+      winston.info({message: 'result: ' + file})
+      expect(file.length).to.be.above(0)
+      winston.info({message: 'unit_test: END readBinaryFile test'})
+      done();
+		}, 50);
+  })
 
 
 })
