@@ -511,5 +511,16 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: END getMatchingModuleDescriptorFile test'})
   })
 
+  //
+  //
+  it("archiveLogs test ", async function () {
+    winston.info({message: 'unit_test: BEGIN archiveLogs test '});
+    config.archiveLogs()
+    winston.info({message: 'unit_test: END archiveLogs test'});
+  })
+
+
+
+
 
 })

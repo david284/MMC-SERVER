@@ -3,6 +3,7 @@ const winston = require('winston');		// use config from root instance
 const fs = require('fs');
 const jsonfile = require('jsonfile')
 var path = require('path');
+const AdmZip = require("adm-zip");
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
 const os = require("os");
@@ -132,6 +133,54 @@ class configuration {
     }
   }
 
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+  // Archive methods
+  //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
+  archiveLogs(){
+    const zip = new AdmZip();
+
+    // now create timestamp
+    const date = new Date()
+    const timestamp = date.toISOString().substring(0, 10)
+        + '_' + date.getHours()
+        + '-' + date.getMinutes()
+        + '-' + date.getSeconds();
+
+    // create filename
+    const archiveFile = 'logs_' + timestamp + '.zip'
+
+    let logsFolder = './logs'
+    // get list of files in logs folder
+    var list = fs.readdirSync(logsFolder).filter(function (file) {
+      return fs.statSync(path.join(logsFolder, file)).isFile();
+    },(this));
+
+    // now add all files in list to zip
+    try{
+      list.forEach(logFile => {
+        winston.info({message: name + `: archive: ` + path.join(logsFolder, logFile)});
+        zip.addLocalFile(path.join(logsFolder, logFile))
+      })
+      // create archive folder if it doesn't exist
+      const archiveFolderName = path.join(this.appStorageDirectory, './archives')
+      try {
+        if (!fs.existsSync(archiveFolderName)) {
+          fs.mkdirSync(archiveFolderName)
+        }
+      } catch (err) {
+        winston.info({message: name + `: ArchiveLogs: ${err}`});
+      }
+      // now write zip to disk
+      zip.writeZip(path.join(archiveFolderName, archiveFile));
+    } catch(err){
+      winston.info({message: name + `: ArchiveLogs: ${err}`});
+    }
+
+    winston.info({message: name + `: ArchiveLogs: archive saved ${archiveFile}`});
+  }
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
