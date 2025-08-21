@@ -171,6 +171,17 @@ exports.createTimestamp = function createTimestamp(){
   return timestamp
 }
 
+exports.createDenseTimestamp = function createTimestamp(){
+  //create timestamp for filename
+  var date = new Date()
+  var timestamp = date.getFullYear() +
+    (date.getMonth() + 1).toString().padStart(2, '0') +  // getMonth starts at 0
+    date.getDate().toString().padStart(2, '0') +
+    date.getHours().toString().padStart(2, '0') +
+    date.getMinutes().toString().padStart(2, '0') +
+    date.getSeconds().toString().padStart(2, '0')
+  return timestamp
+}
 exports.getTimestamp = function getTimestamp(){
   var time = new Date()
   var timeStamp = String(time.getSeconds()).padStart(2, '0') + '.' 

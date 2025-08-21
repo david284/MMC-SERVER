@@ -155,19 +155,8 @@ class configuration {
   archiveLogs(){
     const zip = new AdmZip();
 
-    // now create timestamp
-    const date = new Date()
-    const timestamp = date.toISOString().substring(0, 10)
-        + '_' + String(date.getHours()).padStart(2,0)
-        + '-' + String(date.getMinutes()).padStart(2,0)
-        + '-' + String(date.getSeconds()).padStart(2,0)
-        /*
-        + '-' + date.getMinutes()
-        + '-' + date.getSeconds();
-        */
-
     // create filename
-    const archiveFile = 'logs_' + timestamp + '.zip'
+    const archiveFile = 'logs_' + utils.createDenseTimestamp() + '.zip'
 
     let logsFolder = './logs'
     // get list of files in logs folder
