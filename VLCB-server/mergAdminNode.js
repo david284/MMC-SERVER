@@ -1054,7 +1054,7 @@ checkNodeDescriptorIntervalFunc(){
   if (this.nodeDescripter_Queue.length > 0){
     // get first out of queue
     var nodeNumber = this.nodeDescripter_Queue[0]
-    winston.info({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
+    winston.debug({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
     this.checkNodeDescriptor(nodeNumber, false)
     // remove the one we've used from queue
     this.nodeDescripter_Queue.shift()

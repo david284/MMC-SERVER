@@ -1,3 +1,6 @@
+MMC Version 0.11.0
+  Added functions to support zipped logs in an archive directory 
+
 MMC Version 0.10.9
   Added NODE_BACKUP_SAVED message to send to client
   Added nodeDescripter_Queue to pace loading MDF's

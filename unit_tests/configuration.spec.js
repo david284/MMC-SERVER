@@ -513,7 +513,7 @@ describe('configuration tests', function(){
 
   //
   //
-  it("archiveLogs test ", async function () {
+  it.only("archiveLogs test ", async function () {
     winston.info({message: 'unit_test: BEGIN archiveLogs test '});
     config.archiveLogs()
     winston.info({message: 'unit_test: END archiveLogs test'});

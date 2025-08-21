@@ -385,7 +385,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         winston.info({message: `socketServer: REQUEST_ARCHIVES_LIST`});
         const list = config.getArchivesList()
         io.emit('ARCHIVES_LIST', {"directory":path.join(config.appStorageDirectory, 'archives'),"list":list})
-        winston.info({message: `socketServer: sent ARCHIVES_LIST ` + data.nodeNumber});
+        winston.info({message: `socketServer: sent ARCHIVES_LIST`});
       }catch(err){
         winston.error({message: name + `: REQUEST_ARCHIVES_LIST: ${err}`});
       }
