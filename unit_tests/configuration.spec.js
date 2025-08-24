@@ -513,7 +513,7 @@ describe('configuration tests', function(){
 
   //
   //
-  it.only("archiveLogs test ", async function () {
+  it("archiveLogs test ", async function () {
     winston.info({message: 'unit_test: BEGIN archiveLogs test '});
     config.archiveLogs()
     winston.info({message: 'unit_test: END archiveLogs test'});
@@ -521,14 +521,14 @@ describe('configuration tests', function(){
 
   //
   //
-  it("getArchivesList test", function (done) {
-    winston.info({message: 'unit_test: BEGIN getArchivesList test '})
-    var list = config.getArchivesList()
+  it("getArchivedLogsList test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getArchivedLogsList test '})
+    var list = config.getArchivedLogsList()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(list)})
       winston.info({message: 'count: ' + list.length})
       expect(list.length).to.be.above(0)
-      winston.info({message: 'unit_test: END getArchivesList test'})
+      winston.info({message: 'unit_test: END getArchivedLogsList test'})
       done();
 		}, 50);
   })
@@ -537,11 +537,14 @@ describe('configuration tests', function(){
   //
   it("readBinaryFile test", function (done) {
     winston.info({message: 'unit_test: BEGIN readBinaryFile test '})
-    var data = config.readBinaryFile(config.appStorageDirectory,'appSettings.json')
-    var file = atob(data)
+    let directory = path.join(config.appStorageDirectory, "archives", "logs")
+    winston.info({message: 'directory: ' + directory})
+    var list = config.getArchivedLogsList()
+    winston.info({message: 'log: ' + list[0]})
+    var data = config.readBinaryFile(directory,list[0])
     setTimeout(function(){
-      winston.info({message: 'result: ' + file})
-      expect(file.length).to.be.above(0)
+      winston.info({message: 'unit_test: RESULT: data length: ' + data.length})
+      expect(data.length).to.be.above(0)
       winston.info({message: 'unit_test: END readBinaryFile test'})
       done();
 		}, 50);

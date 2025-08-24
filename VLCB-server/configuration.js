@@ -139,7 +139,8 @@ class configuration {
     winston.debug({message: className + ` readFile: ` + filePath });
     var data = null
     try{
-      data = btoa(fs.readFileSync(filePath))
+      //data = btoa(fs.readFileSync(filePath))
+      data = fs.readFileSync(filePath)
     } catch(err){
       winston.info({message: className + `: readFile: ` + err});
     }
@@ -171,8 +172,12 @@ class configuration {
         zip.addLocalFile(path.join(logsFolder, logFile))
       })
       // create archive folder if it doesn't exist
-      const archiveFolderName = path.join(this.appStorageDirectory, './archives')
+      let archiveFolderName = path.join(this.appStorageDirectory, './archives')
       try {
+        if (!fs.existsSync(archiveFolderName)) {
+          fs.mkdirSync(archiveFolderName)
+        }
+        archiveFolderName = path.join(archiveFolderName, 'logs')
         if (!fs.existsSync(archiveFolderName)) {
           fs.mkdirSync(archiveFolderName)
         }
@@ -190,23 +195,23 @@ class configuration {
 
   //
   //
-  getArchivesList(){
-    winston.debug({message: className + `: getArchivesList:`});
+  getArchivedLogsList(){
+    winston.debug({message: className + `: getArchivedLogsList:`});
     try{
       if (this.currentUserDirectory){
-        var achivesFolder = path.join(this.appStorageDirectory, './archives')
-        if (!fs.existsSync(achivesFolder)){
+        var achivedLogsFolder = path.join(this.appStorageDirectory, 'archives', 'logs')
+        if (!fs.existsSync(achivedLogsFolder)){
           // doesn't exist, so create
-          this.createDirectory(achivesFolder)      
+          this.createDirectory(achivedLogsFolder)      
         }
-        var list = fs.readdirSync(achivesFolder).filter(function (file) {
-          return fs.statSync(path.join(achivesFolder, file)).isFile();
+        var list = fs.readdirSync(achivedLogsFolder).filter(function (file) {
+          return fs.statSync(path.join(achivedLogsFolder, file)).isFile();
         },(this));
-        winston.debug({message: className + `: getArchivesList: ` + list});
+        winston.debug({message: className + `: getArchivedLogsList: ` + list});
         return list
       }
     } catch (err){
-      winston.error({message: className + `: getArchivesList: ` + err});
+      winston.error({message: className + `: getArchivedLogsList: ` + err});
     }
   }
 

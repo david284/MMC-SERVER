@@ -380,14 +380,15 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('REQUEST_ARCHIVES_LIST', function(){
+    socket.on('REQUEST_ARCHIVED_LOGS_LIST', function(){
       try{
-        winston.info({message: `socketServer: REQUEST_ARCHIVES_LIST`});
-        const list = config.getArchivesList()
-        io.emit('ARCHIVES_LIST', {"directory":path.join(config.appStorageDirectory, 'archives'),"list":list})
-        winston.info({message: `socketServer: sent ARCHIVES_LIST`});
+        winston.info({message: `socketServer: REQUEST_ARCHIVED_LOGS_LIST`});
+        const list = config.getArchivedLogsList()
+        const directory = path.join(config.appStorageDirectory, 'archives', 'logs')
+        io.emit('ARCHIVED_LOGS_LIST', {"directory":directory,"list":list})
+        winston.info({message: `socketServer: sent ARCHIVED_LOGS_LIST ${directory}`});
       }catch(err){
-        winston.error({message: name + `: REQUEST_ARCHIVES_LIST: ${err}`});
+        winston.error({message: name + `: REQUEST_ARCHIVED_LOGS_LIST: ${err}`});
       }
     })
 
@@ -414,6 +415,22 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         winston.info({message: `socketServer: sent BACKUPS_LIST ` + backups_list});
       }catch(err){
         winston.error({message: name + `: REQUEST_BACKUPS_LIST: ${err}`});
+      }
+    })
+
+    //
+    // expects directory, fileName
+    //
+    socket.on('REQUEST_BINARY_FILE', function(data){
+      try{
+        winston.info({message: name + `: REQUEST_BINARY_FILE ` + JSON.stringify(data)});
+        let file = config.readBinaryFile(data.directory, data.fileName)
+        let B64 = Buffer.from(file).toString('base64')
+        io.emit('BINARY_FILE', {"directory":data.directory, "fileName":data.fileName, "data":B64})
+        winston.info({message: `socketServer: sent BINARY_FILE ${data.directory} ${data.fileName} length ${B64.length}`});
+        winston.info({message: `socketServer: sent BINARY_FILE ${B64}`});
+      }catch(err){
+        winston.error({message: name + `: REQUEST_BACKUP: ${err}`});
       }
     })
 
