@@ -210,7 +210,7 @@ class configuration {
   limitNumberOfArchivedLogs(){
     try{
       let list = this.getArchivedLogsList()
-      winston.info({message: name + `: limitNumberOfArchivedLogs: ${list}`});
+      //winston.info({message: name + `: limitNumberOfArchivedLogs: ${list}`});
       let count = list.length - this.appSettings.archiveLogsLimit
       for (let i=0; i<count; i++){
         var filePath = path.join(this.appStorageDirectory, 'archives', 'logs', list[i] )
