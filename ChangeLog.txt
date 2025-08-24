@@ -1,5 +1,7 @@
 MMC Version 0.11.0
   Added functions to support zipped logs in an archive directory 
+  Client
+  - Added LogsDialog to allow user download of logs from a list
 
 MMC Version 0.10.9
   Added NODE_BACKUP_SAVED message to send to client

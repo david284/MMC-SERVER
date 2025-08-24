@@ -804,6 +804,16 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('STOP_SERVER', function(){
       try{
         winston.info({message: `socketServer: STOP_SERVER`});
+        config.archiveLogs()
+        let message = "Archiving logs"
+        winston.info({message:name + ': ' + message})
+        let data = {
+          message: message,
+          caption: "",
+          type: "info",
+          timeout: 1000
+        }
+        config.eventBus.emit ('SERVER_NOTIFICATION', data)
         process.exit();
       }catch(err){
         winston.error({message: name + `: STOP_SERVER: ${err}`});
