@@ -110,12 +110,23 @@ class configuration {
     try{
       this.appSettings = jsonfile.readFileSync(path.join(this.appStorageDirectory, 'appSettings.json'))
       winston.info({message: className + ` readAppSettings ` + JSON.stringify(this.appSettings) });
+      let appSettingsNeedToBeSaved = false
       if(this.appSettings.userDataMode == undefined){
-        // likely to be old file, so ensure newer settings are present & write it back
         this.appSettings.userDataMode = 'APP'
-        this.appSettings.customUserDirectory = ''
-        writeAppSettings()
+        appSettingsNeedToBeSaved = true
       }
+      if(this.appSettings.customUserDirectory == undefined){
+        this.appSettings.customUserDirectory = ''
+        appSettingsNeedToBeSaved = true
+      }
+      if(this.appSettings.archiveLogsLimit == undefined){
+        this.appSettings.archiveLogsLimit = 20
+        appSettingsNeedToBeSaved = true
+      }
+      if(appSettingsNeedToBeSaved){
+        this.writeAppSettings()
+      }
+
     } catch(err){
       var text = "Failed to load " + path.join(this.appStorageDirectory, 'appSettings.json') + " - check file is valid JSON"
       winston.error({message: className + `: readAppSettings: ` + text})
@@ -172,7 +183,7 @@ class configuration {
         zip.addLocalFile(path.join(logsFolder, logFile))
       })
       // create archive folder if it doesn't exist
-      let archiveFolderName = path.join(this.appStorageDirectory, './archives')
+      let archiveFolderName = path.join(this.appStorageDirectory, 'archives')
       try {
         if (!fs.existsSync(archiveFolderName)) {
           fs.mkdirSync(archiveFolderName)
@@ -189,8 +200,26 @@ class configuration {
     } catch(err){
       winston.info({message: name + `: ArchiveLogs: ${err}`});
     }
-
+    // make sure we limit how many are written
+    this.limitNumberOfArchivedLogs()
     winston.info({message: name + `: ArchiveLogs: archive saved ${archiveFile}`});
+  }
+
+  //
+  //
+  limitNumberOfArchivedLogs(){
+    try{
+      let list = this.getArchivedLogsList()
+      winston.info({message: name + `: limitNumberOfArchivedLogs: ${list}`});
+      let count = list.length - this.appSettings.archiveLogsLimit
+      for (let i=0; i<count; i++){
+        var filePath = path.join(this.appStorageDirectory, 'archives', 'logs', list[i] )
+        fs.rmSync(filePath, { recursive: true }) 
+        winston.info({message: name + `: limitNumberOfArchivedLogs deleted: ${filePath}`});
+      }
+    } catch (err){
+      winston.info({message: name + `: limitNumberOfArchivedLogs: ${err}`});      
+    }
   }
 
   //
@@ -208,6 +237,7 @@ class configuration {
           return fs.statSync(path.join(achivedLogsFolder, file)).isFile();
         },(this));
         winston.debug({message: className + `: getArchivedLogsList: ` + list});
+        list.sort((a, b) => a - b)
         return list
       }
     } catch (err){

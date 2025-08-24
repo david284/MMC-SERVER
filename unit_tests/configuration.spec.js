@@ -521,6 +521,14 @@ describe('configuration tests', function(){
 
   //
   //
+  it("limitNumberOfArchivedLogs test ", async function () {
+    winston.info({message: 'unit_test: BEGIN limitNumberOfArchivedLogs test '});
+    config.limitNumberOfArchivedLogs()
+    winston.info({message: 'unit_test: END limitNumberOfArchivedLogs test'});
+  })
+
+  //
+  //
   it("getArchivedLogsList test", function (done) {
     winston.info({message: 'unit_test: BEGIN getArchivedLogsList test '})
     var list = config.getArchivedLogsList()
