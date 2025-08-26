@@ -74,6 +74,7 @@ class cbusAdmin extends EventEmitter {
       '00': async (cbusMsg) => { // ACK
           winston.info({message: "mergAdminNode: ACK (00) : No Action"});
       },
+      //
       '50': async (cbusMsg) => {// RQNN -  Node Number
         try {
           winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
@@ -87,9 +88,10 @@ class cbusAdmin extends EventEmitter {
           await sleep(200)    // allow some time for the name to be received
           this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.nodes.setupMode_NAME)
         } catch(err){
-          winston.error({message: name + `: RQNN (50) : ${err}`});          
+          winston.error({message: name + `: RQNN (50) ${err}`});          
         }
       },
+      //
       '52': async (cbusMsg) => {
         // NNACK - Node number acknowledge
         try{
@@ -102,14 +104,16 @@ class cbusAdmin extends EventEmitter {
             delete this.nodeConfig.nodes[cbusMsg.nodeNumber]
             this.query_all_nodes()
           }
-        } catch(err){ winston.error({message: name + `: NNACK (52) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: NNACK (52) ${err}`}) }
       },
+      //
       '59': async (cbusMsg) => {
         try{
-          winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
+          winston.debug({message: "mergAdminNode: WRACK (59) " + cbusMsg.text});
           this.process_WRACK(cbusMsg)
-        } catch(err){ winston.error({message: name + `: WRACK (59) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: WRACK (59) ${err}`}) }
       },
+      //
       '6F': async (cbusMsg) => {// CMDERR - Cbus Error
         try{
           let ref = cbusMsg.nodeNumber.toString() + '-' + cbusMsg.errorNumber.toString()
@@ -126,14 +130,16 @@ class cbusAdmin extends EventEmitter {
               this.cbusErrors[ref] = output
           }
           this.emit('cbusError', this.cbusErrors)
-        } catch(err){ winston.error({message: name + `: CMDERR (6F) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: CMDERR (6F) ${err}`}) }
       },
+      //
       '70': async (cbusMsg) => { // EVNLF - response to NNEVN
         try{
           this.nodeConfig.nodes[cbusMsg.nodeNumber]["eventSpaceLeft"] = cbusMsg.EVSPC
           this.updateNodeConfig(cbusMsg.nodeNumber)
-        } catch(err){ winston.error({message: name + `: EVNLF (70) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: EVNLF (70) ${err}`}) }
       },
+      //
       '74': async (cbusMsg) => { // NUMEV - response to RQEVN
         try{
           this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
@@ -142,19 +148,22 @@ class cbusAdmin extends EventEmitter {
           if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
             this.CBUS_Queue.push(cbusLib.encodeNERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
           }
-        } catch(err){ winston.error({message: name + `: NUMEV (74) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: NUMEV (74) ${err}`}) }
       },
+      //
       '90': async (cbusMsg) => {//Accessory On Long Event
         try{
           //winston.info({message: `mergAdminNode:  90 recieved`})
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
-        } catch(err){ winston.error({message: name + `: ACON (90) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: ACON (90) ${err}`}) }
       },
+      //
       '91': async (cbusMsg) => {//Accessory Off Long Event
         try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
-        } catch(err){ winston.error({message: name + `: ACOFF (91) : ${err}`}) }
+        } catch(err){ winston.error({message: name + `: ACOF (91) ${err}`}) }
       },
+      //
       '97': async (cbusMsg) => { // NVANS - Receive Node Variable Value
         try{
           this.saveNodeVariable(cbusMsg.nodeNumber, cbusMsg.nodeVariableIndex, cbusMsg.nodeVariableValue)
@@ -164,12 +173,19 @@ class cbusAdmin extends EventEmitter {
           }
         } catch (err){ winston.error({message: name + `: NVANS (97) ${err}` }) }
       },
+      //
       '98': async (cbusMsg) => {//Accessory On Short Event
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
+        } catch (err){ winston.error({message: name + `: ASON (98) ${err}` }) }
       },
+      //
       '99': async (cbusMsg) => {//Accessory Off Short Event
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'off', 'short')
+        } catch (err){ winston.error({message: name + `: ASOF (99) ${err}` }) }
       },
+      //
       '9B': async (cbusMsg) => {//PARAN Parameter readback by Index
         try {
         this.nodeConfig.nodes[cbusMsg.nodeNumber].parameters[cbusMsg.parameterIndex] = cbusMsg.parameterValue
@@ -178,10 +194,14 @@ class cbusAdmin extends EventEmitter {
         this.updateNodeConfig(cbusMsg.nodeNumber)
         } catch (err){ winston.error({message: name + `: PARAN (9B) ${err}`}) }
       },
+      //
       'AB': async (cbusMsg) => {//Heartbeat
+        try{
           winston.debug({message: `mergAdminNode: Heartbeat ${cbusMsg.nodeNumber} ${Date.now()}`})
           this.heartbeats[cbusMsg.nodeNumber] = Date.now()
+        } catch (err){ winston.error({message: name + `: HEARTB (AB) ${err}` }) }
       },
+      //
       'AC': async (cbusMsg) => {// SD Service Discovery
         try{
           winston.info({message: `mergAdminNode: SD ${cbusMsg.nodeNumber} ${cbusMsg.text}`})
@@ -198,19 +218,32 @@ class cbusAdmin extends EventEmitter {
           }
         } catch (err){ winston.error({message: name + `: SD (AC) ${err}`}) }
       },
+      //
       'AF': async (cbusMsg) => {//GRSP
+        try{
           winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
           await this.process_GRSP(cbusMsg)
+        } catch (err){ winston.error({message: name + `: GRSP (AF) ${err}` }) }
       },
+      //
       'B0': async (cbusMsg) => {//Accessory On Long Event 1
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
+        } catch (err){ winston.error({message: name + `: ACON1 (B0) ${err}` }) }
       },
+      //
       'B1': async (cbusMsg) => {//Accessory Off Long Event 1
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
+        } catch (err){ winston.error({message: name + `: ACOF1 (B1) ${err}` }) }
       },
+      //
       'B5': async (cbusMsg) => {// NEVAL -Read of EV value Response REVAL
-        this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
+        try{
+          this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
+        } catch (err){ winston.error({message: name + `: NEVAL (B5) ${err}` }) }
       },
+      //
       'B6': async (cbusMsg) => { //PNN Received from Node
         try{
           const nodeNumber = cbusMsg.nodeNumber
@@ -240,13 +273,21 @@ class cbusAdmin extends EventEmitter {
           this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
         } catch (err){ winston.error({message: name + `: PNN (B6) ${err}`}) }
       },
+      //
       'B8': async (cbusMsg) => {//Accessory On Short Event 1
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
+        } catch (err){ winston.error({message: name + `: ASON1 (B8) ${err}`}) }
       },
+      //
       'B9': async (cbusMsg) => {//Accessory Off Short Event 1
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'off', 'short')
+        } catch (err){ winston.error({message: name + `: ASOF1 (B9) ${err}`}) }
       },
+      //
       'C7': async (cbusMsg) => {//Diagnostic
+        try{
           winston.info({message: `DGN: ${cbusMsg.text}`})
           const nodeNumber = cbusMsg.nodeNumber
           if (cbusMsg.ServiceIndex > 0) {
@@ -277,15 +318,22 @@ class cbusAdmin extends EventEmitter {
                     winston.warn({message: name + `: DGN: node config does not exist for node ${cbusMsg.nodeNumber}`});
             }
           }
+        } catch (err){ winston.error({message: name + `: DGN (C7) ${err}`}) }
       },
+      //
       'D0': async (cbusMsg) => {//Accessory On Long Event 2
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
+        } catch (err){ winston.error({message: name + `: ACON2 (D0) ${err}`}) }
       },
+      //
       'D1': async (cbusMsg) => {//Accessory Off Long Event 2
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
+        } catch (err){ winston.error({message: name + `: ACOF2 (D1) ${err}`}) }
       },
+      //
       'D3': async (cbusMsg) => {// EVANS - response to REQEV
-        //
         try {
           var nodeNumber = this.nodeNumberInLearnMode
           var eventIdentifier = utils.decToHex(cbusMsg.nodeNumber, 4) + utils.decToHex(cbusMsg.eventNumber, 4) 
@@ -294,37 +342,28 @@ class cbusAdmin extends EventEmitter {
           if (cbusMsg.eventVariableIndex > 0){
             this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
           }
-        } catch(err){
-          winston.deerrorbug({message: name + `: EVANS(D3): node ${nodeNumber} ${err}`});          
-        }
+        } catch(err){ winston.error({message: name + `: EVANS(D3): node ${nodeNumber} ${err}`}) }
       },
+      //
       'D8': async (cbusMsg) => {//Accessory On Short Event 2
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
+        } catch (err){ winston.error({message: name + `: ASON2 (D8) ${err}`}) }
       },
+      //
       'D9': async (cbusMsg) => {//Accessory Off Short Event 2
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'off', 'short')
+        } catch (err){ winston.error({message: name + `: ASOF2 (D9) ${err}`}) }
       },
-      'E1': async (cbusMsg) => { // PLOC
-          let session = cbusMsg.session
-          if (!(session in this.dccSessions)) {
-              this.dccSessions[session] = {}
-              this.dccSessions[session].count = 0
-          }
-          this.dccSessions[session].id = session
-          this.dccSessions[session].loco = cbusMsg.address
-          this.dccSessions[session].direction = cbusMsg.direction
-          this.dccSessions[session].speed = cbusMsg.speed
-          this.dccSessions[session].status = 'Active'
-          this.dccSessions[session].F1 = cbusMsg.Fn1
-          this.dccSessions[session].F2 = cbusMsg.Fn2
-          this.dccSessions[session].F3 = cbusMsg.Fn3
-          this.emit('dccSessions', this.dccSessions)
-          winston.debug({message: `mergAdminNode: PLOC (E1) ` + JSON.stringify(this.dccSessions[session])})
-      },
+      //
       'E2': async (cbusMsg) => { // NAME
-        winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
-        this.nodeConfig.nodes.setupMode_NAME = cbusMsg.name
+        try{
+          winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
+          this.nodeConfig.nodes.setupMode_NAME = cbusMsg.name
+        } catch(err){ winston.error({message: name + `: NAME (E2) ${err}`}) }
       },
+      //
       'E7': async (cbusMsg) => {// ESD - Extended Service Discovery
         try{
           winston.debug({message: name + `: Extended Service Discovery ${JSON.stringify(cbusMsg)}`})
@@ -332,28 +371,46 @@ class cbusAdmin extends EventEmitter {
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 2, cbusMsg.Data2)
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 3, cbusMsg.Data3)
           this.updateNodeConfig(cbusMsg.nodeNumber)
-        } catch (err){ winston.error({message: name + `: ESD: ` + err}) }
+        } catch (err) { winston.error({message: name + `: ESD (E7) ${err}` }) }
       },
-      'EF': async (cbusMsg) => {//Request Node Parameter in setup
-          // mode
+      //
+      'EF': async (cbusMsg) => {//PARAMS - response to RQNP in setup mode
+        try{
           //winston.debug({message: `mergAdminNode: PARAMS (EF) Received`});
+        } catch (err) { winston.error({message: name + `: PARAMS (EF) ${err}` }) }
       },
+      //
       'F0': async (cbusMsg) => {//Accessory On Long Event 3
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
+        } catch (err){ winston.error({message: name + `: ACON3 (F0) ${err}`}) }
       },
+      //
       'F1': async (cbusMsg) => {//Accessory Off Long Event 3
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
+        } catch (err){ winston.error({message: name + `: ACOF3 (F1) ${err}`}) }
       },
+      //
       'F2': async (cbusMsg) => {//ENSRP Response to NERD/NENRD
         // ENRSP Format: [<MjPri><MinPri=3><CANID>]<F2><NN hi><NN lo><EN3><EN2><EN1><EN0><EN#>
-        this.updateEventInNodeConfig(cbusMsg.nodeNumber, cbusMsg.eventIdentifier, cbusMsg.eventIndex)
+        try{
+          this.updateEventInNodeConfig(cbusMsg.nodeNumber, cbusMsg.eventIdentifier, cbusMsg.eventIndex)
+        } catch (err) { winston.error({message: name + `: ENSRP (F2) ${err}` }) }
       },
+      //
       'F8': async (cbusMsg) => {//Accessory On Short Event 3
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
+        } catch (err){ winston.error({message: name + `: ASON3 (F8) ${err}`}) }
       },
+      //
       'F9': async (cbusMsg) => {//Accessory Off Short Event 3
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'off', 'short')
+        } catch (err){ winston.error({message: name + `: ASOF3 (F9) ${err}`}) }
       },
+      //
       'DEFAULT': async (cbusMsg) => {
         winston.debug({message: "mergAdminNode: Opcode " + cbusMsg.opCode + ' is not supported by the Admin module'});
         let opCode = cbusMsg.opCode
