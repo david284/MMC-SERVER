@@ -349,7 +349,21 @@
 					"3":{"name":"Unused"}
 				}
 			},
+			"1": {
+				"ESD":{
+					"1":{"name":"Bootloader Type"},
+					"2":{"name":"Bootloader Version"},
+					"3":{"name":"Unused"}
+				}
+			},
 			"2": {
+				"ESD":{
+					"1":{"name":"Bootloader Type"},
+					"2":{"name":"Bootloader Version"},
+					"3":{"name":"Unused"}
+				}
+			},
+			"3": {
 				"ESD":{
 					"1":{"name":"Bootloader Type"},
 					"2":{"name":"Bootloader Version"},
