@@ -74,72 +74,25 @@ class cbusAdmin extends EventEmitter {
       '00': async (cbusMsg) => { // ACK
           winston.info({message: "mergAdminNode: ACK (00) : No Action"});
       },
-      
-      /*
-      '21': async (cbusMsg) => { // KLOC
-          winston.info({message: `mergAdminNode: Session Cleared : ${cbusMsg.session}`});
-          let session = cbusMsg.session
-          if (session in this.dccSessions) {
-              this.dccSessions[session].status = 'In Active'
-          } else {
-              winston.debug({message: `mergAdminNode: Session ${session} does not exist - adding`});
-              this.dccSessions[session] = {}
-              this.dccSessions[session].count = 1
-              this.dccSessions[session].status = 'In Active'
-              this.CBUS_Queue.push(this.QLOC(session))
-          }
-          this.emit('dccSessions', this.dccSessions)
-      },
-      '23': async (cbusMsg) => { // DKEEP
-          //winston.debug({message: `mergAdminNode: Session Keep Alive : ${cbusMsg.session}`});
-          let session = cbusMsg.session
-
-          if (session in this.dccSessions) {
-              this.dccSessions[session].count += 1
-              this.dccSessions[session].status = 'Active'
-          } else {
-
-              winston.debug({message: `mergAdminNode: Session ${session} does not exist - adding`});
-
-              this.dccSessions[session] = {}
-              this.dccSessions[session].count = 1
-              this.dccSessions[session].status = 'Active'
-              this.CBUS_Queue.push(this.QLOC(session))
-          }
-          this.emit('dccSessions', this.dccSessions)
-      },
-
-      '47': async (cbusMsg) => { // DSPD
-          let session = cbusMsg.session
-          let speed = cbusMsg.speed
-          let direction = cbusMsg.direction
-          winston.info({message: `mergAdminNode: (47) DCC Speed Change : ${session} : ${direction} : ${speed}`});
-
-          if (!(session in this.dccSessions)) {
-              this.dccSessions[session] = {}
-              this.dccSessions[session].count = 0
-          }
-
-          this.dccSessions[session].direction = direction
-          this.dccSessions[session].speed = speed
-          this.emit('dccSessions', this.dccSessions)
-      },
-      */
-
       '50': async (cbusMsg) => {// RQNN -  Node Number
-        winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
-        this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
-        if (this.inUnitTest == false){
-          this.nodeConfig.nodes.setupMode_NAME = ''     // need a new name from this node, but not for testing
+        try {
+          winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
+          this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
+          if (this.inUnitTest == false){
+            this.nodeConfig.nodes.setupMode_NAME = ''     // need a new name from this node, but not for testing
+          }
+          this.CBUS_Queue.push(cbusLib.encodeRQMN())    // push node onto queue to read module name from node
+          this.CBUS_Queue.push(cbusLib.encodeRQNP())    // push node onto queue to read module name from node
+          // now get the user to enter a node number
+          await sleep(200)    // allow some time for the name to be received
+          this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.nodes.setupMode_NAME)
+        } catch(err){
+          winston.error({message: name + `: RQNN (50) : ${err}`});          
         }
-        this.CBUS_Queue.push(cbusLib.encodeRQMN())    // push node onto queue to read module name from node
-        this.CBUS_Queue.push(cbusLib.encodeRQNP())    // push node onto queue to read module name from node
-        // now get the user to enter a node number
-        await sleep(200)    // allow some time for the name to be received
-        this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.nodes.setupMode_NAME)
       },
       '52': async (cbusMsg) => {
         // NNACK - Node number acknowledge
+        try{
           winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
           // if acknowledge for set node number, delete any existing record of that node
           // as it may now be a wholly different node being added
@@ -149,65 +102,16 @@ class cbusAdmin extends EventEmitter {
             delete this.nodeConfig.nodes[cbusMsg.nodeNumber]
             this.query_all_nodes()
           }
+        } catch(err){ winston.error({message: name + `: NNACK (52) : ${err}`}) }
       },
       '59': async (cbusMsg) => {
+        try{
           winston.debug({message: "mergAdminNode: WRACK (59) : " + cbusMsg.text});
           this.process_WRACK(cbusMsg)
-      },
-      '60': async (cbusMsg) => {
-          let session = cbusMsg.session
-          if (!(session in this.dccSessions)) {
-              this.dccSessions[session] = {}
-              this.dccSessions[session].count = 0
-          }
-          let functionRange = cbusMsg.Fn1
-          let dccNMRA = cbusMsg.Fn2
-          let func = `F${functionRange}`
-          this.dccSessions[session][func] = dccNMRA
-          let functionArray = []
-          if (this.dccSessions[session].F1 & 1) functionArray.push(1)
-          if (this.dccSessions[session].F1 & 2) functionArray.push(2)
-          if (this.dccSessions[session].F1 & 4) functionArray.push(3)
-          if (this.dccSessions[session].F1 & 8) functionArray.push(4)
-          if (this.dccSessions[session].F2 & 1) functionArray.push(5)
-          if (this.dccSessions[session].F2 & 2) functionArray.push(6)
-          if (this.dccSessions[session].F2 & 4) functionArray.push(7)
-          if (this.dccSessions[session].F2 & 8) functionArray.push(8)
-          if (this.dccSessions[session].F3 & 1) functionArray.push(9)
-          if (this.dccSessions[session].F3 & 2) functionArray.push(10)
-          if (this.dccSessions[session].F3 & 4) functionArray.push(11)
-          if (this.dccSessions[session].F3 & 8) functionArray.push(12)
-          if (this.dccSessions[session].F4 & 1) functionArray.push(13)
-          if (this.dccSessions[session].F4 & 2) functionArray.push(14)
-          if (this.dccSessions[session].F4 & 4) functionArray.push(15)
-          if (this.dccSessions[session].F4 & 8) functionArray.push(16)
-          if (this.dccSessions[session].F4 & 16) functionArray.push(17)
-          if (this.dccSessions[session].F4 & 32) functionArray.push(18)
-          if (this.dccSessions[session].F4 & 64) functionArray.push(19)
-          if (this.dccSessions[session].F4 & 128) functionArray.push(20)
-          if (this.dccSessions[session].F5 & 1) functionArray.push(21)
-          if (this.dccSessions[session].F5 & 2) functionArray.push(22)
-          if (this.dccSessions[session].F5 & 4) functionArray.push(23)
-          if (this.dccSessions[session].F5 & 8) functionArray.push(24)
-          if (this.dccSessions[session].F5 & 16) functionArray.push(25)
-          if (this.dccSessions[session].F5 & 32) functionArray.push(26)
-          if (this.dccSessions[session].F5 & 64) functionArray.push(27)
-          if (this.dccSessions[session].F5 & 128) functionArray.push(28)
-          this.dccSessions[session].functions = functionArray
-
-          winston.debug({message: `mergAdminNode: DCC Set Engine Function : ${cbusMsg.session} ${functionRange} ${dccNMRA} : ${functionArray}`});
-          this.emit('dccSessions', this.dccSessions)
-      },
-      '63': async (cbusMsg) => {// ERR - dcc error
-          //winston.debug({message: `mergAdminNode: DCC ERROR Node ${msg.nodeNumber()} Error ${msg.errorId()}`});
-          let output = {}
-          output['type'] = 'DCC'
-          output['Error'] = cbusMsg.errorNumber
-          output['Message'] = this.merg.dccErrors[cbusMsg.errorNumber]
-          output['data'] = utils.decToHex(cbusMsg.data1, 2) + utils.decToHex(cbusMsg.data2, 2)
-          this.emit('dccError', output)
+        } catch(err){ winston.error({message: name + `: WRACK (59) : ${err}`}) }
       },
       '6F': async (cbusMsg) => {// CMDERR - Cbus Error
+        try{
           let ref = cbusMsg.nodeNumber.toString() + '-' + cbusMsg.errorNumber.toString()
           if (ref in this.cbusErrors) {
               this.cbusErrors[ref].count += 1
@@ -222,25 +126,34 @@ class cbusAdmin extends EventEmitter {
               this.cbusErrors[ref] = output
           }
           this.emit('cbusError', this.cbusErrors)
+        } catch(err){ winston.error({message: name + `: CMDERR (6F) : ${err}`}) }
       },
       '70': async (cbusMsg) => { // EVNLF - response to NNEVN
-        this.nodeConfig.nodes[cbusMsg.nodeNumber]["eventSpaceLeft"] = cbusMsg.EVSPC
-        this.updateNodeConfig(cbusMsg.nodeNumber)
+        try{
+          this.nodeConfig.nodes[cbusMsg.nodeNumber]["eventSpaceLeft"] = cbusMsg.EVSPC
+          this.updateNodeConfig(cbusMsg.nodeNumber)
+        } catch(err){ winston.error({message: name + `: EVNLF (70) : ${err}`}) }
       },
       '74': async (cbusMsg) => { // NUMEV - response to RQEVN
-        this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
-        this.updateNodeConfig(cbusMsg.nodeNumber)
-        this.CBUS_Queue.push(cbusLib.encodeNNEVN(cbusMsg.nodeNumber)) // always request available space left
-        if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
-          this.CBUS_Queue.push(cbusLib.encodeNERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
-        }
+        try{
+          this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount = cbusMsg.eventCount
+          this.updateNodeConfig(cbusMsg.nodeNumber)
+          this.CBUS_Queue.push(cbusLib.encodeNNEVN(cbusMsg.nodeNumber)) // always request available space left
+          if (this.nodeConfig.nodes[cbusMsg.nodeNumber].eventCount != null) {
+            this.CBUS_Queue.push(cbusLib.encodeNERD(cbusMsg.nodeNumber))   // push node onto queue to read all events
+          }
+        } catch(err){ winston.error({message: name + `: NUMEV (74) : ${err}`}) }
       },
       '90': async (cbusMsg) => {//Accessory On Long Event
+        try{
           //winston.info({message: `mergAdminNode:  90 recieved`})
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'on', 'long')
+        } catch(err){ winston.error({message: name + `: ACON (90) : ${err}`}) }
       },
       '91': async (cbusMsg) => {//Accessory Off Long Event
+        try{
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.eventNumber, 'off', 'long')
+        } catch(err){ winston.error({message: name + `: ACOFF (91) : ${err}`}) }
       },
       '97': async (cbusMsg) => { // NVANS - Receive Node Variable Value
         try{
@@ -249,7 +162,7 @@ class cbusAdmin extends EventEmitter {
             this.nodeConfig.nodes[cbusMsg.nodeNumber]['lastNVANSTimestamp'] = Date.now()
             winston.debug({message: name + `: lastNVANSTimestamp: ${this.nodeConfig.nodes[cbusMsg.nodeNumber].lastNVANSTimestamp}`})
           }
-        } catch (err){ winston.error({message: name + `: NVANS: ` + err}) }
+        } catch (err){ winston.error({message: name + `: NVANS (97) ${err}` }) }
       },
       '98': async (cbusMsg) => {//Accessory On Short Event
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
@@ -263,13 +176,14 @@ class cbusAdmin extends EventEmitter {
         // mark paramsUpdated if we get index 10
         if (cbusMsg.parameterIndex == 10){ this.nodeConfig.nodes[cbusMsg.nodeNumber].paramsUpdated = true}
         this.updateNodeConfig(cbusMsg.nodeNumber)
-        } catch (err){ winston.error({message: name + `: PARAN: ` + err}) }
+        } catch (err){ winston.error({message: name + `: PARAN (9B) ${err}`}) }
       },
       'AB': async (cbusMsg) => {//Heartbeat
           winston.debug({message: `mergAdminNode: Heartbeat ${cbusMsg.nodeNumber} ${Date.now()}`})
           this.heartbeats[cbusMsg.nodeNumber] = Date.now()
       },
       'AC': async (cbusMsg) => {// SD Service Discovery
+        try{
           winston.info({message: `mergAdminNode: SD ${cbusMsg.nodeNumber} ${cbusMsg.text}`})
           utils.createServiceEntry(this.nodeConfig, 
             cbusMsg.nodeNumber,
@@ -282,6 +196,7 @@ class cbusAdmin extends EventEmitter {
           if (cbusMsg.ServiceIndex > 0){
             this.CBUS_Queue.push(cbusLib.encodeRQSD(cbusMsg.nodeNumber, cbusMsg.ServiceIndex))
           }
+        } catch (err){ winston.error({message: name + `: SD (AC) ${err}`}) }
       },
       'AF': async (cbusMsg) => {//GRSP
           winston.debug({message: `mergAdminNode: GRSP ` + cbusMsg.text})
@@ -297,31 +212,33 @@ class cbusAdmin extends EventEmitter {
         this.storeEventVariableByIndex(cbusMsg.nodeNumber, cbusMsg.eventIndex, cbusMsg.eventVariableIndex, cbusMsg.eventVariableValue)
       },
       'B6': async (cbusMsg) => { //PNN Received from Node
-        const nodeNumber = cbusMsg.nodeNumber
-        if (nodeNumber in this.nodeConfig.nodes) {
-          // already exists in config file...
-          winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
-        } else {
-          this.createNodeConfig(cbusMsg.nodeNumber, true)
-        }
-        // store the timestamp
-        this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
-        this.nodeConfig.nodes[nodeNumber].status = true
-        this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
-        this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
-        this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
-        this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
-        // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
-        this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
-        // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
-        if (nodeNumber > 0){
-          // push node onto queue to read all events
-          this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
-        }
-        this.updateNodeConfig(cbusMsg.nodeNumber)
-        // now get file list & send event to socketServer
-        const moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
-        this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
+        try{
+          const nodeNumber = cbusMsg.nodeNumber
+          if (nodeNumber in this.nodeConfig.nodes) {
+            // already exists in config file...
+            winston.debug({message: name + `: PNN (B6) Node found ` + JSON.stringify(this.nodeConfig.nodes[nodeNumber])})
+          } else {
+            this.createNodeConfig(cbusMsg.nodeNumber, true)
+          }
+          // store the timestamp
+          this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
+          this.nodeConfig.nodes[nodeNumber].status = true
+          this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
+          this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
+          this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
+          this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
+          // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
+          this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
+          // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
+          if (nodeNumber > 0){
+            // push node onto queue to read all events
+            this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+          }
+          this.updateNodeConfig(cbusMsg.nodeNumber)
+          // now get file list & send event to socketServer
+          const moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
+          this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
+        } catch (err){ winston.error({message: name + `: PNN (B6) ${err}`}) }
       },
       'B8': async (cbusMsg) => {//Accessory On Short Event 1
           this.eventSend(cbusMsg.nodeNumber, cbusMsg.deviceNumber, 'on', 'short')
