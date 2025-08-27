@@ -961,20 +961,20 @@ class cbusAdmin extends EventEmitter {
   // don't want to check every time as it's slow
   //
   checkNodeDescriptor(nodeNumber, force){
-    //decide if we really need to do this, 
-    let proceed = false
-    if (force == true) {
-      proceed = true
-    } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp == undefined){
-      proceed = true
-    } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){
-      proceed = true
-    }
-    winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
-    //
-    // ok, should know if we need to run this
-    if (proceed) {
-      try {
+    try{
+      //decide if we really need to do this, 
+      let proceed = false
+      if (force == true) {
+        proceed = true
+      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp == undefined){
+        proceed = true
+      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){
+        proceed = true
+      }
+      winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
+      //
+      // ok, should know if we need to run this
+      if (proceed) {
         if (this.nodeConfig.nodes[nodeNumber]){
           // get the module identifier...
           let moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
@@ -1007,9 +1007,9 @@ class cbusAdmin extends EventEmitter {
                 processorType ${this.nodeConfig.nodes[nodeNumber].processorType}`});
           }
         }
-      } catch (err){
-        winston.error({message: name + ': checkNodeDescriptor: ' + err});        
       }
+    } catch (err){
+      winston.error({message: name + `: checkNodeDescriptor: node ${nodeNumber} ${err}` });              
     }
   }
 

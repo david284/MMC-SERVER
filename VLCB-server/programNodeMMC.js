@@ -188,6 +188,7 @@ class programNode extends EventEmitter  {
   // 0x821 - param 2 - minor version number
   // 0x822 - param 3 - module ID
   // 0x826 - param 7 - major version number
+  // 0x827 - param 8 - flags
   // 0x828 - param 9 - cpu type
   // 0x82A - 0x82D - params 11 to 14 - load address
   // 0x833 - param 20 - beta number
@@ -203,7 +204,8 @@ class programNode extends EventEmitter  {
           data["moduleIdentifier"] = utils.decToHex(data.manufacturerID,2) + utils.decToHex(data.moduleID,2)
           data["versionNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x820][6] +
 							String.fromCharCode(this.BOOTLOADER_DATA_BLOCKS[0x820][1])
-          data["bootable"] = this.BOOTLOADER_DATA_BLOCKS[0x820][7]
+          data["flags"] = this.BOOTLOADER_DATA_BLOCKS[0x820][7]    
+          data["bootable"] = (this.BOOTLOADER_DATA_BLOCKS[0x820][7] & 0x08) ? "yes" : "no"
         }
         if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
           data["targetCpuType"] = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
@@ -633,17 +635,26 @@ class programNode extends EventEmitter  {
   processDataByte(absoluteAddress, dataByte){
     //winston.debug({message: `programNode: processDataByte: ${utils.decToHex(absoluteAddress, 8)} ${utils.decToHex(dataByte, 2)}` })
     if (this.checkValidArea(absoluteAddress)){
-      let block = (absoluteAddress & 0xFFFFFFF8)  // claculate 8 byte block start address
+      let block = (absoluteAddress & 0xFFFFFFF8)  // calculate 8 byte block start address
       if (this.BOOTLOADER_DATA_BLOCKS[block] == undefined){
-        // do a pair of 8 bytes blocks - 16 bytes
-        let block1 = (absoluteAddress & 0xFFFFFFF0)
-        let block2 = (absoluteAddress & 0xFFFFFFF0) + 8
-        // fill new block with FF's
-        this.BOOTLOADER_DATA_BLOCKS[block1] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-        this.BOOTLOADER_DATA_BLOCKS[block2] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block1, 8)}` })
-        winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block2, 8)}` })
-        this.assembledDataCount += 16
+
+        // bit of a hack for CANCOMPUTE rulesets - the memory space used 0x7900 to 0x7FFF all needs to be blanked
+        if (block == 0x7900) {
+          for (let i = block; i < 0x7FFF; i += 8) {
+            this.BOOTLOADER_DATA_BLOCKS[i] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+            this.assembledDataCount += 8
+          }
+        } else {
+          // do a pair of 8 bytes blocks - 16 bytes
+          let block1 = (absoluteAddress & 0xFFFFFFF0)
+          let block2 = (absoluteAddress & 0xFFFFFFF0) + 8
+          // fill new block with FF's
+          this.BOOTLOADER_DATA_BLOCKS[block1] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+          this.BOOTLOADER_DATA_BLOCKS[block2] = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+          winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block1, 8)}` })
+          winston.debug({message: `programNode: processDataByte:  new block ${utils.decToHex(block2, 8)}` })
+          this.assembledDataCount += 16
+        }
       }
       this.BOOTLOADER_DATA_BLOCKS[block][absoluteAddress & 7] = dataByte
       this.processedDataBytes++

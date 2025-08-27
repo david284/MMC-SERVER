@@ -1,3 +1,12 @@
+MMC Version 0.11.1
+  ProgramNode now uses load address from the hex file to decide where to start the download from
+  Previously it was always 0x800, but rule sets are 0x7900
+  ProgramNode now fills 0x7900 to 0x7FFF with blank (FF) for CANCOMPUTE rulesets
+  Expanded file info for Program Node
+  Client
+  - added column settings to Node view and Events by Node list
+  - In ProgramNodeDiag expanded file info to include load address
+
 MMC Version 0.11.0
   Added functions to support zipped logs in an archive directory 
   Client
