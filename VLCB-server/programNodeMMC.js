@@ -189,6 +189,7 @@ class programNode extends EventEmitter  {
   // 0x822 - param 3 - module ID
   // 0x826 - param 7 - major version number
   // 0x828 - param 9 - cpu type
+  // 0x82A - 0x82D - params 11 to 14 - load address
   // 0x833 - param 20 - beta number
   //
   getFirmwareInformation(INTEL_HEX_STRING){
@@ -202,11 +203,17 @@ class programNode extends EventEmitter  {
           data["moduleIdentifier"] = utils.decToHex(data.manufacturerID,2) + utils.decToHex(data.moduleID,2)
           data["versionNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x820][6] +
 							String.fromCharCode(this.BOOTLOADER_DATA_BLOCKS[0x820][1])
+          data["bootable"] = this.BOOTLOADER_DATA_BLOCKS[0x820][7]
         }
         if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
           data["targetCpuType"] = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
+          data["loadAddress"] = "0x" +utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][5],2)
+            + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][4],2)
+            + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][3],2)
+            + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][2],2)
         }
         if(this.BOOTLOADER_DATA_BLOCKS[0x830]){
+          data["manufacturer"] = this.BOOTLOADER_DATA_BLOCKS[0x830][2]
           data["betaNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x830][3]
         }
         data.valid = true
@@ -218,6 +225,18 @@ class programNode extends EventEmitter  {
     return data
   }
 
+  getLoadAddress(){
+    let value = "0x800"
+    try{
+    value = "0x" +utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][5],2)
+      + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][4],2)
+      + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][3],2)
+      + utils.decToHex(this.BOOTLOADER_DATA_BLOCKS[0x828][2],2)
+    } catch (err){
+      winston.error({message: name + `: getLoadAddress: ${err}`});
+    }
+    return value
+  }
 
   async program (NODENUMBER, CPUTYPE, FLAGS, INTEL_HEX_STRING) {
     this.success = false
@@ -308,10 +327,15 @@ class programNode extends EventEmitter  {
     winston.debug({message: name + ': sending SPCMD_INIT_CHK: ' + msgData});
     await this.transmitCBUS(msgData, 80)
     
+    let loadAddress = parseInt(this.getLoadAddress(), 16)
     // note that ECMAScript 2020 defines ordering for 'for in', so no need to re-order
     for (const block in this.BOOTLOADER_DATA_BLOCKS) {
-      //winston.info({message: `programNode: send_bootloader_data: ${JSON.stringify(block)}` });
-      await this.send_block(block)
+      if ( block >= loadAddress ){
+        //winston.debug({message: `programNode: send_bootloader_data: ${block}` });
+        await this.send_block(block)
+      } else {
+        //winston.debug({message: `programNode: skip block: ${block} ${loadAddress}` });
+      }
     }
 
     await utils.sleep(1000) // allow time for any acknowledge from sending data to be received
