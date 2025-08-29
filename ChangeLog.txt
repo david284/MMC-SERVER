@@ -1,3 +1,7 @@
+MMC Version 0.11.2
+  Client
+  - fixed missing event name & group in Events by Node list - caused by the settings change in the last version
+
 MMC Version 0.11.1
   ProgramNode now uses load address from the hex file to decide where to start the download from
   Previously it was always 0x800, but rule sets are 0x7900
