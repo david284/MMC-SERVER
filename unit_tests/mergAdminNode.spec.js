@@ -896,9 +896,10 @@ describe('mergAdminNode tests', function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NERD')
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('REVAL')
       winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
       done();
     }, 200);
@@ -1224,8 +1225,8 @@ describe('mergAdminNode tests', function(){
   function GetTestCase_nodeFlags() {
     var arg1, arg2, arg3, arg4, testCases = [];
     for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 12} // vlcb = false, FCU_Compatability = true
-      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 20} // vlcb = true, FCU_Compatability = true
+      if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 14} // vlcb = false, FCU_Compatability = true
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 22} // vlcb = true, FCU_Compatability = true
       if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 28} // vlcb = true, FCU_Compatability = false
       testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3, "count":arg4});
     }

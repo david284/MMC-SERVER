@@ -410,6 +410,44 @@ class configuration {
     }
   }
 
+
+  //
+  //
+  getListOfAllNodeBackups(layoutName){
+    winston.debug({message: className + `: getListOfAllNodeBackups: ${layoutName}`});
+    try{
+      let list = {}
+      // need currentUserDirectory, other wise fail
+      if (this.currentUserDirectory){
+        let backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
+        if (!fs.existsSync(backupFolder)){
+          // doesn't exist, so create
+          this.createDirectory(backupFolder)      
+        }
+        // read list of node folders
+        winston.debug({message: className + `: getListOfAllNodeBackups: backupFolder: ${backupFolder}`});
+        var nodeFolders = fs.readdirSync(backupFolder)
+        winston.debug({message: className + `: getListOfAllNodeBackups: nodeFolders: ${JSON.stringify(nodeFolders)}`});
+
+        nodeFolders.forEach(node => {
+          try{
+            //winston.debug({message: className + `: getListOfAllNodeBackups: node: ${node}`});
+            var nodeList = fs.readdirSync(path.join(backupFolder, node)).filter(function (file) {
+              return fs.statSync(path.join(backupFolder, node, file)).isFile();
+            },(this));
+            list[node] = nodeList
+          } catch (err){
+            winston.error({message: className + `: getListOfNodeBackups: ${err}`});            
+          }
+        })
+        winston.debug({message: className + `: getListOfAllNodeBackups: list: ${JSON.stringify(list)}`});
+        return list
+      }
+    } catch (err){
+      winston.error({message: className + `: getListOfNodeBackups: ` + err});
+    }
+  }
+
   //
   //
   renameNodeBackup(layoutName, nodeNumber, fileName, newFileName){

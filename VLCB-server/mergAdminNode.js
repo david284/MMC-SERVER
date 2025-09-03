@@ -1445,6 +1445,9 @@ checkNodeDescriptorIntervalFunc(){
   async requestAllEventVariablesByIndex(nodeNumber, eventIdentifier){
     winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIdentifier ${eventIdentifier}`});
     try {
+      // first we need to ensure the event indexes are up to date, by issuing a NERD to get all events
+      this.CBUS_Queue.push(cbusLib.encodeNERD(nodeNumber))   // push node onto queue to read all events
+      //
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex != undefined){
         //

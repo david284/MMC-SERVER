@@ -131,7 +131,6 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
-
   //
   // Combined node backup test - does read, write, list & delete
   //
@@ -166,6 +165,29 @@ describe('configuration tests', function(){
       expect (list3).to.include("test")
       done();
 		}, 10);
+  })
+
+  
+  //
+  //
+  it("getListOfAllNodeBackups test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getListOfAllNodeBackups test '})
+    var layoutName = 'test_backup_layout'
+    var layoutData = {layoutDetails:{title: layoutName}} 
+    var backupNode1 = {moduleName:"CANACC5"}
+    var backupNode2 = {moduleName:"CANMIO"}
+    config.writeNodeBackup(layoutName, 300, layoutData, backupNode1)
+    config.writeNodeBackup(layoutName, 300, layoutData, backupNode2)
+    config.writeNodeBackup(layoutName, 301, layoutData, backupNode1)
+    //
+    setTimeout(function(){
+      var list = config.getListOfAllNodeBackups(layoutName)
+      winston.info({message: `unit_test: getListOfAllNodeBackups list: ${JSON.stringify(list)}`})
+      expect (list["Node300"].length).to.equal(2)
+      expect (list["Node301"].length).to.equal(1)
+      winston.info({message: 'unit_test: END getListOfAllNodeBackups test '})
+      done();
+		}, 100);
   })
 
 
