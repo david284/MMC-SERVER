@@ -144,8 +144,8 @@ describe('configuration tests', function(){
   
   //
   //
-  it("getListOfAllNodeBackups test", function (done) {
-    winston.info({message: 'unit_test: BEGIN getListOfAllNodeBackups test '})
+  it("getListOfAllNodesBackups test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getListOfAllNodesBackups test '})
     var layoutName = 'test_backup_layout'
     var layoutData = {layoutDetails:{title: layoutName}} 
     var backupNode1 = {moduleName:"CANACC5"}
@@ -155,11 +155,11 @@ describe('configuration tests', function(){
     config.writeNodeBackup(layoutName, 301, layoutData, backupNode1)
     //
     setTimeout(function(){
-      var list = config.getListOfAllNodeBackups(layoutName)
-      winston.info({message: `unit_test: getListOfAllNodeBackups list: ${JSON.stringify(list)}`})
+      var list = config.getListOfAllNodesBackups(layoutName)
+      winston.info({message: `unit_test: getListOfAllNodesBackups list: ${JSON.stringify(list)}`})
       expect (list["Node300"].length).to.equal(2)
       expect (list["Node301"].length).to.equal(1)
-      winston.info({message: 'unit_test: END getListOfAllNodeBackups test '})
+      winston.info({message: 'unit_test: END getListOfAllNodesBackups test '})
       done();
 		}, 100);
   })

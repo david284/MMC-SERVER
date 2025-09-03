@@ -453,6 +453,19 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('REQUEST_ALL_NODES_BACKUPS_LIST', function(data){
+      try{
+        winston.info({message: `socketServer: REQUEST_ALL_NODES_BACKUPS_LIST`});
+        const all_nodes_backup_list = config.getListOfAllNodesBackups(data.layoutName)
+        io.emit('All_NODES_BACKUPS_LIST', all_nodes_backup_list)
+        winston.info({message: `socketServer: sent All_NODES_BACKUPS_LIST `});
+      }catch(err){
+        winston.error({message: name + `: REQUEST_ALL_NODES_BACKUPS_LIST: ${err}`});
+      }
+    })
+
+    //
+    //
     socket.on('REQUEST_BUS_CONNECTION', function(){
       try{
         io.emit('BUS_CONNECTION', status.busConnection)

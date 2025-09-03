@@ -338,8 +338,8 @@ class configuration {
 
   //
   //
-  getListOfAllNodeBackups(layoutName){
-    winston.debug({message: className + `: getListOfAllNodeBackups: ${layoutName}`});
+  getListOfAllNodesBackups(layoutName){
+    winston.debug({message: className + `: getListOfAllNodesBackups: ${layoutName}`});
     try{
       let list = {}
       // need currentUserDirectory, other wise fail
@@ -350,26 +350,26 @@ class configuration {
           this.createDirectory(backupFolder)      
         }
         // read list of node folders
-        winston.debug({message: className + `: getListOfAllNodeBackups: backupFolder: ${backupFolder}`});
+        winston.debug({message: className + `: getListOfAllNodesBackups: backupFolder: ${backupFolder}`});
         var nodeFolders = fs.readdirSync(backupFolder)
-        winston.debug({message: className + `: getListOfAllNodeBackups: nodeFolders: ${JSON.stringify(nodeFolders)}`});
+        winston.debug({message: className + `: getListOfAllNodesBackups: nodeFolders: ${JSON.stringify(nodeFolders)}`});
 
         nodeFolders.forEach(node => {
           try{
-            //winston.debug({message: className + `: getListOfAllNodeBackups: node: ${node}`});
+            //winston.debug({message: className + `: getListOfAllNodesBackups: node: ${node}`});
             var nodeList = fs.readdirSync(path.join(backupFolder, node)).filter(function (file) {
               return fs.statSync(path.join(backupFolder, node, file)).isFile();
             },(this));
             list[node] = nodeList
           } catch (err){
-            winston.error({message: className + `: getListOfNodeBackups: ${err}`});            
+            winston.error({message: className + `: getListOfAllNodesBackups: ${err}`});            
           }
         })
-        winston.debug({message: className + `: getListOfAllNodeBackups: list: ${JSON.stringify(list)}`});
+        winston.debug({message: className + `: getListOfAllNodesBackups: list: ${JSON.stringify(list)}`});
         return list
       }
     } catch (err){
-      winston.error({message: className + `: getListOfNodeBackups: ` + err});
+      winston.error({message: className + `: getListOfAllNodesBackups: ` + err});
     }
   }
 
