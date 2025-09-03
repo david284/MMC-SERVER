@@ -106,32 +106,6 @@ describe('configuration tests', function(){
   //****************************************************************************************** */  
 
   //
-  // test backup - does both read & write
-  //
-  it("Backup test", function (done) {
-    winston.info({message: 'unit_test: BEGIN Backup test '})
-    var layoutName = 'test_backup_layout'
-    var nodeConfig = {config: 1}
-    var layoutData = {layout: 1} 
-    var timestamp = Date.now()
-    var fileName = "backup_" + timestamp
-    layoutData["verification"] =  timestamp
-    config.writeBackup(layoutName, fileName, layoutData, nodeConfig)
-    var result = config.readBackup(layoutName, fileName)
-    var list = config.getListOfBackups(layoutName)
-    setTimeout(function(){
-      winston.info({message: 'result: ' + JSON.stringify(result)})
-      winston.info({message: 'unit_test: END Backup test'})
-      expect(result).to.have.property('systemConfig')
-      expect(result).to.have.property('nodeConfig')
-      expect(JSON.stringify(result.layoutData)).to.equal(JSON.stringify(layoutData));
-      expect(result.layoutData.verification).to.equal(timestamp);
-      expect (list).to.include(fileName)
-      done();
-		}, 50);
-  })
-
-  //
   // Combined node backup test - does read, write, list & delete
   //
   it("Node Backup test", function (done) {

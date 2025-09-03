@@ -184,17 +184,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('DELETE_BACKUP', function(data){
-      try{
-        winston.info({message: name + `: DELETE_BACKUP ${JSON.stringify(data)}`});
-        config.deleteBackup(data.layoutName, data.fileName)
-      }catch(err){
-        winston.error({message: name + `: DELETE_BACKUP: ${err}`});
-      }
-    })
-
-    //
-    //
     socket.on('DELETE_NODE_BACKUP', function(data){
       try{
         winston.info({message: name + `: DELETE_NODE_BACKUP ${JSON.stringify(data)}`});
@@ -389,32 +378,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         winston.info({message: `socketServer: sent ARCHIVED_LOGS_LIST ${directory}`});
       }catch(err){
         winston.error({message: name + `: REQUEST_ARCHIVED_LOGS_LIST: ${err}`});
-      }
-    })
-
-    //
-    //
-    socket.on('REQUEST_BACKUP', function(data){
-      try{
-        winston.info({message: name + `: REQUEST_BACKUP ` + JSON.stringify(data)});
-        const backup = config.readBackup(data.layoutName, data.fileName)
-        io.emit('RESTORED_DATA', backup)
-        winston.info({message: `socketServer: sent RESTORED_DATA`});
-      }catch(err){
-        winston.error({message: name + `: REQUEST_BACKUP: ${err}`});
-      }
-    })
-
-    //
-    //
-    socket.on('REQUEST_BACKUPS_LIST', function(data){
-      try{
-        winston.info({message: `socketServer: REQUEST_BACKUPS_LIST`});
-        const backups_list = config.getListOfBackups(data.layoutName)
-        io.emit('BACKUPS_LIST', backups_list)
-        winston.info({message: `socketServer: sent BACKUPS_LIST ` + backups_list});
-      }catch(err){
-        winston.error({message: name + `: REQUEST_BACKUPS_LIST: ${err}`});
       }
     })
 
@@ -697,17 +660,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         config.writeAppSettings()
       }catch(err){
         winston.error({message: name + `: SAVE_SETTING: ${err}`});
-      }
-    })
- 
-    //
-    //
-    socket.on('SAVE_BACKUP', function(data){ //save backup
-      try{
-        winston.info({message: `socketServer:  SAVE_BACKUP ${JSON.stringify(data.fileName)}`});
-        config.writeBackup(data.layoutName, data.fileName, data.layout, node.nodeConfig)
-      }catch(err){
-        winston.error({message: name + `: SAVE_BACKUP: ${err}`});
       }
     })
  

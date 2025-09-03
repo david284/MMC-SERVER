@@ -253,21 +253,6 @@ class configuration {
 
   //
   // 
-  deleteBackup(layoutName, filename){
-    winston.info({message: className + ` deleteBackup ` + filename });
-    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', filename)
-    winston.debug({message: className + ` deleteBackup: ` + filePath });
-    var file = null
-    try{
-      fs.rmSync(filePath, { recursive: true }) 
-    } catch(err){
-      winston.info({message: className + `: deleteBackup: ` + err});
-    }
-    return file
-  }
-
-  //
-  // 
   deleteNodeBackup(layoutName, nodenumber, filename){
     winston.info({message: className + ` deleteNodeBackup ${layoutName} ${nodenumber} ${filename}` });
     if ((filename != undefined) && (filename.length > 0)){
@@ -286,54 +271,17 @@ class configuration {
 
   //
   // 
-  readBackup(layoutName, filename){
-    winston.info({message: className + ` readBackup ` + filename });
-    var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', filename)
-    winston.debug({message: className + ` readBackup: ` + filePath });
-    var file = null
-    try{
-      file = jsonfile.readFileSync(filePath)
-    } catch(err){
-      winston.info({message: className + `: readBackup: ` + err});
-    }
-    return file
-  }
-
-  //
-  // 
   readNodeBackup(layoutName, nodeNumber, filename){
-    winston.info({message: className + ` readBackup ` + filename });
+    winston.info({message: className + ` readNodeBackup ` + filename });
     var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber, filename)
-    winston.debug({message: className + ` readBackup: ` + filePath });
+    winston.debug({message: className + ` readNodeBackup: ` + filePath });
     var file = null
     try{
       file = jsonfile.readFileSync(filePath)
     } catch(err){
-      winston.info({message: className + `: readBackup: ` + err});
+      winston.info({message: className + `: readNodeBackup: ` + err});
     }
     return file
-  }
-
-  //
-  // 
-  writeBackup(layoutName, fileName, layoutData, nodeConfig){
-    winston.info({message: className + ` writeBackup: ` + fileName });
-    var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
-    // now create current backup folder if it doesn't exist
-    this.createDirectory(backupFolder)
-    var filePath = path.join(backupFolder, fileName)
-    winston.debug({message: className + ` writeBackup: ` + filePath });
-    try{
-      var backup = { 
-        timestamp: new Date().toISOString(),
-        systemConfig: this.appSettings,
-        nodeConfig: nodeConfig,
-        layoutData: layoutData
-      }
-      jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
-    } catch(err){
-      winston.info({message: className + `: writeBackup: ` + err});
-    }
   }
 
   //
@@ -350,7 +298,7 @@ class configuration {
       let moduleName = backupNode.moduleName ? backupNode.moduleName: 'undefined'
       fileName = moduleName + '_' + utils.createTimestamp()
       var filePath = path.join(backupFolder, fileName)
-      winston.debug({message: className + ` writeBackup: ` + filePath });
+      winston.debug({message: className + ` writeNodeBackup: ` + filePath });
       var backup = { 
         timestamp: new Date().toISOString(),
         layoutName: layoutData.layoutDetails.title,
@@ -360,33 +308,10 @@ class configuration {
       jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
       this.eventBus.emit ('NODE_BACKUP_SAVED', fileName) 
     } catch(err){
-      winston.info({message: className + `: writeBackup: ` + err});
+      winston.info({message: className + `: writeNodeBackup: ` + err});
     }
     return fileName
   }
-
-  //
-  //
-  getListOfBackups(layoutName){
-    winston.debug({message: className + `: getListOfBackups:`});
-    try{
-      if (this.currentUserDirectory){
-        var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
-        if (!fs.existsSync(backupFolder)){
-          // doesn't exist, so create
-          this.createDirectory(backupFolder)      
-        }
-        var list = fs.readdirSync(backupFolder).filter(function (file) {
-          return fs.statSync(path.join(backupFolder, file)).isFile();
-        },(this));
-        winston.debug({message: className + `: getListOfBackups: ` + list});
-        return list
-      }
-    } catch (err){
-      winston.error({message: className + `: getListOfBackups: ` + err});
-    }
-  }
-
 
   //
   //
