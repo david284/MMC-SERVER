@@ -12,7 +12,7 @@ const itParam = require('mocha-param');
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
 
-const cbusServer = require('../VLCB-server/cbusServer')(config)
+let cbusServer = require('../VLCB-server/cbusServer')(config)
 
 const name = 'unit_test: cbusServer'
   
@@ -37,6 +37,7 @@ describe('cbusServer tests', function(){
 	});
 
 	after(function(done) {
+    cbusServer = undefined
  		winston.info({message: ' '});   // blank line to separate tests
     // bit of timing to ensure all winston messages get sent before closing tests completely
     setTimeout(function(){
@@ -54,9 +55,9 @@ describe('cbusServer tests', function(){
   function GetTestCase_connect() {
     var arg1, arg2, testCases = [];
     for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = "MOCK_PORT", arg2 = true}
-      if (a == 2) {arg1 = "COM99", arg2 = true}
-      if (a == 3) {arg1 = "", arg2 = true}
+      if (a == 1) {arg1 = "COM99", arg2 = true}
+      if (a == 2) {arg1 = "", arg2 = true}
+      if (a == 3) {arg1 = "MOCK_PORT", arg2 = true}   // last test sunny day so we don't get repeated errors
       testCases.push({'targetSerial':arg1, 'result':arg2});
     }
     return testCases;
