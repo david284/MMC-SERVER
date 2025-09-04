@@ -453,14 +453,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('REQUEST_ALL_NODES_BACKUPS_LIST', function(data){
+    socket.on('REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES', function(data){
       try{
-        winston.info({message: `socketServer: REQUEST_ALL_NODES_BACKUPS_LIST`});
-        const all_nodes_backup_list = config.getListOfAllNodesBackups(data.layoutName)
-        io.emit('All_NODES_BACKUPS_LIST', all_nodes_backup_list)
-        winston.info({message: `socketServer: sent All_NODES_BACKUPS_LIST `});
+        winston.info({message: `socketServer: REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES`});
+        config.getListOfBackupsForAllNodes(data.layoutName)
       }catch(err){
-        winston.error({message: name + `: REQUEST_ALL_NODES_BACKUPS_LIST: ${err}`});
+        winston.error({message: name + `: REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES: ${err}`});
       }
     })
 
@@ -980,6 +978,15 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   config.eventBus.on('CBUS_TRAFFIC', function (data) {
     winston.debug({message: name + `: eventBus: CBUS_TRAFFIC: ${data.direction} ${data.json.text}` });
     io.emit('CBUS_TRAFFIC', data);
+  })
+
+  //
+  // data is JSON, an array of filenames for each node
+  //
+  config.eventBus.on('LIST_OF_BACKUPS_FOR_ALL_NODES', function (data) {
+    winston.debug({message: name + `: eventBus: LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(data)}` });
+    io.emit('LIST_OF_BACKUPS_FOR_ALL_NODES', data)
+    winston.info({message: `socketServer: sent LIST_OF_BACKUPS_FOR_ALL_NODES`});
   })
 
   // data JSON elements: message, caption, type, timeout

@@ -143,9 +143,11 @@ describe('configuration tests', function(){
 
   
   //
+  // returns list of backup file names for all nodes
+  // also creates eventBus 'LIST_OF_BACKUPS_FOR_ALL_NODES' with list as data
   //
-  it("getListOfAllNodesBackups test", function (done) {
-    winston.info({message: 'unit_test: BEGIN getListOfAllNodesBackups test '})
+  it("getListOfBackupsForAllNodes test", function (done) {
+    winston.info({message: 'unit_test: BEGIN getListOfBackupsForAllNodes test '})
     var layoutName = 'test_backup_layout'
     var layoutData = {layoutDetails:{title: layoutName}} 
     var backupNode1 = {moduleName:"CANACC5"}
@@ -154,12 +156,18 @@ describe('configuration tests', function(){
     config.writeNodeBackup(layoutName, 300, layoutData, backupNode2)
     config.writeNodeBackup(layoutName, 301, layoutData, backupNode1)
     //
+    var eventList = undefined
+    config.eventBus.once('LIST_OF_BACKUPS_FOR_ALL_NODES', function (data) {
+      eventList = data
+      winston.info({message: `unit_test: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(eventList)}`})
+    })
     setTimeout(function(){
-      var list = config.getListOfAllNodesBackups(layoutName)
-      winston.info({message: `unit_test: getListOfAllNodesBackups list: ${JSON.stringify(list)}`})
+      var list = config.getListOfBackupsForAllNodes(layoutName)
+      winston.info({message: `unit_test: getListOfBackupsForAllNodes list: ${JSON.stringify(list)}`})
       expect (list["Node300"].length).to.equal(2)
       expect (list["Node301"].length).to.equal(1)
-      winston.info({message: 'unit_test: END getListOfAllNodesBackups test '})
+      expect (list).to.equal(eventList)
+      winston.info({message: 'unit_test: END getListOfBackupsForAllNodes test '})
       done();
 		}, 100);
   })

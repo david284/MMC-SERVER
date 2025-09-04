@@ -533,6 +533,30 @@ describe('socketServer tests', async function(){
 
   //
   //
+  it.only("REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test", function (done) {
+    winston.info({message: name + ': BEGIN REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test '});
+    var result = false
+    let returnData = null
+    socket.once('LIST_OF_BACKUPS_FOR_ALL_NODES', function (data) {
+      returnData = data
+      winston.debug({message: name + `: LIST_OF_BACKUPS_FOR_ALL_NODES: data: ${JSON.stringify(data)}`});
+      result = true
+    })
+    //    
+    socket.emit( 'REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES', {"layoutName":'test_backup_layout'} )
+    //
+    setTimeout(function(){
+      winston.info({message: name + ': result ' + result});
+      winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
+      expect (result).to.equal(true)
+      winston.info({message: name + ': END REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test'});
+			done();
+		}, 50);
+  })
+
+
+  //
+  //
   it("REQUEST_LOG_FILE test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_LOG_FILE test '});
     var result = false

@@ -338,8 +338,8 @@ class configuration {
 
   //
   //
-  getListOfAllNodesBackups(layoutName){
-    winston.debug({message: className + `: getListOfAllNodesBackups: ${layoutName}`});
+  getListOfBackupsForAllNodes(layoutName){
+    winston.debug({message: className + `: getListOfBackupsForAllNodes: ${layoutName}`});
     try{
       let list = {}
       // need currentUserDirectory, other wise fail
@@ -350,26 +350,27 @@ class configuration {
           this.createDirectory(backupFolder)      
         }
         // read list of node folders
-        winston.debug({message: className + `: getListOfAllNodesBackups: backupFolder: ${backupFolder}`});
+        winston.debug({message: className + `: getListOfBackupsForAllNodes: backupFolder: ${backupFolder}`});
         var nodeFolders = fs.readdirSync(backupFolder)
-        winston.debug({message: className + `: getListOfAllNodesBackups: nodeFolders: ${JSON.stringify(nodeFolders)}`});
+        winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeFolders: ${JSON.stringify(nodeFolders)}`});
 
         nodeFolders.forEach(node => {
           try{
-            //winston.debug({message: className + `: getListOfAllNodesBackups: node: ${node}`});
+            //winston.debug({message: className + `: getListOfBackupsForAllNodes: node: ${node}`});
             var nodeList = fs.readdirSync(path.join(backupFolder, node)).filter(function (file) {
               return fs.statSync(path.join(backupFolder, node, file)).isFile();
             },(this));
             list[node] = nodeList
           } catch (err){
-            winston.error({message: className + `: getListOfAllNodesBackups: ${err}`});            
+            winston.error({message: className + `: getListOfBackupsForAllNodes: ${err}`});            
           }
         })
-        winston.debug({message: className + `: getListOfAllNodesBackups: list: ${JSON.stringify(list)}`});
+        winston.debug({message: className + `: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(list)}`});
+        this.eventBus.emit ('LIST_OF_BACKUPS_FOR_ALL_NODES', list) 
         return list
       }
     } catch (err){
-      winston.error({message: className + `: getListOfAllNodesBackups: ` + err});
+      winston.error({message: className + `: getListOfBackupsForAllNodes: ` + err});
     }
   }
 
