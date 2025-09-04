@@ -533,7 +533,7 @@ describe('socketServer tests', async function(){
 
   //
   //
-  it.only("REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test", function (done) {
+  it("REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test '});
     var result = false
     let returnData = null
