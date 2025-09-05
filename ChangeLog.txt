@@ -1,6 +1,8 @@
 MMC Version 0.11.3
   now refresh event indexes in requestAllEventVariablesByIndex
   Added getListOfAllNodesBackups, REQUEST_ALL_NODES_BACKUPS_LIST
+  Updated Client
+  - added Backups column to Node View
 
 MMC Version 0.11.2
   Client

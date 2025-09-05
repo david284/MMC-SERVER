@@ -341,6 +341,7 @@ class cbusAdmin extends EventEmitter {
           winston.debug({message: name + `: EVANS(D3): eventIdentifier ${eventIdentifier}`});
           if (cbusMsg.eventVariableIndex > 0){
             this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
+            winston.debug({message: name + `: lastEVANSTimestamp: node ${nodeNumber} ${this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp}`});
           }
         } catch(err){ winston.error({message: name + `: EVANS(D3): node ${nodeNumber} ${err}`}) }
       },
@@ -1157,6 +1158,7 @@ checkNodeDescriptorIntervalFunc(){
     this.moduleDescriptorFilesTimeStamp = Date.now()
     this.saveConfig()
     this.CBUS_Queue.push(cbusLib.encodeQNN())
+    this.config.getListOfBackupsForAllNodes(this.config.currentLayoutFolder)
   }
 
   async event_unlearn(nodeNumber, eventIdentifier) {
@@ -1398,13 +1400,13 @@ checkNodeDescriptorIntervalFunc(){
       this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
       // reduce wait time if doing unit tests
       // timeout needs to be long enough to cater for putting into learn mode as well as sending REQEV + receiving 2+ EVANS responses
-      let waitTime = 200
+      let waitTime = this.inUnitTest ? 100 : 400
       while(Date.now() < startTime + waitTime){
         // wait to see if we get a non-zero EV# back, if so we assume all EV's returned
         // if lastEVANSTimestamp is greater than start time, then we have multiple responses
         if (this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp > startTime){
           winston.debug({message: name + `: requestAllEventVariablesByIdentifier: break time ${this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp-startTime}`});
-          break 
+          break
         }
         await sleep(1)
       }

@@ -188,6 +188,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: name + `: DELETE_NODE_BACKUP ${JSON.stringify(data)}`});
         config.deleteNodeBackup(data.layoutName, data.nodeNumber, data.fileName)
+        config.getListOfBackupsForAllNodes(data.layoutName)
       }catch(err){
         winston.error({message: name + `: DELETE_NODE_BACKUP: ${err}`});
       }
@@ -297,6 +298,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         let nodeBackups_list = config.renameNodeBackup(data.layoutName, data.nodeNumber, data.fileName, data.newFileName)
         io.emit('NODE_BACKUPS_LIST', nodeBackups_list)
         winston.info({message: name + `: sent NODE_BACKUPS_LIST ${JSON.stringify(nodeBackups_list)}`});
+        config.getListOfBackupsForAllNodes(data.layoutName)
       }catch(err){
         winston.error({message: name + `: RENAME_NODE_BACKUP: ${err}`});
       }
@@ -680,6 +682,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: `socketServer:  SAVE_NODE_BACKUP ${JSON.stringify(data.nodeNumber)}`});
         config.writeNodeBackup(data.layoutName, data.nodeNumber, data.layout, data.backupNode)
+        config.getListOfBackupsForAllNodes(data.layoutName)
       }catch(err){
         winston.error({message: name + `: SAVE_NODE_BACKUP: ${err}`});
       }
