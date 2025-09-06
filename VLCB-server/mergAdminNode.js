@@ -646,7 +646,8 @@ class cbusAdmin extends EventEmitter {
         "services": {},
         "lastReceiveTimestamp": undefined,
         "checkNodeDescriptorTimeStamp": 0,
-        "versionAlreadyRequested": false
+        "versionAlreadyRequested": false,
+        "NodeModifiedTimestamp": Date.now()
     }
     this.nodeConfig.nodes[nodeNumber] = output
     winston.debug({message: name + `: createNodeConfig: node ` + nodeNumber})
@@ -972,7 +973,7 @@ class cbusAdmin extends EventEmitter {
       } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){
         proceed = true
       }
-      winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
+      //winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
       //
       // ok, should know if we need to run this
       if (proceed) {
@@ -1029,7 +1030,7 @@ checkNodeDescriptorIntervalFunc(){
   if (this.nodeDescripter_Queue.length > 0){
     // get first out of queue
     var nodeNumber = this.nodeDescripter_Queue[0]
-    winston.debug({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
+    //winston.debug({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
     this.checkNodeDescriptor(nodeNumber, false)
     // remove the one we've used from queue
     this.nodeDescripter_Queue.shift()
@@ -1258,6 +1259,8 @@ checkNodeDescriptorIntervalFunc(){
     this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
     this.CBUS_Queue.push(cbusLib.encodeNVSET(nodeNumber, nodeVariableIndex, nodeVariableValue))
     this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    // update timestamp
+    this.nodeConfig.nodes[nodeNumber]['NodeModifiedTimestamp'] = Date.now()
   }
 
   //
@@ -1314,6 +1317,8 @@ checkNodeDescriptorIntervalFunc(){
     let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
     this.CBUS_Queue.push(cbusLib.encodeEVLRN(eventNodeNumber, eventNumber, eventVariableIndex, eventVariableValue))
     this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    // update timestamp
+    this.nodeConfig.nodes[nodeNumber]['NodeModifiedTimestamp'] = Date.now()
 
     // don't reload variables if reload is false - like when restoring a node
     if (reLoad){
@@ -1580,6 +1585,7 @@ checkNodeDescriptorIntervalFunc(){
   sendNVSET(nodeNumber, variableId, variableVal) { // Read Node Variable
     try{
       this.CBUS_Queue.push(cbusLib.encodeNVSET(nodeNumber, variableId, variableVal))
+      this.nodeConfig.nodes[nodeNumber]['NodeModifiedTimestamp'] = Date.now()
     } catch (err) {
       winston.error({message: name + `: sendNVSET: ${err}`});
     }

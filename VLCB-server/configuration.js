@@ -318,17 +318,20 @@ class configuration {
   getListOfNodeBackups(layoutName, nodeNumber){
     winston.debug({message: className + `: getListOfNodeBackups:`});
     try{
-      if (this.currentUserDirectory){
-        var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
-        if (!fs.existsSync(backupFolder)){
-          // doesn't exist, so create
-          this.createDirectory(backupFolder)      
+      // logical AND (&&)
+      if ((layoutName) && (nodeNumber)){
+        if (this.currentUserDirectory){
+          var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
+          if (!fs.existsSync(backupFolder)){
+            // doesn't exist, so create
+            this.createDirectory(backupFolder)      
+          }
+          var list = fs.readdirSync(backupFolder).filter(function (file) {
+            return fs.statSync(path.join(backupFolder, file)).isFile();
+          },(this));
+          winston.debug({message: className + `: getListOfNodeBackups: ` + list});
+          return list
         }
-        var list = fs.readdirSync(backupFolder).filter(function (file) {
-          return fs.statSync(path.join(backupFolder, file)).isFile();
-        },(this));
-        winston.debug({message: className + `: getListOfNodeBackups: ` + list});
-        return list
       }
     } catch (err){
       winston.error({message: className + `: getListOfNodeBackups: ` + err});
@@ -341,33 +344,41 @@ class configuration {
   getListOfBackupsForAllNodes(layoutName){
     winston.debug({message: className + `: getListOfBackupsForAllNodes: ${layoutName}`});
     try{
-      let list = {}
-      // need currentUserDirectory, other wise fail
-      if (this.currentUserDirectory){
-        let backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
-        if (!fs.existsSync(backupFolder)){
-          // doesn't exist, so create
-          this.createDirectory(backupFolder)      
-        }
-        // read list of node folders
-        winston.debug({message: className + `: getListOfBackupsForAllNodes: backupFolder: ${backupFolder}`});
-        var nodeFolders = fs.readdirSync(backupFolder)
-        winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeFolders: ${JSON.stringify(nodeFolders)}`});
-
-        nodeFolders.forEach(node => {
-          try{
-            //winston.debug({message: className + `: getListOfBackupsForAllNodes: node: ${node}`});
-            var nodeList = fs.readdirSync(path.join(backupFolder, node)).filter(function (file) {
-              return fs.statSync(path.join(backupFolder, node, file)).isFile();
-            },(this));
-            list[node] = nodeList
-          } catch (err){
-            winston.error({message: className + `: getListOfBackupsForAllNodes: ${err}`});            
+      if (layoutName){
+        let list = {}
+        // need currentUserDirectory, other wise fail
+        if (this.currentUserDirectory){
+          let backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups')
+          if (!fs.existsSync(backupFolder)){
+            // doesn't exist, so create
+            this.createDirectory(backupFolder)      
           }
-        })
-        winston.debug({message: className + `: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(list)}`});
-        this.eventBus.emit ('LIST_OF_BACKUPS_FOR_ALL_NODES', list) 
-        return list
+          // read list of node folders
+          winston.debug({message: className + `: getListOfBackupsForAllNodes: backupFolder: ${backupFolder}`});
+          var nodeFolders = fs.readdirSync(backupFolder)
+          winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeFolders: ${JSON.stringify(nodeFolders)}`});
+
+          nodeFolders.forEach(node => {
+            try{
+              winston.debug({message: className + `: getListOfBackupsForAllNodes: node: ${node}`});
+              // should be  afolder name in the form Nodexxx, where xxx is numberic, so check this
+              if (node.startsWith("Node")){
+                if (!Number.isNaN(parseInt(node.substring(4)))){
+                  winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeNumber: ${parseInt(node.substring(4))}`});
+                  var nodeList = fs.readdirSync(path.join(backupFolder, node)).filter(function (file) {
+                    return fs.statSync(path.join(backupFolder, node, file)).isFile();
+                  },(this));
+                  list[node] = nodeList
+                }
+              }
+            } catch (err){
+              winston.error({message: className + `: getListOfBackupsForAllNodes: ${err}`});            
+            }
+          })
+          winston.debug({message: className + `: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(list)}`});
+          this.eventBus.emit ('LIST_OF_BACKUPS_FOR_ALL_NODES', list) 
+          return list
+        }
       }
     } catch (err){
       winston.error({message: className + `: getListOfBackupsForAllNodes: ` + err});
@@ -873,6 +884,7 @@ class configuration {
   // return true if directory freshly created
   // false if it already existed
   createDirectory(directory) {
+    winston.debug({message: className + `: createDirectory: ${directory}` });
     var result = false
     try {
       // check if directory exists
