@@ -4,6 +4,7 @@ MMC Version 0.11.3
   Added NodeModifiedTimestamp updated on NV & EV writes
   Updated Client
   - added Backups column to Node View
+  - added backup notification if variables changed
 
 MMC Version 0.11.2
   Client
