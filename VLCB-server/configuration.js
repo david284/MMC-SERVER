@@ -779,7 +779,7 @@ class configuration {
   // returns either filename or undefined
   //
   getMatchingModuleDescriptorFile(moduleIdentifier, version, processorType){
-    winston.debug({message: className + ': getMatchingModuleDescriptorFile: ' + moduleIdentifier})
+    winston.debug({message: className + ': getMatchingModuleDescriptorFile: moduleIdentifier ' + moduleIdentifier})
     var location
     //
     // first try USER location

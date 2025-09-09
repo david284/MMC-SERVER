@@ -540,16 +540,25 @@ class cbusAdmin extends EventEmitter {
     // if node doesn't exist, create it
     if (this.nodeConfig.nodes[nodeNumber] == undefined){
       this.createNodeConfig(nodeNumber, false)
-      // if node didn't exist request minimum params
+      updated = true
+    }
+      // check if we have minimum params as provided by PNN
       // but not if PNN, as we don't want to request duplicate info that PNN will do anyway
       // but this might have been a node added without doing a refresh
-      if (cbusMsg.mnemonic != "PNN"){
-        // get param 8, 1 & 3 as needed as a minimum if new node
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+    if (cbusMsg.mnemonic != "PNN"){
+      // get param 8, 1 & 3 as needed as a minimum if new node
+      if(this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false){
+        if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
+        }
+        if ( this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+        }
+        if ( this.nodeConfig.nodes[nodeNumber].parameters[3] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+        }
+        this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
       }
-      updated = true
     }
     // skip this if in unit test, as it's once only nature can cause repeated tests to fail
     if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
@@ -645,8 +654,9 @@ class cbusAdmin extends EventEmitter {
         "eventCount": 0,
         "services": {},
         "lastReceiveTimestamp": undefined,
-        "checkNodeDescriptorTimeStamp": 0,
+        "getNodeDescriptorTimeStamp": 0,
         "versionAlreadyRequested": false,
+        "minParamsAlreadyRequested": false,
         "NodeModifiedTimestamp": Date.now()
     }
     this.nodeConfig.nodes[nodeNumber] = output
@@ -911,11 +921,8 @@ class cbusAdmin extends EventEmitter {
       // get & store the processorType
       this.nodeConfig.nodes[nodeNumber].processorType = this.nodeConfig.nodes[nodeNumber].parameters[9]
     }
-    if ((this.nodeConfig.nodes[nodeNumber].moduleVersion) && (this.nodeConfig.nodes[nodeNumber].processorType)){
-      // if version number & processor type exists, try to get module descriptor
-      this.nodeDescripter_Queue.push(nodeNumber)
-      //this.checkNodeDescriptor(nodeNumber, false); // do before emit node
-    }
+    // try to get nodeDescriptor, this will check if it needs doing
+    this.nodeDescripter_Queue.push(nodeNumber)
     this.config.writeNodeConfig(this.nodeConfig)
     // mark node has changed, so regular check will send the node to the client
     // reduces traffic if node is being changed very quickly
@@ -943,78 +950,6 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].hasChanged = true
   }
 
-  //
-  //
-  //
-  refreshNodeDescriptors(){
-    winston.debug({message: name + ': refreshNodeDescriptors'});
-    // refresh time stamp so that node descriptors will be refreshed
-    this.moduleDescriptorFilesTimeStamp = Date.now()
-    Object.keys(this.nodeConfig.nodes).forEach(async nodeNumber => {
-      this.nodeDescripter_Queue.push(nodeNumber)
-    })
-  }
-
-
-  //
-  // checks if there's a module descriptor for this node, and populates it's node descriptor if so
-  // Do this on initial run, or if there's been an update to Module Descriptors
-  // or if it's been forced anyway
-  // don't want to check every time as it's slow
-  //
-  checkNodeDescriptor(nodeNumber, force){
-    try{
-      //decide if we really need to do this, 
-      let proceed = false
-      if (force == true) {
-        proceed = true
-      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp == undefined){
-        proceed = true
-      } else if ( this.nodeConfig.nodes[nodeNumber].checkNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){
-        proceed = true
-      }
-      //winston.debug({message: name + ': checkNodeDescriptor ' + nodeNumber + ' proceed: ' + proceed});
-      //
-      // ok, should know if we need to run this
-      if (proceed) {
-        if (this.nodeConfig.nodes[nodeNumber]){
-          // get the module identifier...
-          let moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier;      // should be populated by PNN
-          // can only continue if we have the moduleVersion & processor type
-          if ((this.nodeConfig.nodes[nodeNumber].moduleVersion != undefined) && (this.nodeConfig.nodes[nodeNumber].processorType != undefined)){
-            let moduleVersion = this.nodeConfig.nodes[nodeNumber].moduleVersion
-            let processorType = "P" + this.nodeConfig.nodes[nodeNumber].processorType
-            // ok, parameters prepared, so lets go get the file
-            const moduleDescriptor = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, moduleVersion, processorType)
-            this.nodeConfig.nodes[nodeNumber]['checkNodeDescriptorTimeStamp'] = Date.now()
-            // now check we did get an actual file
-            if (moduleDescriptor){
-              this.nodeDescriptors[nodeNumber] = moduleDescriptor
-              this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
-              this.config.writeNodeDescriptors(this.nodeDescriptors)
-              winston.info({message: 'mergAdminNode: checkNodeDescriptor: loaded file ' + moduleDescriptor.moduleDescriptorFilename});
-              var payload = {[nodeNumber]:moduleDescriptor}
-              this.emit('nodeDescriptor', payload);
-              // saveNode will populate moduleName if it doesn't exist
-              //this.saveNode(nodeNumber)
-            } else {
-            winston.info({message: name + `: checkNodeDescriptor: failed to load file
-                moduleIdentifier ${moduleIdentifier}
-                moduleVersion ${moduleVersion}
-                processorType ${this.nodeConfig.nodes[nodeNumber].processorType}`});
-            }
-          } else {
-            winston.info({message: name + `: checkNodeDescriptor: failed to load file
-                moduleVersion ${this.nodeConfig.nodes[nodeNumber].moduleVersion}
-                processorType ${this.nodeConfig.nodes[nodeNumber].processorType}`});
-          }
-        }
-      }
-    } catch (err){
-      winston.error({message: name + `: checkNodeDescriptor: node ${nodeNumber} ${err}` });              
-    }
-  }
-
 
 //************************************************************************ */
 //
@@ -1023,19 +958,6 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */
 
-//
-// Function to allow checking of MDF's without blocking
-//
-checkNodeDescriptorIntervalFunc(){
-  if (this.nodeDescripter_Queue.length > 0){
-    // get first out of queue
-    var nodeNumber = this.nodeDescripter_Queue[0]
-    //winston.debug({message: name + `: checkNodeDescriptorIntervalFunc: dequeued node ${nodeNumber}` });
-    this.checkNodeDescriptor(nodeNumber, false)
-    // remove the one we've used from queue
-    this.nodeDescripter_Queue.shift()
-  }
-}
 
   //
   // Function to send CBUS messages one at a time, ensuring a gap between them
@@ -1620,6 +1542,110 @@ checkNodeDescriptorIntervalFunc(){
       this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
     } catch (err) {
       winston.error({message: name + `: sendREVAL: ${err}`});
+    }
+  }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////  
+//
+// MDF related methods
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////  
+
+  //
+  //
+  //
+  refreshAllNodeDescriptors(){
+    winston.debug({message: name + ': refreshAllNodeDescriptors'});
+    // refresh time stamp so that all node descriptors will be refreshed
+    this.moduleDescriptorFilesTimeStamp = Date.now()
+    Object.keys(this.nodeConfig.nodes).forEach(async nodeNumber => {
+      this.nodeDescripter_Queue.push(nodeNumber)
+    })
+  }
+
+  //
+  //
+  //
+  refreshNodeDescriptor(nodeNumber){
+    winston.debug({message: name + `: refreshNodeDescriptor: node ${nodeNumber} `});
+    // refresh time stamp so that the node descriptor for this node will be refreshed
+    this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp = 0
+    this.nodeDescripter_Queue.push(nodeNumber)
+  }
+
+  //
+  // Method to allow checking of MDF's without blocking
+  //
+  checkNodeDescriptorIntervalFunc(){
+    if (this.nodeDescripter_Queue.length > 0){
+      // get first out of queue
+      var nodeNumber = this.nodeDescripter_Queue[0]
+      let needsMDF = false
+      // check if we really need to go get the MDF for this node, as it's quite time consuming
+      // uses timestamps so we can avoid repeatedly trying to read the MDF, as it may not exist
+      if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp == undefined){ needsMDF = true }
+      if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){ needsMDF = true }
+      //
+      if (needsMDF){
+        this.getNodeDescriptor(nodeNumber, false)
+      }
+      // remove the one we've used from queue
+      this.nodeDescripter_Queue.shift()
+    }
+  }
+
+  //
+  // gets a module descriptor for this node
+  // needs to check that required information is available
+  //
+  getNodeDescriptor(nodeNumber){
+    try{
+      if (this.nodeConfig.nodes[nodeNumber]){
+        // get the required information
+        let moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
+        let moduleVersion = this.nodeConfig.nodes[nodeNumber].moduleVersion
+        let processorType = this.nodeConfig.nodes[nodeNumber].processorType
+        // can only continue if we have the required information
+        if ((moduleIdentifier != undefined) && (moduleVersion != undefined) && (processorType != undefined)){
+          winston.debug({message: name + `: getNodeDescriptor:
+            nodeNumber ${nodeNumber}
+            moduleIdentifier ${moduleIdentifier}
+            moduleVersion ${moduleVersion}
+            processorType ${processorType}`
+          });
+          // ok, information available, so lets go get the file
+          const moduleDescriptor = this.config.getMatchingModuleDescriptorFile(moduleIdentifier, moduleVersion, "P" + processorType)
+          // update timestamp here so we don't keep repeating this if the file doesn't exist
+          this.nodeConfig.nodes[nodeNumber]['getNodeDescriptorTimeStamp'] = Date.now()
+          // now check we did get an actual file
+          if (moduleDescriptor){
+            this.nodeDescriptors[nodeNumber] = moduleDescriptor
+            this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
+            this.config.writeNodeDescriptors(this.nodeDescriptors)
+            winston.info({message: name +`: getNodeDescriptor: node ${nodeNumber} loaded file ${moduleDescriptor.moduleDescriptorFilename}`});
+            var payload = {[nodeNumber]:moduleDescriptor}
+            this.emit('nodeDescriptor', payload);
+          } else {
+            winston.info({message: name + `: getNodeDescriptor: failed to load file
+              nodeNumber ${nodeNumber}
+              moduleIdentifier ${moduleIdentifier}
+              moduleVersion ${moduleVersion}
+              processorType ${processorType}`
+            });
+          }
+        } else {
+          winston.debug({message: name + `: getNodeDescriptor: missing information
+            nodeNumber ${nodeNumber}
+            moduleIdentifier ${moduleIdentifier}
+            moduleVersion ${moduleVersion}
+            processorType ${processorType}`
+          });
+        }
+      } else {
+        winston.error({message: name + `: getNodeDescriptor: no such node: nodeNumber ${nodeNumber}`});
+      }
+    } catch (err){
+      winston.error({message: name + `: getNodeDescriptor: node ${nodeNumber} ${err}` });              
     }
   }
 

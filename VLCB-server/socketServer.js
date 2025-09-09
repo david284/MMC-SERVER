@@ -233,7 +233,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
           var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
           io.emit('MATCHING_MDF_LIST', "USER", data.nodeNumber, config.getMatchingMDFList("USER", match))
         }
-        node.refreshNodeDescriptors()   // force refresh of nodeDescriptors
+        node.refreshAllNodeDescriptors()   // force refresh of nodeDescriptors
       }catch(err){
         winston.error({message: name + `: IMPORT_MODULE_DESCRIPTOR: ${err}`});
       }
@@ -604,7 +604,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
           var match = node.nodeConfig.nodes[data.nodeNumber].moduleIdentifier
           io.emit('MATCHING_MDF_LIST', "USER", data.nodeNumber, config.getMatchingMDFList("USER", match))
         }
-        node.refreshNodeDescriptors()   // force refresh
+        node.refreshAllNodeDescriptors()   // force refresh
       }catch(err){
         winston.error({message: name + `: REQUEST_MDF_DELETE: ${err}`});
       }
