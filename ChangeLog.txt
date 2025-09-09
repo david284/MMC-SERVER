@@ -2,6 +2,7 @@ MMC Version 0.11.3
   now refresh event indexes in requestAllEventVariablesByIndex
   Added getListOfAllNodesBackups, REQUEST_ALL_NODES_BACKUPS_LIST
   Added NodeModifiedTimestamp updated on NV & EV writes
+  Reworked loading of MDF's for nodes - was failing to reload MDF if node firmware updated
   Updated Client
   - added Backups column to Node View
   - added backup notification if variables changed
