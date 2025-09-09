@@ -3,9 +3,11 @@ MMC Version 0.11.3
   Added getListOfAllNodesBackups, REQUEST_ALL_NODES_BACKUPS_LIST
   Added NodeModifiedTimestamp updated on NV & EV writes
   Reworked loading of MDF's for nodes - was failing to reload MDF if node firmware updated
+  removed NODE_DESCRIPTOR_FILE_LIST event
   Updated Client
   - added Backups column to Node View
   - added backup notification if variables changed
+  - removed redundant NODE_DESCRIPTOR_FILE_LIST event
 
 MMC Version 0.11.2
   Client
