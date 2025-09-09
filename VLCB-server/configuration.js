@@ -704,13 +704,13 @@ class configuration {
       if (this.currentUserDirectory){
         if (this.userModuleDescriptorFileList.length == 0){
           this.userModuleDescriptorFileList = fs.readdirSync(path.join(this.currentUserDirectory, 'modules'))
-          winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
+          //winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
         }
       }
       if (this.systemDirectory){
         if (this.systemModuleDescriptorFileList.length == 0){
           this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemDirectory, 'modules'))
-          winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
+          //winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
         }
       }
     } catch (e) {

@@ -260,17 +260,12 @@ class cbusAdmin extends EventEmitter {
           this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
           this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
           this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
-          // sneaky short cut to get moduleIdentifier as already hex encoded as part of PNN message
-          this.nodeConfig.nodes[nodeNumber].moduleIdentifier = cbusMsg.encoded.toString().substr(13, 4).toUpperCase()
           // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
           if (nodeNumber > 0){
             // push node onto queue to read all events
             this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
           }
           this.updateNodeConfig(cbusMsg.nodeNumber)
-          // now get file list & send event to socketServer
-          const moduleIdentifier = this.nodeConfig.nodes[nodeNumber].moduleIdentifier
-          this.emit('node_descriptor_file_list', cbusMsg.nodeNumber, config.getModuleDescriptorFileList(moduleIdentifier))
         } catch (err){ winston.error({message: name + `: PNN (B6) ${err}`}) }
       },
       //
@@ -467,18 +462,20 @@ class cbusAdmin extends EventEmitter {
     if (this.merg['modules'][moduleIdentifier]) {
       if (this.merg['modules'][moduleIdentifier]['name']) {
         moduleName = this.merg['modules'][moduleIdentifier]['name']
+        winston.debug({message: name + `: getModuleName(1): ${moduleIdentifier} ${moduleName}`});
         return moduleName
       }
     }
     var list = this.config.getModuleDescriptorFileList(moduleIdentifier)
-    winston.debug({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
+    //winston.debug({message: name + `: Descriptor File List: ` + JSON.stringify(list)});
     if (list[0]){
       var index = list[0].toString().search(moduleIdentifier)
-      winston.debug({message: name + `: getModuleDescriptorFileList: moduleIdentifier position: ` + index});
+      //winston.debug({message: name + `: getModuleDescriptorFileList: moduleIdentifier position: ` + index});
       if (index > 1) {
         moduleName =list[0].substr(0,index-1)
       }
     }
+    winston.debug({message: name + `: getModuleName(2): ${moduleIdentifier} ${moduleName}`});
     return moduleName
   }
 
@@ -535,7 +532,7 @@ class cbusAdmin extends EventEmitter {
   // and we'd be generating 3 unnecessary commands if we did
   //
   updateNodeStatus(cbusMsg){
-    winston.debug({message: name + ": updateNodeStatus " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
+    winston.debug({message: name + `: updateNodeStatus node ${cbusMsg.nodeNumber} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`});
     let nodeNumber = cbusMsg.nodeNumber
     var updated = false
     // if node doesn't exist, create it
@@ -910,10 +907,13 @@ class cbusAdmin extends EventEmitter {
     if ((this.nodeConfig.nodes[nodeNumber].manufacturerId != undefined) && (this.nodeConfig.nodes[nodeNumber].moduleId != undefined)){
       var moduleIdentifier = utils.decToHex(this.nodeConfig.nodes[nodeNumber].manufacturerId, 2)
         + utils.decToHex(this.nodeConfig.nodes[nodeNumber].moduleId, 2)
-      this.nodeConfig.nodes[nodeNumber].moduleIdentifier = moduleIdentifier
-      // also fill manufacturer & module name
-      this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
-      this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
+      // has the moduleIdentifier changed? - if so update some things
+      if (this.nodeConfig.nodes[nodeNumber].moduleIdentifier != moduleIdentifier){  
+        this.nodeConfig.nodes[nodeNumber].moduleIdentifier = moduleIdentifier
+        // also fill manufacturer & module name
+        this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
+        this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
+      }
     }
     if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined)){
       // get & store the version

@@ -958,13 +958,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
   //
   //
-  node.on('node_descriptor_file_list', function (nodeNumber, list) {
-    winston.info({message: `socketServer: NODE_DESCRIPTOR_FILE_LIST Sent nodeNumber ` + nodeNumber});
-    io.emit('NODE_DESCRIPTOR_FILE_LIST', nodeNumber, list);
-  })
-
-  //
-  //
   node.on('requestNodeNumber', function (nodeNumber, name) {
     winston.info({message: `socketServer: REQUEST_NODE_NUMBER sent - previous nodeNumber ` + nodeNumber + '  Name ' + name});
     io.emit('REQUEST_NODE_NUMBER', nodeNumber, name)
