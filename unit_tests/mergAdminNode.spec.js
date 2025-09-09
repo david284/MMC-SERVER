@@ -81,6 +81,7 @@ describe('mergAdminNode tests', function(){
    		winston.info({message: ' '});   // blank line to separate tests
       mock_messageRouter.messagesIn = []
       nodeTraffic=[]
+      node.inUnitTest=true
   });
 
 	after(function(done) {
@@ -1034,6 +1035,8 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN updateNodeStatus test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
+    node.nodeDescripter_Queue = []
+    node.inUnitTest = false       // just for this test
     let nodeNumber = 3
     // round trip to get json decode
     let cbusmsg = cbusLib.decode(cbusLib.encodeWRACK(nodeNumber))
@@ -1049,9 +1052,18 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[2].parameterIndex).to.equal(3)
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[3].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[3].parameterIndex).to.equal(7)
+      expect(mock_messageRouter.messagesIn[4].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[4].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[4].parameterIndex).to.equal(2)
+      expect(mock_messageRouter.messagesIn[5].mnemonic).to.equal('RQNPN')
+      expect(mock_messageRouter.messagesIn[5].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[5].parameterIndex).to.equal(9)
       winston.info({message: 'unit_test: END updateNodeStatus test'});
       done();
-    }, 500);
+    }, 300);
   })
 
 

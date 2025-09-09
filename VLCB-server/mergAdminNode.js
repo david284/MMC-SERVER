@@ -507,7 +507,7 @@ class cbusAdmin extends EventEmitter {
   //
   async action_message(cbusMsg) {
     if (cbusMsg.ID_TYPE == "S"){
-      winston.debug({message: "mergAdminNode: action_message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
+      winston.debug({message: name + ": action_message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
       if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
       this.opcodeTracker[cbusMsg.opCode].count++
       this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
@@ -535,6 +535,7 @@ class cbusAdmin extends EventEmitter {
   // and we'd be generating 3 unnecessary commands if we did
   //
   updateNodeStatus(cbusMsg){
+    winston.debug({message: name + ": updateNodeStatus " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
     let nodeNumber = cbusMsg.nodeNumber
     var updated = false
     // if node doesn't exist, create it
@@ -547,7 +548,8 @@ class cbusAdmin extends EventEmitter {
       // but this might have been a node added without doing a refresh
     if (cbusMsg.mnemonic != "PNN"){
       // get param 8, 1 & 3 as needed as a minimum if new node
-      if(this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false){
+      // skip this if in unit test, as it's once only nature can cause repeated tests to fail
+      if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
         if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
           this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
         }
@@ -1577,20 +1579,24 @@ class cbusAdmin extends EventEmitter {
   // Method to allow checking of MDF's without blocking
   //
   checkNodeDescriptorIntervalFunc(){
-    if (this.nodeDescripter_Queue.length > 0){
-      // get first out of queue
-      var nodeNumber = this.nodeDescripter_Queue[0]
-      let needsMDF = false
-      // check if we really need to go get the MDF for this node, as it's quite time consuming
-      // uses timestamps so we can avoid repeatedly trying to read the MDF, as it may not exist
-      if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp == undefined){ needsMDF = true }
-      if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){ needsMDF = true }
-      //
-      if (needsMDF){
-        this.getNodeDescriptor(nodeNumber, false)
+    try{
+      if (this.nodeDescripter_Queue.length > 0){
+        // get first out of queue
+        var nodeNumber = this.nodeDescripter_Queue[0]
+        let needsMDF = false
+        // check if we really need to go get the MDF for this node, as it's quite time consuming
+        // uses timestamps so we can avoid repeatedly trying to read the MDF, as it may not exist
+        if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp == undefined){ needsMDF = true }
+        if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){ needsMDF = true }
+        //
+        if (needsMDF){
+          this.getNodeDescriptor(nodeNumber, false)
+        }
+        // remove the one we've used from queue
+        this.nodeDescripter_Queue.shift()
       }
-      // remove the one we've used from queue
-      this.nodeDescripter_Queue.shift()
+    } catch (err){
+      winston.error({message: name + `: checkNodeDescriptorIntervalFunc: ${err}` });              
     }
   }
 
