@@ -504,19 +504,15 @@ class cbusAdmin extends EventEmitter {
   //
   async action_message(cbusMsg) {
     if (cbusMsg.ID_TYPE == "S"){
+      this.preOpcodeProcessing(cbusMsg)
       winston.debug({message: name + ": action_message " + cbusMsg.mnemonic + " Opcode " + cbusMsg.opCode});
-      if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
-      this.opcodeTracker[cbusMsg.opCode].count++
-      this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
-      if (cbusMsg.nodeNumber){
-        // if the message has a node number, update status
-        this.updateNodeStatus(cbusMsg)
-      }
       if (this.actions[cbusMsg.opCode]) {
           await this.actions[cbusMsg.opCode](cbusMsg);
       } else {
           await this.actions['DEFAULT'](cbusMsg);
       }
+      // finished processing opcode, do post processing actions
+      this.postOpcodeProcessing(cbusMsg)
     }
     else if (cbusMsg.ID_TYPE = "X"){
       // currently ignoring extended messages - programNode class uses them instead
@@ -526,25 +522,51 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
-  // updated status on received message from Node
-  // creates node if we don't aleady have it
-  // but don't call on PNN, as PNN will create the node & gets the minimum params anyway
-  // and we'd be generating 3 unnecessary commands if we did
   //
-  updateNodeStatus(cbusMsg){
-    winston.debug({message: name + `: updateNodeStatus node ${cbusMsg.nodeNumber} ${cbusMsg.mnemonic} Opcode ${cbusMsg.opCode}`});
-    let nodeNumber = cbusMsg.nodeNumber
+  // actions that are best done before processing the opcode
+  //
+  preOpcodeProcessing(cbusMsg){
+    winston.debug({message: name + `: preOpcodeProcessing`});
     var updated = false
-    // if node doesn't exist, create it
-    if (this.nodeConfig.nodes[nodeNumber] == undefined){
-      this.createNodeConfig(nodeNumber, false)
-      updated = true
+    // update opcode tracker
+    if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
+    this.opcodeTracker[cbusMsg.opCode].count++
+    this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
+    //
+    // if this message has a node number, we can do extra actions
+    if (cbusMsg.nodeNumber){
+      let nodeNumber = cbusMsg.nodeNumber
+      // if node doesn't exist, create it
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){
+        this.createNodeConfig(nodeNumber, false)
+        updated = true
+      }
+      //
+      // if status for this node wasn't true, change it & mark as needs updating
+      if (this.nodeConfig.nodes[nodeNumber].status != true){
+        this.nodeConfig.nodes[nodeNumber].status = true
+        winston.debug({message: name + `: node ${nodeNumber} status changed to true`});
+        updated = true
+      }
+      // store the timestamp for this node
+      this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
+      //
+      // update if necessary
+      if (updated) {this.updateNodeConfig(nodeNumber)}
     }
-      // check if we have minimum params as provided by PNN
-      // but not if PNN, as we don't want to request duplicate info that PNN will do anyway
-      // but this might have been a node added without doing a refresh
-    if (cbusMsg.mnemonic != "PNN"){
-      // get param 8, 1 & 3 as needed as a minimum if new node
+  }
+
+  //
+  // actions that are best done after processing the opcode
+  //
+  postOpcodeProcessing(cbusMsg){
+    winston.debug({message: name + `: postOpcodeProcessing`});
+    //
+    // if this message has a node number, we can check extra things
+    if (cbusMsg.nodeNumber){
+      let nodeNumber = cbusMsg.nodeNumber
+      // if we had a PNN, then we'd already have params 1, 3 & 8
+      // but if node just added, then we need to request them, but ensure only once
       // skip this if in unit test, as it's once only nature can cause repeated tests to fail
       if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
         if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
@@ -558,28 +580,21 @@ class cbusAdmin extends EventEmitter {
         }
         this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
       }
-    }
-    // skip this if in unit test, as it's once only nature can cause repeated tests to fail
-    if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
-      if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
+      // we also want the firmware version of the node
+      // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
+      if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
+        if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
+        }
+        if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
+        }
+        if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
+        }
+        this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
       }
-      if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
-      }
-      if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
-        this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
-      }
-      this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
     }
-    // if status wasn't true, change it & mark as needs updating
-    if (this.nodeConfig.nodes[nodeNumber].status != true){
-      this.nodeConfig.nodes[nodeNumber].status = true
-      updated = true
-    }
-    // store the timestamp
-    this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
-    if (updated) {this.updateNodeConfig(nodeNumber)}
   }
 
   //

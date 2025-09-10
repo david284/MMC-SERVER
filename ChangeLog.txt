@@ -4,6 +4,7 @@ MMC Version 0.11.3
   Added NodeModifiedTimestamp updated on NV & EV writes
   Reworked loading of MDF's for nodes - was failing to reload MDF if node firmware updated
   removed NODE_DESCRIPTOR_FILE_LIST event
+  separated updateNodeStatus into preOpcodeProcessing & postOpcodeProcessing methods
   Updated Client
   - added Backups column to Node View
   - added backup notification if variables changed

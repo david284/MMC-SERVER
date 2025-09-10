@@ -1027,20 +1027,21 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
-  // updateNodeStatus
-  // use node number that doesn't exist
+  // postOpcodeProcessing
+  // use a new node number
   // and a message that isn't PNN
   //
-  it("updateNodeStatus test", function (done) {
-    winston.info({message: 'unit_test: BEGIN updateNodeStatus test '});
+  it("postOpcodeProcessing test", function (done) {
+    winston.info({message: 'unit_test: BEGIN postOpcodeProcessing test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.nodeDescripter_Queue = []
     node.inUnitTest = false       // just for this test
     let nodeNumber = 3
+    node.createNodeConfig(nodeNumber, false)
     // round trip to get json decode
     let cbusmsg = cbusLib.decode(cbusLib.encodeWRACK(nodeNumber))
-    node.updateNodeStatus(cbusmsg)
+    node.postOpcodeProcessing(cbusmsg)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn)}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
@@ -1061,7 +1062,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[5].mnemonic).to.equal('RQNPN')
       expect(mock_messageRouter.messagesIn[5].nodeNumber).to.equal(nodeNumber)
       expect(mock_messageRouter.messagesIn[5].parameterIndex).to.equal(9)
-      winston.info({message: 'unit_test: END updateNodeStatus test'});
+      winston.info({message: 'unit_test: END postOpcodeProcessing test'});
       done();
     }, 300);
   })
