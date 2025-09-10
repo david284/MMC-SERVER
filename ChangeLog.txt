@@ -9,6 +9,7 @@ MMC Version 0.11.3
   - added Backups column to Node View
   - added backup notification if variables changed
   - removed redundant NODE_DESCRIPTOR_FILE_LIST event
+  - added numeric limits to add event dialog
 
 MMC Version 0.11.2
   Client
