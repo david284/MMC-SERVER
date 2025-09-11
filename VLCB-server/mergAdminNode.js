@@ -890,7 +890,7 @@ class cbusAdmin extends EventEmitter {
   }
 
   //
-  // Function to update data for a node into nodeConfig
+  // Function to update data for a single node into nodeConfig
   // fills in various derived elements from node data
   // marks node as changed so that the timed process will pick it up and send to client
   //
