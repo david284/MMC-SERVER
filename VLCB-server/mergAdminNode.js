@@ -30,7 +30,7 @@ class cbusAdmin extends EventEmitter {
     this.cbusNoSupport = {}
     this.dccSessions = {}
     this.heartbeats = {}
-    this.saveConfig()
+    this.saveNodeConfig()
     this.setNodeNumberIssued = false
     this.nodeNumberInLearnMode = null
     this.rqnnPreviousNodeNumber = null
@@ -844,7 +844,7 @@ class cbusAdmin extends EventEmitter {
   clearEvents() {
       winston.info({message: `mergAdminNode: clearEvents() `});
       this.nodeConfig.events = {}
-      this.saveConfig()
+      this.saveNodeConfig()
       this.eventsChanged = true
   }
 
@@ -883,7 +883,7 @@ class cbusAdmin extends EventEmitter {
   // save the whole config structure for all nodes
   // updates the client
   //
-  saveConfig() {
+  saveNodeConfig() {
       winston.info({message: 'mergAdminNode: Save Config : '});
       this.config.writeNodeConfig(this.nodeConfig)
       this.emit('nodes', this.nodeConfig.nodes);
@@ -1103,7 +1103,7 @@ class cbusAdmin extends EventEmitter {
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
     this.moduleDescriptorFilesTimeStamp = Date.now()
-    this.saveConfig()
+    this.saveNodeConfig()
     this.CBUS_Queue.push(cbusLib.encodeQNN())
     this.config.getListOfBackupsForAllNodes(this.config.currentLayoutFolder)
   }
