@@ -526,7 +526,7 @@ class cbusAdmin extends EventEmitter {
   // actions that are best done before processing the opcode
   //
   preOpcodeProcessing(cbusMsg){
-    winston.debug({message: name + `: preOpcodeProcessing`});
+    winston.debug({message: name + `: preOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
     var updated = false
     // update opcode tracker
     if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
@@ -560,7 +560,7 @@ class cbusAdmin extends EventEmitter {
   // actions that are best done after processing the opcode
   //
   postOpcodeProcessing(cbusMsg){
-    winston.debug({message: name + `: postOpcodeProcessing`});
+    winston.debug({message: name + `: postOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
     //
     // if this message has a node number, we can check extra things
     if (cbusMsg.nodeNumber){
