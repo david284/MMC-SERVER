@@ -781,8 +781,8 @@ class cbusAdmin extends EventEmitter {
           delete this.nodeConfig.events[busEventIdentifier]
         }
       }
-      this.saveConfig()
       this.refreshEvents()  // will send bus events
+      this.nodeConfig.nodes[nodeNumber].hasChanged
     }
   }
 
@@ -804,8 +804,8 @@ class cbusAdmin extends EventEmitter {
     }
     delete this.nodeConfig.events[busEventIdentifier]
     winston.debug({message: name + `: removeBusEvent ${busEventIdentifier}`})
-    this.saveConfig()
     this.refreshEvents()  // will send bus events
+    this.nodeConfig.nodes[nodeNumber].hasChanged
   }
 
   //
@@ -1128,7 +1128,7 @@ class cbusAdmin extends EventEmitter {
     delete this.nodeConfig.nodes[nodeNumber]
     nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
     winston.info({message: name + ': nodes ' + nodes});
-    this.saveConfig()
+    this.nodeConfig.nodes[nodeNumber].hasChanged
     }
 
   //
