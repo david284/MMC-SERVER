@@ -895,7 +895,7 @@ class cbusAdmin extends EventEmitter {
   // marks node as changed so that the timed process will pick it up and send to client
   //
   updateNodeConfig(nodeNumber) {
-    winston.info({message: 'mergAdminNode: updateNodeConfig : ' + nodeNumber});
+    winston.debug({message: 'mergAdminNode: updateNodeConfig : ' + nodeNumber});
     if (this.nodeConfig.nodes[nodeNumber] == undefined){
       this.createNodeConfig(nodeNumber, false)
     }
@@ -940,8 +940,7 @@ class cbusAdmin extends EventEmitter {
     }
     // try to get nodeDescriptor, this will check if it needs doing
     this.nodeDescripter_Queue.push(nodeNumber)
-    this.config.writeNodeConfig(this.nodeConfig)
-    // mark node has changed, so regular check will send the node to the client
+    // mark node has changed, so regular check will send the node to the client & write to disk
     // reduces traffic if node is being changed very quickly
     this.nodeConfig.nodes[nodeNumber].hasChanged = true
   }
@@ -961,8 +960,7 @@ class cbusAdmin extends EventEmitter {
     } else {
       this.nodeConfig.nodes[nodeNumber].nodeVariableReadCount++ 
     }
-    this.config.writeNodeConfig(this.nodeConfig)
-    // mark node has changed, so regular check will send the node to the client
+    // mark node has changed, so regular check will send the node to the client & write to disk
     // reduces traffic if node is being changed very quickly
     this.nodeConfig.nodes[nodeNumber].hasChanged = true
   }
@@ -1047,12 +1045,21 @@ class cbusAdmin extends EventEmitter {
   updateClients(){
     //
     // check if any nodes have changed
+    // assume nothing changed to start with
+    let nodeConfigChanged = false
     for (let nodeNumber in this.nodeConfig.nodes) {
       // returns keyword, in this case the nodeNumber
       if(this.nodeConfig.nodes[nodeNumber].hasChanged){
         this.nodeConfig.nodes[nodeNumber].hasChanged = false
         winston.debug({message: name + ': checkIfNodeschanged: node ' + nodeNumber + ' has changed'})
         this.emit('node', this.nodeConfig.nodes[nodeNumber])
+        nodeConfigChanged = true
+      }
+      //
+      if (nodeConfigChanged){
+        // something changed, so save to disk
+        nodeConfigChanged = false
+        this.config.writeNodeConfig(this.nodeConfig)
       }
     }
     //
@@ -1643,7 +1650,7 @@ class cbusAdmin extends EventEmitter {
             this.nodeDescriptors[nodeNumber] = moduleDescriptor
             this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
             this.config.writeNodeDescriptors(this.nodeDescriptors)
-            winston.info({message: name +`: getNodeDescriptor: node ${nodeNumber} loaded file ${moduleDescriptor.moduleDescriptorFilename}`});
+            winston.info({message: name +`: getNodeDescriptor: loaded file: node ${nodeNumber} file ${moduleDescriptor.moduleDescriptorFilename}`});
             var payload = {[nodeNumber]:moduleDescriptor}
             this.emit('nodeDescriptor', payload);
           } else {
