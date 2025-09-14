@@ -96,12 +96,13 @@ class cbusAdmin extends EventEmitter {
         // NNACK - Node number acknowledge
         try{
           winston.debug({message: "mergAdminNode: NNACK (59) : " + cbusMsg.text});
-          // if acknowledge for set node number, delete any existing record of that node
+          // if acknowledge for set node number, delete & recreate any existing record for that node
           // as it may now be a wholly different node being added
           // then query all nodes to recreate the node
           if (this.setNodeNumberIssued){
             this.setNodeNumberIssued = false
             delete this.nodeConfig.nodes[cbusMsg.nodeNumber]
+            this.createNodeConfig(cbusMsg.nodeNumber, true)
             this.query_all_nodes()
           }
         } catch(err){ winston.error({message: name + `: NNACK (52) ${err}`}) }
@@ -527,32 +528,40 @@ class cbusAdmin extends EventEmitter {
   //
   preOpcodeProcessing(cbusMsg){
     winston.debug({message: name + `: preOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
-    var updated = false
-    // update opcode tracker
-    if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
-    this.opcodeTracker[cbusMsg.opCode].count++
-    this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
-    //
-    // if this message has a node number, we can do extra actions
-    if (cbusMsg.nodeNumber){
-      let nodeNumber = cbusMsg.nodeNumber
-      // if node doesn't exist, create it
-      if (this.nodeConfig.nodes[nodeNumber] == undefined){
-        this.createNodeConfig(nodeNumber, false)
-        updated = true
-      }
+    try{
+      var updated = false
+      // update opcode tracker
+      if (this.opcodeTracker[cbusMsg.opCode] == undefined) { this.opcodeTracker[cbusMsg.opCode] = {mnemonic:cbusMsg.mnemonic, count:0} }
+      this.opcodeTracker[cbusMsg.opCode].count++
+      this.opcodeTracker[cbusMsg.opCode]["timeStamp"] = Date.now()
       //
-      // if status for this node wasn't true, change it & mark as needs updating
-      if (this.nodeConfig.nodes[nodeNumber].status != true){
-        this.nodeConfig.nodes[nodeNumber].status = true
-        winston.debug({message: name + `: node ${nodeNumber} status changed to true`});
-        updated = true
+      // if this message has a node number, we can do extra actions
+      if (cbusMsg.nodeNumber){
+        let nodeNumber = cbusMsg.nodeNumber
+        // if node doesn't exist, create it
+        if (this.nodeConfig.nodes[nodeNumber] == undefined){
+          this.createNodeConfig(nodeNumber, true)
+          updated = true
+        }
+        //
+        // if status for this node wasn't true, change it & mark as needs updating
+        if (this.nodeConfig.nodes[nodeNumber].status != true){
+          this.nodeConfig.nodes[nodeNumber].status = true
+          winston.debug({message: name + `: node ${nodeNumber} status changed to true`});
+          updated = true
+        }
+        // store the timestamp for this node
+        this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
+        //
+        // update if necessary
+        if (updated) {this.updateNodeConfig(nodeNumber)}
       }
-      // store the timestamp for this node
-      this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
-      //
-      // update if necessary
-      if (updated) {this.updateNodeConfig(nodeNumber)}
+    } catch (err){
+      winston.error({message: name + `: preOpcodeProcessing
+        ${err} 
+        ${JSON.stringify(cbusMsg)}
+        `
+      })
     }
   }
 
@@ -562,38 +571,49 @@ class cbusAdmin extends EventEmitter {
   postOpcodeProcessing(cbusMsg){
     winston.debug({message: name + `: postOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
     //
-    // if this message has a node number, we can check extra things
-    if (cbusMsg.nodeNumber){
-      let nodeNumber = cbusMsg.nodeNumber
-      // if we had a PNN, then we'd already have params 1, 3 & 8
-      // but if node just added, then we need to request them, but ensure only once
-      // skip this if in unit test, as it's once only nature can cause repeated tests to fail
-      if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
-        if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
+    try{
+      // if this message has a node number, we can check extra things
+      if (cbusMsg.nodeNumber){
+        let nodeNumber = cbusMsg.nodeNumber
+        winston.debug({message: name + `: postOpcodeProcessing: node ${nodeNumber}`});
+        // just in case it's been removed...
+        if (this.nodeConfig.nodes[nodeNumber] == undefined){ this.createNodeConfig(nodeNumber, true) }
+        // if we had a PNN, then we'd already have params 1, 3 & 8
+        // but if node just added, then we need to request them, but ensure only once
+        // skip this if in unit test, as it's once only nature can cause repeated tests to fail
+        if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
+          if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
+          }
+          if ( this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+          }
+          if ( this.nodeConfig.nodes[nodeNumber].parameters[3] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+          }
+          this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
         }
-        if ( this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+        // we also want the firmware version of the node
+        // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
+        if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
+          if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
+          }
+          if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
+          }
+          if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
+            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
+          }
+          this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
         }
-        if ( this.nodeConfig.nodes[nodeNumber].parameters[3] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
-        }
-        this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
       }
-      // we also want the firmware version of the node
-      // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
-      if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
-        if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
-        }
-        if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
-        }
-        if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
-          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
-        }
-        this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
-      }
+    }catch (err){
+      winston.error({message: name + `: postOpcodeProcessing
+        ${err} 
+        ${JSON.stringify(cbusMsg)}
+        `
+      })
     }
   }
 
