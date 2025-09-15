@@ -246,7 +246,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
         await programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
         await sleep(200)              // allow time for programming to complete
+        node.createNodeConfig(data.nodeNumber, false) // reset config as firmware changed
         node.set_FCU_compatibility()
+        // request flags to trigger postOpcodeProcessing
+        node.sendRQNPN(data.nodeNumber, 8)
+        // push node onto queue to read all events, will trigger other events
+        node.sendRQEVN(data.nodeNumber)
       }catch(err){
         winston.error({message: name + `: PROGRAM_NODE: ${err}`});
       }
@@ -843,12 +848,16 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('UPDATE_LAYOUT_DATA', function(data){
+    socket.on('UPDATE_LAYOUT_DATA', async function(data){
       try{
         winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
+        var nodesList = Object.keys(data.nodeDetails)  // just get node numbers
+        //winston.info({message: name + ': UPDATE_LAYOUT_DATA: nodes ' + nodesList});
         config.writeLayoutData(data)
+        await sleep(200)              // allow time for write to complete
         // add any new nodes
         node.addLayoutNodes(node.config.readLayoutData())
+        winston.info({message: `socketServer: UPDATE_LAYOUT_DATA: send LAYOUT_DATA`});
         io.emit('LAYOUT_DATA', data)    // refresh client, so pages can respond
       }catch(err){
         winston.error({message: name + `: UPDATE_LAYOUT_DATA: ${err}`});
@@ -945,6 +954,8 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //
   node.on('nodes', function (nodes) {
     winston.info({message: `socketServer: NODES Sent`});
+      var nodesList = Object.keys(nodes)  // just get node numbers
+      winston.info({message: name + ': nodes ' + nodesList});
     io.emit('NODES', nodes);
   })
 

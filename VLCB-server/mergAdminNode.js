@@ -80,13 +80,13 @@ class cbusAdmin extends EventEmitter {
           winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
           this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
           if (this.inUnitTest == false){
-            this.nodeConfig.nodes.setupMode_NAME = ''     // need a new name from this node, but not for testing
+            this.nodeConfig.setupMode.NAME = ''     // need a new name from this node, but not for testing
           }
           this.CBUS_Queue.push(cbusLib.encodeRQMN())    // push node onto queue to read module name from node
           this.CBUS_Queue.push(cbusLib.encodeRQNP())    // push node onto queue to read module name from node
           // now get the user to enter a node number
           await sleep(200)    // allow some time for the name to be received
-          this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.nodes.setupMode_NAME)
+          this.emit('requestNodeNumber', this.rqnnPreviousNodeNumber, this.nodeConfig.setupMode.NAME)
         } catch(err){
           winston.error({message: name + `: RQNN (50) ${err}`});          
         }
@@ -101,9 +101,7 @@ class cbusAdmin extends EventEmitter {
           // then query all nodes to recreate the node
           if (this.setNodeNumberIssued){
             this.setNodeNumberIssued = false
-            delete this.nodeConfig.nodes[cbusMsg.nodeNumber]
-            this.createNodeConfig(cbusMsg.nodeNumber, true)
-            this.query_all_nodes()
+            this.createNodeConfig(cbusMsg.nodeNumber, true) // refresh nodeConfig for this node
           }
         } catch(err){ winston.error({message: name + `: NNACK (52) ${err}`}) }
       },
@@ -111,7 +109,6 @@ class cbusAdmin extends EventEmitter {
       '59': async (cbusMsg) => {
         try{
           winston.debug({message: "mergAdminNode: WRACK (59) " + cbusMsg.text});
-          this.process_WRACK(cbusMsg)
         } catch(err){ winston.error({message: name + `: WRACK (59) ${err}`}) }
       },
       //
@@ -254,18 +251,10 @@ class cbusAdmin extends EventEmitter {
           } else {
             this.createNodeConfig(cbusMsg.nodeNumber, true)
           }
-          // store the timestamp
-          this.nodeConfig.nodes[nodeNumber].lastReceiveTimestamp = Date.now()
-          this.nodeConfig.nodes[nodeNumber].status = true
-          this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
+          // store the parameters
           this.nodeConfig.nodes[nodeNumber].parameters[1] = cbusMsg.manufacturerId
           this.nodeConfig.nodes[nodeNumber].parameters[3] = cbusMsg.moduleId
           this.nodeConfig.nodes[nodeNumber].parameters[8] = cbusMsg.flags
-          // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
-          if (nodeNumber > 0){
-            // push node onto queue to read all events
-            this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
-          }
           this.updateNodeConfig(cbusMsg.nodeNumber)
         } catch (err){ winston.error({message: name + `: PNN (B6) ${err}`}) }
       },
@@ -357,7 +346,7 @@ class cbusAdmin extends EventEmitter {
       'E2': async (cbusMsg) => { // NAME
         try{
           winston.debug({message: `mergAdminNode: NAME (E2) ` + JSON.stringify(cbusMsg)})
-          this.nodeConfig.nodes.setupMode_NAME = cbusMsg.name
+          this.nodeConfig.setupMode.NAME = cbusMsg.name
         } catch(err){ winston.error({message: name + `: NAME (E2) ${err}`}) }
       },
       //
@@ -482,13 +471,6 @@ class cbusAdmin extends EventEmitter {
 
   //
   //
-  process_WRACK(cbusMsg) {
-    winston.info({message: name + `: wrack : node ` + cbusMsg.nodeNumber});
-    this.nodeConfig.nodes[cbusMsg.nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
-  }
-
-  //
-  //
   async process_GRSP (data) {
     winston.info({message: `mergAdminNode: grsp : data ` + JSON.stringify(data)});
     var nodeNumber = data.nodeNumber
@@ -525,6 +507,7 @@ class cbusAdmin extends EventEmitter {
 
   //
   // actions that are best done before processing the opcode
+  // and can be done on all opcodes
   //
   preOpcodeProcessing(cbusMsg){
     winston.debug({message: name + `: preOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
@@ -543,6 +526,8 @@ class cbusAdmin extends EventEmitter {
           this.createNodeConfig(nodeNumber, true)
           updated = true
         }
+        // capture CANID
+        this.nodeConfig.nodes[nodeNumber].CANID = utils.getMGCCANID(cbusMsg.encoded)
         //
         // if status for this node wasn't true, change it & mark as needs updating
         if (this.nodeConfig.nodes[nodeNumber].status != true){
@@ -579,7 +564,7 @@ class cbusAdmin extends EventEmitter {
         // just in case it's been removed...
         if (this.nodeConfig.nodes[nodeNumber] == undefined){ this.createNodeConfig(nodeNumber, true) }
         // if we had a PNN, then we'd already have params 1, 3 & 8
-        // but if node just added, then we need to request them, but ensure only once
+        // but if node just added, or firmware changed, then we need to request them, but ensure only once
         // skip this if in unit test, as it's once only nature can cause repeated tests to fail
         if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
           if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
@@ -605,8 +590,21 @@ class cbusAdmin extends EventEmitter {
           if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
             this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
           }
+          //
           this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
         }
+        // get event count if undefined, will trigger NERD & event space left as well
+        // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
+        if((this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested == false) && (this.inUnitTest == false)){
+          if(this.nodeConfig.nodes[nodeNumber].eventCount == undefined){
+            // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
+            if (nodeNumber > 0){
+              this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+            }
+          }
+          //
+          this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested = true
+        }  
       }
     }catch (err){
       winston.error({message: name + `: postOpcodeProcessing
@@ -685,11 +683,12 @@ class cbusAdmin extends EventEmitter {
         "nodeVariables": {},
         "storedEventsNI": {},
         "status": status,
-        "eventCount": 0,
+        "eventCount": undefined,
         "services": {},
         "lastReceiveTimestamp": undefined,
         "getNodeDescriptorTimeStamp": 0,
         "versionAlreadyRequested": false,
+        "eventsAlreadyRequested": false,
         "minParamsAlreadyRequested": false,
         "NodeModifiedTimestamp": Date.now()
     }
@@ -1142,14 +1141,18 @@ class cbusAdmin extends EventEmitter {
   //
   //  
   remove_node(nodeNumber) {
-    winston.info({message: name + ': remove_node ' + nodeNumber});
-    var nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
-    winston.info({message: name + ': nodes ' + nodes});
-    delete this.nodeConfig.nodes[nodeNumber]
-    nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
-    winston.info({message: name + ': nodes ' + nodes});
-    this.nodeConfig.nodes[nodeNumber].hasChanged
+    try {
+      winston.info({message: name + ': remove_node ' + nodeNumber});
+      var nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
+      winston.debug({message: name + ': nodes ' + nodes});
+      delete this.nodeConfig.nodes[nodeNumber]
+      nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
+      winston.debug({message: name + ': nodes remaining ' + nodes});
+      this.saveNodeConfig()
+    } catch (err){
+      winston.error({message: name + `: remove_node ${err}`});
     }
+  }
 
   //
   //
@@ -1464,6 +1467,16 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+  // 0x58
+  //
+  sendRQEVN(nodeNumber) {
+    try{
+      this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+    } catch (err) {
+      winston.error({message: name + `: sendRQEVN: ${err}`});
+    }
+  }
+
   // 0x5D ENUM
   //
   sendENUM(nodeNumber) {
@@ -1666,13 +1679,13 @@ class cbusAdmin extends EventEmitter {
           // update timestamp here so we don't keep repeating this if the file doesn't exist
           this.nodeConfig.nodes[nodeNumber]['getNodeDescriptorTimeStamp'] = Date.now()
           // now check we did get an actual file
+          let payload = {[nodeNumber]:{}}
           if (moduleDescriptor){
             this.nodeDescriptors[nodeNumber] = moduleDescriptor
             this.nodeConfig.nodes[nodeNumber]['moduleDescriptorFilename'] = moduleDescriptor.moduleDescriptorFilename
             this.config.writeNodeDescriptors(this.nodeDescriptors)
             winston.info({message: name +`: getNodeDescriptor: loaded file: node ${nodeNumber} file ${moduleDescriptor.moduleDescriptorFilename}`});
-            var payload = {[nodeNumber]:moduleDescriptor}
-            this.emit('nodeDescriptor', payload);
+            payload = {[nodeNumber]:moduleDescriptor}
           } else {
             winston.info({message: name + `: getNodeDescriptor: failed to load file
               nodeNumber ${nodeNumber}
@@ -1681,6 +1694,7 @@ class cbusAdmin extends EventEmitter {
               processorType ${processorType}`
             });
           }
+          this.emit('nodeDescriptor', payload);
         } else {
           winston.debug({message: name + `: getNodeDescriptor: missing information
             nodeNumber ${nodeNumber}
