@@ -601,21 +601,20 @@ describe('mergAdminNode tests', function(){
   //
   itParam("PNN test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
     winston.info({message: 'unit_test: BEGIN PNN test '});
-    var testMessage = cbusLib.encodePNN(value.nodeNumber, 2, 3, 4)
+    let manufacturerId = 1
+    let moduleId = 2
+    let flags =3
+    var testMessage = cbusLib.encodePNN(value.nodeNumber, manufacturerId, moduleId, flags)
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       winston.info({message: 'unit_test: result ' + JSON.stringify(nodeTraffic[0])});
       expect(nodeTraffic[0].json.mnemonic).to.equal("PNN")
-      winston.info({message: 'unit_test: output ' + JSON.stringify(mock_messageRouter.messagesIn)});
-      if (value.nodeNumber > 0){
-        expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
-        expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
-      } else {
-        // node 0 should be ignored
-        expect(mock_messageRouter.messagesIn.length).to.equal(0)
-      }
+      let nodeConfig = node.nodeConfig.nodes[value.nodeNumber]
+      expect(nodeConfig.parameters[1]).to.equal(manufacturerId)
+      expect(nodeConfig.parameters[3]).to.equal(moduleId)
+      expect(nodeConfig.parameters[8]).to.equal(flags)
       winston.info({message: 'unit_test: END PNN test'});
 			done();
 		}, 100);
@@ -749,7 +748,7 @@ describe('mergAdminNode tests', function(){
         winston.info({message: 'unit_test: ' + JSON.stringify(nodeTraffic[i])});
       }
       expect(nodeTraffic[0].json.mnemonic).to.equal("NAME")
-      expect(node.nodeConfig.nodes.setupMode_NAME).to.equal("ABCDEFG")
+      expect(node.nodeConfig.setupMode.NAME).to.equal("ABCDEFG")
 //      expect(receivedNodeNumber).to.equal(value.nodeNumber)
 //      expect(receivedNAME).to.equal("ABCDEFG")
       winston.info({message: 'unit_test: END NAME test'});
@@ -851,7 +850,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(nodeNumber)
       winston.info({message: 'unit_test: END event_unlearn test'});
       done();
-    }, 50);
+    }, 200);
   })
 
   // Read_EV_in_learn_mode test

@@ -12,6 +12,7 @@ MMC Version 0.11.3
   - added backup notification if variables changed
   - removed redundant NODE_DESCRIPTOR_FILE_LIST event
   - added numeric limits to add event dialog
+  - fixed variables display when MDF deleted
 
 MMC Version 0.11.2
   Client

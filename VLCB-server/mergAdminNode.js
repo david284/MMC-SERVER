@@ -79,9 +79,7 @@ class cbusAdmin extends EventEmitter {
         try {
           winston.debug({message: "mergAdminNode: RQNN (50) : " + cbusMsg.text});
           this.rqnnPreviousNodeNumber = cbusMsg.nodeNumber
-          if (this.inUnitTest == false){
-            this.nodeConfig.setupMode.NAME = ''     // need a new name from this node, but not for testing
-          }
+          this.nodeConfig["setupMode"] = {"NAME":""}    // need a new name from this node
           this.CBUS_Queue.push(cbusLib.encodeRQMN())    // push node onto queue to read module name from node
           this.CBUS_Queue.push(cbusLib.encodeRQNP())    // push node onto queue to read module name from node
           // now get the user to enter a node number

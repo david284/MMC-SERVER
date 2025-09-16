@@ -6,6 +6,6 @@ Done 4. change firmware to version with MDF - clear EEPROM - same node number
 Done 5. change firmware to version with no MDF - clear EEPROM - new node number
 Done 6. change firmware to version with MDF - clear EEPROM - new node number
 
-a. upload user MDF - overload system MDF
-b. delete that user MDF - revert to system MDF
-c. upload MDF previously missing for one node
+Done a. upload user MDF - overload system MDF
+Done b. delete that user MDF - revert to system MDF
+Done c. upload MDF previously missing for one node

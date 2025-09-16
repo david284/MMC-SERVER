@@ -399,7 +399,6 @@ describe('socketServer tests', async function(){
     nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
     //node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
-    node.nodeConfig.nodes.setupMode_NAME = "ABCDEFG"
     var receivedNodeNumber = undefined
     var receivedNAME = undefined
     socket.once('REQUEST_NODE_NUMBER', function (nodeNumber, name) {
@@ -410,7 +409,7 @@ describe('socketServer tests', async function(){
     mock_messageRouter.inject(testMessage)
     setTimeout(function(){
       expect(receivedNodeNumber).to.equal(value.nodeNumber)
-      expect(receivedNAME).to.equal("ABCDEFG")
+      expect(receivedNAME).to.equal("")   // won't get a name for this test
       winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
 			done();
 		}, 300);
