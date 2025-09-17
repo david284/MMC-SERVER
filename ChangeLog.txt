@@ -1,4 +1,4 @@
-MMC Version 0.11.3
+MMC Version 0.12.0
   now refresh event indexes in requestAllEventVariablesByIndex
   Added getListOfAllNodesBackups, REQUEST_ALL_NODES_BACKUPS_LIST
   Added NodeModifiedTimestamp updated on NV & EV writes
