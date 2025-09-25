@@ -555,54 +555,57 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + `: postOpcodeProcessing ${cbusMsg.opCode} ${cbusMsg.mnemonic}`});
     //
     try{
-      // if this message has a node number, we can check extra things
+      // if this message has a node number, and it's the source of the message (not destination)
+      // then we can check extra things
       if (cbusMsg.nodeNumber){
-        let nodeNumber = cbusMsg.nodeNumber
-        winston.debug({message: name + `: postOpcodeProcessing: node ${nodeNumber}`});
-        // just in case it's been removed...
-        if (this.nodeConfig.nodes[nodeNumber] == undefined){ this.createNodeConfig(nodeNumber, true) }
-        // if we had a PNN, then we'd already have params 1, 3 & 8
-        // but if node just added, or firmware changed, then we need to request them, but ensure only once
-        // skip this if in unit test, as it's once only nature can cause repeated tests to fail
-        if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
-          if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
-          }
-          if ( this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
-          }
-          if ( this.nodeConfig.nodes[nodeNumber].parameters[3] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
-          }
-          this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
-        }
-        // we also want the firmware version of the node
-        // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
-        if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
-          if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
-          }
-          if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
-          }
-          if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
-            this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
-          }
-          //
-          this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
-        }
-        // get event count if undefined, will trigger NERD & event space left as well
-        // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
-        if((this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested == false) && (this.inUnitTest == false)){
-          if(this.nodeConfig.nodes[nodeNumber].eventCount == undefined){
-            // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
-            if (nodeNumber > 0){
-              this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+        if (utils.nodeNumberIsSource(cbusMsg.opCode)){
+          let nodeNumber = cbusMsg.nodeNumber
+          winston.debug({message: name + `: postOpcodeProcessing: ${cbusMsg.mnemonic} node ${nodeNumber}`});
+          // just in case it's been removed...
+          if (this.nodeConfig.nodes[nodeNumber] == undefined){ this.createNodeConfig(nodeNumber, true) }
+          // if we had a PNN, then we'd already have params 1, 3 & 8
+          // but if node just added, or firmware changed, then we need to request them, but ensure only once
+          // skip this if in unit test, as it's once only nature can cause repeated tests to fail
+          if((this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested == false) && (this.inUnitTest == false)){
+            if ( this.nodeConfig.nodes[nodeNumber].parameters[8] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 8))   // flags
             }
+            if ( this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 1))   // ManufacturerID
+            }
+            if ( this.nodeConfig.nodes[nodeNumber].parameters[3] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 3))   // ModuleID
+            }
+            this.nodeConfig.nodes[nodeNumber].minParamsAlreadyRequested = true
           }
-          //
-          this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested = true
-        }  
+          // we also want the firmware version of the node
+          // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
+          if((this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested == false) && (this.inUnitTest == false)){
+            if ( this.nodeConfig.nodes[nodeNumber].parameters[7] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 7))   //
+            }
+            if (this.nodeConfig.nodes[nodeNumber].parameters[2] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 2))   //
+            }
+            if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
+            }
+            //
+            this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
+          }
+          // get event count if undefined, will trigger NERD & event space left as well
+          // again, skip this if in unit test, as it's once only nature can cause repeated tests to fail
+          if((this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested == false) && (this.inUnitTest == false)){
+            if(this.nodeConfig.nodes[nodeNumber].eventCount == undefined){
+              // don't read events if it's node number 0, as it's an uninitialsed module or a SLiM consumer
+              if (nodeNumber > 0){
+                this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+              }
+            }
+            //
+            this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested = true
+          }  
+        }
       }
     }catch (err){
       winston.error({message: name + `: postOpcodeProcessing

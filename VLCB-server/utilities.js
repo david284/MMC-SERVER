@@ -52,6 +52,71 @@ exports.sleep = function sleep(timeout) {
 	});
 };
 	
+//
+// the meaning of nodeNumber in a CBUS/VLCB message is dependant on the opcode
+// For certain opcodes, nodenumber represents the source node of the message
+//
+exports.nodeNumberIsSource = function nodeNumberIsSource(opCode){
+  let opcodesWithSource = {
+    "50":"RQNN",
+    "51":"NNREL",
+    "52":"NNACK",
+    "59":"WRACK",
+    "6F":"CMDERR",
+    "70":"EVNLF",
+    "74":"NUMEV",
+    "90":"ACON",
+    "91":"ACOF",
+    "93":"ARON",
+    "94":"AROF",
+    "97":"NVANS",
+    "98":"ASON",
+    "99":"ASOF",
+    "9B":"PARAN",
+    "9D":"ARSON",
+    "9E":"ARSOF",
+    "AB":"HEARTB",
+    "AC":"SD",
+    "AF":"GRSP",
+    "B0":"ACON1",
+    "B1":"ACOF1",
+    "B3":"ARON1",
+    "B4":"AROF1",
+    "B5":"NEVAL",
+    "B6":"PNN",
+    "B8":"ASON1",
+    "B9":"ASOF1",
+    "BD":"ARSON1",
+    "BE":"ARSOF1",
+    "C7":"DGN",
+    "D0":"ACON2",
+    "D1":"ACOF2",
+    "D4":"ARON2",
+    "D5":"AROF2",
+    "D8":"ASON2",
+    "D9":"ASOF2",
+    "DD":"ARSON2",
+    "DE":"ARSOF2",
+    "E6":"ENACK",
+    "E7":"ESD",
+    "F0":"ACON3",
+    "F1":"ACOF3",
+    "F2":"ENRSP",
+    "F3":"ARON3",
+    "F4":"AROF3",
+    "F6":"ACDAT",
+    "F7":"ARDAT",
+    "F8":"ASON3",
+    "F9":"ASOF3",
+    "FD":"ARSON3",
+    "FE":"ARSOF3"
+  }
+
+  //winston.debug({message: name + `: nodeNumberIsSource: ${opCode} ${opcodesWithSource[opCode]}`});
+  return ( opCode in opcodesWithSource) ? true : false
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // nodeConfig based functions

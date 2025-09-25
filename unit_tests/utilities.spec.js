@@ -132,6 +132,24 @@ describe('utilities tests', function(){
     return testCases;
   }
 
+  function GetTestCase_nodeNumberIsSource() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 4; a++) {
+      if (a == 1) {arg1 = "0", arg2 = false}
+      if (a == 2) {arg1 = "50", arg2 = true}    // first in expected opCodes
+      if (a == 3) {arg1 = "FE", arg2 = true}    // last in expected opCodes
+      if (a == 4) {arg1 = "FF", arg2 = false}
+      testCases.push({'opCode':arg1, 'expectedResult': arg2});
+    }
+    return testCases;
+  }
 
+
+  itParam("nodeNumberIsSource test ${JSON.stringify(value)}", GetTestCase_nodeNumberIsSource(), function (value) {
+    winston.info({message: 'unit_test: BEGIN nodeNumberIsSource test '});
+    result = utils.nodeNumberIsSource(value.opCode )
+    expect(result).to.equal(value.expectedResult)
+    winston.info({message: 'unit_test: END nodeNumberIsSource test'});
+  })
 
 })
