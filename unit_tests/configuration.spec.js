@@ -232,8 +232,19 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+  //
+  //
+  it("copyLayout", function (done) {
+    winston.info({message: 'unit_test: BEGIN copyLayout test '})
+    result = config.copyLayout("default layout", "copied Layout")
+    setTimeout(function(){
+      winston.info({message: 'unit_test: END copyLayout test'})
+      done();
+		}, 50);
+  })
 
 
+  //
   //
   it("readLayoutData", function (done) {
     winston.info({message: 'unit_test: BEGIN readLayoutData test '})

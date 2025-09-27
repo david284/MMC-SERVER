@@ -489,7 +489,6 @@ class configuration {
     return result
   }
 
-
   //
   //
   getListOfLayouts(){
@@ -506,6 +505,9 @@ class configuration {
       winston.error({message: className + `: get_layout_list: ` + err});
     }
   }
+
+  //
+  //
   deleteLayoutFolder(folder){
     winston.info({message: className + `: deleteLayoutFolder: ` + folder});
     try {
@@ -521,6 +523,23 @@ class configuration {
     }
   }
 
+  //
+  //
+  copyLayout(sourceLayout, destinationLayout){
+    //
+    try{
+      let layoutsPath = path.join(this.currentUserDirectory, "layouts")
+        winston.debug({message: className + `: copyLayout: Src ${path.join(layoutsPath, sourceLayout)} Dst ${path.join(layoutsPath, destinationLayout)}` });
+        fs.cpSync(path.join(layoutsPath, sourceLayout), path.join(layoutsPath, destinationLayout), { recursive: true })
+        // now change the title of the copied layout
+        let filePath = path.join(layoutsPath, destinationLayout, "layoutData.json")
+        let layoutData = jsonfile.readFileSync(filePath)
+        layoutData.layoutDetails.title = destinationLayout
+        jsonfile.writeFileSync(filePath, layoutData, {spaces: 2, EOL: '\r\n'})
+      } catch(e){
+        winston.error({message: className + `: readLayoutData: copyLayout ${e}`});
+      }
+  }
 
   // reads/writes layoutDetails file from/to current layout folder
   //

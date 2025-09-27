@@ -171,6 +171,17 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('COPY_LAYOUT', function(data){
+      try {
+        winston.info({message: `socketServer: COPY_LAYOUT ` + JSON.stringify(data)});
+        config.copyLayout(data.sourceLayout, data.destinationLayout)
+      }catch(err){
+        winston.error({message: name + `: COPY_LAYOUT: ${err}`});
+      }
+    })
+
+    //
+    //
     socket.on('DELETE_ALL_EVENTS', async function(data){
       try{
         winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
