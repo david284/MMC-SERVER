@@ -1,3 +1,9 @@
+MMC Version 0.
+  Added COPY_LAYOUT function & event handling
+  Added nodeNumberIsSource to identify messages that have source node number
+  Now requests param 20 (beta version) in post processing if it doesn't exist
+  Updated Client
+
 MMC Version 0.12.0
   now refresh event indexes in requestAllEventVariablesByIndex
   Added getListOfAllNodesBackups, REQUEST_ALL_NODES_BACKUPS_LIST
