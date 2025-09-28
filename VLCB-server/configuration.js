@@ -536,6 +536,8 @@ class configuration {
         let layoutData = jsonfile.readFileSync(filePath)
         layoutData.layoutDetails.title = destinationLayout
         jsonfile.writeFileSync(filePath, layoutData, {spaces: 2, EOL: '\r\n'})
+        // now update layouts list
+        this.getListOfLayouts()
       } catch(e){
         winston.error({message: className + `: readLayoutData: copyLayout ${e}`});
       }
