@@ -541,8 +541,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
         const layout_list = config.getListOfLayouts()
-        io.emit('LAYOUTS_LIST', layout_list)
-        winston.info({message: `socketServer: sent LAYOUTS_LIST ` + layout_list});
       }catch(err){
         winston.error({message: name + `: REQUEST_LAYOUTS_LIST: ${err}`});
       }
@@ -996,6 +994,13 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   config.eventBus.on('CBUS_TRAFFIC', function (data) {
     winston.debug({message: name + `: eventBus: CBUS_TRAFFIC: ${data.direction} ${data.json.text}` });
     io.emit('CBUS_TRAFFIC', data);
+  })
+
+  //
+  //
+  config.eventBus.on('LAYOUTS_LIST', function (layout_list) {
+    io.emit('LAYOUTS_LIST', layout_list)
+    winston.info({message: `socketServer: sent LAYOUTS_LIST ${layout_list}`});
   })
 
   //

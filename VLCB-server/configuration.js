@@ -499,7 +499,7 @@ class configuration {
           return fs.statSync(path.join(this.currentUserDirectory, 'layouts', file)).isDirectory();
         },(this));
         winston.debug({message: className + `: get_layout_list: ` + list});
-        return list
+        this.eventBus.emit ('LAYOUTS_LIST', list) 
       }
     } catch(err){
       winston.error({message: className + `: get_layout_list: ` + err});
