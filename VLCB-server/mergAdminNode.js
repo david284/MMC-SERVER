@@ -590,6 +590,9 @@ class cbusAdmin extends EventEmitter {
             if (this.nodeConfig.nodes[nodeNumber].parameters[9] == undefined){
               this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 9))   //
             }
+            if (this.nodeConfig.nodes[nodeNumber].parameters[20] == undefined){
+              this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 20))   //
+            }
             //
             this.nodeConfig.nodes[nodeNumber].versionAlreadyRequested = true
           }
