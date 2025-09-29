@@ -198,7 +198,7 @@ describe('configuration tests', function(){
     config.currentUserDirectory = testUserConfigPath
     var layout_list = config.getListOfLayouts()
     setTimeout(function(){
-      winston.info({message: 'layout_list: ' + JSON.stringify(layout_list)})
+      winston.info({message: 'unit test: layout_list: ' + JSON.stringify(layout_list)})
       expect(layout_list).to.include(layout)
       done();
 		}, 50);

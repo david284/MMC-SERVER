@@ -30,7 +30,7 @@ const className = "configuration"
 
 const defaultLayoutData = {
   "layoutDetails": {
-    "title": "default layout",
+    "title": "DEFAULT LAYOUT",
     "subTitle": "",
     "baseNodeNumber": 256
   },
@@ -467,20 +467,22 @@ class configuration {
   // return true if default layout freshly created
   // false if it already existed
   createLayoutFile(directory, name){
-    winston.debug({message: className + `: createLayoutFile: ` + directory + ' ' + name});      
+    // ensure result is uppercase
+    let layoutName = name.toUpperCase()
+    winston.debug({message: className + `: createLayoutFile: ` + directory + ' ' + layoutName});      
     var result = false
     try{
       this.createDirectory(path.join(directory, 'layouts'))
-      if (fs.existsSync(path.join(directory, 'layouts', name, 'layoutData.json'))) {
+      if (fs.existsSync(path.join(directory, 'layouts', layoutName, 'layoutData.json'))) {
         winston.debug({message: className + `: layoutData file exists`});
         result = false
       } else {
           winston.debug({message: className + `: layoutData file not found - creating new one`});
           // use defaultLayoutDetails
           var newLayout = defaultLayoutData
-          newLayout.layoutDetails.title = name
-          this.createDirectory(path.join(directory, 'layouts', name))
-          jsonfile.writeFileSync(path.join(directory, 'layouts', name, 'layoutData.json'), newLayout, {spaces: 2, EOL: '\r\n'})
+          newLayout.layoutDetails.title = layoutName
+          this.createDirectory(path.join(directory, 'layouts', layoutName))
+          jsonfile.writeFileSync(path.join(directory, 'layouts', layoutName, 'layoutData.json'), newLayout, {spaces: 2, EOL: '\r\n'})
           result = true
       }
     } catch(err){
@@ -500,6 +502,7 @@ class configuration {
         },(this));
         winston.debug({message: className + `: get_layout_list: ` + list});
         this.eventBus.emit ('LAYOUTS_LIST', list) 
+        return list // return value used for unit tests
       }
     } catch(err){
       winston.error({message: className + `: get_layout_list: ` + err});
@@ -526,7 +529,8 @@ class configuration {
   //
   //
   copyLayout(sourceLayout, destinationLayout){
-    //
+    // ensure result is uppercase
+    destinationLayout = destinationLayout.toUpperCase()
     try{
       let layoutsPath = path.join(this.currentUserDirectory, "layouts")
         winston.debug({message: className + `: copyLayout: Src ${path.join(layoutsPath, sourceLayout)} Dst ${path.join(layoutsPath, destinationLayout)}` });

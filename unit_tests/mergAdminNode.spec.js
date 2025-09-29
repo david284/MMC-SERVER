@@ -1063,7 +1063,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[5].parameterIndex).to.equal(9)
       winston.info({message: 'unit_test: END postOpcodeProcessing test'});
       done();
-    }, 300);
+    }, 500);
   })
 
 

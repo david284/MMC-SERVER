@@ -316,7 +316,7 @@ describe('socketServer tests', async function(){
     //
     setTimeout(function(){
       winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
-      expect(layoutData.layoutDetails.title).to.equal(value.layout);
+      expect(layoutData.layoutDetails.title).to.equal(value.layout.toUpperCase());
       winston.info({message: 'unit_test: END change_layout test'});
 			done();
 		}, 100);
