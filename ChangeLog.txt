@@ -1,8 +1,19 @@
-MMC Version 0.
+MMC Version 0.13.0
   Added COPY_LAYOUT function & event handling
   Added nodeNumberIsSource to identify messages that have source node number
   Now requests param 20 (beta version) in post processing if it doesn't exist
   Updated Client
+    Generate internal event when receiving LAYOUT_DATA
+    NodesView & EventsByNodeView uses this new event to get settings, to update visible columns
+    Added copy layout function to StartupDialog
+    Added beta number if non-zero to version column in Nodes View
+    Added 'enableGroup' to NodesView & EventsListByNode
+    Added 'enableBusTraffic' to MainLayout
+    Added column settings to BusEvents, EventsView & NodeEventsView
+    Merged Sven's changes
+    -  Changed settings dialogs to dropdown menu
+    -  Shortened a few column names
+
 
 MMC Version 0.12.0
   now refresh event indexes in requestAllEventVariablesByIndex
@@ -19,6 +30,7 @@ MMC Version 0.12.0
   - removed redundant NODE_DESCRIPTOR_FILE_LIST event
   - added numeric limits to add event dialog
   - fixed variables display when MDF deleted
+  
 
 MMC Version 0.11.2
   Client
