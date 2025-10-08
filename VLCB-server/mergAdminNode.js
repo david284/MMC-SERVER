@@ -1121,8 +1121,7 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name + ': query_all_nodes'});
     for (let node in this.nodeConfig.nodes) {
       try{
-        this.createNodeConfig(node, false)    // false as we want it refreshing
-        //this.nodeConfig.nodes[node].status = false
+        this.createNodeConfig(node, false)    // false as we haven't had a response yet
       } catch{}
     }
     this.nodeDescriptors = {}   // force re-reading of module descriptors...
