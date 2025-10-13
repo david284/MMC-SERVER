@@ -164,7 +164,9 @@ class configuration {
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
 
-  archiveLogs(){
+  async archiveLogs(){
+    winston.info({message: name + `: archive logs`});
+    await utils.sleep(100)   // allow a bit of time for message to be written
     const zip = new AdmZip();
 
     // create filename

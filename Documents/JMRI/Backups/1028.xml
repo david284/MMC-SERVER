@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CbusNode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/MERG-DEV/JMRI/master/schema/MergCBUSNodeBackup.xsd" NodeNum="1028">
+  <ModuleTypeName>CAN1IN1OUT</ModuleTypeName>
+  <Backups>
+    <BackupInfo dateTimeStamp="2025-09-28 10:03:48" result="COMPLETE">
+      <Parameters>A5676FC40C1E01173201000000003F3F3F3F0200</Parameters>
+      <NodeVariables>000000000033000000000000000D00000000000000000000050000000000</NodeVariables>
+      <NodeEvents>
+        <NodeEvent NodeNum="0" EventNum="1028" EvVars="490000000000000000000000" />
+        <NodeEvent NodeNum="0" EventNum="1029" EvVars="4D0000000000000000000000" />
+        <NodeEvent NodeNum="1029" EventNum="1" EvVars="490000000000000000000000" />
+      </NodeEvents>
+    </BackupInfo>
+    <BackupInfo dateTimeStamp="2025-09-22 16:37:38" result="COMPLETE">
+      <Parameters>A5616320010A01073201000000003F3F3F3F0200</Parameters>
+      <NodeVariables>0102030405060708090A</NodeVariables>
+    </BackupInfo>
+    <BackupInfo dateTimeStamp="2025-09-22 16:37:26" result="COMPLETE">
+      <Parameters>A5616320010A01073201000000003F3F3F3F0200</Parameters>
+      <NodeVariables>0102030405060708090A</NodeVariables>
+    </BackupInfo>
+    <BackupInfo dateTimeStamp="2025-09-22 16:37:17" result="COMPLETE">
+      <Parameters>A5616320010A01073201000000003F3F3F3F0200</Parameters>
+      <NodeVariables>0102030405060708090A</NodeVariables>
+    </BackupInfo>
+    <BackupInfo dateTimeStamp="2025-09-22 16:35:41" result="COMPLETE">
+      <Parameters>A5616320010A01073201000000003F3F3F3F0200</Parameters>
+      <NodeVariables>0102030405060708090A</NodeVariables>
+      <NodeEvents>
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="24576" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="13" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="1" EvVars="0A" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="99" EventNum="200" EvVars="C8" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="25344" EvVars="C9" />
+        <NodeEvent NodeNum="51456" EventNum="2" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="99" EvVars="00" />
+        <NodeEvent NodeNum="52171" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="63" />
+        <NodeEvent NodeNum="202" EventNum="51712" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="25344" EventNum="52428" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="99" EventNum="205" EvVars="CD" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="25344" EvVars="CE" />
+        <NodeEvent NodeNum="52736" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="99" EvVars="00" />
+        <NodeEvent NodeNum="53199" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+        <NodeEvent NodeNum="0" EventNum="0" EvVars="00" />
+      </NodeEvents>
+    </BackupInfo>
+  </Backups>
+</CbusNode>

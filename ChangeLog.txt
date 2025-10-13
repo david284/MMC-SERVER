@@ -1,3 +1,8 @@
+MMC Version 0.
+  query_all_nodes now recreates each node
+  STOP_SERVER now has delay to give logs a change to be updated
+
+
 MMC Version 0.13.0
   Added COPY_LAYOUT function & event handling
   Added nodeNumberIsSource to identify messages that have source node number

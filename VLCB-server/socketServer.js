@@ -3,7 +3,7 @@ const name = 'socketServer'
 const jsonfile = require('jsonfile');
 var path = require('path');
 const { isUndefined } = require('util');
-const { sleep } = require('./utilities');
+const utils = require('./utilities');
 const packageInfo = require(process.cwd()+'/package.json')
 
 const server = require('http').createServer()
@@ -256,7 +256,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
         await programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
-        await sleep(200)              // allow time for programming to complete
+        await utils.sleep(200)              // allow time for programming to complete
         node.createNodeConfig(data.nodeNumber, false) // reset config as firmware changed
         node.set_FCU_compatibility()
         // request flags to trigger postOpcodeProcessing
@@ -658,7 +658,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
         node.sendNNRST(nodeNumber)
-        await sleep(2000)        // wait for module to reset 
+        await utils.sleep(2000)        // wait for module to reset 
         node.set_FCU_compatibility()
       }catch(err){
         winston.error({message: name + `: RESET_NODE: ${err}`});
@@ -781,19 +781,11 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('STOP_SERVER', function(){
+    socket.on('STOP_SERVER', async function(){
       try{
         winston.info({message: `socketServer: STOP_SERVER`});
-        config.archiveLogs()
-        let message = "Archiving logs"
-        winston.info({message:name + ': ' + message})
-        let data = {
-          message: message,
-          caption: "",
-          type: "info",
-          timeout: 1000
-        }
-        config.eventBus.emit ('SERVER_NOTIFICATION', data)
+        await config.archiveLogs()
+        await utils.sleep(1000)   // allow some time
         process.exit();
       }catch(err){
         winston.error({message: name + `: STOP_SERVER: ${err}`});
@@ -863,7 +855,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         var nodesList = Object.keys(data.nodeDetails)  // just get node numbers
         //winston.info({message: name + ': UPDATE_LAYOUT_DATA: nodes ' + nodesList});
         config.writeLayoutData(data)
-        await sleep(200)              // allow time for write to complete
+        await utils.sleep(200)              // allow time for write to complete
         // add any new nodes
         node.addLayoutNodes(node.config.readLayoutData())
         winston.info({message: `socketServer: UPDATE_LAYOUT_DATA: send LAYOUT_DATA`});
