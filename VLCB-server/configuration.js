@@ -195,12 +195,12 @@ class configuration {
           fs.mkdirSync(archiveFolderName)
         }
       } catch (err) {
-        winston.info({message: name + `: ArchiveLogs: ${err}`});
+        winston.error({message: name + `: ArchiveLogs: ${err}`});
       }
       // now write zip to disk
       zip.writeZip(path.join(archiveFolderName, archiveFile));
     } catch(err){
-      winston.info({message: name + `: ArchiveLogs: ${err}`});
+      winston.error({message: name + `: ArchiveLogs: ${err}`});
     }
     // make sure we limit how many are written
     this.limitNumberOfArchivedLogs()
@@ -220,7 +220,7 @@ class configuration {
         winston.info({message: name + `: limitNumberOfArchivedLogs deleted: ${filePath}`});
       }
     } catch (err){
-      winston.info({message: name + `: limitNumberOfArchivedLogs: ${err}`});      
+      winston.error({message: name + `: limitNumberOfArchivedLogs: ${err}`});      
     }
   }
 

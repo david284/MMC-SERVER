@@ -139,5 +139,7 @@ try {
   });
 } catch (e){
   // if it fails, probably not using nw, so use openurl
-  require("openurl").open("http://localhost:" + 3000)
+  require("openurl").open("http://localhost:" + 3000, (e) => {
+    winston.error({message: `${name}: Error when using openurl: ${e}`})
+  });
 }
