@@ -1,4 +1,4 @@
-MMC Version 0.
+MMC Version 0.14.0
   query_all_nodes now recreates each node
   STOP_SERVER now has delay to give logs a change to be updated
   Added exception handling to openurl call in main
