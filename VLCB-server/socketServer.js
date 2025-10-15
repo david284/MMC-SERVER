@@ -678,6 +678,17 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('SAVE_LOGS_ARCHIVE', function(){
+      try{
+        winston.info({message: `socketServer: SAVE_LOGS_ARCHIVE`});
+        config.archiveLogs()
+      }catch(err){
+        winston.error({message: name + `: SAVE_LOGS_ARCHIVE: ${err}`});
+      }
+    })
+
+    //
+    //
     socket.on('SAVE_SETTING', function(data){ //save setting to appSetting
       try{
         winston.info({message: name + `:  SAVE_SETTING ${JSON.stringify(data)}`})
