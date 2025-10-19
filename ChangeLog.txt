@@ -3,6 +3,12 @@ MMC Version 0.14.0
   STOP_SERVER now has delay to give logs a change to be updated
   Added exception handling to openurl call in main
   Added SAVE_LOGS_ARCHIVE socket event
+  Updated cbuslibrary package
+  Client
+  - Added 'show events only' to BusTraffic side bar
+  - Added 'clear bus traffic' to BusTraffic side bar
+  - Added "Archive now" to LogsDialog
+  - JsonLogic (JLL) operators (keys) now forced to lowercase
 
 
 MMC Version 0.13.0

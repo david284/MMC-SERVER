@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
-    "cbuslibrary": "^2.11.1",
+    "cbuslibrary": "^2.11.2",
     "chrome-apps-serialport": "^1.0.9",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^8.1.1",
-    "mocha-param": "2.0.1"
+    "mocha": "^11.7.4",
+    "mocha-param": "^2.0.1"
   }
 }
