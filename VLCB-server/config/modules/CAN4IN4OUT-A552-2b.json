@@ -1,0 +1,248 @@
+{
+  "timestamp": "202510162223",
+  "moduleName": "CAN4IN4OUT",
+  "numberOfChannels": 8,
+  "channelNames": {
+    "1" : "Switch 1",
+    "2" : "Switch 2",
+    "3" : "Switch 3",
+    "4" : "Switch 4",
+    "5" : "LED 1",
+    "6" : "LED 2",
+    "7" : "LED 3",
+    "8" : "LED 4"
+  },
+  "nodeVariables": [
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 1,
+      "displayTitle": "${channel1}",
+      "options": [
+        {
+          "label": "None",
+          "value": 0
+        },
+        {
+          "label": "On/Off",
+          "value": 1
+        },
+        {
+          "label": "On only",
+          "value": 2
+        },
+        {
+          "label": "Off only",
+          "value": 3
+        },
+        {
+          "label": "Toggle",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 2,
+      "displayTitle": "${channel2}",
+      "options": [
+        {
+          "label": "None",
+          "value": 0
+        },
+        {
+          "label": "On/Off",
+          "value": 1
+        },
+        {
+          "label": "On only",
+          "value": 2
+        },
+        {
+          "label": "Off only",
+          "value": 3
+        },
+        {
+          "label": "Toggle",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 3,
+      "displayTitle": "${channel3}",
+      "options": [
+        {
+          "label": "None",
+          "value": 0
+        },
+        {
+          "label": "On/Off",
+          "value": 1
+        },
+        {
+          "label": "On only",
+          "value": 2
+        },
+        {
+          "label": "Off only",
+          "value": 3
+        },
+        {
+          "label": "Toggle",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 4,
+      "displayTitle": "${channel4}",
+      "options": [
+        {
+          "label": "None",
+          "value": 0
+        },
+        {
+          "label": "On/Off",
+          "value": 1
+        },
+        {
+          "label": "On only",
+          "value": 2
+        },
+        {
+          "label": "Off only",
+          "value": 3
+        },
+        {
+          "label": "Toggle",
+          "value": 4
+        }
+      ]
+    }
+  ],
+  "eventVariables": [
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 1,
+      "displayTitle": "Consumer/Producer",
+      "options": [
+        {
+          "label": "Consumer",
+          "value": 0
+        },
+        {
+          "label": "${channel1}",
+          "value": 1
+        },
+        {
+          "label": "${channel2}",
+          "value": 2
+        },
+        {
+          "label": "${channel3}",
+          "value": 3
+        },
+        {
+          "label": "${channel4}",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 2,
+      "displayTitle": "${channel5}",
+      "options": [
+        {
+          "label": "No Action",
+          "value": 0
+        },
+        {
+          "label": "Normal",
+          "value": 1
+        },
+        {
+          "label": "Slow Blink",
+          "value": 2
+        },
+        {
+          "label": "Fast Blink",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 3,
+      "displayTitle": "${channel6}",
+      "options": [
+        {
+          "label": "No Action",
+          "value": 0
+        },
+        {
+          "label": "Normal",
+          "value": 1
+        },
+        {
+          "label": "Slow Blink",
+          "value": 2
+        },
+        {
+          "label": "Fast Blink",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 4,
+      "displayTitle": "${channel7}",
+      "options": [
+        {
+          "label": "No Action",
+          "value": 0
+        },
+        {
+          "label": "Normal",
+          "value": 1
+        },
+        {
+          "label": "Slow Blink",
+          "value": 2
+        },
+        {
+          "label": "Fast Blink",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 5,
+      "displayTitle": "${channel8}",
+      "options": [
+        {
+          "label": "No Action",
+          "value": 0
+        },
+        {
+          "label": "Normal",
+          "value": 1
+        },
+        {
+          "label": "Slow Blink",
+          "value": 2
+        },
+        {
+          "label": "Fast Blink",
+          "value": 3
+        }
+      ]
+    }
+  ],
+  "moduleDescriptorFilename": "CAN4IN4OUT-0D52-1a.json",
+  "moduleDescriptorLocation": "SYSTEM"
+}
