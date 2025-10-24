@@ -513,6 +513,18 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       }
     })
 
+
+    //
+    //
+    socket.on('REQUEST_NODE_EVENT_BY_INDEX', function(data){
+      try{
+        winston.info({message: `socketServer: REQUEST_NODE_EVENT_BY_INDEX ${JSON.stringify(data)}`});
+        node.request_node_event_by_index(data.nodeNumber, data.eventIndex)
+      }catch(err){
+        winston.error({message: name + `: REQUEST_NODE_EVENT_BY_INDEX: ${err}`});
+      }
+    })
+
     //
     //
     socket.on('REQUEST_EVENT_VARIABLE', function(data){

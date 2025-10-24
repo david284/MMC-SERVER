@@ -138,6 +138,22 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+  function GetTestCase_eventIndex() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 0}
+      if (a == 2) {arg1 = 1}
+      if (a == 3) {arg1 = 65535}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = 1}
+        if (b == 2) {arg2 = 2}
+        if (b == 3) {arg2 = 255}
+        testCases.push({'nodeNumber':arg1, 'eventIndex': arg2});
+      }
+    }
+    return testCases;
+  }
+
   function GetTestCase_session() {
     var arg1, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -1287,6 +1303,29 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("RQEVN")
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END request_all_node_events test'});
+			done();
+		}, 30);
+
+  })
+
+  // request_node_event_by_index test
+  //
+  itParam("request_node_event_by_index test ${JSON.stringify(value)}", GetTestCase_eventIndex(), function (done, value) {
+  //it("request_node_event_by_index test", function (done) {
+    winston.info({message: 'unit_test: BEGIN request_node_event_by_index test: '});
+    
+    mock_messageRouter.messagesIn = []
+
+    node.request_node_event_by_index(value.nodeNumber, value.eventIndex) 
+  
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NENRD")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[0].eventIndex).to.equal(value.eventIndex)
+      winston.info({message: 'unit_test: END request_node_event_by_index test'});
 			done();
 		}, 30);
 

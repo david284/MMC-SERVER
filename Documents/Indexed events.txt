@@ -1,0 +1,17 @@
+
+
+MDF structure
+  "events":{
+    "useIndex": true,
+    "numberOfEvents": 8,
+    "useNENRD": true
+  },
+
+
+If useIndex, will use EVLRNI to teach, & REVAL to read event variables
+
+get events:
+  Use NERD unless useNENRD set
+  if useNENRD, use NENRD & numberOfEvents to get events
+
+

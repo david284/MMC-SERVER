@@ -1188,6 +1188,14 @@ class cbusAdmin extends EventEmitter {
 
   //
   //
+  async request_node_event_by_index(nodeNumber, eventIndex){
+    winston.debug({message: name +`: request_node_event_by_index: node ${nodeNumber} eventIndex ${eventIndex}`});
+    if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
+    this.CBUS_Queue.push(cbusLib.encodeNENRD(nodeNumber, eventIndex)) // get events for that index
+  }
+
+  //
+  //
   async request_all_node_parameters(nodeNumber){
     if (this.nodeConfig.nodes[nodeNumber] == undefined) { this.createNodeConfig(nodeNumber, false) }
     // clear parameters to force full refresh
