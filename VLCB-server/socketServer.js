@@ -355,11 +355,20 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('REQUEST_ALL_NODE_EVENTS', function(data){
       try{
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS ${JSON.stringify(data)}`});
-        if (data.nodeNumber != undefined){
-          node.request_all_node_events(data.nodeNumber)
-        }
+        node.request_all_node_events(data.nodeNumber)
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_NODE_EVENTS: ${err}`});
+      }
+    })
+
+    //
+    //
+    socket.on('REQUEST_ALL_NODE_EVENTS_BY_INDEX', function(data){
+      try{
+        winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS_BY_INDEX ${JSON.stringify(data)}`});
+        request_all_node_events_by_index(data.nodeNumber, data.numberOfEvents)     
+      }catch(err){
+        winston.error({message: name + `: REQUEST_ALL_NODE_EVENTS_BY_INDEX: ${err}`});
       }
     })
 

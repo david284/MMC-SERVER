@@ -686,6 +686,7 @@ class cbusAdmin extends EventEmitter {
         "parameters": {},
         "nodeVariables": {},
         "storedEventsNI": {},
+        "eventsByIndex": {},
         "status": status,
         "eventCount": undefined,
         "services": {},
@@ -709,7 +710,7 @@ class cbusAdmin extends EventEmitter {
     if (this.nodeConfig.nodes[nodeNumber] == undefined) {
       this.createNodeConfig(nodeNumber, false)
     }
-    //
+    // add if doesn't exist - empty variables
     if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
       this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
         "nodeNumber": nodeNumber,
@@ -719,7 +720,16 @@ class cbusAdmin extends EventEmitter {
     }
     // this may change even if it already exists
     this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
-    //
+    // add if doesn't exist - empty variables
+    if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].eventsByIndex)) {
+      this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex] = {
+        "nodeNumber": nodeNumber,
+        "eventIndex": eventIndex,
+        "variables": {}
+      }
+    }
+    // this may change even if it already exists
+    this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex].eventIdentifier = eventIdentifier
     this.updateNodeConfig(nodeNumber)
   }
 
@@ -1176,16 +1186,40 @@ class cbusAdmin extends EventEmitter {
   //
   async request_all_node_events(nodeNumber){
     winston.debug({message: name +': request_all_node_events: node ' + nodeNumber});
-    if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
-    // clear event count to force clearing & reload of events
-    // ensures any events deleted are removed
-    // this will force a NERD to be sent
-    this.nodeConfig.nodes[nodeNumber].eventCount = undefined
-    this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
-    this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber)) // get number of events for each node
-    // NUMEV response to RQEVN will trigger a NERD command as well
+    try{
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
+      // clear event count to force clearing & reload of events
+      // ensures any events deleted are removed
+      // this will force a NERD to be sent
+      this.nodeConfig.nodes[nodeNumber].eventCount = undefined
+      this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
+      this.nodeConfig.nodes[nodeNumber].eventsByIndex = {}
+      this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber)) // get number of events for each node
+      // NUMEV response to RQEVN will trigger a NERD command as well
+    } catch (err){
+      winston.error({message: name + `: request_all_node_events: ${err}` });
+    }
   }
 
+  //
+  // requests number of events for node by index
+  //
+  async request_all_node_events_by_index(nodeNumber, numberOfEvents){
+    winston.debug({message: name +': request_all_node_events_by_index: node ' + nodeNumber});
+    try{
+      if (this.nodeConfig.nodes[nodeNumber] == undefined){this.createNodeConfig(nodeNumber, false)}
+      // clear event count to force clearing & reload of events
+      // ensures any events deleted are removed
+      this.nodeConfig.nodes[nodeNumber].eventCount = undefined
+      this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
+      this.nodeConfig.nodes[nodeNumber].eventsByIndex = {}
+      for(let eventIndex=1; eventIndex<= numberOfEvents; eventIndex++)
+        this.request_node_event_by_index(nodeNumber, eventIndex)
+    } catch(err){
+      winston.error({message: name + `: request_all_node_events_by_index: ${err}` });
+    }
+  }
+  
   //
   //
   async request_node_event_by_index(nodeNumber, eventIndex){
