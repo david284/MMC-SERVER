@@ -366,7 +366,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('REQUEST_ALL_NODE_EVENTS_BY_INDEX', function(data){
       try{
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_EVENTS_BY_INDEX ${JSON.stringify(data)}`});
-        request_all_node_events_by_index(data.nodeNumber, data.numberOfEvents)     
+        node.request_all_node_events_by_index(data.nodeNumber, data.numberOfEvents)     
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_NODE_EVENTS_BY_INDEX: ${err}`});
       }
