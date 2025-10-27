@@ -1213,13 +1213,15 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].eventCount = undefined
       this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
       this.nodeConfig.nodes[nodeNumber].eventsByIndex = {}
+      this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber)) // get number of events for each node
+      // NUMEV response to RQEVN will trigger a NERD command as well
       for(let eventIndex=1; eventIndex<= numberOfEvents; eventIndex++)
         this.request_node_event_by_index(nodeNumber, eventIndex)
     } catch(err){
       winston.error({message: name + `: request_all_node_events_by_index: ${err}` });
     }
   }
-  
+
   //
   //
   async request_node_event_by_index(nodeNumber, eventIndex){
