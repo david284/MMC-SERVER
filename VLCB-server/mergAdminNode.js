@@ -745,7 +745,7 @@ class cbusAdmin extends EventEmitter {
       if (node){
         // might be new event, so check it exists, and create if it doesn't
         if (node.storedEventsNI[eventIdentifier] == undefined){
-          node.storedEventsNI[eventIdentifier] = { "eventIdentifier": eventIdentifier }
+          node.storedEventsNI[eventIdentifier] = { "eventIdentifier": eventIdentifier, "variables":{} }
         }
         if (node.storedEventsNI[eventIdentifier].variables == undefined){
           node.storedEventsNI[eventIdentifier].variables = {}
@@ -756,6 +756,12 @@ class cbusAdmin extends EventEmitter {
         }
         // now store it
         node.storedEventsNI[eventIdentifier].variables[eventVariableIndex] = eventVariableValue
+        // now store in eventsByIndex table, so have to find an entry with matching eventIdentifier
+        for (let eventIndex in node.eventsByIndex){
+          if (node.eventsByIndex[eventIndex].eventIdentifier == eventIdentifier){
+            node.eventsByIndex[eventIndex].variables[eventVariableIndex] = eventVariableValue
+          }
+        }
         this.updateNodeConfig(nodeNumber)
       } else {
         winston.debug({message: name + `: storeEventVariableByIdentifier: node undefined`});
@@ -776,6 +782,11 @@ class cbusAdmin extends EventEmitter {
     try {
       var match = false
       var node = this.nodeConfig.nodes[nodeNumber]
+      // might be new event, so check it exists, and create if it doesn't
+      if (node.eventsByIndex[eventIndex] == undefined){
+        node.eventsByIndex[eventIndex] = { "eventIndex": eventIndex, "variables":{} }
+      }
+      node.eventsByIndex[eventIndex].variables[eventVariableIndex] = eventVariableValue
       for (let eventIdentifier in node.storedEventsNI){
         if (node.storedEventsNI[eventIdentifier].eventIndex == eventIndex){
           // ok, we've found the matching eventIdentifier
@@ -1462,6 +1473,15 @@ class cbusAdmin extends EventEmitter {
     // don't change nodeNumberInLearnMode value, as we may receive multiple responses to REQEV
   }
 
+  //
+  // refresh all event indexes by issuing a NERD command
+  // wait alittle while for it to complete
+  //
+  async refreshEventIndexes(nodeNumber){
+    this.CBUS_Queue.push(cbusLib.encodeNERD(nodeNumber))   // push node onto queue to read all events
+    var timeGap = this.inUnitTest ? 10 : 400
+    await utils.sleep(timeGap)  // wait 400mS for it to complete
+  }
 
   //  
   // used for 'legacy' CBUS, as REQEV/EVANS can't be used due to bug in EVANS response
@@ -1472,26 +1492,12 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIdentifier ${eventIdentifier}`});
     try {
       // first we need to ensure the event indexes are up to date, by issuing a NERD to get all events
-      this.CBUS_Queue.push(cbusLib.encodeNERD(nodeNumber))   // push node onto queue to read all events
+      await this.refreshEventIndexes(nodeNumber)
       //
       var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
       if (eventIndex != undefined){
-        //
-        // 'legacy' CBUS, so try reading EV0 - should return number of event variables
-        this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
-        var timeGap = this.inUnitTest ? 100 : 100
-        await sleep(timeGap); // wait for a response before trying to use it
-        // now assume number of variables from param 5, but use the value in EV0 if it exists
-        var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
-        let eventVariable0 = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
-        winston.debug({message: name + `: requestAllEventVariablesByIndex: EId ${eventIdentifier} index  ${eventIndex} EV0 ${eventVariable0}`});
-        if (this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0] > 0 ){
-          numberOfVariables = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].variables[0]
-        }
-        // now read all the rest of the event variables
-        for (let i = 1; i <= numberOfVariables; i++) {
-          this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, i))
-        }
+        await this.requestAllEventVariablesByIndex2(nodeNumber, eventIndex)
+
       } else {
         winston.info({message: name + ': requestAllEventVariablesByIndex: no event index found for ' + eventIdentifier});
       }
@@ -1500,6 +1506,38 @@ class cbusAdmin extends EventEmitter {
     }
   }
 
+  //  
+  // Requests all event variables for a specific event, referenced by event index
+  // Used outside of learn mode
+  //
+  async requestAllEventVariablesByIndex2(nodeNumber, eventIndex){
+    winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIndex ${eventIndex}`});
+    try {
+      //
+      // 'legacy' CBUS, so try reading EV0 - should return number of event variables
+      this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, 0))
+      var timeGap = this.inUnitTest ? 100 : 100
+      await sleep(timeGap); // wait for a response before trying to use it
+      // now assume number of variables from param 5
+      var numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+      // but use the value in EV0 if it exists
+      try{
+        let eventVariable0 = this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex].variables[0]
+        winston.debug({message: name + `: requestAllEventVariablesByIndex: index  ${eventIndex} EV0 ${eventVariable0}`});
+        if (eventVariable0 > 0 ){ numberOfVariables = eventVariable0 }
+      } catch(err){
+        winston.error({message: name + ': requestAllEventVariablesByIndex: read EV0: ' + err});
+      }
+      //
+      // now read all the rest of the event variables
+      winston.debug({message: name + `: requestAllEventVariablesByIndex: numberOfVariables ${numberOfVariables}`});
+      for (let i = 1; i <= numberOfVariables; i++) {
+        this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, i))
+      }
+    } catch (err) {
+      winston.error({message: name + ': requestAllEventVariablesByIndex: ' + err});
+    }
+  }
 //************************************************************************ */
 //
 // Functions to send CBUS commands

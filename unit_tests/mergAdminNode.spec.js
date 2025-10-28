@@ -92,6 +92,10 @@ describe('mergAdminNode tests', function(){
     }, 100);
 	});																										
 
+	afterEach(function() {
+ 		winston.info({message: ' '});   // blank line to separate tests
+ 		winston.info({message: ' '});   // blank line to separate tests
+	});																										
 
   function GetTestCase_nodeNumber() {
     var arg1, testCases = [];
@@ -902,9 +906,10 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
-    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
-    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI[value.eventIdentifier] ={"eventIndex":value.eventIndex, "eventIdentifier":value.eventidentifier}
-    winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI)});
+    node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI, null, " ")});
+    winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier)
