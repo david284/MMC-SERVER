@@ -897,12 +897,42 @@ describe('mergAdminNode tests', function(){
   })
 
   //
+  // Test to check requesting EV's by identfifier
+  // initial REVAL should return number of subsequent EV's which should then be requested
+  // so check the number of REVAL's is correct - should be 3 in total
+  // response to REVAL - NEVAL is tested elsewhere
+  //
+  itParam("requestAllEventVariablesByIdentifier test ${JSON.stringify(value)}", GetTestCase_events(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIdentifier test ' + JSON.stringify(value)});
+    // ensure event does exist with correct eventIndex
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI, null, " ")});
+    winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    node.requestAllEventVariablesByIdentifier(value.nodeNumber, value.eventIdentifier)
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NERD')
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('REVAL')
+      winston.info({message: 'unit_test: END requestAllEventVariablesByIdentifier test '});
+      done();
+    }, 200);
+  })
+
+  //
   // Test to check requesting EV's by index
   // initial REVAL should return number of subsequent EV's which should then be requested
   // so check the number of REVAL's is correct - should be 3 in total
   // response to REVAL - NEVAL is tested elsewhere
   //
-  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_event_variables_by_index(), async function (done, value) {
+  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_events(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
@@ -912,15 +942,14 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIdentifier)
+    node.requestAllEventVariablesByIndex(value.nodeNumber, value.eventIndex)
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
       }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NERD')
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
-      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('REVAL')
       winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
       done();
     }, 200);
@@ -1026,7 +1055,7 @@ describe('mergAdminNode tests', function(){
   })
 
 
-  function GetTestCase_event_variables_by_index() {
+  function GetTestCase_events() {
     var argA, argB, argC, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {argA = 0}
@@ -1046,7 +1075,7 @@ describe('mergAdminNode tests', function(){
     }
     return testCases;
   }
-
+  
   // postOpcodeProcessing
   // use a new node number
   // and a message that isn't PNN
@@ -1258,9 +1287,12 @@ describe('mergAdminNode tests', function(){
   function GetTestCase_nodeFlags() {
     var arg1, arg2, arg3, arg4, testCases = [];
     for (var a = 1; a<= 3; a++) {
+      // first test, legacy CBUS, expect one by one REVAL/NEVAL, preceeded by NERD
       if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 14} // vlcb = false, FCU_Compatability = true
-      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 22} // vlcb = true, FCU_Compatability = true
-      if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 28} // vlcb = true, FCU_Compatability = false
+      // 2nd test, VLCB, but one by one REQEV/EVANS
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 26} // vlcb = true, FCU_Compatability = true
+      // 3rd test
+      if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 14} // vlcb = true, FCU_Compatability = false
       testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3, "count":arg4});
     }
     return testCases;

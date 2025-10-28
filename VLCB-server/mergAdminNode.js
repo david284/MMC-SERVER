@@ -1405,7 +1405,7 @@ class cbusAdmin extends EventEmitter {
     winston.debug({message: name + `: requestAllEventVariablesForNode ${nodeNumber}` });
     var node = this.nodeConfig.nodes[nodeNumber]
     for (let eventIdentifier in node.storedEventsNI){
-      winston.debug({message: name + `: eventIdentifier ${eventIdentifier}` });
+      winston.debug({message: name + `: requestAllEventVariablesForNode: eventIdentifier ${eventIdentifier}` });
       let startTime = Date.now()
       await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
       // wait until the traffic has died down before doing next one
@@ -1417,12 +1417,14 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: elapsed time  ${Date.now() - startTime}` });
       winston.debug({message: name + `: lastCbusTrafficTime  ${this.lastCbusTrafficTime}` });
     }
+    winston.debug({message: name + `: requestAllEventVariablesForNode: END` });
   }
 
   //
   // request all event variables for specific event
   //
   async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier){
+    try {
     winston.info({message: name + ': requestAllEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
 
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
@@ -1448,15 +1450,34 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: requestAllEventVariablesByIdentifier: Time ${this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp-startTime}`});
       // if lastEVANSTimestamp is less than start time, then we didn't get multiple responses
       if (this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp <= startTime) {
-        // didn't get at least one other NV,
-        // so request them all one-by-one using 'legacy' CBUS mechanism
+        // didn't get at least one other NV, so request them all one-by-one
         winston.info({message: name + `: requestAllEventVariablesByIdentifier: fallback to one-by-one ${nodeNumber} ${eventIdentifier}`});
-        await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier)
+        // get number of variables from param 5
+        let numberOfVariables = this.nodeConfig.nodes[nodeNumber].parameters[5]
+        let eventNI = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier]
+        winston.info({message: name + `: requestAllEventVariablesByIdentifier:  event ${JSON.stringify(eventNI)}`});
+        try{
+          numberOfVariables = eventNI.variables[0]
+        } catch (err){
+          winston.error({message: name + `: requestAllEventVariablesByIdentifier: EV0 ${err}`});
+        }
+        for (let i = 1; i <= numberOfVariables; i++) {
+          this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, i)
+        }
       }
     } else {
-      // request them all one-by-one using 'legacy' CBUS mechanism
-      await this.requestAllEventVariablesByIndex(nodeNumber, eventIdentifier)
+      // Not VLCB, so request them all one-by-one using 'legacy' CBUS mechanism
+      // REQEV/EVANS can't be used due to bug in EVANS response in CBUS library
+      // So uses eventIndex with REVAL/NEVAL
+      // first we need to ensure the event indexes are up to date
+      await this.refreshEventIndexes(nodeNumber)
+      // Then get the eventIndex
+      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
+      await this.requestAllEventVariablesByIndex(nodeNumber, eventIndex)
     }
+  } catch (err){
+    winston.error({message: name + `: requestAllEventVariablesByIdentifier: ${err}`});
+  }
   }
 
   //
@@ -1484,33 +1505,11 @@ class cbusAdmin extends EventEmitter {
   }
 
   //  
-  // used for 'legacy' CBUS, as REQEV/EVANS can't be used due to bug in EVANS response
-  // So uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
-  // Used outside of learn mode
-  //
-  async requestAllEventVariablesByIndex(nodeNumber, eventIdentifier){
-    winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIdentifier ${eventIdentifier}`});
-    try {
-      // first we need to ensure the event indexes are up to date, by issuing a NERD to get all events
-      await this.refreshEventIndexes(nodeNumber)
-      //
-      var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-      if (eventIndex != undefined){
-        await this.requestAllEventVariablesByIndex2(nodeNumber, eventIndex)
-
-      } else {
-        winston.info({message: name + ': requestAllEventVariablesByIndex: no event index found for ' + eventIdentifier});
-      }
-    } catch (err) {
-      winston.error({message: name + ': requestAllEventVariablesByIndex: ' + err});
-    }
-  }
-
-  //  
   // Requests all event variables for a specific event, referenced by event index
+  // event indexes need to be up to date
   // Used outside of learn mode
   //
-  async requestAllEventVariablesByIndex2(nodeNumber, eventIndex){
+  async requestAllEventVariablesByIndex(nodeNumber, eventIndex){
     winston.debug({message: name + `: requestAllEventVariablesByIndex: node ${nodeNumber} eventIndex ${eventIndex}`});
     try {
       //

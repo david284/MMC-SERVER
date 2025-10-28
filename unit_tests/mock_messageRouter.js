@@ -96,11 +96,12 @@ class mock_messageRouter{
       case "REQEV":
           winston.debug({message:name + `: processMessagesIn: REQEV ` + message.text})
           if (message.eventVariableIndex == 0){
-            // reply with number of event variables used - for test purposes, just 2
-            var cbusMsg = cbusLib.encodeEVANS(message.nodeNumber, message.eventNumber, message.eventVariableIndex, 10)
+            // reply with number of event variables used - for test purposes, just 3
+            var cbusMsg = cbusLib.encodeEVANS(message.nodeNumber, message.eventNumber, message.eventVariableIndex, 3)
             this.inject(cbusMsg)
             if (this.FCU_Compatability == false){
-              for (var i=1; i <= 10; i++){
+              // stream 3 events
+              for (var i=1; i <= 3; i++){
                 await utils.sleep(1)
                 var cbusMsg = cbusLib.encodeEVANS(message.nodeNumber, message.eventNumber, i, 255)
                 this.inject(cbusMsg)    
