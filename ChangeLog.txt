@@ -1,5 +1,7 @@
 MMC Version 0.15.0
   added REQUEST_NODE_EVENT_BY_INDEX (uses NENRD)
+  added REQUEST_EVENT_VARIABLES_BY_INDEX
+  reworked requestAllEventVariablesByIndex
 
 MMC Version 0.14.0
   query_all_nodes now recreates each node
