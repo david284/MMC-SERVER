@@ -1077,7 +1077,7 @@ class cbusAdmin extends EventEmitter {
       }
     } catch {}
     // reduce gap if doing unit tests
-    timeGap = this.inUnitTest ? 10 : timeGap
+    timeGap = this.inUnitTest ? 1 : timeGap
     return timeGap
   }
     
@@ -1425,7 +1425,7 @@ class cbusAdmin extends EventEmitter {
   //
   async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier){
     try {
-    winston.info({message: name + ': requestAllEventVariablesByIdentifier ' + nodeNumber + ' ' + eventIdentifier});
+    winston.info({message: name + `: requestAllEventVariablesByIdentifier: ${nodeNumber} ${eventIdentifier}` });
 
     if (this.nodeConfig.nodes[nodeNumber].VLCB){
       winston.info({message: name + `: requestEventVariablesByIdentifier - VLCB Node'`});

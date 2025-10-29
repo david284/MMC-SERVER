@@ -125,6 +125,22 @@ describe('mergAdminNode tests', function(){
     return testCases;
   }
 
+
+  function GetTestCase_events_with_type() {
+    var arg1, arg2, arg3, testCases = [];
+    for (var a = 1; a<= 3; a++) {
+      if (a == 1) {arg1 = 1, arg3="long"}
+      if (a == 2) {arg1 = 65535, arg3 = 'long'}
+      if (a == 3) {arg1 = 65535, arg3 = 'short'}
+      for (var b = 1; b<= 3; b++) {
+        if (b == 1) {arg2 = 0}
+        if (b == 2) {arg2 = 1}
+        if (b == 3) {arg2 = 65535}
+        testCases.push({'nodeNumber':arg1, 'eventNumber': arg2, 'type': arg3});
+      }
+    }
+    return testCases;
+  }
   
   function GetTestCase_eventIdentifier() {
     var arg1, arg2, testCases = [];
@@ -897,12 +913,11 @@ describe('mergAdminNode tests', function(){
   })
 
   //
-  // Test to check requesting EV's by identfifier
+  // Test to check requesting EV's by identfifier, for CBUS, not VLCB
   // initial REVAL should return number of subsequent EV's which should then be requested
   // so check the number of REVAL's is correct - should be 3 in total
-  // response to REVAL - NEVAL is tested elsewhere
   //
-  itParam("requestAllEventVariablesByIdentifier test ${JSON.stringify(value)}", GetTestCase_events(), async function (done, value) {
+  itParam("requestAllEventVariablesByIdentifier test ${JSON.stringify(value)}", GetTestCase_events_with_identifier(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIdentifier test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
@@ -921,9 +936,40 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn.length).to.equal(4)
       winston.info({message: 'unit_test: END requestAllEventVariablesByIdentifier test '});
       done();
     }, 200);
+  })
+
+  //
+  // Test to check requesting EV's by identfifier, for VLCB
+  // initial REQEV should return number of subsequent EV's
+  // so check the number of REVAL's is correct - should be 3 in total
+  //
+  itParam("requestAllEventVariablesByIdentifier_VLCB test ${JSON.stringify(value)}", GetTestCase_events_with_identifier(), async function (done, value) {
+    winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIdentifier_VLCB test ' + JSON.stringify(value)});
+    // ensure event does exist with correct eventIndex
+    node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
+    node.nodeConfig.nodes[value.nodeNumber].VLCB = true
+    node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI, null, " ")});
+    winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
+    mock_messageRouter.messagesIn = []
+    nodeTraffic = []
+    node.requestAllEventVariablesByIdentifier(value.nodeNumber, value.eventIdentifier)
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNLRN')
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REQEV')
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('NNULN')
+      expect(mock_messageRouter.messagesIn.length).to.equal(9)
+      winston.info({message: 'unit_test: END requestAllEventVariablesByIdentifier_VLCB test '});
+      done();
+    }, 250);
   })
 
   //
@@ -932,7 +978,7 @@ describe('mergAdminNode tests', function(){
   // so check the number of REVAL's is correct - should be 3 in total
   // response to REVAL - NEVAL is tested elsewhere
   //
-  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_events(), async function (done, value) {
+  itParam("requestAllEventVariablesByIndex test ${JSON.stringify(value)}", GetTestCase_events_with_identifier(), async function (done, value) {
     winston.info({message: 'unit_test: BEGIN requestAllEventVariablesByIndex test ' + JSON.stringify(value)});
     // ensure event does exist with correct eventIndex
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
@@ -950,6 +996,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal('REVAL')
       expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal('REVAL')
+      expect(mock_messageRouter.messagesIn.length).to.equal(3)
       winston.info({message: 'unit_test: END requestAllEventVariablesByIndex test '});
       done();
     }, 200);
@@ -1055,7 +1102,7 @@ describe('mergAdminNode tests', function(){
   })
 
 
-  function GetTestCase_events() {
+  function GetTestCase_events_with_identifier() {
     var argA, argB, argC, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {argA = 0}
@@ -1290,7 +1337,7 @@ describe('mergAdminNode tests', function(){
       // first test, legacy CBUS, expect one by one REVAL/NEVAL, preceeded by NERD
       if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 14} // vlcb = false, FCU_Compatability = true
       // 2nd test, VLCB, but one by one REQEV/EVANS
-      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 26} // vlcb = true, FCU_Compatability = true
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 20} // vlcb = true, FCU_Compatability = true
       // 3rd test
       if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 14} // vlcb = true, FCU_Compatability = false
       testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3, "count":arg4});
@@ -1413,27 +1460,10 @@ describe('mergAdminNode tests', function(){
   })
 
 
-  function GetTestCase_events() {
-    var arg1, arg2, arg3, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 1, arg3="long"}
-      if (a == 2) {arg1 = 65535, arg3 = 'long'}
-      if (a == 3) {arg1 = 65535, arg3 = 'short'}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {arg2 = 0}
-        if (b == 2) {arg2 = 1}
-        if (b == 3) {arg2 = 65535}
-        testCases.push({'nodeNumber':arg1, 'eventNumber': arg2, 'type': arg3});
-      }
-    }
-    return testCases;
-  }
-
-
   //
   //
   //
-  itParam("eventSend test ${JSON.stringify(value)}", GetTestCase_events(), function (value) {
+  itParam("eventSend test ${JSON.stringify(value)}", GetTestCase_events_with_type(), function (value) {
     winston.info({message: 'unit_test: BEGIN eventSend test '});
     node.nodeConfig.events = []
     var busIdentifier = utils.decToHex(value.nodeNumber, 4) + utils.decToHex(value.eventNumber, 4)
