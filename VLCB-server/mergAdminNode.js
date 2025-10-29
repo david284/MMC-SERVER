@@ -558,8 +558,8 @@ class cbusAdmin extends EventEmitter {
       // if this message has a node number, and it's the source of the message (not destination)
       // then we can check extra things
       if (cbusMsg.nodeNumber){
+        let nodeNumber = cbusMsg.nodeNumber
         if (utils.nodeNumberIsSource(cbusMsg.opCode)){
-          let nodeNumber = cbusMsg.nodeNumber
           winston.debug({message: name + `: postOpcodeProcessing: ${cbusMsg.mnemonic} node ${nodeNumber}`});
           // just in case it's been removed...
           if (this.nodeConfig.nodes[nodeNumber] == undefined){ this.createNodeConfig(nodeNumber, true) }
@@ -609,6 +609,8 @@ class cbusAdmin extends EventEmitter {
             this.nodeConfig.nodes[nodeNumber].eventsAlreadyRequested = true
           }  
         }
+        // always update nodeConfig if there's a nodeNumber
+        this.updateNodeConfig(nodeNumber)
       }
     }catch (err){
       winston.error({message: name + `: postOpcodeProcessing
