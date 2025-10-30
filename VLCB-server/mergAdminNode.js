@@ -1373,7 +1373,45 @@ class cbusAdmin extends EventEmitter {
   }
 
   //
-  // request individual event variable
+  //
+  async event_teach_by_index(nodeNumber, eventIdentifier, eventIndex, eventVariableIndex, eventVariableValue, reLoad) {
+    winston.debug({message: name +': event_teach_by_index: ' + nodeNumber + " " + eventIndex})
+    if (reLoad == undefined){ reLoad = true }
+    var isNewEvent = false
+    if (this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex] == null){
+      isNewEvent = true
+      winston.info({message: name + ': event_teach_by_index - New event'});
+    } 
+    // updated variable, so add to config
+    this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
+
+    this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
+    let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
+    let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
+    this.CBUS_Queue.push(cbusLib.encodeEVLRNI(eventNodeNumber, eventNumber, eventIndex, eventVariableIndex, eventVariableValue))
+    this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    // update timestamp
+    this.nodeConfig.nodes[nodeNumber]['NodeModifiedTimestamp'] = Date.now()
+
+    // don't reload variables if reload is false - like when restoring a node
+    if (reLoad){
+      if (isNewEvent){
+        // adding new event may change event indexes, so need to refresh
+        // get number of events for each node - response NUMEV will trigger NERD if event count changes
+        this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber))
+        var timeOut = (this.inUnitTest) ? 1 : 250
+        await sleep(timeOut); // allow a bit more time after EVLRN
+        //this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+      } else {
+        this.requestEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex)
+      }
+    } else {
+      winston.info({message: name + ': event_teach_by_index - reLoad false'});
+    }
+  }
+
+  //
+  // request individual event variable by Identifier
   //
   async requestEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex){
     winston.info({message: name + `: requestEventVariableByIdentifier ' ${nodeNumber} ${eventIdentifier} ${eventVariableIndex}`});
@@ -1392,14 +1430,26 @@ class cbusAdmin extends EventEmitter {
         // So now uses eventIndex with REVAL/NEVAL, by finding eventIndex stored against eventIdentity
         // should not need to refresh event Indexes, as just asking for one variable
         var eventIndex = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex
-        if (eventIndex){
-          this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
-        } else {
-          winston.info({message: name + ': requestEventVariableByIdentifier: no event index found for ' + eventIdentifier});
-        }
+        this.requestEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex)
       }
     } catch (err){
-      winston.error({message: name + ': requestEventVariableByIdentifier: failed to get eventIndex: ' + err});
+      winston.error({message: name + ': requestEventVariableByIdentifier: ' + err});
+    }
+  }
+
+  //
+  // request individual event variable by event index
+  //
+  async requestEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex){
+    winston.info({message: name + `: requestEventVariableByIndex ' ${nodeNumber} ${eventIndex} ${eventVariableIndex}`});
+    try {
+      if (eventIndex){
+        this.CBUS_Queue.push(cbusLib.encodeREVAL(nodeNumber, eventIndex, eventVariableIndex))
+      } else {
+        winston.info({message: name + ': requestEventVariableByIndex: no event index ' + eventIndex});
+      }
+    } catch (err){
+      winston.error({message: name + ': requestEventVariableByIndex: ' + err});
     }
   }
 

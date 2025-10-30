@@ -1196,15 +1196,15 @@ describe('mergAdminNode tests', function(){
   //****************************************************************************************** */
 
   function GetTestCase_teach_event() {
-    var argA, argB, argC, argD, testCases = [];
+    var argA, argB, argC, argD, argE, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {argA = 0}
       if (a == 2) {argA = 1}
       if (a == 3) {argA = 65535}
       for (var b = 1; b<= 3; b++) {
-        if (b == 1) {argB = "00000000"}
-        if (b == 2) {argB = "00000001"}
-        if (b == 3) {argB = "FFFFFFFF"}
+        if (b == 1) {argB = "00000000", argE = 1}
+        if (b == 2) {argB = "00000001", argE = 2}
+        if (b == 3) {argB = "FFFFFFFF", argE = 3}
         for (var c = 1; c<= 3; c++) {
           if (c == 1) {argC = 0}
           if (c == 2) {argC = 1}
@@ -1213,7 +1213,7 @@ describe('mergAdminNode tests', function(){
             if (d == 1) {argD = 0}
             if (d == 2) {argD = 1}
             if (d == 3) {argD = 255}
-              testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "eventVariableIndex":argC, "eventVariableValue":argD});
+              testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, 'eventIndex':argE, "eventVariableIndex":argC, "eventVariableValue":argD});
           }
         }
       }
@@ -1252,7 +1252,7 @@ describe('mergAdminNode tests', function(){
     // create node config for node we're testing
     node.createNodeConfig(value.nodeNumber)
     // ensure event does exist, so shouldn't refresh events, but will just refresh variable
-    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
     //
     node.event_teach_by_identifier(value.nodeNumber, value.eventIdentifier, value.eventVariableIndex, value.eventVariableValue )
     setTimeout(function(){
@@ -1299,6 +1299,37 @@ describe('mergAdminNode tests', function(){
   })
 
 
+  //
+  //
+  //
+  itParam("event_teach_by_index test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (done, value) {
+    winston.info({message: `unit_test: BEGIN event_teach_by_index test ${JSON.stringify(value)}`});
+    mock_messageRouter.messagesIn = []
+    // create node config for node we're testing
+    node.createNodeConfig(value.nodeNumber)
+    // ensure event does exist, so shouldn't refresh events, but will just refresh variable
+    node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
+    //
+    node.event_teach_by_index(value.nodeNumber, value.eventIdentifier, value.eventIndex, value.eventVariableIndex, value.eventVariableValue )
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRNI")
+      expect(mock_messageRouter.messagesIn[1].eventidentifier).to.equal(value.eventidentifier)
+      expect(mock_messageRouter.messagesIn[1].eventindex).to.equal(value.eventindex)
+      expect(mock_messageRouter.messagesIn[1].eventVariableIndex).to.equal(value.eventVariableIndex)
+      expect(mock_messageRouter.messagesIn[1].eventVariableValue).to.equal(value.eventVariableValue)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
+      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
+      expect(mock_messageRouter.messagesIn.length).to.equal(4)
+      winston.info({message: 'unit_test: END event_teach_by_index test'});
+			done();
+		}, 180);
+  })
 
 
   //
