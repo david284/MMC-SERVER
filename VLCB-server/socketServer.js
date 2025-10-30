@@ -237,14 +237,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('EVENT_TEACH_BY_INDEX', async function(data){
       try{
         winston.info({message: `socketServer: EVENT_TEACH_BY_INDEX ${JSON.stringify(data)}`});
-        /*
-        await node.event_teach_by_identifier(data.nodeNumber, data.eventIdentifier, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
+        await node.event_teach_by_index(data.nodeNumber, data.eventIdentifier, data.eventIndex, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
         if(data.linkedVariableList != undefined){
           for (let i = 0; i < data.linkedVariableList.length; i++) {
-            node.requestEventVariableByIdentifier(data.nodeNumber, data.eventIdentifier, data.linkedVariableList[i])
+            node.requestEventVariableByIndex(data.nodeNumber, data.eventIndex, data.linkedVariableList[i])
           }
         }
-          */
       }catch(err){
         winston.error({message: name + `: EVENT_TEACH_BY_INDEX: ${err}`});
       }
