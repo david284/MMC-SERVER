@@ -3,6 +3,7 @@ MMC Version 0.15.0
   added REQUEST_EVENT_VARIABLES_BY_INDEX
   reworked requestAllEventVariablesByIndex
   postOpcodeProcessing always calls updateNodeConfig
+  added EVENT_TEACH_BY_INDEX & event_teach_by_index
   Client
     Added REQUEST_NODE_EVENT_BY_INDEX
     Added TestDialog under develop flag
@@ -10,6 +11,7 @@ MMC Version 0.15.0
     Added requestAllEventsByIndex utility function
     Added getter node_descriptor_useNENRD
     added getter node_descriptor_useEventIndex
+    added event_teach_by_index used when useEventIndex is true
 
 
 MMC Version 0.14.0
