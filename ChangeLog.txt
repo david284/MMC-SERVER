@@ -12,6 +12,9 @@ MMC Version 0.15.0
     Added getter node_descriptor_useNENRD
     added getter node_descriptor_useEventIndex
     added event_teach_by_index used when useEventIndex is true
+    added ActivateSlotDialog
+    added EventIdentityDialog
+    added re-assert FCU_compatibility to NodesView & NodeBackupDialog
 
 
 MMC Version 0.14.0
