@@ -4,6 +4,7 @@ MMC Version 0.15.0
   reworked requestAllEventVariablesByIndex
   postOpcodeProcessing always calls updateNodeConfig
   added EVENT_TEACH_BY_INDEX & event_teach_by_index
+  added CANARGB & uodated 2 other MDF's
   Client
     Added REQUEST_NODE_EVENT_BY_INDEX
     Added TestDialog under develop flag
