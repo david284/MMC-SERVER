@@ -1,0 +1,3692 @@
+{
+  "generated": "Generated manually by Ian Hogg",
+  "timestamp": "202504021223",
+  "moduleName": "CANARGB",
+  "nodeVariables": [
+    {
+      "displayTitle": "Palette entry 0",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 3,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 1",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 4,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 5,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 6,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 2",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 7,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 8,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 9,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 3",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 10,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 11,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 12,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 4",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 15,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 5",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 16,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 17,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 18,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 6",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 19,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 20,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 21,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 7",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 22,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 23,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 24,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 8",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 25,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 26,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 27,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 9",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 28,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 29,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 30,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 10",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 31,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 32,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 33,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 11",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 34,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 35,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 36,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 12",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 37,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 38,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 39,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 13",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 40,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 41,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 42,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 14",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 43,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 44,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 45,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "displayTitle": "Palette entry 15",
+      "type": "NodeVariableGroup",
+      "groupItems": [
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 46,
+          "displayTitle": "Red"
+	},
+	{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 47,
+          "displayTitle": "Green"
+	},{
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 48,
+          "displayTitle": "Blue"
+	}
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 49,
+      "displayTitle": "Colour order",
+      "options": [
+	{ "label": "RGB", "value":1},
+        { "label": "RBG", "value":2},
+        { "label": "GRB", "value":3},
+        { "label": "GBR", "value":4},
+        { "label": "BGR", "value":5},
+        { "label": "BRG", "value":6}
+      ]
+    }
+  ],
+  "eventVariables": [
+    {
+      "displayTitle": "LED Action 1",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 1,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 1,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 2
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 3
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 4,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 4,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 2",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 5,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 5,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 6
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 7
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 8,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 8,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 3",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 9,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 9,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 10
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 11
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 12,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 12,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 4",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 13,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 13,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 14
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 15
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 16,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 16,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 5",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 17,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 17,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 18
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 19
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 20,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 20,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 6",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 21,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 21,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 22
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 23
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 24,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 24,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 7",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 25,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 25,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 26
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 27
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 28,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 28,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 8",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 29,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 29,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 30
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 31
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 32,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 32,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 9",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 33,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 33,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 34
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 35
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 36,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 36,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 10",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 37,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 37,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 38
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 39
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 40,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 40,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 11",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 41,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 41,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 42
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 43
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 44,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 44,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 12",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 45,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 45,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 46
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 47
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 48,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 48,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 13",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 49,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 49,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 50
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 51
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 52,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 52,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 14",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 53,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 53,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 54
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 55
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 56,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 56,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 15",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 57,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 57,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 58
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 59
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 60,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 60,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 16",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 61,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 61,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 62
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 63
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 64,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 64,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 17",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 65,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 65,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 66
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 67
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 68,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 68,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 18",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 69,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 69,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 70
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 71
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 72,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 72,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 19",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 73,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 73,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 74
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 75
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 76,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 76,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 20",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 77,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 77,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 78
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 79
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 80,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 80,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 21",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 81,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 81,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 82
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 83
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 84,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 84,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 22",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 85,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 85,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 86
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 87
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 88,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 88,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 23",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 89,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 89,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 90
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 91
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 92,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 92,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 24",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 93,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 93,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 94
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 95
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 96,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 96,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 25",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 97,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 97,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 98
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 99
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 100,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 100,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 26",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 101,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 101,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 102
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 103
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 104,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 104,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 27",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 105,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 105,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 106
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 107
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 108,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 108,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 28",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 109,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 109,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 110
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 111
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 112,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 112,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 29",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 113,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 113,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 114
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 115
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 116,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 116,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 30",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 117,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 117,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 118
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 119
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 120,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 120,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 31",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 121,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 121,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 122
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 123
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 124,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 124,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 32",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 125,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 125,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 126
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 127
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 128,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 128,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 33",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 129,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 129,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 130
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 131
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 132,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 132,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 34",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 133,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 133,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 134
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 135
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 136,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 136,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 35",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 137,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 137,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 138
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 139
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 140,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 140,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 36",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 141,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 141,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 142
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 143
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 144,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 144,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 37",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 145,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 145,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 146
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 147
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 148,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 148,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 38",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 149,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 149,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 150
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 151
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 152,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 152,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 39",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 153,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 153,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 154
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 155
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 156,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 156,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 40",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 157,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 157,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 158
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 159
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 160,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 160,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 41",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 161,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 161,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 162
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 163
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 164,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 164,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 42",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 165,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 165,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 166
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 167
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 168,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 168,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 43",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 169,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 169,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 170
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 171
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 172,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 172,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 44",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 173,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 173,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 174
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 175
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 176,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 176,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 45",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 177,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 177,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 178
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 179
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 180,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 180,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 46",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 181,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 181,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 182
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 183
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 184,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 184,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 47",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 185,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 185,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 186
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 187
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 188,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 188,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 48",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 189,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 189,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 190
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 191
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 192,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 192,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 49",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 193,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 193,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 194
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 195
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 196,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 196,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 50",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 197,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 197,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 198
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 199
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 200,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 200,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 51",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 201,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 201,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 202
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 203
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 204,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 204,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 52",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 205,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 205,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 206
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 207
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 208,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 208,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 53",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 209,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 209,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 210
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 211
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 212,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 212,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 54",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 213,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 213,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 214
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 215
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 216,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 216,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 55",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 217,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 217,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 218
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 219
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 220,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 220,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 56",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 221,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 221,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 222
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 223
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 224,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 224,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 57",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 225,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 225,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 226
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 227
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 228,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 228,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 58",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 229,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 229,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 230
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 231
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 232,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 232,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 59",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 233,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 233,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 234
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 235
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 236,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 236,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 60",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 237,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 237,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 238
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 239
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 240,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 240,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 61",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 241,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 241,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 242
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 243
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 244,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 244,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    },
+    {
+      "displayTitle": "LED Action 62",
+      "type": "EventVariableGroup",
+      "groupItems": [
+	{
+          "displayTitle": "Action",
+          "type": "EventVariableGroup",
+          "groupItems": [
+            {
+              "displayTitle": "ON event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 245,
+              "bit": 0
+            },
+            {
+              "displayTitle": "Off event",
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 245,
+              "bit": 1
+            }
+          ]
+        },
+        {
+          "displayTitle": "Start LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 246
+        },
+        {
+          "displayTitle": "End LED",
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 247
+        },
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 248,
+	  "displayTitle": "Flash A",
+	  "displaySubTitle": "Palette index",
+          "startBit": 0,
+          "endBit": 3,
+          "max": 15,
+          "min": 0
+	},
+	{
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 248,
+	  "displayTitle": "Flash B",
+	  "displaySubTitle": "Palette index",
+          "startBit": 4,
+          "endBit": 7,
+          "max": 15,
+          "min": 0
+	}
+      ]
+    }
+  ],
+  "moduleDescriptorFilename": "CANARGB-A5FC-1a.json",
+  "moduleDescriptorLocation": "USER"
+}
