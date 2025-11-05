@@ -1229,7 +1229,16 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].storedEventsNI = {}
       this.nodeConfig.nodes[nodeNumber].eventsByIndex = {}
       this.nodeConfig.nodes[nodeNumber].hasChanged = true
-      for(let eventIndex=0; eventIndex<= numberOfEvents; eventIndex++){
+
+      // see if there's any response to index 0
+      this.request_node_event_by_index(nodeNumber, 0)
+      // wait a little time to see if there's any response
+      await utils.sleep(300)
+      if (this.nodeConfig.nodes[nodeNumber].eventsByIndex[0]){
+        let index0 = parseInt(this.nodeConfig.nodes[nodeNumber].eventsByIndex[0].eventIdentifier.substring(4,8),16)
+        if (index0 > numberOfEvents){numberOfEvents = index0}
+      }
+      for(let eventIndex=1; eventIndex<= numberOfEvents; eventIndex++){
         this.request_node_event_by_index(nodeNumber, eventIndex)
       }
       this.CBUS_Queue.push(cbusLib.encodeRQEVN(nodeNumber)) // get number of events for each node
@@ -1251,6 +1260,7 @@ class cbusAdmin extends EventEmitter {
   //
   //
   async request_all_node_parameters(nodeNumber){
+    winston.debug({message: name +`: request_all_node_parameters: node ${nodeNumber}`})
     if (this.nodeConfig.nodes[nodeNumber] == undefined) { this.createNodeConfig(nodeNumber, false) }
     // clear parameters to force full refresh
     this.nodeConfig.nodes[nodeNumber].parameters = {}
@@ -1263,14 +1273,18 @@ class cbusAdmin extends EventEmitter {
     // but reduce gap if doing unit tests
     timeGap = this.inUnitTest ? 1 : timeGap
     // so now wait for the specified timeGap after the last message recieved
-    // incase there was multiple responses (VLCB style)
+    // in case there was multiple responses (VLCB style)
     while ( Date.now() < this.lastCbusTrafficTime + timeGap){
       //winston.debug({message: name +': request_all_node_parameters: timeGap '})
       await utils.sleep(10)
       if (count++ > 100){break} // safety escape
     }
-    // if we haven't received more than param 0, then we need to request them individually
-    if (this.nodeConfig.nodes[nodeNumber].parameters[1] == undefined){
+    // if we haven't received params 4, 5 or 6, then we need to request them individually
+    // logical or
+    if ( (this.nodeConfig.nodes[nodeNumber].parameters[4] == undefined) ||
+      (this.nodeConfig.nodes[nodeNumber].parameters[5] == undefined) || 
+      (this.nodeConfig.nodes[nodeNumber].parameters[6] == undefined) )
+    {
       winston.debug({message: name +': request_all_node_parameters: request individually for node ' + nodeNumber})
       let nodeParameterCount = this.nodeConfig.nodes[nodeNumber].parameters[0]
       if (nodeParameterCount == undefined){nodeParameterCount = 20}
