@@ -1230,14 +1230,12 @@ class cbusAdmin extends EventEmitter {
       this.nodeConfig.nodes[nodeNumber].eventsByIndex = {}
       this.nodeConfig.nodes[nodeNumber].hasChanged = true
 
-      // see if there's any response to index 0
-      this.request_node_event_by_index(nodeNumber, 0)
-      // wait a little time to see if there's any response
-      await utils.sleep(300)
-      if (this.nodeConfig.nodes[nodeNumber].eventsByIndex[0]){
-        let index0 = parseInt(this.nodeConfig.nodes[nodeNumber].eventsByIndex[0].eventIdentifier.substring(4,8),16)
-        if (index0 > numberOfEvents){numberOfEvents = index0}
-      }
+      // check if the module has reported how many events it supports      
+      let reportedNumberOfEvents = this.nodeConfig.nodes[nodeNumber].parameters[4]
+      // use whichever is higher
+      if (reportedNumberOfEvents > numberOfEvents){ numberOfEvents = reportedNumberOfEvents}
+      winston.debug({message: name +`: request_all_node_events_by_index: numberOfEvents ${numberOfEvents}` });
+      // lets go read them
       for(let eventIndex=1; eventIndex<= numberOfEvents; eventIndex++){
         this.request_node_event_by_index(nodeNumber, eventIndex)
       }

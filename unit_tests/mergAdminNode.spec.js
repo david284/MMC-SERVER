@@ -1440,10 +1440,8 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(value.nodeNumber)
       expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("NENRD")
       expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(value.nodeNumber)
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NENRD")
-      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
-      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("RQEVN")
-      expect(mock_messageRouter.messagesIn[3].nodeNumber).to.equal(value.nodeNumber)    
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("RQEVN")
+      expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)    
       winston.info({message: 'unit_test: END request_all_node_events_by_index test'});
 			done();
 		}, 100);
