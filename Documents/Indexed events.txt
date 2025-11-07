@@ -15,3 +15,15 @@ get events:
   if useNENRD, use NENRD & numberOfEvents to get events
 
 
+'switch teaching'
+
+CANACE3 / CANACE3C
+When a CANACE3 is put into learn mode (<0x53><NNhi><NNlo>), you can activate a switch or PB on the panel. This will send the current switch event but with an added byte. This added byte is the switch number or index value. As the OPC for this is different, actual layout devices should not respond as if it were just a switch change.
+If it is a ON event, you get <0xB0><NNhi><NNlo><ENhi><ENlo><EN#> - ACON1
+
+CANPAN / CANPAN3
+Put node into learn mode	<0x53><NNhi><NNlo>
+The CANPAN will respond to a switch activation with a ARON1. This is a request response so it will not activate anything by mistake. The data byte contains the switch number with numbers starting at 1. 
+<0xB3><NNhi><NNlo><ENhi><ENlo><switch number> 
+The configuration utility will now know which switch has been activated by reading the switch number byte. The values returned for the node and event number here will be whatever is the current event allocated to that switch. The default is the NN of the module as allocated by the FCU and the event number is the switch number in the matrix. However, you can allocate any event to any switch, including the same event to more than one switch if you really wanted to.
+

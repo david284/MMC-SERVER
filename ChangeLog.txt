@@ -18,6 +18,11 @@ MMC Version 0.15.0
     added EventIdentityDialog
     added re-assert FCU_compatibility to NodesView & NodeBackupDialog
     check if parameters loaded rather than disable buttons
+    Added SwitchTeach1 (for CANACE3/CANACE3C)
+    Block teach node if useEventIndex
+    send CBUS message now keeps last values
+    block edit variables & delete if useEventIndex unless in Node View
+    added eventIdentifier validation to Events View
 
 
 MMC Version 0.14.0
