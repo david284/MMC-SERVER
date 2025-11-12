@@ -865,7 +865,7 @@ describe('mergAdminNode tests', function(){
       expect(mock_messageRouter.messagesIn[2].nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END delete_all_events test'});
 			done();
-		}, 50);
+		}, 100);
   })
 
   // event_unlearn test

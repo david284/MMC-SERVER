@@ -6,6 +6,7 @@ MMC Version 0.15.0
   added EVENT_TEACH_BY_INDEX & event_teach_by_index
   added CANARGB & uodated 2 other MDF's
   added CANCDU-a524-1c MDF
+  Lengthened wait after programming to 5 secs (IHogg)
   Client
     Added REQUEST_NODE_EVENT_BY_INDEX
     Added TestDialog under develop flag

@@ -272,8 +272,8 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       try{
         winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
         await programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
-        await utils.sleep(200)              // allow time for programming to complete
         node.createNodeConfig(data.nodeNumber, false) // reset config as firmware changed
+        await utils.sleep(5000)              // allow time for module to restart after programming
         node.set_FCU_compatibility()
         // request flags to trigger postOpcodeProcessing
         node.sendRQNPN(data.nodeNumber, 8)
