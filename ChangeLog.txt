@@ -1,3 +1,7 @@
+MMC Version 0.15.1
+Updated client
+  Fixed issue in EventsListByNode not displaying bus events
+
 MMC Version 0.15.0
   added REQUEST_NODE_EVENT_BY_INDEX (uses NENRD)
   added REQUEST_EVENT_VARIABLES_BY_INDEX

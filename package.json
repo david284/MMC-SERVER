@@ -2,7 +2,7 @@
   "author": "David Ellis",
   "description": "Module Management Console Server",
   "name": "MMC",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "private": true,
   "main": "./main.js",
   "scripts": {
