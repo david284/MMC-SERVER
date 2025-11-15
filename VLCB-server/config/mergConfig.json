@@ -13,7 +13,8 @@
       "name": "CANACE3",
       "useEventIndex": true,
       "useNENRD": true,
-      "numberOfEvents": 128
+      "numberOfEvents": 128,
+      "useSwitchTeach1": true
     },
     "A505": {
       "name": "CANACE8C"
@@ -94,7 +95,8 @@
       "name": "CANACE3C",
       "useEventIndex": true,
       "useNENRD": true,
-      "numberOfEvents": 130
+      "numberOfEvents": 130,
+      "useSwitchTeach1": true
     },
     "A51F": {
       "name": "CANPanel"
