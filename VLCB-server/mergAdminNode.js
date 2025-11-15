@@ -469,18 +469,6 @@ class cbusAdmin extends EventEmitter {
 
   //
   //
-  getModuleInfo(nodeNumber, moduleIdentifier){
-    winston.debug({message: name + `: getModuleInfo: ${nodeNumber} ${moduleIdentifier}`});
-    if (this.merg['modules'][moduleIdentifier]) {
-      this.nodeConfig.nodes[nodeNumber].moduleInfo = this.merg['modules'][moduleIdentifier]
-    } else {
-      this.nodeConfig.nodes[nodeNumber].moduleInfo = {}
-    }
-  }
-
-
-  //
-  //
   async process_GRSP (data) {
     winston.info({message: `mergAdminNode: grsp : data ` + JSON.stringify(data)});
     var nodeNumber = data.nodeNumber
@@ -985,7 +973,6 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].moduleIdentifier = moduleIdentifier
         // also fill manufacturer & module name
         this.nodeConfig.nodes[nodeNumber].moduleName = this.getModuleName(moduleIdentifier)
-        this.getModuleInfo(nodeNumber, moduleIdentifier)
         this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
     }

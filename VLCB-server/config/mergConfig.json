@@ -10,10 +10,7 @@
       "name": "CANACC8"
     },
     "A504": {
-      "name": "CANACE3",
-      "useIndex": true,
-      "useNENRD": true,
-      "numberOfEvents": 128
+      "name": "CANACE3"
     },
     "A505": {
       "name": "CANACE8C"
@@ -91,10 +88,7 @@
       "name": "CANPAN"
     },
     "A51E": {
-      "name": "CANACE3C",
-      "useIndex": true,
-      "useNENRD": true,
-      "numberOfEvents": 130
+      "name": "CANACE3C"
     },
     "A51F": {
       "name": "CANPanel"
