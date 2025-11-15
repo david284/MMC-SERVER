@@ -11,7 +11,7 @@
     },
     "A504": {
       "name": "CANACE3",
-      "useIndex": true,
+      "useEventIndex": true,
       "useNENRD": true,
       "numberOfEvents": 128
     },
@@ -92,7 +92,7 @@
     },
     "A51E": {
       "name": "CANACE3C",
-      "useIndex": true,
+      "useEventIndex": true,
       "useNENRD": true,
       "numberOfEvents": 130
     },
