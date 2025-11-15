@@ -1,3 +1,6 @@
+MMC Version 0.16.0
+  Added getModuleInfo
+
 MMC Version 0.15.1
 Updated client
   Fixed issue in EventsListByNode not displaying bus events
