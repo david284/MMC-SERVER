@@ -1,0 +1,2900 @@
+{
+  "timestamp": "202511171920",
+  "moduleName": "SLOTTEST",
+  "comment": "this MDF is used to test specific aspects of MMC, and not intended to represent any specific module",
+  "nodeVariableInformation": "This is an MDF to test combinations of controls, it is not intended to represent any specific module",
+  "numberOfChannels": 8,
+  "channelNames": {
+    "1": "MFD name 1",
+    "3": "MFD name 3",
+    "5": "MFD name 5",
+    "7": "MFD name 7"
+  },
+  "useSlots": true,
+  "nodeVariables": [
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Bit 0",
+      "displaySubTitle": "NV1",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Bit 2",
+      "displaySubTitle": "linked 2,3,4",
+      "bit": 2,
+      "linkedVariables": {
+        "NV": [
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "type": "NodeVariableBitArray",
+      "nodeVariableIndex": 2,
+      "displayTitle": "Bit Array",
+      "displaySubTitle": "linked 4,5,6",
+      "linkedVariables": {
+        "NV": [
+          4,
+          5,
+          6
+        ]
+      },
+      "bitCollection": [
+        {
+          "bitPosition": 0,
+          "label": "${channel 1}"
+        },
+        {
+          "bitPosition": 1,
+          "label": "${channel 2}"
+        },
+        {
+          "bitPosition": 2,
+          "label": "${channel 3}"
+        },
+        {
+          "bitPosition": 3,
+          "label": "${channel 4}"
+        },
+        {
+          "bitPosition": 4,
+          "label": "${channel 5}"
+        },
+        {
+          "bitPosition": 5,
+          "label": "${channel 6}"
+        },
+        {
+          "bitPosition": 6,
+          "label": "${channel 7}"
+        },
+        {
+          "bitPosition": 7,
+          "label": "${channel 8}"
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSlider",
+      "nodeVariableIndex": 22,
+      "displayTitle": "Basic Servo",
+      "outputOnWrite": true
+    },
+    {
+      "displayTitle": "Button test",
+      "displaySubTitle": "NV22, overload using NV10",
+      "type": "NodeVariableButtons",
+      "nodeVariableIndex": 22,
+      "buttonCollection": [
+        {
+          "label": "Min",
+          "value": 0
+        },
+        {
+          "label": "Centre",
+          "value": 127
+        },
+        {
+          "label": "Max",
+          "value": 255
+        },
+        {
+          "overload": {
+            "nv": 10,
+            "labels": [
+              {
+                "value": 0,
+                "label": "overload 0 (5)"
+              },
+              {
+                "value": 1,
+                "label": "overload 1 (5)"
+              },
+              {
+                "value": 2,
+                "label": "overload 2 (5)"
+              }
+            ]
+          },
+          "value": 5
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableSelect",
+      "nodeVariableIndex": 30,
+      "displayTitle": "Select",
+      "displaySubTitle": "linked 8,9",
+      "linkedVariables": {
+        "NV": [
+          8,
+          9
+        ]
+      },
+      "bitMask": 3,
+      "options": [
+        {
+          "label": "Options 1",
+          "value": 0
+        },
+        {
+          "label": "Options 2",
+          "value": 1
+        },
+        {
+          "label": "Options 3",
+          "value": 2
+        },
+        {
+          "label": "Options 4",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "type": "NodeChannelList",
+      "channels": {
+        "1": {
+          "channelType": {
+            "overload": {
+              "nv": 16,
+              "labels": [
+                {
+                  "value": 0,
+                  "label": "INPUT"
+                },
+                {
+                  "value": 1,
+                  "label": "OUTPUT"
+                },
+                {
+                  "value": 2,
+                  "label": "SERVO"
+                },
+                {
+                  "value": 3,
+                  "label": "BOUNCE"
+                },
+                {
+                  "value": 4,
+                  "label": "MULTI"
+                },
+                {
+                  "value": 5,
+                  "label": "ANALOGUE"
+                },
+                {
+                  "value": 6,
+                  "label": "MAGNET"
+                }
+              ]
+            }
+          },
+          "information": [
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        0
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 0,
+                      "label": "TRIGGER_INVERTED"
+                    },
+                    {
+                      "value": 1,
+                      "label": "TRIGGER_INVERTED"
+                    },
+                    {
+                      "value": 2,
+                      "label": "TRIGGER_INVERTED"
+                    },
+                    {
+                      "value": 3,
+                      "label": "TRIGGER_INVERTED"
+                    },
+                    {
+                      "value": 4,
+                      "label": "TRIGGER_INVERTED"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        1
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 2,
+                      "label": "CUTOFF"
+                    },
+                    {
+                      "value": 3,
+                      "label": "CUTOFF"
+                    },
+                    {
+                      "value": 4,
+                      "label": "CUTOFF"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        2
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 1,
+                      "label": "STARTUP"
+                    },
+                    {
+                      "value": 2,
+                      "label": "STARTUP"
+                    },
+                    {
+                      "value": 3,
+                      "label": "STARTUP"
+                    },
+                    {
+                      "value": 4,
+                      "label": "STARTUP"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        3
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 0,
+                      "label": "DISABLE_OFF"
+                    },
+                    {
+                      "value": 1,
+                      "label": "DISABLE_OFF"
+                    },
+                    {
+                      "value": 5,
+                      "label": "DISABLE_OFF"
+                    },
+                    {
+                      "value": 6,
+                      "label": "DISABLE_OFF"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        4
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 0,
+                      "label": "TOGGLE"
+                    },
+                    {
+                      "value": 2,
+                      "label": "PULLUP"
+                    },
+                    {
+                      "value": 3,
+                      "label": "PULLUP"
+                    },
+                    {
+                      "value": 4,
+                      "label": "PULLUP"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        5
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 0,
+                      "label": "INPUT_DISABLE_SOD_RESPONSE"
+                    },
+                    {
+                      "value": 1,
+                      "label": "ACTION_INVERTED"
+                    },
+                    {
+                      "value": 2,
+                      "label": "ACTION_INVERTED"
+                    },
+                    {
+                      "value": 3,
+                      "label": "ACTION_INVERTED"
+                    },
+                    {
+                      "value": 4,
+                      "label": "ACTION_INVERTED"
+                    },
+                    {
+                      "value": 5,
+                      "label": "INPUT_DISABLE_SOD_RESPONSE"
+                    },
+                    {
+                      "value": 6,
+                      "label": "INPUT_DISABLE_SOD_RESPONSE"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        6
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": "EVENT_INVERTED "
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        17,
+                        7
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": {
+                "overload": {
+                  "nv": 16,
+                  "labels": [
+                    {
+                      "value": 1,
+                      "label": "ACTION_EXPEDITED"
+                    },
+                    {
+                      "value": 2,
+                      "label": "EXTENDED 180 DEGREE RANGE"
+                    },
+                    {
+                      "value": 3,
+                      "label": "EXTENDED 180 DEGREE RANGE"
+                    },
+                    {
+                      "value": 4,
+                      "label": "EXTENDED 180 DEGREE RANGE"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "channelVariables": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 16,
+              "displayTitle": "I/O type",
+              "displaySubTitle": "",
+              "options": [
+                {
+                  "label": "INPUT",
+                  "value": 0
+                },
+                {
+                  "label": "OUTPUT",
+                  "value": 1
+                },
+                {
+                  "label": "SERVO",
+                  "value": 2
+                },
+                {
+                  "label": "BOUNCE",
+                  "value": 3
+                },
+                {
+                  "label": "MULTI",
+                  "value": 4
+                },
+                {
+                  "label": "ANALOGUE",
+                  "value": 5
+                },
+                {
+                  "label": "MAGNET",
+                  "value": 6
+                }
+              ],
+              "linkedVariables": {
+                "NV": [
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22
+                ]
+              }
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "input type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 0
+              },
+              "nodeVariableIndex": 18,
+              "displayTitle": "ON delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "output type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 1
+              },
+              "nodeVariableIndex": 18,
+              "displayTitle": "Pulse duration",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "servo type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 2
+              },
+              "nodeVariableIndex": 18,
+              "displayTitle": "OFF position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "bounce type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 3
+              },
+              "nodeVariableIndex": 18,
+              "displayTitle": "UPPER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "displayTitle": "number of positions",
+              "displaySubTitle": "multi specific",
+              "comment": "multi type only",
+              "type": "NodeVariableSelect",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 4
+              },
+              "nodeVariableIndex": 18,
+              "options": [
+                {
+                  "label": "1 position",
+                  "value": 1
+                },
+                {
+                  "label": "2 positions",
+                  "value": 2
+                },
+                {
+                  "label": "3 positions",
+                  "value": 3
+                },
+                {
+                  "label": "4 positions",
+                  "value": 4
+                }
+              ]
+            },
+            {
+              "displayTitle": "magnet setup",
+              "displaySubTitle": "ADC offset",
+              "comment": "magnet type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 6
+              },
+              "nodeVariableIndex": 18,
+              "displayUnits": "ADC units, in 1.22mV steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "input type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 0
+              },
+              "nodeVariableIndex": 19,
+              "displayTitle": "OFF delay",
+              "displaySubTitle": "input specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 5
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "output type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 1
+              },
+              "nodeVariableIndex": 19,
+              "displayTitle": "Flash period",
+              "displaySubTitle": "output specific",
+              "displayUnits": "seconds",
+              "displayScale": 0.1
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "servo type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 2
+              },
+              "nodeVariableIndex": 19,
+              "displayTitle": "ON position",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "bounce type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 3
+              },
+              "nodeVariableIndex": 19,
+              "displayTitle": "LOWER position",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "multi type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 4
+              },
+              "nodeVariableIndex": 19,
+              "displayTitle": "pos 1",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "displayTitle": "Threshold",
+              "displaySubTitle": "analog specific",
+              "comment": "analog type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 5
+              },
+              "nodeVariableIndex": 19,
+              "displayUnits": "Volts",
+              "displayScale": 0.0196
+            },
+            {
+              "displayTitle": "Threshold",
+              "displaySubTitle": "magnet specific",
+              "comment": "analog type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 6
+              },
+              "nodeVariableIndex": 19,
+              "displayUnits": "ADC units, in 1.22mV steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "servo type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 2
+              },
+              "nodeVariableIndex": 20,
+              "displayTitle": "OFF to ON speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "",
+              "min": 230
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "bounce type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 3
+              },
+              "nodeVariableIndex": 20,
+              "displayTitle": "Bounce coefficient",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": " %"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "multi type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 4
+              },
+              "nodeVariableIndex": 20,
+              "displayTitle": "pos 2",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "displayTitle": "Hysteresis",
+              "displaySubTitle": "analogue specific",
+              "comment": "analogue type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 5
+              },
+              "nodeVariableIndex": 20,
+              "displayUnits": "Volts",
+              "displayScale": 0.0196
+            },
+            {
+              "displayTitle": "Hysteresis",
+              "displaySubTitle": "magnet specific",
+              "comment": "magnet type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 6
+              },
+              "nodeVariableIndex": 20,
+              "displayUnits": "ADC units, in 1.22mV steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "servo type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 2
+              },
+              "nodeVariableIndex": 21,
+              "displayTitle": "ON to OFF speed",
+              "displaySubTitle": "servo specific",
+              "displayUnits": "",
+              "min": 230
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "bounce type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 3
+              },
+              "nodeVariableIndex": 21,
+              "displayTitle": "Pull speed",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "multi type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 4
+              },
+              "nodeVariableIndex": 21,
+              "displayTitle": "pos 3",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "displayTitle": "Offset H",
+              "displaySubTitle": "magnet specific",
+              "comment": "magnet type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 6
+              },
+              "nodeVariableIndex": 21,
+              "displayUnits": "ADC units, in 1.22mV steps"
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "bounce type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 3
+              },
+              "nodeVariableIndex": 22,
+              "displayTitle": "Pull pause",
+              "displaySubTitle": "bounce specific",
+              "displayUnits": "milliseconds",
+              "displayScale": 20
+            },
+            {
+              "type": "NodeVariableSlider",
+              "comment": "multi type only",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 4
+              },
+              "nodeVariableIndex": 22,
+              "displayTitle": "pos 4",
+              "displaySubTitle": "multi specific",
+              "displayUnits": "steps",
+              "outputOnWrite": true
+            },
+            {
+              "displayTitle": "Offset L",
+              "displaySubTitle": "magnet specific",
+              "comment": "magnet type only",
+              "type": "NodeVariableSlider",
+              "visibilityLogic": {
+                "nv": 16,
+                "equals": 6
+              },
+              "nodeVariableIndex": 22,
+              "displayUnits": "ADC units, in 1.22mV steps"
+            },
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 17,
+              "displayTitle": "Flags",
+              "bitCollection": [
+                {
+                  "bitPosition": 0,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 0,
+                        "label": "TRIGGER_INVERTED"
+                      },
+                      {
+                        "value": 1,
+                        "label": "TRIGGER_INVERTED"
+                      },
+                      {
+                        "value": 2,
+                        "label": "TRIGGER_INVERTED"
+                      },
+                      {
+                        "value": 3,
+                        "label": "TRIGGER_INVERTED"
+                      },
+                      {
+                        "value": 4,
+                        "label": "TRIGGER_INVERTED"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 1,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 2,
+                        "label": "CUTOFF"
+                      },
+                      {
+                        "value": 3,
+                        "label": "CUTOFF"
+                      },
+                      {
+                        "value": 4,
+                        "label": "CUTOFF"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 2,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 1,
+                        "label": "STARTUP"
+                      },
+                      {
+                        "value": 2,
+                        "label": "STARTUP"
+                      },
+                      {
+                        "value": 3,
+                        "label": "STARTUP"
+                      },
+                      {
+                        "value": 4,
+                        "label": "STARTUP"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 3,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 0,
+                        "label": "DISABLE_OFF"
+                      },
+                      {
+                        "value": 1,
+                        "label": "DISABLE_OFF"
+                      },
+                      {
+                        "value": 5,
+                        "label": "DISABLE_OFF"
+                      },
+                      {
+                        "value": 6,
+                        "label": "DISABLE_OFF"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 4,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 0,
+                        "label": "TOGGLE"
+                      },
+                      {
+                        "value": 2,
+                        "label": "PULLUP"
+                      },
+                      {
+                        "value": 3,
+                        "label": "PULLUP"
+                      },
+                      {
+                        "value": 4,
+                        "label": "PULLUP"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 5,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 0,
+                        "label": "INPUT_DISABLE_SOD_RESPONSE"
+                      },
+                      {
+                        "value": 1,
+                        "label": "ACTION_INVERTED"
+                      },
+                      {
+                        "value": 2,
+                        "label": "ACTION_INVERTED"
+                      },
+                      {
+                        "value": 3,
+                        "label": "ACTION_INVERTED"
+                      },
+                      {
+                        "value": 4,
+                        "label": "ACTION_INVERTED"
+                      },
+                      {
+                        "value": 5,
+                        "label": "INPUT_DISABLE_SOD_RESPONSE"
+                      },
+                      {
+                        "value": 6,
+                        "label": "INPUT_DISABLE_SOD_RESPONSE"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "bitPosition": 6,
+                  "label": "EVENT_INVERTED"
+                },
+                {
+                  "bitPosition": 7,
+                  "overload": {
+                    "nv": 16,
+                    "labels": [
+                      {
+                        "value": 1,
+                        "label": "ACTION_EXPEDITED"
+                      },
+                      {
+                        "value": 2,
+                        "label": "EXTENDED 180 DEGREE RANGE"
+                      },
+                      {
+                        "value": 3,
+                        "label": "EXTENDED 180 DEGREE RANGE"
+                      },
+                      {
+                        "value": 4,
+                        "label": "EXTENDED 180 DEGREE RANGE"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "2": {
+          "channelType": "output",
+          "information": [
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        1,
+                        7
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": "Repeat enabled "
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        10,
+                        0
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": "Startup action enabled "
+            },
+            {
+              "type": "text",
+              "visibilityLogic": {
+                "JLL": {
+                  "==": [
+                    {
+                      "NVbit": [
+                        11,
+                        0
+                      ]
+                    },
+                    true
+                  ]
+                }
+              },
+              "label": "Startup action ON "
+            }
+          ],
+          "channelVariables": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 1,
+              "displayTitle": "Pulse Duration",
+              "displaySubTitle": "Range 0 to 2,540 milliSeconds",
+              "displayScale": 20,
+              "displayUnits": "mS",
+              "startBit": 0,
+              "endBit": 6,
+              "max": 127,
+              "min": 0
+            },
+            {
+              "type": "NodeVariableBitSingle",
+              "nodeVariableIndex": 1,
+              "displayTitle": "Repeat enabled",
+              "bit": 7
+            },
+            {
+              "type": "NodeVariableBitSingle",
+              "nodeVariableIndex": 11,
+              "displayTitle": "Startup action on/off",
+              "bit": 0
+            },
+            {
+              "type": "NodeVariableBitSingle",
+              "nodeVariableIndex": 10,
+              "displayTitle": "Startup action",
+              "displaySubTitle": "Saved action, OFF if not set",
+              "bit": 0
+            }
+          ]
+        },
+        "3": {
+          "channelType": "output",
+          "information": [
+            {
+              "type": "text",
+              "label": "just some static text"
+            }
+          ],
+          "channelVariables": []
+        },
+        "4": {
+          "channelType": "output"
+        },
+        "5": {
+          "channelType": "output"
+        },
+        "6": {
+          "channelType": "output"
+        },
+        "7": {
+          "channelType": "output"
+        },
+        "8": {
+          "channelType": "output"
+        },
+        "9": {
+          "channelType": "output"
+        },
+        "10": {
+          "channelType": "input"
+        },
+        "11": {
+          "channelType": "input"
+        },
+        "12": {
+          "channelType": "input"
+        },
+        "13": {
+          "channelType": "input"
+        },
+        "14": {
+          "channelType": "input"
+        },
+        "15": {
+          "channelType": "input"
+        },
+        "16": {
+          "channelType": "input"
+        }
+      }
+    },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableDual tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 40,
+          "nodeVariableIndexLow": 41,
+          "displayTitle": "Dual",
+          "displaySubTitle": "linked 7,8",
+          "displayUnits": "mS",
+          "linkedVariables": {
+            "NV": [
+              7,
+              8
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 40,
+          "nodeVariableIndexLow": 41,
+          "displayTitle": "Dual",
+          "displaySubTitle": "min & max",
+          "max": 12,
+          "min": 2
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.1,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.01,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "offset",
+          "displayOffset": 100,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "12 bits",
+          "startBit": 0,
+          "endBit": 11
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 42,
+          "nodeVariableIndexLow": 43,
+          "displayTitle": "Dual",
+          "displaySubTitle": "Hi 12 bits",
+          "startBit": 4,
+          "endBit": 15
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableNumber tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 10,
+          "displayTitle": "Number - NV10",
+          "displaySubTitle": "linked 12,13,14",
+          "linkedVariables": {
+            "NV": [
+              12,
+              13,
+              14
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 11,
+          "displayTitle": "Number - NV11",
+          "displaySubTitle": "range 2 to 12",
+          "max": 12,
+          "min": 2
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 12,
+          "displayTitle": "Number - NV12",
+          "displaySubTitle": "offset 100",
+          "displayOffset": 100,
+          "displayUnits": "mS"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range 0 to 25500",
+          "displayScale": 100
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range test",
+          "displayScale": 0.1
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Number - NV13",
+          "displaySubTitle": "range test",
+          "displayScale": 0.01
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "Number - NV14",
+          "displaySubTitle": "3 bits test",
+          "startBit": 0,
+          "endBit": 2
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "Number - NV14",
+          "displaySubTitle": "high 3 bits test",
+          "displayOffset": 1,
+          "startBit": 5,
+          "endBit": 7,
+          "max": 7,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 15,
+          "displayTitle": "Number - NV15",
+          "displaySubTitle": "scaled high 3 bits",
+          "displayScale": 10,
+          "displayOffset": 10,
+          "startBit": 5,
+          "endBit": 7,
+          "max": 7,
+          "min": 0
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableSlider tests",
+      "groupItems": [
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 21,
+          "displayTitle": "Slider",
+          "displaySubTitle": "linked 22,23",
+          "displayScale": 1,
+          "displayUnits": "Milli Seconds",
+          "max": 180,
+          "min": 40,
+          "outputOnWrite": true,
+          "linkedVariables": {
+            "NV": [
+              22,
+              23
+            ]
+          }
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 22,
+          "displayTitle": "Basic Servo",
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 23,
+          "displayTitle": "Slider",
+          "displaySubTitle": "NV23",
+          "displayScale": 0.01,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0,
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 24,
+          "displayTitle": "Slider",
+          "displaySubTitle": "NV24",
+          "displayScale": 0.001,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0,
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 25,
+          "displayTitle": "Slider - hiNibble - NV25",
+          "displaySubTitle": "range 10 to 120 milli seconds",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 10,
+          "max": 11,
+          "min": 0
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "NodeVariableGroup",
+      "displaySubTitle": "Group: Warning Will Robinson........",
+      "groupItems": [
+        {
+          "type": "NodeVariableBitArray",
+          "nodeVariableIndex": 1,
+          "displayTitle": "Bit Array",
+          "bitCollection": [
+            {
+              "bitPosition": 0,
+              "label": "${channel 1}"
+            },
+            {
+              "bitPosition": 1,
+              "label": "${channel 2}"
+            },
+            {
+              "bitPosition": 2,
+              "label": "${channel 3}"
+            },
+            {
+              "bitPosition": 3,
+              "label": "${channel 4}"
+            },
+            {
+              "bitPosition": 4,
+              "label": "${channel 5}"
+            },
+            {
+              "bitPosition": 5,
+              "label": "${channel 6}"
+            },
+            {
+              "bitPosition": 6,
+              "label": "${channel 7}"
+            },
+            {
+              "bitPosition": 7,
+              "label": "${channel 8}"
+            }
+          ]
+        },
+        {
+          "type": "NodeVariableBitSingle",
+          "nodeVariableIndex": 2,
+          "displayTitle": "Bit 0",
+          "displaySubTitle": "NV2",
+          "bit": 0
+        },
+        {
+          "type": "NodeVariableDual",
+          "nodeVariableIndexHigh": 3,
+          "nodeVariableIndexLow": 4,
+          "displayTitle": "Dual",
+          "displaySubTitle": "NV3&4",
+          "max": 65025,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 5,
+          "displayTitle": "Number",
+          "displaySubTitle": "NV5",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "NodeVariableSelect",
+          "nodeVariableIndex": 6,
+          "displayTitle": "Select",
+          "displaySubTitle": "NV6",
+          "options": [
+            {
+              "label": "Options 1",
+              "value": 0
+            },
+            {
+              "label": "Options 2",
+              "value": 1
+            },
+            {
+              "label": "Options 3",
+              "value": 2
+            },
+            {
+              "label": "Options 4",
+              "value": 8
+            }
+          ]
+        },
+        {
+          "type": "NodeVariableSlider",
+          "nodeVariableIndex": 7,
+          "displayTitle": "Slider",
+          "displaySubTitle": "group slider",
+          "badge": "Delay",
+          "displayScale": 1,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0,
+          "outputOnWrite": true
+        },
+        {
+          "type": "NodeVariableTabs",
+          "tabPanels": [
+            {
+              "displayTitle": "Single Bit",
+              "displaySubTitle": "Tab: Warning Will Robinson........",
+              "items": [
+                {
+                  "type": "NodeVariableBitSingle",
+                  "nodeVariableIndex": 2,
+                  "displayTitle": "Bit 0",
+                  "displaySubTitle": "NV2",
+                  "bit": 0
+                }
+              ]
+            },
+            {
+              "displayTitle": "Group test",
+              "items": [
+                {
+                  "type": "NodeVariableGroup",
+                  "displayTitle": "Group 1",
+                  "groupItems": [
+                    {
+                      "type": "NodeVariableBitArray",
+                      "nodeVariableIndex": 1,
+                      "displayTitle": "Bit Array",
+                      "displaySubTitle": "NV1",
+                      "bitCollection": [
+                        {
+                          "bitPosition": 0,
+                          "label": "${channel 1}"
+                        },
+                        {
+                          "bitPosition": 1,
+                          "label": "${channel 2}"
+                        },
+                        {
+                          "bitPosition": 2,
+                          "label": "${channel 3}"
+                        },
+                        {
+                          "bitPosition": 3,
+                          "label": "${channel 4}"
+                        },
+                        {
+                          "bitPosition": 4,
+                          "label": "${channel 5}"
+                        },
+                        {
+                          "bitPosition": 5,
+                          "label": "${channel 6}"
+                        },
+                        {
+                          "bitPosition": 6,
+                          "label": "${channel 7}"
+                        },
+                        {
+                          "bitPosition": 7,
+                          "label": "${channel 8}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "NodeVariableBitSingle",
+                      "nodeVariableIndex": 2,
+                      "displayTitle": "Bit 0",
+                      "displaySubTitle": "NV2",
+                      "bit": 0
+                    }
+                  ]
+                },
+                {
+                  "type": "NodeVariableGroup",
+                  "displayTitle": "Group 2",
+                  "groupItems": [
+                    {
+                      "type": "NodeVariableSelect",
+                      "nodeVariableIndex": 6,
+                      "displayTitle": "Select",
+                      "displaySubTitle": "NV6",
+                      "options": [
+                        {
+                          "label": "Options 1",
+                          "value": 0
+                        },
+                        {
+                          "label": "Options 2",
+                          "value": 1
+                        },
+                        {
+                          "label": "Options 3",
+                          "value": 2
+                        },
+                        {
+                          "label": "Options 4",
+                          "value": 8
+                        }
+                      ]
+                    },
+                    {
+                      "type": "NodeVariableSlider",
+                      "nodeVariableIndex": 7,
+                      "displayTitle": "Slider",
+                      "displaySubTitle": "tab group slider",
+                      "badge": "Delay",
+                      "displayScale": 1,
+                      "displayUnits": "Milli Seconds",
+                      "max": 255,
+                      "min": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "NodeVariableGroup",
+          "displayTitle": "Group in Group",
+          "groupItems": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 6,
+              "displayTitle": "Select",
+              "displaySubTitle": "NV6",
+              "options": [
+                {
+                  "label": "Options 1",
+                  "value": 0
+                },
+                {
+                  "label": "Options 2",
+                  "value": 1
+                },
+                {
+                  "label": "Options 3",
+                  "value": 2
+                },
+                {
+                  "label": "Options 4",
+                  "value": 8
+                }
+              ]
+            },
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab group slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0
+            },
+            {
+              "type": "NodeVariableGroup",
+              "displayTitle": "Group in Group in Group",
+              "groupItems": [
+                {
+                  "type": "NodeVariableSelect",
+                  "nodeVariableIndex": 6,
+                  "displayTitle": "Select",
+                  "displaySubTitle": "NV6",
+                  "options": [
+                    {
+                      "label": "Options 1",
+                      "value": 0
+                    },
+                    {
+                      "label": "Options 2",
+                      "value": 1
+                    },
+                    {
+                      "label": "Options 3",
+                      "value": 2
+                    },
+                    {
+                      "label": "Options 4",
+                      "value": 8
+                    }
+                  ]
+                },
+                {
+                  "type": "NodeVariableSlider",
+                  "nodeVariableIndex": 7,
+                  "displayTitle": "Slider",
+                  "displaySubTitle": "tab group slider",
+                  "badge": "Delay",
+                  "displayScale": 1,
+                  "displayUnits": "Milli Seconds",
+                  "max": 255,
+                  "min": 0
+                },
+                {
+                  "type": "NodeVariableGroup",
+                  "displayTitle": "Group in Group in Group in Group",
+                  "groupItems": [
+                    {
+                      "type": "NodeVariableSelect",
+                      "nodeVariableIndex": 6,
+                      "displayTitle": "Select",
+                      "displaySubTitle": "NV6",
+                      "options": [
+                        {
+                          "label": "Options 1",
+                          "value": 0
+                        },
+                        {
+                          "label": "Options 2",
+                          "value": 1
+                        },
+                        {
+                          "label": "Options 3",
+                          "value": 2
+                        },
+                        {
+                          "label": "Options 4",
+                          "value": 8
+                        }
+                      ]
+                    },
+                    {
+                      "type": "NodeVariableSlider",
+                      "nodeVariableIndex": 7,
+                      "displayTitle": "Slider",
+                      "displaySubTitle": "tab group slider",
+                      "badge": "Delay",
+                      "displayScale": 1,
+                      "displayUnits": "Milli Seconds",
+                      "max": 255,
+                      "min": 0
+                    },
+                    {
+                      "type": "NodeVariableGroup",
+                      "displayTitle": "Group in Group in Group in Group in Group",
+                      "groupItems": [
+                        {
+                          "type": "NodeVariableSelect",
+                          "nodeVariableIndex": 6,
+                          "displayTitle": "Select",
+                          "displaySubTitle": "NV6",
+                          "options": [
+                            {
+                              "label": "Options 1",
+                              "value": 0
+                            },
+                            {
+                              "label": "Options 2",
+                              "value": 1
+                            },
+                            {
+                              "label": "Options 3",
+                              "value": 2
+                            },
+                            {
+                              "label": "Options 4",
+                              "value": 8
+                            }
+                          ]
+                        },
+                        {
+                          "type": "NodeVariableSlider",
+                          "nodeVariableIndex": 7,
+                          "displayTitle": "Slider",
+                          "displaySubTitle": "tab group slider",
+                          "badge": "Delay",
+                          "displayScale": 1,
+                          "displayUnits": "Milli Seconds",
+                          "max": 255,
+                          "min": 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableTabs",
+      "tabPanels": [
+        {
+          "displayTitle": "Bit Array",
+          "items": [
+            {
+              "type": "NodeVariableBitArray",
+              "nodeVariableIndex": 1,
+              "displayTitle": "Bit Array",
+              "displaySubTitle": "NV1",
+              "bitCollection": [
+                {
+                  "bitPosition": 0,
+                  "label": "${channel 1}"
+                },
+                {
+                  "bitPosition": 1,
+                  "label": "${channel 2}"
+                },
+                {
+                  "bitPosition": 2,
+                  "label": "${channel 3}"
+                },
+                {
+                  "bitPosition": 3,
+                  "label": "${channel 4}"
+                },
+                {
+                  "bitPosition": 4,
+                  "label": "${channel 5}"
+                },
+                {
+                  "bitPosition": 5,
+                  "label": "${channel 6}"
+                },
+                {
+                  "bitPosition": 6,
+                  "label": "${channel 7}"
+                },
+                {
+                  "bitPosition": 7,
+                  "label": "${channel 8}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Single Bit",
+          "items": [
+            {
+              "type": "NodeVariableBitSingle",
+              "nodeVariableIndex": 2,
+              "displayTitle": "Bit 0",
+              "displaySubTitle": "NV2",
+              "bit": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "Dual",
+          "items": [
+            {
+              "type": "NodeVariableDual",
+              "nodeVariableIndexHigh": 3,
+              "nodeVariableIndexLow": 4,
+              "displayTitle": "Dual",
+              "displaySubTitle": "NV3&4",
+              "max": 65025,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "Group test",
+          "items": [
+            {
+              "type": "NodeVariableGroup",
+              "displayTitle": "Group 1",
+              "groupItems": [
+                {
+                  "type": "NodeVariableBitArray",
+                  "nodeVariableIndex": 1,
+                  "displayTitle": "Bit Array",
+                  "displaySubTitle": "NV1",
+                  "bitCollection": [
+                    {
+                      "bitPosition": 0,
+                      "label": "${channel 1}"
+                    },
+                    {
+                      "bitPosition": 1,
+                      "label": "${channel 2}"
+                    },
+                    {
+                      "bitPosition": 2,
+                      "label": "${channel 3}"
+                    },
+                    {
+                      "bitPosition": 3,
+                      "label": "${channel 4}"
+                    },
+                    {
+                      "bitPosition": 4,
+                      "label": "${channel 5}"
+                    },
+                    {
+                      "bitPosition": 5,
+                      "label": "${channel 6}"
+                    },
+                    {
+                      "bitPosition": 6,
+                      "label": "${channel 7}"
+                    },
+                    {
+                      "bitPosition": 7,
+                      "label": "${channel 8}"
+                    }
+                  ]
+                },
+                {
+                  "type": "NodeVariableBitSingle",
+                  "nodeVariableIndex": 2,
+                  "displayTitle": "Bit 0",
+                  "displaySubTitle": "NV2",
+                  "bit": 0
+                }
+              ]
+            },
+            {
+              "type": "NodeVariableGroup",
+              "displayTitle": "Group 2",
+              "groupItems": [
+                {
+                  "type": "NodeVariableSelect",
+                  "nodeVariableIndex": 6,
+                  "displayTitle": "Select",
+                  "displaySubTitle": "NV6",
+                  "options": [
+                    {
+                      "label": "Options 1",
+                      "value": 0
+                    },
+                    {
+                      "label": "Options 2",
+                      "value": 1
+                    },
+                    {
+                      "label": "Options 3",
+                      "value": 2
+                    },
+                    {
+                      "label": "Options 4",
+                      "value": 8
+                    }
+                  ]
+                },
+                {
+                  "type": "NodeVariableSlider",
+                  "nodeVariableIndex": 7,
+                  "displayTitle": "Slider",
+                  "displaySubTitle": "tab group slider",
+                  "badge": "Delay",
+                  "displayScale": 1,
+                  "displayUnits": "Milli Seconds",
+                  "max": 255,
+                  "min": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Number",
+          "items": [
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 5,
+              "displayTitle": "Number",
+              "displaySubTitle": "NV5",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "Select",
+          "items": [
+            {
+              "type": "NodeVariableSelect",
+              "nodeVariableIndex": 6,
+              "displayTitle": "Select",
+              "displaySubTitle": "NV6",
+              "options": [
+                {
+                  "label": "Options 1",
+                  "value": 0
+                },
+                {
+                  "label": "Options 2",
+                  "value": 1
+                },
+                {
+                  "label": "Options 3",
+                  "value": 2
+                },
+                {
+                  "label": "Options 4",
+                  "value": 8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Slider",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0,
+              "outputOnWrite": true
+            }
+          ]
+        },
+        {
+          "displayTitle": "Tabs in Tab",
+          "items": [
+            {
+              "type": "NodeVariableTabs",
+              "tabPanels": [
+                {
+                  "displayTitle": "NodeVariableNumber",
+                  "items": [
+                    {
+                      "type": "NodeVariableNumber",
+                      "nodeVariableIndex": 5,
+                      "displayTitle": "Number",
+                      "displaySubTitle": "NV5",
+                      "max": 255,
+                      "min": 0
+                    }
+                  ]
+                },
+                {
+                  "displayTitle": "Slider",
+                  "items": [
+                    {
+                      "type": "NodeVariableSlider",
+                      "nodeVariableIndex": 7,
+                      "displayTitle": "Slider",
+                      "displaySubTitle": "tab slider",
+                      "badge": "Delay",
+                      "displayScale": 1,
+                      "displayUnits": "Milli Seconds",
+                      "max": 255,
+                      "min": 0,
+                      "outputOnWrite": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "NodeVariableTabs",
+      "tabPanels": [
+        {
+          "displayTitle": "fill the label space to test scroll 1",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0,
+              "outputOnWrite": true
+            }
+          ]
+        },
+        {
+          "displayTitle": "fill the label space to test scroll 2",
+          "items": [
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 5,
+              "displayTitle": "Number",
+              "displaySubTitle": "NV5",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "fill the label space to test scroll 3",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0,
+              "outputOnWrite": true
+            }
+          ]
+        },
+        {
+          "displayTitle": "fill the label space to test scroll 4",
+          "items": [
+            {
+              "type": "NodeVariableNumber",
+              "nodeVariableIndex": 5,
+              "displayTitle": "Number",
+              "displaySubTitle": "NV5",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "fill the label space to test scroll 5",
+          "items": [
+            {
+              "type": "NodeVariableSlider",
+              "nodeVariableIndex": 7,
+              "displayTitle": "Slider",
+              "displaySubTitle": "tab slider",
+              "badge": "Delay",
+              "displayScale": 1,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0,
+              "outputOnWrite": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "eventVariableInformation": "You can place any text here to help explain the context of the event variables...",
+  "eventVariables": [
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 4,
+      "displayTitle": "Flash A",
+      "displaySubTitle": "Palette entry",
+      "bitMask": 15,
+      "options": [
+        {
+          "value": 0,
+          "label": "Black"
+        },
+        {
+          "value": 1,
+          "label": "Dark grey"
+        },
+        {
+          "value": 2,
+          "label": "Dark red"
+        }
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 4,
+      "displayTitle": "Flash B",
+      "displaySubTitle": "Palette entry",
+      "bitMask": 240,
+      "options": [
+        {
+          "value": 0,
+          "label": "Black"
+        },
+        {
+          "value": 16,
+          "label": "Dark grey"
+        },
+        {
+          "value": 32,
+          "label": "Dark red"
+        }
+      ]
+    },
+    {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 1,
+      "displayTitle": "Event Bit Array",
+      "displaySubTitle": "linked 7,8,9",
+      "linkedVariables": {
+        "EV": [
+          7,
+          8,
+          9
+        ]
+      },
+      "bitCollection": [
+        {
+          "bitPosition": 0,
+          "label": "${channel 1}"
+        },
+        {
+          "bitPosition": 1,
+          "label": "${channel 2}"
+        },
+        {
+          "bitPosition": 2,
+          "label": "${channel 3}"
+        },
+        {
+          "bitPosition": 3,
+          "label": "${channel 4}"
+        },
+        {
+          "bitPosition": 4,
+          "label": "${channel 5}"
+        },
+        {
+          "bitPosition": 5,
+          "label": "${channel 6}"
+        },
+        {
+          "bitPosition": 6,
+          "label": "${channel 7}"
+        },
+        {
+          "bitPosition": 7,
+          "label": "${channel 8}"
+        }
+      ]
+    },
+    {
+      "type": "EventVariableBitSingle",
+      "eventVariableIndex": 2,
+      "displayTitle": "Event Bit Single",
+      "displaySubTitle": "EVI-2 linked 4,5,6",
+      "linkedVariables": {
+        "EV": [
+          4,
+          5,
+          6
+        ]
+      },
+      "bit": 0,
+      "visibilityLogic": {
+        "evBit": {
+          "index": 1,
+          "bit": 0
+        },
+        "equals": 0
+      }
+    },
+    {
+      "type": "EventVariableSelect",
+      "eventVariableIndex": 6,
+      "displayTitle": "EventVariable Select",
+      "displaySubTitle": "EVI-6 linked 20,21,22",
+      "linkedVariables": {
+        "EV": [
+          20,
+          21,
+          22
+        ]
+      },
+      "options": [
+        {
+          "label": "select 0",
+          "value": 0
+        },
+        {
+          "label": "select 1",
+          "value": 1
+        },
+        {
+          "label": "select 2",
+          "value": 2
+        },
+        {
+          "label": "select 3",
+          "value": 3
+        }
+      ],
+      "visibilityLogic": {
+        "ev": 3,
+        "equals": 6
+      }
+    },
+    {
+      "type": "EventVariableGroup",
+      "displayTitle": "EventVariableNumber Test",
+      "groupItems": [
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 3,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "Basic - setting value to 6 enables select"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 4,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "linked 10,11,12",
+          "linkedVariables": {
+            "EV": [
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 5,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "scaling + offset",
+          "displayScale": 10,
+          "displayOffset": 10,
+          "displayUnits": "Milli Seconds"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 6,
+          "displayTitle": "EventVariableNumber",
+          "displaySubTitle": "scaling",
+          "displayScale": 0.01,
+          "displayUnits": "Seconds"
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 7,
+          "displayTitle": "number - high 4 bits",
+          "displaySubTitle": "EVI-5",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 1,
+          "max": 15,
+          "min": 0
+        }
+      ]
+    },
+    {
+      "type": "EventVariableGroup",
+      "displayTitle": "EventVariableSlider Test",
+      "groupItems": [
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "linked 11,12,13",
+          "linkedVariables": {
+            "EV": [
+              11,
+              12,
+              13
+            ]
+          },
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.1,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 8,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.01,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 10,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Scaled",
+          "displayScale": 0.001,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 17,
+          "displayTitle": "Event Slider - hiNibble",
+          "displaySubTitle": "bits test",
+          "displayScale": 10,
+          "displayUnits": "Milli Seconds",
+          "startBit": 4,
+          "endBit": 7,
+          "displayOffset": 10,
+          "max": 11,
+          "min": 0
+        }
+      ]
+    },
+    {
+      "type": "EventVariableGroup",
+      "displayTitle": "Event Group Test",
+      "displaySubTitle": "Group: Warning Will Robinson........",
+      "groupItems": [
+        {
+          "type": "EventVariableBitArray",
+          "eventVariableIndex": 1,
+          "displayTitle": "Event Bit Array",
+          "displaySubTitle": "EVI-1",
+          "bitCollection": [
+            {
+              "bitPosition": 0,
+              "label": "${channel 1}"
+            },
+            {
+              "bitPosition": 1,
+              "label": "${channel 2}"
+            },
+            {
+              "bitPosition": 2,
+              "label": "${channel 3}"
+            },
+            {
+              "bitPosition": 3,
+              "label": "${channel 4}"
+            },
+            {
+              "bitPosition": 4,
+              "label": "${channel 5}"
+            },
+            {
+              "bitPosition": 5,
+              "label": "${channel 6}"
+            },
+            {
+              "bitPosition": 6,
+              "label": "${channel 7}"
+            },
+            {
+              "bitPosition": 7,
+              "label": "${channel 8}"
+            }
+          ]
+        },
+        {
+          "type": "EventVariableBitSingle",
+          "eventVariableIndex": 2,
+          "displayTitle": "Event Bit Single",
+          "displaySubTitle": "EVI-2",
+          "bit": 0
+        },
+        {
+          "type": "EventVariableNumber",
+          "eventVariableIndex": 5,
+          "displayTitle": "Output 1",
+          "displaySubTitle": "EVI-5",
+          "displayOffset": 1,
+          "max": 15,
+          "min": 0
+        },
+        {
+          "type": "EventVariableSelect",
+          "eventVariableIndex": 6,
+          "displayTitle": "EventVariable Select",
+          "displaySubTitle": "EVI-6",
+          "options": [
+            {
+              "label": "select 0",
+              "value": 0
+            },
+            {
+              "label": "select 1",
+              "value": 1
+            },
+            {
+              "label": "select 2",
+              "value": 2
+            },
+            {
+              "label": "select 3",
+              "value": 3
+            }
+          ]
+        },
+        {
+          "type": "EventVariableSlider",
+          "eventVariableIndex": 7,
+          "displayTitle": "Event Slider",
+          "displaySubTitle": "Group slider - NV7",
+          "displayScale": 1,
+          "displayUnits": "Milli Seconds",
+          "max": 255,
+          "min": 0
+        },
+        {
+          "type": "EventVariableGroup",
+          "displayTitle": "Group in Group Test",
+          "groupItems": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 1,
+              "displayTitle": "Event Bit Array",
+              "displaySubTitle": "EVI-1",
+              "bitCollection": [
+                {
+                  "bitPosition": 0,
+                  "label": "${channel 1}"
+                },
+                {
+                  "bitPosition": 1,
+                  "label": "${channel 2}"
+                },
+                {
+                  "bitPosition": 2,
+                  "label": "${channel 3}"
+                },
+                {
+                  "bitPosition": 3,
+                  "label": "${channel 4}"
+                },
+                {
+                  "bitPosition": 4,
+                  "label": "${channel 5}"
+                },
+                {
+                  "bitPosition": 5,
+                  "label": "${channel 6}"
+                },
+                {
+                  "bitPosition": 6,
+                  "label": "${channel 7}"
+                },
+                {
+                  "bitPosition": 7,
+                  "label": "${channel 8}"
+                }
+              ]
+            },
+            {
+              "type": "EventVariableGroup",
+              "displayTitle": "Group in Group in Group Test",
+              "groupItems": [
+                {
+                  "type": "EventVariableBitArray",
+                  "eventVariableIndex": 1,
+                  "displayTitle": "Event Bit Array",
+                  "displaySubTitle": "EVI-1",
+                  "bitCollection": [
+                    {
+                      "bitPosition": 0,
+                      "label": "${channel 1}"
+                    },
+                    {
+                      "bitPosition": 1,
+                      "label": "${channel 2}"
+                    },
+                    {
+                      "bitPosition": 2,
+                      "label": "${channel 3}"
+                    },
+                    {
+                      "bitPosition": 3,
+                      "label": "${channel 4}"
+                    },
+                    {
+                      "bitPosition": 4,
+                      "label": "${channel 5}"
+                    },
+                    {
+                      "bitPosition": 5,
+                      "label": "${channel 6}"
+                    },
+                    {
+                      "bitPosition": 6,
+                      "label": "${channel 7}"
+                    },
+                    {
+                      "bitPosition": 7,
+                      "label": "${channel 8}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "EventVariableTabs",
+          "tabPanels": [
+            {
+              "displayTitle": "Bit",
+              "displaySubTitle": "Tab: Warning Will Robinson........",
+              "items": [
+                {
+                  "type": "EventVariableBitSingle",
+                  "eventVariableIndex": 2,
+                  "displayTitle": "Event Bit Single",
+                  "displaySubTitle": "EVI-2",
+                  "bit": 0
+                }
+              ]
+            },
+            {
+              "displayTitle": "Slider",
+              "items": [
+                {
+                  "type": "EventVariableSlider",
+                  "eventVariableIndex": 7,
+                  "displayTitle": "Event Slider",
+                  "displaySubTitle": "Group Tab slider - NV7",
+                  "displayScale": 10,
+                  "displayUnits": "Milli Seconds",
+                  "max": 255,
+                  "min": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EventVariableTabs",
+      "tabPanels": [
+        {
+          "displayTitle": "Bit array with long label to consume space",
+          "items": [
+            {
+              "type": "EventVariableBitArray",
+              "eventVariableIndex": 1,
+              "displayTitle": "Event Bit Array",
+              "displaySubTitle": "EVI-1",
+              "bitCollection": [
+                {
+                  "bitPosition": 0,
+                  "label": "${channel 1}"
+                },
+                {
+                  "bitPosition": 1,
+                  "label": "${channel 2}"
+                },
+                {
+                  "bitPosition": 2,
+                  "label": "${channel 3}"
+                },
+                {
+                  "bitPosition": 3,
+                  "label": "${channel 4}"
+                },
+                {
+                  "bitPosition": 4,
+                  "label": "${channel 5}"
+                },
+                {
+                  "bitPosition": 5,
+                  "label": "${channel 6}"
+                },
+                {
+                  "bitPosition": 6,
+                  "label": "${channel 7}"
+                },
+                {
+                  "bitPosition": 7,
+                  "label": "${channel 8}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Single Bit",
+          "items": [
+            {
+              "type": "EventVariableBitSingle",
+              "eventVariableIndex": 2,
+              "displayTitle": "Event Bit Single",
+              "displaySubTitle": "EVI-2",
+              "bit": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "NodeVariableGroup",
+          "items": [
+            {
+              "type": "EventVariableGroup",
+              "displayTitle": "Event Group Test",
+              "groupItems": [
+                {
+                  "type": "EventVariableNumber",
+                  "eventVariableIndex": 5,
+                  "displayTitle": "Output 1",
+                  "displaySubTitle": "EVI-5"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Number",
+          "items": [
+            {
+              "type": "EventVariableNumber",
+              "eventVariableIndex": 5,
+              "displayTitle": "Output 1",
+              "displaySubTitle": "EVI-5",
+              "displayOffset": 2,
+              "max": 20,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "Select",
+          "items": [
+            {
+              "type": "EventVariableSelect",
+              "eventVariableIndex": 6,
+              "displayTitle": "EventVariable Select",
+              "displaySubTitle": "EVI-6",
+              "options": [
+                {
+                  "label": "select 0",
+                  "value": 0
+                },
+                {
+                  "label": "select 1",
+                  "value": 1
+                },
+                {
+                  "label": "select 2",
+                  "value": 2
+                },
+                {
+                  "label": "select 3",
+                  "value": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "Slider",
+          "items": [
+            {
+              "type": "EventVariableSlider",
+              "eventVariableIndex": 7,
+              "displayTitle": "Event Slider",
+              "displaySubTitle": "Tab slider - NV7",
+              "displayScale": 10,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "displayTitle": "tabs in tab",
+          "items": [
+            {
+              "type": "EventVariableTabs",
+              "tabPanels": [
+                {
+                  "displayTitle": "Bit array",
+                  "items": [
+                    {
+                      "type": "EventVariableBitArray",
+                      "eventVariableIndex": 1,
+                      "displayTitle": "Event Bit Array",
+                      "displaySubTitle": "EVI-1",
+                      "bitCollection": [
+                        {
+                          "bitPosition": 0,
+                          "label": "${channel 1}"
+                        },
+                        {
+                          "bitPosition": 1,
+                          "label": "${channel 2}"
+                        },
+                        {
+                          "bitPosition": 2,
+                          "label": "${channel 3}"
+                        },
+                        {
+                          "bitPosition": 3,
+                          "label": "${channel 4}"
+                        },
+                        {
+                          "bitPosition": 4,
+                          "label": "${channel 5}"
+                        },
+                        {
+                          "bitPosition": 5,
+                          "label": "${channel 6}"
+                        },
+                        {
+                          "bitPosition": 6,
+                          "label": "${channel 7}"
+                        },
+                        {
+                          "bitPosition": 7,
+                          "label": "${channel 8}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "displayTitle": "Slider",
+                  "items": [
+                    {
+                      "type": "EventVariableSlider",
+                      "eventVariableIndex": 7,
+                      "displayTitle": "Event Slider",
+                      "displaySubTitle": "Tab slider - NV7",
+                      "displayScale": 10,
+                      "displayUnits": "Milli Seconds",
+                      "max": 255,
+                      "min": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayTitle": "very long label to fill up all the space & trigger scrolling",
+          "items": [
+            {
+              "type": "EventVariableSlider",
+              "eventVariableIndex": 7,
+              "displayTitle": "Event Slider",
+              "displaySubTitle": "Tab slider - NV7",
+              "displayScale": 10,
+              "displayUnits": "Milli Seconds",
+              "max": 255,
+              "min": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "moduleDescriptorFilename": "SLOTTEST-0002-1a.json",
+  "moduleDescriptorLocation": "USER"
+}

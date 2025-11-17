@@ -1,5 +1,16 @@
 MMC Version 0.16.0
   Added getModuleInfo
+  changed mergConfig to added flags to CANACE3 & CANACE3C to use indexed events view & switch teaching
+  Updated client
+    added getListOfTokens & extractMDFTokens
+    names menu in NodesVariablesDialog behind develop flag
+    updated readme tests.md
+    Now uses values for "useEventIndex", "useNENRD", "numberOfEvents" & "useSwitchTeach1"
+    from mergConfig as well as MDF
+    Updated backup & restore to support CANACE3(C) that uses indexed events
+    Fixed issue with not setting group in add new node
+    added useSlots property
+
 
 MMC Version 0.15.1
 Updated client
