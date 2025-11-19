@@ -10,6 +10,7 @@ MMC Version 0.16.0
     Updated backup & restore to support CANACE3(C) that uses indexed events
     Fixed issue with not setting group in add new node
     added useSlots property
+    Amended jsonLogic EV operators to support indexed events
 
 
 MMC Version 0.15.1
