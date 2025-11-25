@@ -268,9 +268,10 @@
     },
     "A557": {
       "name": "CANARGB"
+    },
+    "A558": {
+      "name": "CANCDU_U"
     }
-
-    
 
   },
   "cbusErrors": {
