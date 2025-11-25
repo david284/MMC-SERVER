@@ -1,3 +1,6 @@
+MMC Version 0.17.0
+  Added CANCDU_U to mergConfig
+
 MMC Version 0.16.0
   Added getModuleInfo
   changed mergConfig to added flags to CANACE3 & CANACE3C to use indexed events view & switch teaching
