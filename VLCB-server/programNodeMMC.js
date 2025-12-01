@@ -194,7 +194,7 @@ class programNode extends EventEmitter  {
   // 0x833 - param 20 - beta number
   //
   getFirmwareInformation(INTEL_HEX_STRING){
-    let data = {"valid":"false"}
+    let data = {"valid":false}
     winston.debug({message: name + `: getFirmwareInformation: data ${JSON.stringify(data)}`});
     try{
       if (this.parseHexFile(INTEL_HEX_STRING)){
@@ -219,11 +219,19 @@ class programNode extends EventEmitter  {
           data["betaNumber"] = this.BOOTLOADER_DATA_BLOCKS[0x830][3]
         }
         data.valid = true
-      }
+      }    
     } catch (err){
-      
+      winston.error({message: name + `: getFirmwareInformation: ${err}`});    
     }
     winston.debug({message: name + `: getFirmwareInformation: return ${JSON.stringify(data)}`});
+    if (data.valid != true){
+      let data = {
+        message: "Firmware hex file read failed",
+        type: "warning",
+        timeout: 0
+      }
+      this.config.eventBus.emit ('SERVER_NOTIFICATION', data) 
+    }
     return data
   }
 

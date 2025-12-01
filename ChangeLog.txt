@@ -1,5 +1,13 @@
 MMC Version 0.17.0
   Added CANCDU_U to mergConfig
+  Added SERVER_NOTIFICATION to programNodeMMC
+  updated client
+    Added node_useSwitchTeach2
+    Amended EventTeachDialog to support indexed events
+    Added support for event variables for indexed events
+    nodeEventsDialog now uses EventsListByNode
+    Modified firmware version display to support VLCB patch number, not beta
+
 
 MMC Version 0.16.0
   Added getModuleInfo
