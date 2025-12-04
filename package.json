@@ -6,6 +6,7 @@
   "private": true,
   "main": "./main.js",
   "scripts": {
+    "build": "npm install",
     "start": "node ./main.js",
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000 --exit"
   },
