@@ -8,5 +8,3 @@ unit_tests/logs
 unit_tests/test_output
 ./unit_tests/test_output/
 VLCB-server/config/nodeDescriptors.json
-package-lock.json
-
