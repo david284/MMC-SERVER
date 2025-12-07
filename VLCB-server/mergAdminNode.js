@@ -721,30 +721,33 @@ class cbusAdmin extends EventEmitter {
   // It captures the event Index, as we may need that later
   //
   updateEventInNodeConfig(nodeNumber, eventIdentifier, eventIndex){
-    if (this.nodeConfig.nodes[nodeNumber] == undefined) {
-      this.createNodeConfig(nodeNumber, false)
-    }
-    // add if doesn't exist - empty variables
-    if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
-      this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
-        "nodeNumber": nodeNumber,
-        "eventIdentifier": eventIdentifier,
-        "variables": {}
+    try{
+      if (this.nodeConfig.nodes[nodeNumber] == undefined) {
+        this.createNodeConfig(nodeNumber, false)
       }
-    }
-    // this may change even if it already exists
-    this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
-    // add if doesn't exist - empty variables
-    if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].eventsByIndex)) {
-      this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex] = {
-        "nodeNumber": nodeNumber,
-        "eventIndex": eventIndex,
-        "variables": {}
+      // add if doesn't exist - empty variables
+      if (!(eventIdentifier in this.nodeConfig.nodes[nodeNumber].storedEventsNI)) {
+        this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier] = {
+          "eventIdentifier": eventIdentifier,
+          "variables": {}
+        }
       }
+      // this may change even if it already exists
+      this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier].eventIndex = eventIndex
+      //
+      // check eventsByIndex and add if doesn't exist - empty variables
+      if (!(eventIndex in this.nodeConfig.nodes[nodeNumber].eventsByIndex)) {
+        this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex] = {
+          "eventIndex": eventIndex,
+          "variables": {}
+        }
+      }
+      // this may change even if index already exists, so always set this
+      this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex].eventIdentifier = eventIdentifier
+      this.updateNodeConfig(nodeNumber)
+    } catch (err){
+      winston.error({message: name + `: updateEventInNodeConfig: node ${nodeNumber}: ${err}` })
     }
-    // this may change even if it already exists
-    this.nodeConfig.nodes[nodeNumber].eventsByIndex[eventIndex].eventIdentifier = eventIdentifier
-    this.updateNodeConfig(nodeNumber)
   }
 
 

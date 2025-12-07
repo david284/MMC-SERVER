@@ -358,7 +358,7 @@ class configuration {
           // read list of node folders
           winston.debug({message: className + `: getListOfBackupsForAllNodes: backupFolder: ${backupFolder}`});
           var nodeFolders = fs.readdirSync(backupFolder)
-          winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeFolders: ${JSON.stringify(nodeFolders)}`});
+          winston.debug({message: className + `: getListOfBackupsForAllNodes: nodeFolders: ${JSON.stringify(nodeFolders, null, " ")}`});
 
           nodeFolders.forEach(node => {
             try{
@@ -377,7 +377,7 @@ class configuration {
               winston.error({message: className + `: getListOfBackupsForAllNodes: ${err}`});            
             }
           })
-          winston.debug({message: className + `: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(list)}`});
+          winston.debug({message: className + `: eventBus LIST_OF_BACKUPS_FOR_ALL_NODES: ${JSON.stringify(list, null, " ")}`});
           this.eventBus.emit ('LIST_OF_BACKUPS_FOR_ALL_NODES', list) 
           return list
         }
