@@ -271,8 +271,19 @@
     },
     "A558": {
       "name": "CANCDU_U"
+    },
+    "A5FC":{
+      "name": "CANDEV"                  
+    },
+    "A5FD":{
+      "name": "CANUSB"                  
+    },
+    "A5FE":{
+      "name": "EMPTY"            
+    },
+    "A5FF":{
+      "name": "CAN_SW"      
     }
-
   },
   "cbusErrors": {
     "1": "Command Not Supported",
