@@ -2,6 +2,7 @@ MMC Version 0.17.0
   Added CANCDU_U to mergConfig
   Added SERVER_NOTIFICATION to programNodeMMC
   removed nodeNumber from eventsByIndex & storedEventsNI
+  removed long events from nodeNumberIsSource
   updated client
     Added node_useSwitchTeach2
     Amended EventTeachDialog to support indexed events
