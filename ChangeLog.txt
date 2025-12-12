@@ -16,8 +16,6 @@ MMC Version 0.17.0
     activateSlot now shows variables
 
 
-
-
 MMC Version 0.16.0
   Added getModuleInfo
   changed mergConfig to added flags to CANACE3 & CANACE3C to use indexed events view & switch teaching
