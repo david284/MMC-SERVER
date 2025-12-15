@@ -1,5 +1,9 @@
 {
   "modules": {
+    "000A": {
+      "name": "VLCBTEST",
+      "useSwitchTeach2": true
+    },
     "A501": {
       "name": "CANACC4"
     },
@@ -89,7 +93,8 @@
       "name": "CANCOND8C"
     },
     "A51D": {
-      "name": "CANPAN"
+      "name": "CANPAN",
+      "useSwitchTeach2": true
     },
     "A51E": {
       "name": "CANACE3C",
