@@ -1,5 +1,5 @@
 {
-  "timestamp": "202508162305",
+  "timestamp": "202512191122",
   "moduleName":"CANLED64",
   "numberOfChannels": 64,
   "channelNames": {
@@ -78,7 +78,7 @@
         {"label": "Normal", "value": 255},
         {"label": "On only", "value": 254},
         {"label": "Off Only", "value": 253},
-        {"label": "Flash", "value": 252}
+        {"label": "Flash", "value": 248}
       ]
     },
     {

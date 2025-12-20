@@ -1,5 +1,6 @@
 MMC Version 0.17.0
   Added CANCDU_U to mergConfig
+  Updated CANLED64-A507-2g & MMCTEST-0001-1a MDF's
   Added SERVER_NOTIFICATION to programNodeMMC
   removed nodeNumber from eventsByIndex & storedEventsNI
   removed long events from nodeNumberIsSource
