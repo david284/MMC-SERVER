@@ -1,3 +1,12 @@
+MMC Version 0.17.1
+  Updated CANLED64-A507-2g & MMCTEST-0001-1a MDF's
+  Added  "useSwitchTeach2": true to CANPAN & VLCBTEST to mergConfig.json
+  Updated Client
+    Added eventIdentityShowVariables to EventsListByNode
+    replaced requestAllEventsByIndex with requestAllEventsByNENRD
+    Commented out 'saved indexes' from EventsListByNode
+
+
 MMC Version 0.17.0
   Added CANCDU_U to mergConfig
   Updated CANLED64-A507-2g & MMCTEST-0001-1a MDF's
