@@ -573,5 +573,34 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+  itParam("customCacheDirectory test",
+          [null, path.join(path.dirname(testUserConfigPath), "cache")],
+          function (done, customCacheDirectory) {
+    var testName = "customCacheDirectory"
+    winston.info({message: 'unit_test: BEGIN' + testName})
+    winston.info({message: 'cache directory: ' + customCacheDirectory})
+    if(customCacheDirectory) {
+      config.cacheDirectory = customCacheDirectory
+      fs.rmSync(config.cacheDirectory, { recursive: true, force: true });
+      fs.mkdirSync(config.cacheDirectory, { recursive: true })
+    }
+
+    let nodeId = "302"
+    let nodeNumber = 997
+    let data = { "nodes": { [nodeId]: { "nodeNumber": nodeNumber } } }
+    config.writeNodeConfig(data)
+    result = config.readNodeConfig()
+    setTimeout(function(){
+      winston.info({message: 'unit_test: RESULT: ' + testName + ' file content: ' + JSON.stringify(result)})
+      if(customCacheDirectory) {
+        expect(path.dirname(config.getNodeConfigFile())).to.equal(customCacheDirectory)
+        expect(path.dirname(config.getNodeDescriptorsFile())).to.equal(customCacheDirectory)
+      }
+      expect(result.nodes[nodeId].nodeNumber).to.equal(nodeNumber);
+      winston.info({message: 'unit_test: END ' + testName})
+      done();
+    }, 50);
+  })
+
 
 })
