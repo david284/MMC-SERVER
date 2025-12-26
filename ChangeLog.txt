@@ -1,6 +1,7 @@
 MMC Version 0.17.1
   Updated CANLED64-A507-2g & MMCTEST-0001-1a MDF's
   Added  "useSwitchTeach2": true to CANPAN & VLCBTEST to mergConfig.json
+  Added CANDISP-A53B-4D.json
   Updated Client
     Added eventIdentityShowVariables to EventsListByNode
     replaced requestAllEventsByIndex with requestAllEventsByNENRD
