@@ -510,7 +510,7 @@ describe('socketServer tests', async function(){
       winston.debug({message: name + `: FIRMWARE_INFO: data: ${JSON.stringify(data)}`});
       result = true
     })
-    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    let filename = './unit_tests/test_firmware/CANACC5_v2v.hex'
     winston.info({message: 'UNIT_TEST: REQUEST_FIRMWARE_INFO test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     //    
@@ -565,7 +565,7 @@ describe('socketServer tests', async function(){
       text = atob(data.logFile)
       result = true
     })
-    let targetData = {fileName:"BusTraffic.txt"}
+    let targetData = {fileName:"bustraffic.txt"}
     socket.emit('REQUEST_LOG_FILE', targetData)
     //
     setTimeout(function(){
