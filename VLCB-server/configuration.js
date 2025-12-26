@@ -91,6 +91,13 @@ class configuration {
       else if (this.appSettings.userDataMode == 'USER' ){ this.currentUserDirectory = this.singleUserDirectory }
       else { this.currentUserDirectory = this.appStorageDirectory }    
       winston.info({message: className + `: currentUserDirectory: ` + this.currentUserDirectory});
+
+      // Override cache directory if specified...
+      this.cacheDirectory = this.appSettings.customCacheDirectory ? this.appSettings.customCacheDirectory : this.systemDirectory
+      if (!fs.existsSync(this.cacheDirectory)) {
+        fs.mkdirSync(this.cacheDirectory)
+      }
+
       // and default layout exists (creates directory if not there also)
       this.createLayoutFile(this.currentUserDirectory, defaultLayoutData.layoutDetails.title)
     } catch (err){
@@ -98,6 +105,13 @@ class configuration {
     }
   }
 
+  getNodeConfigFile(){
+    return path.join(this.cacheDirectory, "nodeConfig.json");
+  }
+
+  getNodeDescriptorsFile(){
+    return path.join(this.cacheDirectory, "nodeDescriptors.json");
+  }
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
@@ -603,7 +617,7 @@ class configuration {
     return file
   }
 
-  
+
   writeLayoutData(data){
     try{
       if(this.currentUserDirectory){
@@ -628,13 +642,22 @@ class configuration {
   // reads/writes nodeConfig file to/from system directory
   //
   readNodeConfig(){
-    var filePath = this.systemDirectory + "/nodeConfig.json"
-    return jsonfile.readFileSync(filePath)
+    winston.debug({message: className + `: readNodeConfig:`});
+    try {
+      return jsonfile.readFileSync(this.getNodeConfigFile())
+    } catch(err) {
+      winston.warn({message: className + `: readNodeConfig:` + err });
+      return {};
+    }
   }
+
   writeNodeConfig(data){
     winston.debug({message: className + `: writeNodeConfig:`});
-    var filePath = this.systemDirectory + "/nodeConfig.json"
-    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    try {
+      jsonfile.writeFileSync(this.getNodeConfigFile(), data, {spaces: 2, EOL: '\r\n'});
+    } catch(err) {
+      winston.warn({message: className + `: writeNodeConfig:` + err });
+    }
   }
 
 
@@ -648,13 +671,22 @@ class configuration {
   // reads/writes the module descriptors currently in use for nodes to/from system directory
   //
   readNodeDescriptors(){
-    var filePath = this.systemDirectory + "/nodeDescriptors.json"
-    return jsonfile.readFileSync(filePath)
+    winston.debug({message: className + `: readNodeDescriptors:`});
+    try {
+      return jsonfile.readFileSync(this.getNodeDescriptorsFile())
+    } catch(err) {
+      winston.warn({message: className + `: readNodeDescriptors:` + err });
+      return {};
+    }
   }
 
   writeNodeDescriptors(data){
-    var filePath = this.systemDirectory + "/nodeDescriptors.json"
-    jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    winston.debug({message: className + `: writeNodeDescriptors:`});
+    try {
+      jsonfile.writeFileSync(this.getNodeDescriptorsFile(), data, {spaces: 2, EOL: '\r\n'})
+    } catch(err) {
+      winston.warn({message: className + `: writeNodeDescriptors:` + err });
+    }
   }
 
 
@@ -1026,7 +1058,8 @@ class configuration {
           winston.debug({message: className + `: creating new appSettings.json`});
           const appSettings = {
             "userDataMode": "APP",
-            "customUserDirectory": null
+            "customUserDirectory": null,
+            "customCacheDirectory": null
           }
           this.appSettings = appSettings
           jsonfile.writeFileSync(fullPath, appSettings, {spaces: 2, EOL: '\r\n'})
