@@ -81,7 +81,7 @@ describe('programNode tests', async function(){
   //
   it('getFirmwareInformation short test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: getFirmwareInformation short test:'});
-    let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
+    let filename = './unit_tests/test_firmware/CANACC5_v2v.hex'
     // expected result {"valid":true,"manufacturerID":165,"moduleID":2,"moduleIdentifier":"A502","versionNumber":"2V","targetCpuType":1,"betaNumber":0}
     winston.info({message: 'UNIT_TEST: getFirmwareInformation short test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
@@ -103,7 +103,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile short test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile short test:'});
-    let filename = './unit_tests/test_firmware/shortFile.HEX'
+    let filename = './unit_tests/test_firmware/shortFile.hex'
     winston.info({message: 'UNIT_TEST: ParseHexFile short test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     programNode.setCpuType(23)
@@ -118,7 +118,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile shortNoEOL test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile shortNoEOL test:'});
-    let filename = './unit_tests/test_firmware/shortFileNoEOL.HEX'
+    let filename = './unit_tests/test_firmware/shortFileNoEOL.hex'
     winston.info({message: 'UNIT_TEST: ParseHexFile shortNoEOL test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     programNode.setCpuType(23)
@@ -132,7 +132,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile configOnly test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile configOnly test:'});
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.hex');
     var callbackInvoked = false
     programNode.setCpuType(23)
     var result = programNode.parseHexFile( intelHexString );
@@ -145,7 +145,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile eepromOnly test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile eepromOnly test:'});
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.hex');
     var callbackInvoked = false
     programNode.setCpuType(23)
     var result = programNode.parseHexFile( intelHexString );
@@ -159,9 +159,9 @@ describe('programNode tests', async function(){
   it('ParseHexFile full test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile full test:'});
     //let filename = './unit_tests/test_firmware/CANPAN3.4c-108.hex'
-    //let filename = './unit_tests/test_firmware/CANACC5_v2v.HEX'
-    //let filename = './unit_tests/test_firmware/Universal-VLCB4a15-18F27Q83-16MHz.HEX'
-    let filename = './unit_tests/test_firmware/updated SOD Rules.HEX'
+    //let filename = './unit_tests/test_firmware/CANACC5_v2v.hex'
+    //let filename = './unit_tests/test_firmware/Universal-VLCB4a15-18F27Q83-16MHz.hex'
+    let filename = './unit_tests/test_firmware/updated SOD Rules.hex'
     var intelHexString = fs.readFileSync(filename);
     winston.info({message: 'UNIT_TEST: ParseHexFile full test: Filename: ' + filename});
     //programNode.nodeCpuType = 13    // P18F25K80
@@ -193,7 +193,7 @@ describe('programNode tests', async function(){
   //
   it('ParseHexFile corrupt test', function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: ParseHexFile corrupt test:'});
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.hex');
     programNode.setCpuType(23)
     var result = programNode.parseHexFile( intelHexString );
     expect(result).to.equal(false);
@@ -273,8 +273,8 @@ describe('programNode tests', async function(){
     	downloadData = data;
 	    winston.warn({message: 'UNIT_TEST: short download: ' + JSON.stringify(downloadData)});
 		});	        
-    let filename = './unit_tests/test_firmware/updated SOD Rules.HEX'
-    //let filename = './unit_tests/test_firmware/shortFile.HEX'
+    let filename = './unit_tests/test_firmware/updated SOD Rules.hex'
+    //let filename = './unit_tests/test_firmware/shortFile.hex'
     var intelHexString = fs.readFileSync(filename);
     const cpuType =1
     const flags = 7
@@ -316,7 +316,7 @@ describe('programNode tests', async function(){
       downloadData = data;
       winston.warn({message: 'UNIT_TEST: program configOnly: ' + JSON.stringify(downloadData)});
     });	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/configOnly.hex');
     await programNode.program(3000, 1, 5, intelHexString);
     //
     //
@@ -354,7 +354,7 @@ describe('programNode tests', async function(){
       downloadData = data;
       winston.warn({message: 'UNIT_TEST: eepromOnly download: ' + JSON.stringify(downloadData)});
     });	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/eepromOnly.hex');
     await programNode.program(3000, 1, 6, intelHexString);
     //
     //
@@ -400,7 +400,7 @@ describe('programNode tests', async function(){
       corruptFileData = data;
 		  winston.warn({message: 'UNIT_TEST: corrupt download: ' + JSON.stringify(corruptFileData)});
 		});	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/corruptFile.hex');
 		await programNode.program(300, 1, 3, intelHexString);
     //
     expect (mock_messageRouter.messagesIn.length).to.equal(0, "check sent messages")
@@ -417,9 +417,9 @@ describe('programNode tests', async function(){
   function GetTestCase_CPU_TYPE() {
     var arg1, arg2, arg3, testCases = [];
     for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 1, arg2 = 'Success', arg3 = "./unit_tests/test_firmware/shortFile.HEX"}
-      if (a == 2) {arg1 = 23, arg2 = 'Success', arg3 = "./unit_tests/test_firmware/shortFile_type23.HEX"}
-      if (a == 3) {arg1 = 23, arg2 = 'Failure', arg3 = "./unit_tests/test_firmware/shortFile.HEX"}
+      if (a == 1) {arg1 = 1, arg2 = 'Success', arg3 = "./unit_tests/test_firmware/shortFile.hex"}
+      if (a == 2) {arg1 = 23, arg2 = 'Success', arg3 = "./unit_tests/test_firmware/shortFile_type23.hex"}
+      if (a == 3) {arg1 = 23, arg2 = 'Failure', arg3 = "./unit_tests/test_firmware/shortFile.hex"}
       testCases.push({'cpuType':arg1, 'result':arg2, 'hexFile':arg3});
     }
     return testCases;
@@ -460,7 +460,7 @@ describe('programNode tests', async function(){
 			downloadDataArray.push(data);
 			winston.warn({message: 'UNIT_TEST: ignore CPUTYPE: ' + JSON.stringify(data)});
     });	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.hex');
 		await programNode.program(300, 99, 4, intelHexString);
     //
     expect(downloadDataArray[1].text).to.equal('CPUTYPE ignored', 'Download event');
@@ -491,9 +491,9 @@ describe('programNode tests', async function(){
 			downloadData = data;
 			winston.warn({message: 'UNIT_TEST: programBootMode: ' + JSON.stringify(downloadData)});
     });	        
-    let filename = './unit_tests/test_firmware/updated SOD Rules.HEX'
+    let filename = './unit_tests/test_firmware/updated SOD Rules.hex'
     var intelHexString = fs.readFileSync(filename);
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.HEX');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.hex');
 		await programNode.program(1, 13, 11, intelHexString);
     //
     // verify process is signalled as complete & checksum correct
@@ -527,12 +527,12 @@ describe('programNode tests', async function(){
       downloadData = data;
       winston.warn({message: 'UNIT_TEST: full download: ' + JSON.stringify(downloadData)});
     });	        
-    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.HEX');
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACE8C_v2q.HEX');
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.HEX');
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.HEX');
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.HEX');
-    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4b1-18F27Q83-16MHz.HEX');     
+    var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACC5_v2v.hex');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANACE8C_v2q.hex');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/CANMIO3d-18F26k80-16MHz.hex');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F26K80-16MHz.hex');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4a4-18F27Q83-16MHz.hex');
+    //var intelHexString = fs.readFileSync('./unit_tests/test_firmware/Universal-VLCB4b1-18F27Q83-16MHz.hex');     
     await programNode.program(300, 1, 4, intelHexString);
     var FIRMWARE = programNode.FIRMWARE
     //
