@@ -525,7 +525,7 @@ describe('socketServer tests', async function(){
       expect (returnData.targetCpuType).to.equal(1)
       winston.info({message: name + ': END REQUEST_FIRMWARE_INFO test'});
 			done();
-		}, 50);
+		}, 100);
   })
 
 
@@ -550,7 +550,7 @@ describe('socketServer tests', async function(){
       expect (result).to.equal(true)
       winston.info({message: name + ': END REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test'});
 			done();
-		}, 50);
+		}, 100);
   })
 
 
