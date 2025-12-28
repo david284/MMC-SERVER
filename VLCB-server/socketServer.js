@@ -4,7 +4,7 @@ const jsonfile = require('jsonfile');
 var path = require('path');
 const { isUndefined } = require('util');
 const utils = require('./utilities');
-const packageInfo = require(process.cwd()+'/package.json')
+const packageInfo = require('../package.json')
 
 const server = require('http').createServer()
 
