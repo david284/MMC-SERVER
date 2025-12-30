@@ -6,6 +6,8 @@ MMC Version 0.17.1
     Added eventIdentityShowVariables to EventsListByNode
     replaced requestAllEventsByIndex with requestAllEventsByNENRD
     Commented out 'saved indexes' from EventsListByNode
+    Updated AddEventDialog
+    Added AddEventInfoDialog
 
 
 MMC Version 0.17.0
