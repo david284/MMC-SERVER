@@ -49,7 +49,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.MMC_SERVER_HTTP_PORT || '3000');
 app.set('port', port);
 
 /**
@@ -123,19 +123,20 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
+  winston.info({message: `${name}: Listening on ${bind}`})
   debug('Listening on ' + bind);
 }
 
 try {
   // open a window with the port used by express
-  var win = nw.Window.open("http://localhost:" + 3000, {}, function(win) {
+  var win = nw.Window.open("http://localhost:" + port, {}, function(win) {
     win.on('loaded', function() {
       win.maximize()
     });
   });
 } catch (e){
   // if it fails, probably not using nw, so use openurl
-  require("openurl").open("http://localhost:" + 3000, (e) => {
+  require("openurl").open("http://localhost:" + port, (e) => {
     if (e != undefined) {
       winston.error({message: `${name}: Error when using openurl: ${e}`})
     }
