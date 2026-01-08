@@ -1,3 +1,6 @@
+MMC Version
+  Updated 6 MDF's based on CANINP generator
+
 MMC Version 0.17.1
   Updated CANLED64-A507-2g & MMCTEST-0001-1a MDF's
   Added  "useSwitchTeach2": true to CANPAN & VLCBTEST to mergConfig.json
