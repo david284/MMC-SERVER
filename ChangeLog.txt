@@ -1,6 +1,7 @@
 MMC Version 0.18.0
   Updated 6 MDF's based on CANINP generator
   Added update CANARGB-A557-1a.json to use palette names
+  Added gregs install scripts in trial folder
   Updated Client
     Make some texts look nicer. (PR #9)
     Fixed MFD dialog not listing file without timestamp
