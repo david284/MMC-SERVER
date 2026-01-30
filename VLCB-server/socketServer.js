@@ -748,6 +748,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         config.appSettings = Object.assign(config.appSettings, data)
         //winston.info({message: name + `:  SAVE_SETTING ${JSON.stringify(config.appSettings)}`})
         config.writeAppSettings()
+        send_SERVER_STATUS(config, status)
       }catch(err){
         winston.error({message: name + `: SAVE_SETTING: ${err}`});
       }
