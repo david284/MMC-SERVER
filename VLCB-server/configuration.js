@@ -70,13 +70,15 @@ class configuration {
 	} // end constructor
 
   //
-  // Attempt to create all directories needed
+  // Attempt to create all three directories needed
+  //   appStorageDirectory - OS dependant
+  //   SystemDirectory - application directory
+  //   currentUserDirectory - typically appStorageDirectory, but can be changed (Custom)
   // should only create (& populate if appropriate) if directory doesn't exist
   //
   createDirectories(systemDirectory){
     // create a single user directory, based on OS platform
     try{
-      this.createSingleUserDirectory()
       // Create appStorage & create appSettings file is either don't exist
       // will set appStorageDirectory
       this.createAppStorage()
@@ -88,7 +90,6 @@ class configuration {
       this.createDirectory(systemDirectory)
       // decide which directory to use for 'USER' content
       if (this.appSettings.userDataMode == 'CUSTOM' ){ this.currentUserDirectory = this.appSettings.customUserDirectory }
-      else if (this.appSettings.userDataMode == 'USER' ){ this.currentUserDirectory = this.singleUserDirectory }
       else { this.currentUserDirectory = this.appStorageDirectory }    
       winston.info({message: className + `: currentUserDirectory: ` + this.currentUserDirectory});
       // and default layout exists (creates directory if not there also)
@@ -936,18 +937,6 @@ class configuration {
       switch (os.platform()) {
         case 'win32':
           this.appStorageDirectory = path.join("C:/ProgramData", "MMC-SERVER")
-          // for backwards compatibility, copy from user directory if app storage doesn't yet exist
-          try{
-            if (fs.existsSync(this.appStorageDirectory) == false) {
-              winston.info({message: className + ': no appStorage, look for existing singleUser: ' + this.singleUserDirectory});
-              // try copying from singleUserDirectory 
-              if (fs.existsSync(this.singleUserDirectory)) {
-                fs.cpSync(this.singleUserDirectory, this.appStorageDirectory, {recursive: true} )
-              }
-            }
-          } catch(err){
-            winston.error({message: className + ': copy from singleUser: ' + err});
-          }
           break;
         case 'linux':
           this.appStorageDirectory = path.join(os.homedir(), "MMC-SERVER")
@@ -971,35 +960,6 @@ class configuration {
     } catch(err){
       winston.error({message: className + ': createAppStorage: ' + err});      
     }
-  }
-
-  createSingleUserDirectory(){
-    // create OS based user directories
-    const homePath = os.homedir()
-    winston.info({message: className + ': Platform: ' + os.platform()});
-    winston.info({message: className + ': User home directory: ' + homePath});
-    switch (os.platform()) {
-      case 'win32':
-        this.singleUserDirectory = homePath + "/AppData/local/MMC-SERVER"
-        break;
-      case 'linux':
-        this.singleUserDirectory = homePath + "/MMC-SERVER"
-        break;
-      case 'darwin':    // MAC O/S
-        this.singleUserDirectory = homePath + "/MMC-SERVER"
-        break;
-      default:
-        this.singleUserDirectory = homePath + "/MMC-SERVER"
-    }
-    this.createDirectory(this.singleUserDirectory)
-    winston.info({message: className + ': singleUserDirectory: ' + this.singleUserDirectory});
-    // also ensure all the expected folders exists in user directory
-    if (this.singleUserDirectory){
-      this.createDirectory(this.singleUserDirectory + '/layouts')
-      this.createDirectory(this.singleUserDirectory + '/modules')
-      // and default layout exists (creates directory if not there also)
-      this.createLayoutFile(this.singleUserDirectory, defaultLayoutData.layoutDetails.title)
-    } 
   }
 
   //

@@ -1,3 +1,9 @@
+MMC Version 0.19.0
+  Removed singleUserDirectory from configuration.js as redundant
+  Client
+  Added delete offline nodes to NodesViewAdvanced menu
+  Added AppSettingsDialog
+  
 MMC Version 0.18.0
   Updated 6 MDF's based on CANINP generator
   Added update CANARGB-A557-1a.json to use palette names
