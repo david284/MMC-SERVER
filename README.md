@@ -59,6 +59,8 @@ There is an INFO button on the startup dialog that provides more information on 
 To run the app, use 'npm start' at the command line
 The program will open a web page using the default web browser, and the 'startup' dialog displayed as mentioned above
 
+By default, the embedded webserver (and the browser) will use port 3000, but that can be overridden by setting an enviroment variable MMC_SERVER_HTTP_PORT to whatever port you wish to use
+
 # 'user' data
 
 Data entered by the user, such as the user configured layouts and the associated names & groups, are stored independently of the application, so upgrading or moving the application won't lose this information
