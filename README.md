@@ -25,13 +25,16 @@ The following is needed to run the application from the github project
 ## Node.js
 
 This application requires Node.js (& npm) to run
-Useful guide to installing NodeJS ->https://www.pluralsight.com/resources/blog/guides/getting-started-with-nodejs
 
-Get Node.js from -> https://nodejs.org/en/download/package-manager/
+**Note:** `Node.js` is automatically installed by the Linux & macOS installers
+
+For Windows:
+  * Useful guide to installing NodeJS ->https://www.pluralsight.com/resources/blog/guides/getting-started-with-nodejs
+  * Get Node.js from -> https://nodejs.org/en/download/package-manager/
 
 ## Installation:
 
-### All Platforms
+### Windows
 
 Once Node.js is installed, clone the application, or take the zip file, & extract to your location of choice
 Use the green 'code' button near the top of this page
@@ -39,13 +42,11 @@ See the [Git Cloning](GitCloning.md) page for more about cloning a repository
 
 In the folder where MMC is cloned or copied locally, at the command line run 'npm install' to load all dependancies - this may take a little while, so please be patient
 
-### Windows
-
 There is a dedicated [Windows install script](InstallAndRun/Windows/installMMC.cmd). You may download this to your local machine and "Run as Administrator". After confirming the execution at the Windows prompts the script will check and install NodeJS, Git and MMC. It will also create MMC link icons on the Desktop and in the start menu to run MMC.
 
-### Linux
+### Linux and macOS
 
-There is a linux installer available, details here: [linux installer](InstallAndRun/Linux/linuxInstaller.md)
+There is an installer available for both platforms, details [here](InstallAndRun/LinuxAndMacOS/)
 
 ## Connection
 
