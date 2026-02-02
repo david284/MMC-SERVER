@@ -45,7 +45,7 @@ There is a dedicated [Windows install script](InstallAndRun/Windows/installMMC.c
 
 ### Linux
 
-There is a linux installer available, details here: [linux installer](InstallAndRun/Linux/linuxInstaller.md)
+There is a linux installer available, details here: [linux installer](InstallAndRun/Linux/)
 
 ## Connection
 
