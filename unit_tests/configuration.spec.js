@@ -122,21 +122,65 @@ describe('configuration tests', function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       winston.info({message: 'unit_test: END Backup test'})
       expect(JSON.stringify(result.layoutName)).to.equal(JSON.stringify(layoutName));
-      // write 2nd & 3rd backup so should be three entries, but just check for first backup
-      let fileName2 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode)
       let fileName3 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode3)
       var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
       expect (list1).to.include(fileName)
-      expect(list1.length).to.equal(3)
+      expect(list1.length).to.equal(2)
       // now delete initial backup & get new list
       config.deleteNodeBackup(layoutName, nodeNumber, fileName)
       var list2 = config.getListOfNodeBackups(layoutName, nodeNumber)
       expect (list2).to.not.include(fileName)
-      expect(list2.length).to.equal(2)
-      winston.info({message: 'fileName2: ' + JSON.stringify(fileName2)})
-      var list3 = config.renameNodeBackup(layoutName, nodeNumber, fileName2, "test")
+      expect(list2.length).to.equal(1)
+      var list3 = config.renameNodeBackup(layoutName, nodeNumber, fileName3, "test3.json")
       winston.info({message: 'list3: ' + JSON.stringify(list3)})
-      expect (list3).to.include("test")
+      expect (list3).to.include("test3.json")
+      done();
+		}, 10);
+  })
+
+  
+  //
+  // Combined node backup test - does read, write, list & delete
+  //
+  it("Node BackupFile test", function (done) {
+    winston.info({message: 'unit_test: BEGIN BackupFile test '})
+    let layoutName = 'test_backup_layout'
+    let nodeNumber = 999
+    let fileName1 = "backupFile1.json"
+    var backupFile1 = { 
+      timestamp: new Date().toISOString(),
+      layoutName: layoutName,
+      ServerVersion: "9.9.9",
+      backupNode: {moduleName:"BackupFile1"}
+    }
+    let fileName3 = "backupFile3.json"
+    var backupFile3 = { 
+      timestamp: new Date().toISOString(),
+      layoutName: layoutName,
+      ServerVersion: "9.9.9",
+      backupNode: {moduleName:"BackupFile3"}
+    }
+    var startingCount = config.getListOfNodeBackups(layoutName, nodeNumber).length
+    //
+    config.writeNodeBackupFile(layoutName, nodeNumber, fileName1, backupFile1)
+    var result = config.readNodeBackup(layoutName, nodeNumber, fileName1)
+    setTimeout(function(){
+      winston.info({message: 'result: ' + JSON.stringify(result)})
+      expect(JSON.stringify(result.layoutName)).to.equal(JSON.stringify(layoutName));
+      // 3rd backup so should be three entries, but just check for first backup
+      config.writeNodeBackupFile(layoutName, nodeNumber, fileName3, backupFile3)
+      var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
+      expect (list1).to.include(fileName1)
+      expect(list1.length).to.equal(2 + startingCount)
+      // now delete initial backup & get new list
+      config.deleteNodeBackup(layoutName, nodeNumber, fileName1)
+      var list2 = config.getListOfNodeBackups(layoutName, nodeNumber)
+      expect (list2).to.not.include(fileName1)
+      expect(list2.length).to.equal(1 + startingCount)
+      var list3 = config.renameNodeBackup(layoutName, nodeNumber, fileName3, "testBackupFile.json")
+      winston.info({message: 'list3: ' + JSON.stringify(list3)})
+      expect (list3).to.include("testBackupFile.json")
+      winston.info({message: 'unit_test: END BackupFile test'})
       done();
 		}, 10);
   })

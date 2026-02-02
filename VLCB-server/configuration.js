@@ -288,6 +288,7 @@ class configuration {
   }
 
   //
+  // Converts node data into a backup and writes to backup folder
   // returns fileName created for unit testing purposes
   // 
   writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode){
@@ -299,7 +300,7 @@ class configuration {
       this.createDirectory(backupFolder)
       // now assemble filename
       let moduleName = backupNode.moduleName ? backupNode.moduleName: 'undefined'
-      fileName = moduleName + '_' + utils.createTimestamp()
+      fileName = moduleName + '_' + utils.createTimestamp() + ".json"
       var filePath = path.join(backupFolder, fileName)
       winston.debug({message: className + ` writeNodeBackup: ` + filePath });
       var backup = { 
@@ -315,6 +316,24 @@ class configuration {
     }
     return fileName
   }
+
+  //
+  // Writes supplied file into backup folder
+  //
+  writeNodeBackupFile(layoutName, nodeNumber, fileName, backupFile){
+    winston.debug({message: className + `: writeNodeBackupFile: ${fileName} `});
+    try{
+      var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
+      // now create current backup folder if it doesn't exist
+      this.createDirectory(backupFolder)
+      var filePath = path.join(backupFolder, fileName)
+      jsonfile.writeFileSync(filePath, backupFile, {spaces: 2, EOL: '\r\n'})
+    }catch (error) {
+      winston.error({message: className + `: writeFile: ${error}` });
+    }
+  }
+
+
 
   //
   //

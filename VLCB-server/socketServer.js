@@ -768,6 +768,18 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
  
     //
     //
+    socket.on('SAVE_NODE_BACKUP_FILE', function(data){ //save backup
+      try{
+        winston.info({message: `socketServer:  SAVE_NODE_BACKUP_FILE ${JSON.stringify(data.nodeNumber)}`});
+        config.writeNodeBackupFile(data.layoutName, data.nodeNumber, data.fileName, data.backupFile)
+        config.getListOfBackupsForAllNodes(data.layoutName)
+      }catch(err){
+        winston.error({message: name + `: SAVE_NODE_BACKUP_FILE: ${err}`});
+      }
+    })
+ 
+    //
+    //
     socket.on('SEND_CBUS_MESSAGE', function(data){
       try{
         winston.info({message: `socketServer: SEND_CBUS_MESSAGE ` + data});

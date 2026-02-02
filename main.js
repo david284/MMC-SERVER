@@ -52,7 +52,6 @@ var http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-console.log("ENV settings " + JSON.stringify(process.env))
 
 var port = normalizePort(process.env.MMC_SERVER_HTTP_PORT || '3000');
 console.log (`using port ` + port)

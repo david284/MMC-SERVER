@@ -1,6 +1,9 @@
 MMC Version 0.19.0
   Removed singleUserDirectory from configuration.js as redundant
   change evn var PORT to MMC_SERVER_HTTP_PORT, and fixed browser start for this
+  added writeNodeBackupFile - expects filename already created
+  added SAVE_NODE_BACKUP_FILE WebSocket event
+  Backup files now have .json extension
   Client
   Added delete offline nodes to NodesViewAdvanced menu
   Added AppSettingsDialog
