@@ -3,11 +3,17 @@ MMC Version 0.19.0
   change evn var PORT to MMC_SERVER_HTTP_PORT, and fixed browser start for this
   added writeNodeBackupFile - expects filename already created
   added SAVE_NODE_BACKUP_FILE WebSocket event
+  removed SAVE_NODE_BACKUP
   Backup files now have .json extension
+  added writeLogFile("layoutData.json", data), so layout data is in archive
+  added writeLogFile("nodeConfig.json", data), so nodeConfig data is in archive
   Client
-  Added delete offline nodes to NodesViewAdvanced menu
-  Added AppSettingsDialog
-  
+    Added delete offline nodes to NodesViewAdvanced menu
+    Added AppSettingsDialog
+    Replaced SAVE_NODE_BACKUP with SAVE_NODE_BACKUP_FILE
+    Fixed backup upload issues
+    Added check for retain_events to allow partial retores
+
 MMC Version 0.18.0
   Updated 6 MDF's based on CANINP generator
   Added update CANARGB-A557-1a.json to use palette names

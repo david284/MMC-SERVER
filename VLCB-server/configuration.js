@@ -288,36 +288,6 @@ class configuration {
   }
 
   //
-  // Converts node data into a backup and writes to backup folder
-  // returns fileName created for unit testing purposes
-  // 
-  writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode){
-    winston.info({message: className + ` writeNodeBackup: ` + nodeNumber });
-    var backupFolder = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodeNumber)
-    var fileName  // need to define it early in case next bit fails
-    try{
-      // now create current backup folder if it doesn't exist
-      this.createDirectory(backupFolder)
-      // now assemble filename
-      let moduleName = backupNode.moduleName ? backupNode.moduleName: 'undefined'
-      fileName = moduleName + '_' + utils.createTimestamp() + ".json"
-      var filePath = path.join(backupFolder, fileName)
-      winston.debug({message: className + ` writeNodeBackup: ` + filePath });
-      var backup = { 
-        timestamp: new Date().toISOString(),
-        layoutName: layoutData.layoutDetails.title,
-        ServerVersion: packageInfo.version,
-        backupNode: backupNode
-      }
-      jsonfile.writeFileSync(filePath, backup, {spaces: 2, EOL: '\r\n'})
-      this.eventBus.emit ('NODE_BACKUP_SAVED', fileName) 
-    } catch(err){
-      winston.info({message: className + `: writeNodeBackup: ` + err});
-    }
-    return fileName
-  }
-
-  //
   // Writes supplied file into backup folder
   //
   writeNodeBackupFile(layoutName, nodeNumber, fileName, backupFile){
@@ -423,7 +393,7 @@ class configuration {
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
-  // bustraffic & bootloader logging methods
+  // log file methods
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
   
@@ -461,6 +431,18 @@ class configuration {
     this.bootloaderDataLogStream.write(timeStamp + ' ' + data + "\r\n");
   }
 
+  //
+  // writes data into a log file
+  //
+  writeLogFile(fileName, data){
+    let filePath = path.join(logsPath, fileName)
+    try{      
+      winston.debug({message: className + `: writeLogFile: ${filePath}`});
+      jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    } catch (error){
+      winston.debug({message: className + `: writeLogFile: ${error}`});
+    }
+  }
 
   //-----------------------------------------------------------------------------------------------
   //-----------------------------------------------------------------------------------------------
@@ -630,6 +612,7 @@ class configuration {
         var filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder(), "layoutData.json")
         winston.info({message: className + `: writeLayoutData: ` + filePath});
         jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+        this.writeLogFile("layoutData.json", data)
       }
     } catch (err){
       winston.error({message: className + `: writeLayoutData: ` + filePath });
@@ -655,6 +638,7 @@ class configuration {
     winston.debug({message: className + `: writeNodeConfig:`});
     var filePath = this.systemDirectory + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
+    this.writeLogFile("nodeConfig.json", data)
   }
 
 

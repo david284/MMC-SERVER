@@ -449,7 +449,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         let B64 = Buffer.from(file).toString('base64')
         io.emit('BINARY_FILE', {"directory":data.directory, "fileName":data.fileName, "data":B64})
         winston.info({message: `socketServer: sent BINARY_FILE ${data.directory} ${data.fileName} length ${B64.length}`});
-        winston.info({message: `socketServer: sent BINARY_FILE ${B64}`});
+        //winston.info({message: `socketServer: sent BINARY_FILE ${B64}`});
       }catch(err){
         winston.error({message: name + `: REQUEST_BACKUP: ${err}`});
       }
@@ -751,18 +751,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
         send_SERVER_STATUS(config, status)
       }catch(err){
         winston.error({message: name + `: SAVE_SETTING: ${err}`});
-      }
-    })
- 
-    //
-    //
-    socket.on('SAVE_NODE_BACKUP', function(data){ //save backup
-      try{
-        winston.info({message: `socketServer:  SAVE_NODE_BACKUP ${JSON.stringify(data.nodeNumber)}`});
-        config.writeNodeBackup(data.layoutName, data.nodeNumber, data.layout, data.backupNode)
-        config.getListOfBackupsForAllNodes(data.layoutName)
-      }catch(err){
-        winston.error({message: name + `: SAVE_NODE_BACKUP: ${err}`});
       }
     })
  

@@ -108,40 +108,6 @@ describe('configuration tests', function(){
   //
   // Combined node backup test - does read, write, list & delete
   //
-  it("Node Backup test", function (done) {
-    winston.info({message: 'unit_test: BEGIN Backup test '})
-    var layoutName = 'test_backup_layout'
-    let nodeNumber = 999
-    var layoutData = {layoutDetails:{title: layoutName}} 
-    var backupNode = {moduleName:"CANACC5"}
-    var backupNode3 = {moduleName:"CANMIO"}
-    // keep file name of 2nd backup
-    let fileName = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode)
-    var result = config.readNodeBackup(layoutName, nodeNumber, fileName)
-    setTimeout(function(){
-      winston.info({message: 'result: ' + JSON.stringify(result)})
-      winston.info({message: 'unit_test: END Backup test'})
-      expect(JSON.stringify(result.layoutName)).to.equal(JSON.stringify(layoutName));
-      let fileName3 = config.writeNodeBackup(layoutName, nodeNumber, layoutData, backupNode3)
-      var list1 = config.getListOfNodeBackups(layoutName, nodeNumber)
-      expect (list1).to.include(fileName)
-      expect(list1.length).to.equal(2)
-      // now delete initial backup & get new list
-      config.deleteNodeBackup(layoutName, nodeNumber, fileName)
-      var list2 = config.getListOfNodeBackups(layoutName, nodeNumber)
-      expect (list2).to.not.include(fileName)
-      expect(list2.length).to.equal(1)
-      var list3 = config.renameNodeBackup(layoutName, nodeNumber, fileName3, "test3.json")
-      winston.info({message: 'list3: ' + JSON.stringify(list3)})
-      expect (list3).to.include("test3.json")
-      done();
-		}, 10);
-  })
-
-  
-  //
-  // Combined node backup test - does read, write, list & delete
-  //
   it("Node BackupFile test", function (done) {
     winston.info({message: 'unit_test: BEGIN BackupFile test '})
     let layoutName = 'test_backup_layout'
@@ -196,9 +162,9 @@ describe('configuration tests', function(){
     var layoutData = {layoutDetails:{title: layoutName}} 
     var backupNode1 = {moduleName:"CANACC5"}
     var backupNode2 = {moduleName:"CANMIO"}
-    config.writeNodeBackup(layoutName, 300, layoutData, backupNode1)
-    config.writeNodeBackup(layoutName, 300, layoutData, backupNode2)
-    config.writeNodeBackup(layoutName, 301, layoutData, backupNode1)
+    config.writeNodeBackupFile(layoutName, 300, "backupNode1.json", backupNode1)
+    config.writeNodeBackupFile(layoutName, 300, "backupNode2.json", backupNode2)
+    config.writeNodeBackupFile(layoutName, 301, "backupNode1.json", backupNode1)
     //
     var eventList = undefined
     config.eventBus.once('LIST_OF_BACKUPS_FOR_ALL_NODES', function (data) {
@@ -616,6 +582,20 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
+
+
+  //
+  // test writeLogFile
+  //
+  it("writeLogFile test", function (done) {
+    winston.info({message: 'unit_test: BEGIN writeLogFile test '})
+    config.writeLogFile("testfile", {"test data 1":1})
+    setTimeout(function(){
+      done();
+      winston.info({message: 'unit_test: END writeLogFile test '})
+		}, 50);
+  })
+
 
 
 })
