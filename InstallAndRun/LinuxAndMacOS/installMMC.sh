@@ -20,10 +20,6 @@ printBoldMsg() {
   echo
 }
 
-printImportantMsg() {
-  echo -e "${ORANGE}IMPORTANT!!!: ${1}${NC}"
-}
-
 printInfoMsg() {
   echo -e "${ORANGE}Info: ${1}...${NC}"
 }
@@ -99,67 +95,63 @@ getConfirmation() {
   done
 }
 
+NODE_BASE_URL="https://nodejs.org"
+
+getLatestNodeLtsReleaseVersions() {
+  curl -fsSLo- "${NODE_BASE_URL}/download/release/index.json" |\
+    jq -r '[.[]|select (.lts != false)][0] | [.version, .npm] | @tsv'
+}
+
+isNodeLatestVersion() {
+  local _latestVersion="${1}"
+
+  [ "$(node -v)" == "${_latestVersion}" ]
+}
+
+isNpmLatestVersion() {
+  local _latestVersion="${1}"
+
+  [ "$(npm -v)" == "${_latestVersion}" ]
+}
+
+installNodePkgOnMacOS() {
+  local _nodeVersion="${1}"
+  local _npmVersion="${2}"
+
+  local _pkg="${HOME}/Downloads/node-v${_nodeVersion}.pkg"
+  curl -fsSLo "${_pkg}" "${NODE_BASE_URL}/dist/${_nodeVersion}/node-${_nodeVersion}.pkg"
+  sudo installer -pkg "${_pkg}" -target / >> "${LOG_FILE}" 2>&1
+  rm "${_pkg}"
+
+  if ! isNodeLatestVersion "${_nodeVersion}"; then
+    printWarningMsg "Incorrect node version received - s/be ${_nodeVersion}, but was $(node -v)"
+  fi
+
+  if ! isNpmLatestVersion "${_npmVersion}"; then
+    printWarningMsg "Incorrect npm version received - s/be ${_npmVersion}, but was $(npm -v)"
+  fi
+}
+
 installNodeOnMacOS() {
+  local _nodeVersion _npmVersion
+
+  read _nodeVersion _npmVersion <<< $(getLatestNodeLtsReleaseVersions)
+
   if command -v "node" >> "${LOG_FILE}" 2>&1; then
-    printInfoMsg "Node.js is already installed"
-  else
-    if [ ! -w ~/.bashrc ] && \
-       [ ! -w ~/.bash_profile ] && \
-       [ ! -w  ~/.zprofile ] && \
-       [ ! -w ~/.zshrc ] && \
-       [ ! -w ~/.profile ]; then
-      printImportantMsg "Your environment cannot be modified to setup node"
-      printImportantMsg "To rectify, create an (empty) apropriate file for your shell e.g. choose from: ~/.bashrc, ~/.bash_profile, ~/.zprofile, ~/.zshrc, and ~/.profile"
-      printImportantMsg "e.g. touch ~/.zshrc"
-      printImportantMsg "Please do this now, before continuing any further"
+    if ! isNodeLatestVersion "${_nodeVersion}"; then
+      printWarningMsg "Node version is not the latest LTS version (${_nodeVersion}), you have version $(node -v)"
+      if getConfirmation "Do you wish to update Node.js to ${_nodeVersion}"; then
+        printInfoMsg "Updating Node.js"
+        installNodePkgOnMacOS  "${_nodeVersion}" "${_npmVersion}"
+        printSuccessMsg "Node.js updated"
+      fi
+    else
+      printInfoMsg "Node.js is already installed and is the latest LTS version (${_nodeVersion})"
     fi
-    if getConfirmation "Do you wish to install Node.js"; then
-      if ! xcode-select -p >> "${LOG_FILE}" 2>&1; then
-        if getConfirmation "Do you wish to install the Xcode Command Line Developer Tools"; then
-          printInfoMsg "Installing Xcode Command Line Developer Tools"
-          xcode-select --install
-          while ! xcode-select -p >/dev/null 2>&1; do
-            sleep 5
-          done
-          printSuccessMsg "Xcode Command Line Developer Tools installed"
-        fi
-      fi
-
+  else
+    if getConfirmation "Do you wish to install Node.js ${_nodeVersion}"; then
       printInfoMsg "Installing Node.js"
-
-      # https://nodejs.org/en/download
-      #
-      # Download and install nvm:
-      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-
-      # in lieu of restarting the shell
-      export NVM_DIR="${HOME}/.nvm"
-
-      # The nvm scripts do not trap exit codes > 0, so we have to relax our settings...
-      set +eEuo
-      # shellcheck disable=SC1091
-      [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh"  # This loads nvm
-      # shellcheck disable=SC1091
-      [ -s "${NVM_DIR}/bash_completion" ] && \. "${NVM_DIR}/bash_completion"
-
-      # Download and install Node.js:
-      nvm install 24
-
-      # Restore our settings
-      set -eEuo pipefail
-      [ -n "${VERBOSE:-}" ] && set -x || true
-
-      # Verify the Node.js version:
-      if [ "$(node -v)" != "v24.13.0" ]; then
-        printWarningMsg "Incorrect node version received - s/be v24.13.0, but was $(node -v)"
-      fi
-
-      # Verify npm version:
-      if [ "$(npm -v)" != "11.6.2" ]; then
-        printWarningMsg "Incorrect npm version received - s/be 11.6.2, but was $(npm -v)"
-      fi
-
-      PRINT_NODE_INFO=true
+      installNodePkgOnMacOS  "${_nodeVersion}" "${_npmVersion}"
       printSuccessMsg "Node.js installed"
     fi
   fi
@@ -418,8 +410,3 @@ else
 fi
 
 printBoldMsg "Completed installation of ${MMC_NAME}!"
-
-if [ -n "${PRINT_NODE_INFO:-}" ]; then
-  printImportantMsg "You will need to log out and back in to pickup changes to your environment"
-  echo
-fi
