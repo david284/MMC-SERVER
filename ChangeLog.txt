@@ -1,5 +1,9 @@
 MMC Version
   MDF's updated - CAN4!N4OUT, CANCDU_U, CANGATE & CANGATEX
+  client
+    Fixed delete unused events
+    changed NewNodeDialog to get NAME from bus traffic
+    Now uses backup_required to populate backup column
 
 MMC Version 0.19.0
   Removed singleUserDirectory from configuration.js as redundant
