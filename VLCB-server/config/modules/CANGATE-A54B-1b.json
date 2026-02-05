@@ -1,0 +1,22 @@
+{
+  "timestamp": "202601261554",
+  "moduleName":"CANGATE",
+  "nodeVariables": [],
+  "eventVariables": [
+    {
+      "displayTitle": "Input Number",
+      "eventVariableIndex": 1,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Gate Number",
+      "eventVariableIndex": 2,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Invert Gate Polarity",
+      "eventVariableIndex": 3,
+      "type": "EventVariableNumber"
+    }
+  ]
+}

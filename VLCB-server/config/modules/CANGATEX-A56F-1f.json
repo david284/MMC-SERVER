@@ -1,0 +1,192 @@
+{
+  "timestamp": "202601261554",
+  "moduleName":"CANGATEX",
+  "nodeVariables": [
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 1,
+      "displayTitle": "Events Added",
+      "displaySubTitle": "into event table",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 2,
+      "displayTitle": "Save Gate States",
+      "displaySubTitle": "into EEPROM",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 3,
+      "displayTitle": "Recall Gate States",
+      "displaySubTitle": "at Startup",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 4,
+      "displayTitle": "Send Gate States",
+      "displaySubTitle": "at Startup",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableNumber",
+      "nodeVariableIndex": 5,
+      "displayTitle": "SoD Delay",
+      "displayUnits": "milliseconds"
+    },
+    {
+      "type": "NodeVariableBitSingle",
+      "nodeVariableIndex": 24,
+      "displayTitle": "Send Long Events",
+      "displaySubTitle": "if taught in EVs",
+      "bit": 0
+    },
+    {
+      "type": "NodeVariableDual",
+      "displayTitle": "Base Value for DN",
+      "displaySubTitle": "for short events",
+      "nodeVariableIndexHigh": 4,
+      "nodeVariableIndexLow": 5
+    },   
+    {
+      "type": "NodeVariableGroup",
+      "displayTitle": "Digital Outputs",
+      "groupItems": [ 
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 6,
+          "displayTitle": "Gate Number Output 1"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 7,
+          "displayTitle": "Gate Number Output 2"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 8,
+          "displayTitle": "Gate Number Output 3"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 9,
+          "displayTitle": "Gate Number Output 4"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 10,
+          "displayTitle": "Gate Number Output 5"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 11,
+          "displayTitle": "Gate Number Output 6"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 12,
+          "displayTitle": "Gate Number Output 7"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 13,
+          "displayTitle": "Gate Number Output 8"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 14,
+          "displayTitle": "pin Number Output 1"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 15,
+          "displayTitle": "pin Number Output 2"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 16,
+          "displayTitle": "pin Number Output 3"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 17,
+          "displayTitle": "pin Number Output 4"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 18,
+          "displayTitle": "pin Number Output 5"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 19,
+          "displayTitle": "pin Number Output 6"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 20,
+          "displayTitle": "pin Number Output 7"
+        },
+        {
+          "type": "NodeVariableNumber",
+          "nodeVariableIndex": 21,
+          "displayTitle": "pin Number Output 8"
+        }
+      ]
+    }
+  ],
+  "eventVariables": [
+    {
+      "displayTitle": "First Input Gate",
+      "displaySubTitle": "Set to 0 for SoD",
+      "eventVariableIndex": 1,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Second Input Gate",
+      "displaySubTitle": "Set to 0 if unused",
+      "eventVariableIndex": 6,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Third Input Gate",
+      "displaySubTitle": "Set to 0 if unused",
+      "eventVariableIndex": 7,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Fourth Input Gate",
+      "displaySubTitle": "Set to 0 if unused",
+      "eventVariableIndex": 8,
+      "type": "EventVariableNumber"
+    },
+    {
+      "displayTitle": "Output Gate Value for Produced Event",
+      "displaySubTitle": "0 = Consumed Event",
+      "eventVariableIndexHigh": 4,
+      "eventVariableIndexLow": 5,
+      "type": "EventVariableDual"
+    },
+    {
+      "displayTitle": "No Longer Used",
+      "type": "EventVariableGroup",
+      "groupItems": [
+        {
+          "displayTitle": "Invert Gate Polarity",
+          "displaySubTitle": "Not needed",
+          "eventVariableIndex": 3,
+          "bit": 0,
+          "type": "EventVariableBitSingle"
+        },
+        {
+          "displayTitle": "Gate Number",
+          "displaySubTitle": "Not used on CANGATEX",
+          "eventVariableIndex": 2,
+          "type": "EventVariableNumber"
+        }
+      ]
+    }
+  ]
+}

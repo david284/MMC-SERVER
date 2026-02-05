@@ -1,3 +1,6 @@
+MMC Version
+  MDF's updated - CAN4!N4OUT, CANCDU_U, CANGATE & CANGATEX
+
 MMC Version 0.19.0
   Removed singleUserDirectory from configuration.js as redundant
   change evn var PORT to MMC_SERVER_HTTP_PORT, and fixed browser start for this
