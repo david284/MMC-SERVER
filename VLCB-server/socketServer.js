@@ -311,6 +311,18 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
+    socket.on('REMOVE_MULTIPLE_NODES', function(nodeList){
+      try{
+        winston.info({message: `socketServer: REMOVE_MULTIPLE_NODES: lenght ${nodeList.length}`});
+        node.remove_multiple_nodes(nodeList)
+      }catch(err){
+        winston.error({message: name + `: REMOVE_MULTIPLE_NODES: ${err}`});
+      }
+    })
+
+
+    //
+    //
     socket.on('REMOVE_NODE', function(nodeNumber){
       try{
         winston.info({message: `socketServer: REMOVE_NODE ${nodeNumber}`});

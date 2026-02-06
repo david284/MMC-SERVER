@@ -1181,11 +1181,31 @@ class cbusAdmin extends EventEmitter {
     await this.request_all_node_events(nodeNumber)
   }
 
+  // remove multiple nodes
+  // before returning list back to client
+  // prevents loop doing one at a time
+  //  
+  remove_multiple_nodes(nodeList) {
+    try {
+      winston.debug({message: name + ': remove_multiple_nodes ' + JSON.stringify(nodeList)});
+      for (const nodeNumber of nodeList){
+        winston.debug({message: name + `: delete node: ${nodeNumber}` });
+        delete this.nodeConfig.nodes[nodeNumber]
+      }
+      let nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
+      winston.debug({message: name + ': nodes remaining ' + nodes});
+      // now can refresh client
+      this.saveNodeConfig()
+    } catch (err){
+      winston.error({message: name + `: remove_multiple_nodes ${err}`});
+    }
+  }
+
   //
   //  
   remove_node(nodeNumber) {
     try {
-      winston.info({message: name + ': remove_node ' + nodeNumber});
+      winston.debug({message: name + ': remove_node ' + nodeNumber});
       var nodes = Object.keys(this.nodeConfig.nodes)  // just get node numbers
       winston.debug({message: name + ': nodes ' + nodes});
       delete this.nodeConfig.nodes[nodeNumber]
