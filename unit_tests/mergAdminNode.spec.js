@@ -1585,6 +1585,42 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: END getTimeGap test'});
   })
 
+  //
+  it("remove_node test ", function () {
+    winston.info({message: 'unit_test: BEGIN remove_node test '});
+    node.nodeConfig.nodes={}
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    let nodeNumber = 99
+    node. createNodeConfig(nodeNumber, false)
+    winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes)}`});
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    expect(Object.keys(node.nodeConfig.nodes).length).to.equal(1)
+    var result = node.remove_node(nodeNumber)
+    winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes)}`});
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    expect(Object.keys(node.nodeConfig.nodes).length).to.equal(0)
+    winston.info({message: 'unit_test: END remove_node test '});
+  })
+
+
+  //
+  it("remove_multiple_nodes test ", function () {
+    winston.info({message: 'unit_test: BEGIN remove_multiple_nodes test '});
+    node.nodeConfig.nodes={}
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    node. createNodeConfig(1, false)
+    node. createNodeConfig(2, false)
+    node. createNodeConfig(3, false)
+    winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes, null, " ")}`});
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    expect(Object.keys(node.nodeConfig.nodes).length).to.equal(3)
+    var result = node.remove_multiple_nodes([1, 2])
+    winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes, null, " ")}`});
+    winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
+    expect(Object.keys(node.nodeConfig.nodes).length).to.equal(1)
+    winston.info({message: 'unit_test: END remove_multiple_nodes test '});
+  })
+
 
 
 })

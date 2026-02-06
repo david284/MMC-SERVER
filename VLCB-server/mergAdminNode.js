@@ -1829,13 +1829,15 @@ class cbusAdmin extends EventEmitter {
         // get first out of queue
         var nodeNumber = this.nodeDescripter_Queue[0]
         let needsMDF = false
-        // check if we really need to go get the MDF for this node, as it's quite time consuming
-        // uses timestamps so we can avoid repeatedly trying to read the MDF, as it may not exist
-        if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp == undefined){ needsMDF = true }
-        if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){ needsMDF = true }
-        //
-        if (needsMDF){
-          this.getNodeDescriptor(nodeNumber, false)
+        if (this.nodeConfig.nodes[nodeNumber] != undefined){
+          // check if we really need to go get the MDF for this node, as it's quite time consuming
+          // uses timestamps so we can avoid repeatedly trying to read the MDF, as it may not exist
+          if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp == undefined){ needsMDF = true }
+          if ( this.nodeConfig.nodes[nodeNumber].getNodeDescriptorTimeStamp < this.moduleDescriptorFilesTimeStamp){ needsMDF = true }
+          //
+          if (needsMDF){
+            this.getNodeDescriptor(nodeNumber, false)
+          }
         }
         // remove the one we've used from queue
         this.nodeDescripter_Queue.shift()
