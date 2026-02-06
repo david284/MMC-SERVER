@@ -1,5 +1,6 @@
 MMC Version
   MDF's updated - CAN4!N4OUT, CANCDU_U, CANGATE & CANGATEX
+  added REMOVE_MULTIPLE_NODES
   client
     Fixed delete unused events
     changed NewNodeDialog to get NAME from bus traffic
