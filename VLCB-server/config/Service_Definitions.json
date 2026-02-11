@@ -373,10 +373,38 @@
     }
 	},
 	"11":{
-		"name":"Boot2 Service"
+		"name":"Long Message Client Service",
+		"version":{ 
+			"1": {
+				"diagnostics":{
+					"1":{"name":"LM messages sent"},
+					"2":{"name":"Channel acquisition count"}
+				},
+        "ESD":{
+					"1":{"name":"Number of conversations"},
+					"2":{"name":"Transmit rate high byte"},
+					"3":{"name":"Transmit rate low byte"}
+				}
+			}
+    }
 	},
 	"12":{
-		"name":"Fast Clock Service"
+		"name":"Long Message Server Service",
+		"version":{ 
+			"1": {
+				"diagnostics":{
+					"1":{"name":"LM messages received"},
+					"2":{"name":"Sequence errors"},
+					"3":{"name":"Checksum errors"},
+					"4":{"name":"Timeout errors"}
+				},
+        "ESD":{
+					"1":{"name":"Number of listeners"},
+					"2":{"name":"Number of connections"},
+					"3":{"name":"unused"}
+				}
+			}
+    }
 	},
 	"13":{
 		"name":"DCC Cab Service"

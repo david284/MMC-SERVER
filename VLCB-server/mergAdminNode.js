@@ -3,6 +3,7 @@ const net = require('net')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
+const longMessage = require('./../VLCB-server/longMessage.js')
 const { isUndefined } = require('util');
 const cbusLibrary = require('cbuslibrary');
 
@@ -18,6 +19,7 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig = {}
     this.nodeDescriptors = {}
     const merg = config.readMergConfig()
+    longMessage.setup(config)
     this.merg = merg
     const Service_Definitions = config.readServiceDefinitions()
     this.ServiceDefs = Service_Definitions
@@ -356,6 +358,13 @@ class cbusAdmin extends EventEmitter {
           utils.addESDvalue(this.nodeConfig, cbusMsg.nodeNumber, cbusMsg.ServiceIndex, 3, cbusMsg.Data3)
           this.updateNodeConfig(cbusMsg.nodeNumber)
         } catch (err) { winston.error({message: name + `: ESD (E7) ${err}` }) }
+      },
+      //
+      'E9': async (cbusMsg) => {// LM - long message
+        try{
+          winston.debug({message: name + `: Long Message ${JSON.stringify(cbusMsg)}`})
+          longMessage.processLongMessage(cbusMsg)
+        } catch (err) { winston.error({message: name + `: LM (E9) ${err}` }) }
       },
       //
       'EF': async (cbusMsg) => {//PARAMS - response to RQNP in setup mode

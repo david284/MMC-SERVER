@@ -469,6 +469,7 @@ class programNode extends EventEmitter  {
         }
         winston.debug({message: `programNode: parseHexFile: BOOTLOADER_DATA_BLOCK: ${utils.decToHex(block,8)} ${string}` });
       } 
+      this.sendMessageToClient('Parsing file completed - ready')
     } else {
         winston.info({message: `programNode: parseHexFile: fault - no result` });
     }

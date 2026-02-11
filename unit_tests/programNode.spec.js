@@ -463,7 +463,7 @@ describe('programNode tests', async function(){
     var intelHexString = fs.readFileSync('./unit_tests/test_firmware/shortFile.hex');
 		await programNode.program(300, 99, 4, intelHexString);
     //
-    expect(downloadDataArray[1].text).to.equal('CPUTYPE ignored', 'Download event');
+    expect(downloadDataArray[2].text).to.equal('CPUTYPE ignored', 'Download event');
     expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
     expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
     //
