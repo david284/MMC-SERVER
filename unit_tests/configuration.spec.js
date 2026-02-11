@@ -538,18 +538,24 @@ describe('configuration tests', function(){
 
   //
   //
-  it("archiveLogs test ", async function () {
+  it("archiveLogs test ", function (done) {
     winston.info({message: 'unit_test: BEGIN archiveLogs test '});
     config.archiveLogs()
-    winston.info({message: 'unit_test: END archiveLogs test'});
+    setTimeout(function(){
+      winston.info({message: 'unit_test: END archiveLogs test'});
+      done();
+		}, 50);
   })
 
   //
   //
-  it("limitNumberOfArchivedLogs test ", async function () {
+  it("limitNumberOfArchivedLogs test ", function (done) {
     winston.info({message: 'unit_test: BEGIN limitNumberOfArchivedLogs test '});
     config.limitNumberOfArchivedLogs()
-    winston.info({message: 'unit_test: END limitNumberOfArchivedLogs test'});
+    setTimeout(function(){
+      winston.info({message: 'unit_test: END limitNumberOfArchivedLogs test'});
+      done();
+		}, 50);
   })
 
   //
