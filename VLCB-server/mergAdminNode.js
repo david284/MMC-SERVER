@@ -1440,7 +1440,8 @@ class cbusAdmin extends EventEmitter {
       winston.info({message: name + ': event_teach_by_index - New event'});
     } 
     // updated variable, so add to config
-    this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
+    this.storeEventVariableByIndex(nodeNumber, eventIndex, eventVariableIndex, eventVariableValue)
+    //this.storeEventVariableByIdentifier(nodeNumber, eventIdentifier, eventVariableIndex, eventVariableValue)
 
     this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
     let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)

@@ -3,6 +3,7 @@ MMC Version 0.20.0
   added REMOVE_MULTIPLE_NODES
   added longMessage.js
   Added diag & ESD definitions for LM client & service (11 & 12)
+  updated event_teach_by_index
   client
     Fixed delete unused events
     changed NewNodeDialog to get NAME from bus traffic
