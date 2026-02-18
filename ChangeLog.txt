@@ -12,6 +12,9 @@ MMC Version 0.20.0
     Added remove_multiple_nodes to fix delete offline nodes
     Minor ProgramNode changes
     Added develop mode Send long message Request
+    Added dialog for sendLMrequest
+    Added CAN BUS monitor as separate window
+    Added error notifications to import functions
 
 
 MMC Version 0.19.0
