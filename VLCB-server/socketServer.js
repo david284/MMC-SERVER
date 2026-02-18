@@ -36,7 +36,8 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       // let the client know the current layout & nodes as we're already running
       io.emit('LAYOUT_DATA', config.readLayoutData())
       winston.info({message: name + `: sent LAYOUT_DATA`});
-      node.query_all_nodes()
+      io.emit('NODES', node.nodeConfig.nodes);
+      winston.info({message: `socketServer: NODES Sent`});
     }
     
     //
