@@ -1,3 +1,16 @@
+MMC Version 0.21.0
+  Added refreshAllNodeDescriptors for connection when running to ensure MDF's are loaded for new connection
+  updated client
+    Changed chip in backup column to clickable & renamed to backup if needed
+    Added colour to node, event lists & export
+    Added debounce to EventNameAndGroup
+    added reason in caption for "MMC-server has disconnected"
+    Status in Events View now goes to unknown when bus traffic cleared
+    Fixed add event in Events View
+    Added support for colours to import
+    Updated info for spreadsheet import for colours
+    Added import log to import dialog
+
 MMC Version 0.20.0
   MDF's updated - CAN4!N4OUT, CANCDU_U, CANGATE & CANGATEX
   added REMOVE_MULTIPLE_NODES

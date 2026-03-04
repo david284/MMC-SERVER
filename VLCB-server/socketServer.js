@@ -38,6 +38,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
       winston.info({message: name + `: sent LAYOUT_DATA`});
       io.emit('NODES', node.nodeConfig.nodes);
       winston.info({message: `socketServer: NODES Sent`});
+      node.refreshAllNodeDescriptors()   // force refresh of nodeDescriptors
     }
     
     //
