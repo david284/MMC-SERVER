@@ -209,11 +209,11 @@ class serialGC  extends EventEmitter {
       winston.debug({message: name + `: getCANUSBx`})
       SerialPort.list().then(ports => {
         ports.forEach(function(port) {
-          if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('4D8') && port.productId.toString().toUpperCase().includes('F80C')) {
+          if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('04D8') && port.productId.toString().toUpperCase().includes('F80C')) {
             // CANUSB4
             winston.debug({message: name + ': CANUSB4 found on ' + port.path});
             resolve(port.path);
-          } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('403') && port.productId.toString().toUpperCase().includes('6001')) {
+          } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('0403') && port.productId.toString().toUpperCase().includes('6001')) {
             // Old CANUSB
             winston.debug({message: name + ': CANUSB found on ' + port.path});
             resolve(port.path);
