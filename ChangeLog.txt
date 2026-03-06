@@ -1,6 +1,7 @@
 MMC Version 0.21.0
   Added refreshAllNodeDescriptors for connection when running to ensure MDF's are loaded for new connection
   Temporarily removed longmessages from unit test chain - will restore when VLCB feature published
+  Modified serialGC.js to use leading zero on vendorId
   updated client
     Changed chip in backup column to clickable & renamed to backup if needed
     Added colour to node, event lists & export
