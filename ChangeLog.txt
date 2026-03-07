@@ -12,6 +12,7 @@ MMC Version 0.21.0
     Added support for colours to import
     Updated info for spreadsheet import for colours
     Added import log to import dialog
+    Added client & server version match check
 
 MMC Version 0.20.0
   MDF's updated - CAN4!N4OUT, CANCDU_U, CANGATE & CANGATEX
