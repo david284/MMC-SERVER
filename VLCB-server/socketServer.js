@@ -11,10 +11,12 @@ const server = require('http').createServer()
 
 
 const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-    }
+  'pingInterval': 1000, 
+  'pingTimeout': 500,
+  cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+  }
 });
 
 
@@ -28,7 +30,9 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //*************************************************************************************** */
 
   io.on('connection', function(socket){
-    winston.info({message: 'socketServer:  a user connected'});
+    winston.info({message: 'socketServer: a user connected'});
+    winston.debug({message: `socketServer: server: ${JSON.stringify(server, null, " ")}`});
+    winston.debug({message: `socketServer: server: ${socket.pingTimeout}`});
     send_SERVER_STATUS(config, status)
     io.emit('MODULE_NAMES', config.readMergConfig().modules)
     winston.info({message: name + `: sent MODULE_NAMES`});
