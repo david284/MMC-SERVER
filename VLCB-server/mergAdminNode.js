@@ -360,7 +360,7 @@ class cbusAdmin extends EventEmitter {
         } catch (err) { winston.error({message: name + `: ESD (E7) ${err}` }) }
       },
       //
-      'E9': async (cbusMsg) => {// LM - long message
+      'EA': async (cbusMsg) => {// LM - long message
         try{
           winston.debug({message: name + `: Long Message ${JSON.stringify(cbusMsg)}`})
           longMessage.processLongMessage(cbusMsg)

@@ -102,7 +102,7 @@ class longMessage{
       let data = {
         message: message,
         caption: content,
-        type: "info",
+        type: "develop",
         timeout: 10000
       }
       this.config.eventBus.emit ('SERVER_NOTIFICATION', data)

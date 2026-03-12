@@ -11,8 +11,8 @@ const server = require('http').createServer()
 
 
 const io = require('socket.io')(server, {
-  'pingInterval': 1000, 
-  'pingTimeout': 500,
+//  'pingInterval': 1000, 
+//  'pingTimeout': 500,
   cors: {
       origin: "*",
       methods: ["GET", "POST"],
