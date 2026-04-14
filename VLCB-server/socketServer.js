@@ -727,9 +727,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('RESET_NODE', async function(nodeNumber){
       try{
         winston.info({message: name + `:  RESET_NODE ${nodeNumber}`});
-        node.sendNNRST(nodeNumber)
-        await utils.sleep(2000)        // wait for module to reset 
-        node.set_FCU_compatibility()
+        node.reset_node(nodeNumber)
       }catch(err){
         winston.error({message: name + `: RESET_NODE: ${err}`});
       }

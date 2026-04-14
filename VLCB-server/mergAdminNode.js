@@ -8,6 +8,7 @@ const { isUndefined } = require('util');
 const cbusLibrary = require('cbuslibrary');
 
 const name = 'mergAdminNode'
+const logPrefix = 'mergAdminNode'
 
 class cbusAdmin extends EventEmitter {
 
@@ -47,8 +48,9 @@ class cbusAdmin extends EventEmitter {
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
     this.LastCbusMessage = null
     this.CBUS_Queue = []
-    this.CBUS_Queue = []
     setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
+    this.awaitingNodeReset_Queue = []
+    setInterval(this.awaitingNodeResetIntervalFunc.bind(this), 500);
     this.eventsChanged = false
     // update client if anything changed
     setInterval(this.updateClients.bind(this), 200);
@@ -431,9 +433,11 @@ class cbusAdmin extends EventEmitter {
     winston.info({message: name + `: set_FCU_compatibility`});
     try {
       let ModeNumber = 0x11   // Turn off FCU compatibility
-      if (this.connectionDetails.FCU_Compatibility == true){
-          ModeNumber = 0x10   // Turn on FCU compatibility
-      }
+      try{
+        if (this.connectionDetails.FCU_Compatibility == true){
+            ModeNumber = 0x10   // Turn on FCU compatibility
+        }
+      } catch {}  // just ignore if this fails
       let nodeNumber = 0      // global (all nodes)
       this.CBUS_Queue.push(cbusLib.encodeMODE(nodeNumber, ModeNumber))
     } catch (err){
@@ -1036,6 +1040,17 @@ class cbusAdmin extends EventEmitter {
     this.nodeConfig.nodes[nodeNumber].hasChanged = true
   }
 
+  //
+  // reset node
+  // we don't get any indication when the node has completed
+  // so 
+  //
+  reset_node(nodeNumber){
+    this.createNodeConfig(nodeNumber, false) // reset config as doing reset
+    this.sendNNRST(nodeNumber)
+    // add to queue to check when completed
+    this.awaitingNodeReset_Queue.push({nodeNumber:nodeNumber, count:0})
+  }
 
 //************************************************************************ */
 //
@@ -1044,6 +1059,30 @@ class cbusAdmin extends EventEmitter {
 //
 //************************************************************************ */
 
+  //
+  // Function to check if node responds after reset
+  //
+  awaitingNodeResetIntervalFunc(){
+    if (this.awaitingNodeReset_Queue.length > 0){
+      for (let index in this.awaitingNodeReset_Queue){
+        winston.debug({ message: logPrefix + `: awaitingNodeResetIntervalFunc: ${JSON.stringify(this.awaitingNodeReset_Queue[index])}` })
+        let nodeNumber = this.awaitingNodeReset_Queue[index].nodeNumber
+        // check if we've had a response
+        if (this.nodeConfig.nodes[nodeNumber].parameters[0] == undefined){
+          this.CBUS_Queue.push(cbusLib.encodeRQNPN(nodeNumber, 0))
+          this.awaitingNodeReset_Queue[index].count++
+          if (this.awaitingNodeReset_Queue[index].count > 20){
+            // not had a response, so stop requests, remove from queue
+            this.awaitingNodeReset_Queue.splice(index, 1); // 2nd parameter means remove one item only
+          }
+        } else {
+          // remove this node from queue as we've had a response
+          this.awaitingNodeReset_Queue.splice(index, 1); // 2nd parameter means remove one item only
+          this.set_FCU_compatibility()
+        }
+      }
+    }
+  }
 
   //
   // Function to send CBUS messages one at a time, ensuring a gap between them

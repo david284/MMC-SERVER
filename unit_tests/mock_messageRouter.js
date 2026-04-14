@@ -120,6 +120,14 @@ class mock_messageRouter{
           this.inject(cbusMsg)
         }
         break
+      case "RQNPN":
+        winston.debug({message:name + `: processMessagesIn: RQNPN ` + message.text})
+        if (message.parameterIndex == 0){
+          // reply with number of event variables used - for test purposes, just 2
+          var cbusMsg = cbusLib.encodePARAN(message.nodeNumber, 0, 0)
+          this.inject(cbusMsg)
+        }
+        break
       default:
         winston.debug({message:name + `: processMessagesIn: default ` + JSON.stringify(message)})
     }

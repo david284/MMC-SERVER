@@ -1621,6 +1621,29 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: END remove_multiple_nodes test '});
   })
 
+  // reset_node test
+  //
+  it("reset_node test", function (done) {
+    winston.info({message: 'unit_test: BEGIN reset_node test: '});
+    mock_messageRouter.messagesIn = []
+    let nodeNumber = 1
+    node.reset_node(nodeNumber) 
+    setTimeout(function(){
+      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+      }
+      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNRST")
+      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("RQNPN")
+      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
+      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("MODE")
+      winston.info({message: 'unit_test: END reset_node test'});
+			done();
+		}, 1000);
+  })
+
+
+
 
 
 })
