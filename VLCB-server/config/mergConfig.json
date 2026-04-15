@@ -277,6 +277,12 @@
     "A558": {
       "name": "CANCDU_U"
     },
+    "A559": {
+      "name": "CANGATEX"
+    },
+    "A55A": {
+      "name": "CANGATEXL"
+    },
     "A5FC":{
       "name": "CANDEV"                  
     },
