@@ -1,6 +1,6 @@
 MMC Version 0.22.0
   Added CANDISP-A53B-4c.json
-  Updated CANCMD-A50A-4f.json
+  Updated CANCMD-A50A-4d.json, CANCMD-A50A-4f.json, CANCMDB-A553-4f.json, CANCSB-A537-4d.json, CANCSB-A537-4f.json
   Added CANGATEX-A559-2a.json & CANGATEXL-A55A-2a.json 
   use 'develop' type for long message SERVER_NOTIFICATION
   updated package.json for cbuslibrary 2.12.0
