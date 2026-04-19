@@ -9,13 +9,13 @@ required. It will prompt the user for the administrator password if required.
 
 The attached files would normally be stored in ***~*/MMC/MMC-SERVER/InstallAndRun/Linux**/****** but the **installMMC.sh** can be savedto a temporary directory and run from there. Execute permission will need to be set on the install script after saving it to the temporary directory:
 
-```
+```bash
 chmod 755 installMMC.sh
 ```
 
 Then execute the install script:
 
-```
+```bash
 ./installMMC.sh
 ```
 
@@ -31,6 +31,6 @@ Ian Hogg
 
 The user account may not have permissions to access the usb ports. This may be solved this by running the following:
 
-```
+```bash
 sudo usermod -aG dialout `<username>`
 ```
