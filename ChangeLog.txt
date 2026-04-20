@@ -1,3 +1,6 @@
+MMC Version 0.22.2
+  Updated client to matching version
+
 MMC Version 0.22.1
   Fix for windows install script
 
