@@ -12,7 +12,7 @@ REM  **************************************************************************
 REM  **************************************************************************
 
 REM  First some setting which may be changed but mostly these will be ok
-set NODEJS_DL_URL=https://nodejs.org/en/download
+set NODEJS_DL_URL=https://nodejs.org
 	REM  Good enough, Git doesn't need to be latest
 set GIT_VERSION=2.49.0
 set MMCSERVER_URL=https://github.com/david284/MMC-SERVER.git
@@ -84,13 +84,13 @@ REM  my solution is to read 1000 bytes at a time. Actually read 1050
 REM  overlapping with the next read so that if the version number is split by 
 REM  a read then the next read will encompass the entire version number.
 set s=0
-set e=1050
+set e=1100
 :parts
 	REM  get part of the page
 	FOR /F "delims=" %%i IN ('curl -fsSLk -r %s%-%e%  %NODEJS_DL_URL%') DO set h=%%i
 	REM  does it contain the LTS string?
 	REM  if not then add 1000 and loop 
-	if "x!h:(LTS)=!"=="x!h!" (
+	if "x!h:Latest LTS=!"=="x!h!" (
 		set /a s=%s%+1000
 		set /a e=%e%+1000
 		goto parts
@@ -103,8 +103,8 @@ REM  split on the letter v, discarding stuff before the v it it doesn't
 REM  contain LTS and keep the stuff after and loop.
 FOR /F "tokens=1,* delims=v" %%i IN ("!h!") DO (
 	set buffer="%%i"
-	if NOT "x!buffer:(LTS)=!"=="x!buffer!" (
-		FOR /f "tokens=1" %%b IN (!buffer!) do (
+	if NOT "x!buffer:Latest LTS=!"=="x!buffer!" (
+		FOR /f "tokens=1 delims=<" %%b IN (!buffer!) do (
 		    set NODEJS_VERSION=%%b
 		)
 	) else (
