@@ -1,5 +1,5 @@
 {
-  "timestamp": "202601261554",
+  "timestamp": "202603191554",
   "moduleName":"CANGATEX",
   "nodeVariables": [
     {
@@ -53,8 +53,8 @@
       "type": "NodeVariableDual",
       "displayTitle": "Base Value for DN",
       "displaySubTitle": "for short events",
-      "nodeVariableIndexHigh": 4,
-      "nodeVariableIndexLow": 5
+      "nodeVariableIndexHigh": 22,
+      "nodeVariableIndexLow": 23
     },   
     {
       "type": "NodeVariableGroup",
@@ -176,16 +176,15 @@
       "type": "EventVariableDual"
     },
     {
+      "displayTitle": "Invert Gate Polarity",
+      "displaySubTitle": "0 = Normal, anything else will invert",
+      "eventVariableIndex": 3,
+      "type": "EventVariableNumber"
+    },
+    {
       "displayTitle": "No Longer Used",
       "type": "EventVariableGroup",
       "groupItems": [
-        {
-          "displayTitle": "Invert Gate Polarity",
-          "displaySubTitle": "Not needed",
-          "eventVariableIndex": 3,
-          "bit": 0,
-          "type": "EventVariableBitSingle"
-        },
         {
           "displayTitle": "Gate Number",
           "displaySubTitle": "Not used on CANGATEX",
