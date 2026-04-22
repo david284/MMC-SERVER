@@ -20,7 +20,7 @@ set INSTALL_DIR=C:\MMC
 set GIT=C:\Program Files\Git\cmd
 
 setlocal enabledelayedexpansion
-echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
+echo Welcome to the MMC installer for Windows. Version 20 April 2026
 echo Checking for Administrator permission...
 net session >nul 2>&1
 if %errorLevel% == 0 (

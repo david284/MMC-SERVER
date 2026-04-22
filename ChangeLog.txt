@@ -1,3 +1,6 @@
+MMC Version 
+  Updated version date in InstallMMC.cmd
+
 MMC Version 0.22.2
   Updated client to matching version
 
