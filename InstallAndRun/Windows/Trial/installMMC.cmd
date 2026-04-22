@@ -128,7 +128,7 @@ REM  Get the NodeJS LTS download filename
 set NODEJS_DL_FILE=node-v%NODEJS_VERSION%-%SYSTEM_ARCH%.msi
 set NODEJS_DIST_URL=https://nodejs.org/dist/v%NODEJS_VERSION%/%NODEJS_DL_FILE%
 
-cd "%INSTALL_DIR%"
+cd /d "%INSTALL_DIR%"
 md temp 2>NUL
 cd temp
 
@@ -210,7 +210,7 @@ REM  test if node is running - which is likely to be the MMC-SERVER.
 REM  Setop server if it is running
 taskkill /IM node.exe 2>NUL
 REM 
-cd "%INSTALL_DIR%"
+cd /d "%INSTALL_DIR%"
 
 REM  Do we already have a cloned copy?
 REM  if not then clone it and install it
