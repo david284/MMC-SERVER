@@ -19,9 +19,8 @@ set INSTALL_DIR=C:\MMC
 set GIT=C:\Program Files\Git\cmd
 
 setlocal enabledelayedexpansion
-echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
 echo Checking for Administrator permission...
-net session >nul 2>&1
+whoami /groups | findstr /i "S-1-16-12288" >nul 2>&1
 if %errorLevel% == 0 (
         echo Administrative permissions confirmed.
 ) else (
@@ -29,6 +28,12 @@ if %errorLevel% == 0 (
 	pause
 	exit /b 1
 )
+
+if "%~1"=="__PHASE_TWO__" (
+    goto :installmmc
+)
+
+echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
 echo Installation directory set to %INSTALL_DIR%
 REM  ensure installation directory can be created
 md "%INSTALL_DIR%" 2>NUL
@@ -120,6 +125,7 @@ if %ERRORLEVEL% NEQ 0 (
 	)
 	echo Installing NodeJS...
 	msiexec /i %NODEJS_DL_FILE%
+	set relaunch_required="true"
 ) else (
 	FOR /F "delims=" %%i IN ('node --version') DO (
 		set this_version=%%i
@@ -139,6 +145,7 @@ if %ERRORLEVEL% NEQ 0 (
 			)
 			echo Installing NodeJS...
 			msiexec /i %NODEJS_DL_FILE%
+			set relaunch_required="true"
 		)
 	)
 )
@@ -168,7 +175,7 @@ if %ERRORLEVEL% NEQ 0 (
 	) else (echo Git installer already downloaded.)
 	echo Installing Git...
 	.\%GIT_DL_FILE%
-	path %GIT%; "%PATH%"
+	set relaunch_required="true"
 ) else (echo Git is already installed.)
 
 REM 
@@ -182,6 +189,23 @@ REM  test if node is running - which is likely to be the MMC-SERVER.
 REM  Setop server if it is running
 taskkill /IM node.exe 2>NUL
 REM 
+
+if %relaunch_required%=="true" (
+    echo Injecting new PATH into current session...
+    for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','Machine')"`) do set "MPATH=%%i"
+    for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','User')"`) do set "UPATH=%%i"
+    if "!UPATH!"=="" (
+        set "PATH=!MPATH!"
+    ) else (
+        set "PATH=!MPATH!;!UPATH!"
+    )
+    echo "Relaunching..."
+    cmd /c "%~f0" __PHASE_TWO__
+    exit /b
+)
+
+:installmmc
+
 cd /d "%INSTALL_DIR%"
 
 REM  Do we already have a cloned copy?
