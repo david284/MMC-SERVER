@@ -1,5 +1,6 @@
 MMC Version 
   Updated version date in InstallMMC.cmd
+  Changed getTimestamp() to include hours, and also use for bustraffic (issue 164)
 
 MMC Version 0.22.2
   Updated client to matching version

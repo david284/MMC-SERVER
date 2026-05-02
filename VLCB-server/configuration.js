@@ -413,11 +413,7 @@ class configuration {
   //
   writeBusTraffic(data){
     // use {flags: 'a'} to append and {flags: 'w'} to erase and write a new file
-    var time = new Date()
-    var timeStamp = String(time.getMinutes()).padStart(2, '0') + ':' 
-      + String(time.getSeconds()).padStart(2, '0') + '.' 
-      + String(time.getMilliseconds()).padStart(3, '0')
-    this.bustrafficLogStream.write(timeStamp + ' ' + data + "\r\n");
+    this.bustrafficLogStream.write(utils.getTimestamp() + ' ' + data + "\r\n");
   }
 
   //
