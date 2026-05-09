@@ -181,13 +181,7 @@
       "displayTitle": "Input/Output Gate Polarity",
       "bitCollection":[
         {"bitPosition": 0, "label": "Invert Output"},
-        {"bitPosition": 1, "label": "Invert Input"},
-        {"bitPosition": 2, "label": "n/a"},
-        {"bitPosition": 3, "label": "n/a"},
-        {"bitPosition": 4, "label": "n/a"},
-        {"bitPosition": 5, "label": "n/a"},
-        {"bitPosition": 6, "label": "n/a"},
-        {"bitPosition": 7, "label": "n/a"}
+        {"bitPosition": 1, "label": "Invert Input"}
       ]
     },
     {
