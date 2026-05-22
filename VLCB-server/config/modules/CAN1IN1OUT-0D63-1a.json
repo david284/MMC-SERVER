@@ -1,5 +1,5 @@
 {
-  "timestamp": "202507012135",
+  "timestamp": "202605192306",
   "moduleName" : "CAN1IN1OUT",
   "numberOfChannels": 2,
   "channelNames": {
@@ -16,9 +16,19 @@
   "eventVariables":[
     {
       "type": "EventVariableSelect",
+      "eventVariableIndex": 1,
+      "displayTitle": "${channel1}",
+      "options": [
+        {"label": "Consumer", "value": 0},
+        {"label": "Switch change", "value": 1}
+      ]
+    },
+    {
+      "type": "EventVariableSelect",
       "eventVariableIndex": 2,
       "displayTitle": "${channel2}",
       "options": [
+        {"label": "Off", "value": 0},
         {"label": "Normal", "value": 1},
         {"label": "Blink", "value": 2}
       ]
