@@ -38,7 +38,7 @@ const defaultLayoutData = {
   "eventDetails": {}
   }
 
-  const logsPath = path.join(__dirname, "..//", "logs")
+  const logsPath = path.join(process.cwd(), "logs")
 
   const bustrafficPath = path.join(logsPath, "bustraffic.txt")
   const bootloaderDataPath = path.join(logsPath, "bootloaderData.txt")
@@ -60,6 +60,8 @@ class configuration {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
+		winston.debug({message:  '--- logs path: ' + logsPath});
+    
     this.bustrafficLogStream = fs.createWriteStream(bustrafficPath, {flags: 'a+'});
     this.bootloaderDataLogStream = fs.createWriteStream(bootloaderDataPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();

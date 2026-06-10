@@ -4,6 +4,7 @@ MMC Version
   Updated CANGATEX-A559-2a.json & CANGATEXL-A559-2a.json
   Updated CAN1IN1OUT-0D63-1a.json
   removed bin folder & associated files
+  issue https://github.com/david284/MMC-SERVER/issues/168 changed to use process.cwd()
 
 MMC Version 0.22.2
   Updated client to matching version
