@@ -8,6 +8,8 @@ MMC Version 0.23.0
   added getModuleVersion & tests to address https://github.com/david284/MMC-SERVER/issues/167
   Merged changes to installer https://github.com/david284/MMC-SERVER/pull/166/ 
   Merged changes to linux md https://github.com/david284/MMC-SERVER/pull/160
+  Client
+    Updated version to match server
 
 MMC Version 0.22.2
   Updated client to matching version
