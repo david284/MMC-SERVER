@@ -12,17 +12,15 @@ REM  **************************************************************************
 REM  **************************************************************************
 
 REM  First some setting which may be changed but mostly these will be ok
-set NODEJS_DL_URL=https://nodejs.org/en/download
-	REM  Good enough, Git doesn't need to be latest
+REM  Good enough, Git doesn't need to be latest
 set GIT_VERSION=2.49.0
 set MMCSERVER_URL=https://github.com/david284/MMC-SERVER.git
 set INSTALL_DIR=C:\MMC
 set GIT=C:\Program Files\Git\cmd
 
 setlocal enabledelayedexpansion
-echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
 echo Checking for Administrator permission...
-net session >nul 2>&1
+whoami /groups | findstr /i "S-1-16-12288" >nul 2>&1
 if %errorLevel% == 0 (
         echo Administrative permissions confirmed.
 ) else (
@@ -30,6 +28,12 @@ if %errorLevel% == 0 (
 	pause
 	exit /b 1
 )
+
+if "%~1"=="__PHASE_TWO__" (
+    goto :installmmc
+)
+
+echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
 echo Installation directory set to %INSTALL_DIR%
 REM  ensure installation directory can be created
 md "%INSTALL_DIR%" 2>NUL
@@ -70,74 +74,47 @@ if "%SYSTEM_ARCH%x"=="x" (
 	exit /b 2
 )
 echo Architecture determined to be %SYSTEM_ARCH%
-REM 
-REM  **************************************************************************
-REM  The next big block works out what the latest version of npm/Node is. 
-REM  To do this we pull down the download page from the nodejs.org website 
-REM  and search through the page for the Long Term Support (LTS) version.
-REM  **************************************************************************
-REM 
 
 echo Working out the latest NodeJS version...
-REM  Unfortunately cmd seems to fail to store the entire page in a variable so
-REM  my solution is to read 1000 bytes at a time. Actually read 1050 
-REM  overlapping with the next read so that if the version number is split by 
-REM  a read then the next read will encompass the entire version number.
-set s=0
-set e=1050
-:parts
-	REM  get part of the page
-	FOR /F "delims=" %%i IN ('curl -fsSLk -r %s%-%e%  %NODEJS_DL_URL%') DO set h=%%i
-	REM  does it contain the LTS string?
-	REM  if not then add 1000 and loop 
-	if "x!h:(LTS)=!"=="x!h!" (
-		set /a s=%s%+1000
-		set /a e=%e%+1000
-		goto parts
-	) 
-REM  The page segment currently in h now contains the LTS string.
-REM  next extract the version number between ...v version LTS....
-
-:retry
-REM  split on the letter v, discarding stuff before the v it it doesn't 
-REM  contain LTS and keep the stuff after and loop.
-FOR /F "tokens=1,* delims=v" %%i IN ("!h!") DO (
-	set buffer="%%i"
-	if NOT "x!buffer:(LTS)=!"=="x!buffer!" (
-		FOR /f "tokens=1" %%b IN (!buffer!) do (
-		    set NODEJS_VERSION=%%b
-		)
-	) else (
-		set h=%%j
-		goto retry
-	)
+REM We need jq to parse the json from nodejs.org; if it's not available, we'll temp install it
+WHERE jq >NUL 2>NUL
+if %ERRORLEVEL% EQU 0 (
+    set JQ=jq
+) else (
+    echo Fetching jq...
+    if "%GIT_PROCESSOR%"=="arm64" (
+        set "JQ_EXE=jq-windows-amd64.exe"
+    ) else (
+        set "JQ_EXE=jq-win64.exe"
+    )
+    curl -sLo "%TEMP%\!JQ_EXE!" "https://github.com/jqlang/jq/releases/latest/download/!JQ_EXE!"
+    set "JQ=%TEMP%\!JQ_EXE!"
 )
-REM  We now have the version number of the LTS on the nodejs.org website.
-echo Latest NodeJS version was found to be v%NODEJS_VERSION%
 
+REM Fetch the latest LTS version from the nodejs.org website.
+FOR /F "delims=" %%F IN ('curl -fsSL https://nodejs.org/download/release/index.json ^
+                           ^| "%JQ%" -r "[.[]|select (.lts != false)][0] | .version"') DO (
+   set NODEJS_VERSION=%%F
+)
+echo Latest NodeJS version was found to be %NODEJS_VERSION%
 
-REM 
 REM  **************************************************************************
 REM  The next block works out whether npm/Node needs to be installed or updated. 
-REM 
-REM 
 REM  **************************************************************************
-REM 
 
 REM  Get the NodeJS LTS download filename
-set NODEJS_DL_FILE=node-v%NODEJS_VERSION%-%SYSTEM_ARCH%.msi
-set NODEJS_DIST_URL=https://nodejs.org/dist/v%NODEJS_VERSION%/%NODEJS_DL_FILE%
+set NODEJS_DL_FILE=node-%NODEJS_VERSION%-%SYSTEM_ARCH%.msi
+set NODEJS_DIST_URL=https://nodejs.org/dist/%NODEJS_VERSION%/%NODEJS_DL_FILE%
 
-cd "%INSTALL_DIR%"
+cd /d "%INSTALL_DIR%"
 md temp 2>NUL
 cd temp
-
 
 REM  check to see if node is installed
 node --version >NUL
 REM  if node is not present then install it
-REM  the user should selct to Automatically install all the tools
-REM  Will install chocolatey, Python
+REM  Note that there is no need for the user to select to
+REM  "Automatically install the necessary tools"
 if %ERRORLEVEL% NEQ 0 (
 	echo NodeJs is not installed...
 	if not exist %NODEJS_DL_FILE% (
@@ -148,12 +125,13 @@ if %ERRORLEVEL% NEQ 0 (
 	)
 	echo Installing NodeJS...
 	msiexec /i %NODEJS_DL_FILE%
+	set relaunch_required="true"
 ) else (
 	FOR /F "delims=" %%i IN ('node --version') DO (
 		set this_version=%%i
 	)
 	echo NodeJS version !this_version! already installed.
-	if "!this_version!"=="v%NODEJS_VERSION%" (
+	if "!this_version!"=="%NODEJS_VERSION%" (
 		echo NodeJS is up to date.
 	) else (
 		echo NodeJS should be updated.
@@ -167,11 +145,12 @@ if %ERRORLEVEL% NEQ 0 (
 			)
 			echo Installing NodeJS...
 			msiexec /i %NODEJS_DL_FILE%
+			set relaunch_required="true"
 		)
 	)
 )
 
-REM 
+REM
 REM  **************************************************************************
 REM  The next block works out whether Git already is present or needs to be 
 REM  installed. 
@@ -196,7 +175,7 @@ if %ERRORLEVEL% NEQ 0 (
 	) else (echo Git installer already downloaded.)
 	echo Installing Git...
 	.\%GIT_DL_FILE%
-	path %GIT%; "%PATH%"
+	set relaunch_required="true"
 ) else (echo Git is already installed.)
 
 REM 
@@ -210,7 +189,24 @@ REM  test if node is running - which is likely to be the MMC-SERVER.
 REM  Setop server if it is running
 taskkill /IM node.exe 2>NUL
 REM 
-cd "%INSTALL_DIR%"
+
+if %relaunch_required%=="true" (
+    echo Injecting new PATH into current session...
+    for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','Machine')"`) do set "MPATH=%%i"
+    for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','User')"`) do set "UPATH=%%i"
+    if "!UPATH!"=="" (
+        set "PATH=!MPATH!"
+    ) else (
+        set "PATH=!MPATH!;!UPATH!"
+    )
+    echo "Relaunching..."
+    cmd /c "%~f0" __PHASE_TWO__
+    exit /b
+)
+
+:installmmc
+
+cd /d "%INSTALL_DIR%"
 
 REM  Do we already have a cloned copy?
 REM  if not then clone it and install it
