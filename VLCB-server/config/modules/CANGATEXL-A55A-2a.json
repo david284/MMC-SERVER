@@ -180,16 +180,18 @@
       "type": "EventVariableDual"
     },
     {
+      "type": "EventVariableBitArray",
+      "eventVariableIndex": 3,
+      "displayTitle": "Input/Output Gate Polarity",
+      "bitCollection":[
+        {"bitPosition": 0, "label": "Invert Output"},
+        {"bitPosition": 1, "label": "Invert Input"}
+      ]
+    },
+    {
       "displayTitle": "No Longer Used",
       "type": "EventVariableGroup",
       "groupItems": [
-        {
-          "displayTitle": "Invert Gate Polarity",
-          "displaySubTitle": "Not needed",
-          "eventVariableIndex": 3,
-          "bit": 0,
-          "type": "EventVariableBitSingle"
-        },
         {
           "displayTitle": "Gate Number",
           "displaySubTitle": "Not used on CANGATEX",

@@ -248,8 +248,29 @@ exports.createDenseTimestamp = function createTimestamp(){
 }
 exports.getTimestamp = function getTimestamp(){
   var time = new Date()
-  var timeStamp = String(time.getSeconds()).padStart(2, '0') + '.' 
+  var timeStamp = 
+  String(time.getHours()).padStart(2, '0') + ':'
+  + String(time.getMinutes()).padStart(2, '0') + ':'
+  + String(time.getSeconds()).padStart(2, '0') + '.' 
   + String(time.getMilliseconds()).padStart(3, '0')
   return timeStamp
+}
+
+//
+// Convert parameters 7 & 2 into text module version string
+//
+exports.getModuleVersion = function getModuleVersion(node){
+  var version =""
+  if ((node.parameters[7] != undefined) && (node.parameters[2] != undefined)){
+    var minor = String.fromCharCode(node.parameters[2])
+    // check if it's actually a character...
+    if( minor.toUpperCase() != minor.toLowerCase() ){
+      version = node.parameters[7] + String.fromCharCode(node.parameters[2])
+    } else {
+      // otherwise put the number in brackets
+      version = node.parameters[7].toString() + '(' + node.parameters[2].toString() + ')'
+    }
+  }
+  return version
 }
 

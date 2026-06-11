@@ -1005,10 +1005,14 @@ class cbusAdmin extends EventEmitter {
         this.nodeConfig.nodes[nodeNumber].moduleManufacturerName = this.merg.moduleManufacturerName[this.nodeConfig.nodes[nodeNumber].manufacturerId]
       }
     }
+
+    this.nodeConfig.nodes[nodeNumber].moduleVersion = utils.getModuleVersion(this.nodeConfig.nodes[nodeNumber])
+    /*
     if ((this.nodeConfig.nodes[nodeNumber].parameters[7] != undefined) && (this.nodeConfig.nodes[nodeNumber].parameters[2] != undefined)){
       // get & store the version
       this.nodeConfig.nodes[nodeNumber].moduleVersion = this.nodeConfig.nodes[nodeNumber].parameters[7] + String.fromCharCode(this.nodeConfig.nodes[nodeNumber].parameters[2])
     }
+      */
     if (this.nodeConfig.nodes[nodeNumber].parameters[9] != undefined){
       // get & store the processorType
       this.nodeConfig.nodes[nodeNumber].processorType = this.nodeConfig.nodes[nodeNumber].parameters[9]

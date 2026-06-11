@@ -152,4 +152,29 @@ describe('utilities tests', function(){
     winston.info({message: 'unit_test: END nodeNumberIsSource test'});
   })
 
+
+  function GetTestCase_getModuleVersion() {
+    var arg1, arg2, testCases = [];
+    for (var a = 1; a<= 8; a++) {
+      if (a == 1) {arg1 = { "parameters":{"7":1, "2":0} }, arg2 = "1(0)"}
+      if (a == 2) {arg1 = { "parameters":{"7":1, "2":31} }, arg2 = "1(31)"}
+      if (a == 3) {arg1 = { "parameters":{"7":1, "2":"@".charCodeAt(0)} }, arg2 = "1(64)"}
+      if (a == 4) {arg1 = { "parameters":{"7":1, "2":"a".charCodeAt(0)} }, arg2 = "1a"}
+      if (a == 5) {arg1 = { "parameters":{"7":1, "2":"z".charCodeAt(0)} }, arg2 = "1z"}
+      if (a == 6) {arg1 = { "parameters":{"7":1, "2":"A".charCodeAt(0)} }, arg2 = "1A"}
+      if (a == 7) {arg1 = { "parameters":{"7":1, "2":"Z".charCodeAt(0)} }, arg2 = "1Z"}
+      if (a == 8) {arg1 = { "parameters":{"7":1, "2":"~".charCodeAt(0)} }, arg2 = "1(126)"}
+      testCases.push({'node':arg1, 'expectedResult': arg2});
+    }
+    return testCases;
+  }
+
+  itParam("getModuleVersion test ${JSON.stringify(value)}", GetTestCase_getModuleVersion(), function (value) {
+    winston.info({message: 'unit_test: BEGIN nodeNumberIsSource test '});
+    result = utils.getModuleVersion(value.node )
+    expect(result).to.equal(value.expectedResult)
+    winston.info({message: 'unit_test: END getModuleVersion test'});
+  })
+
+
 })
