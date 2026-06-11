@@ -7,6 +7,7 @@ MMC Version
   issue https://github.com/david284/MMC-SERVER/issues/168 changed to use process.cwd()
   added getModuleVersion & tests to address https://github.com/david284/MMC-SERVER/issues/167
   Merged changes to installer https://github.com/david284/MMC-SERVER/pull/166/ 
+  Merged changes to linux md https://github.com/david284/MMC-SERVER/pull/160
 
 MMC Version 0.22.2
   Updated client to matching version
