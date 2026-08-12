@@ -126,7 +126,7 @@ if %ERRORLEVEL% NEQ 0 (
 	)
 	echo Installing NodeJS...
 	msiexec /i %NODEJS_DL_FILE%
-	set relaunch_required="true"
+	set relaunch_required=true
 ) else (
 	FOR /F "delims=" %%i IN ('node --version') DO (
 		set this_version=%%i
@@ -146,7 +146,7 @@ if %ERRORLEVEL% NEQ 0 (
 			)
 			echo Installing NodeJS...
 			msiexec /i %NODEJS_DL_FILE%
-			set relaunch_required="true"
+			set relaunch_required=true
 		)
 	)
 )
@@ -176,7 +176,7 @@ if %ERRORLEVEL% NEQ 0 (
 	) else (echo Git installer already downloaded.)
 	echo Installing Git...
 	.\%GIT_DL_FILE%
-	set relaunch_required="true"
+	set relaunch_required=true
 ) else (echo Git is already installed.)
 
 REM 
@@ -191,7 +191,7 @@ REM  Setop server if it is running
 taskkill /IM node.exe 2>NUL
 REM 
 
-if %relaunch_required%=="true" (
+if "%relaunch_required%"=="true" (
     echo Injecting new PATH into current session...
     for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','Machine')"`) do set "MPATH=%%i"
     for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PATH','User')"`) do set "UPATH=%%i"
