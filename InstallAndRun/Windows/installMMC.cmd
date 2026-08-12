@@ -34,7 +34,6 @@ if "%~1"=="__PHASE_TWO__" (
     goto :installmmc
 )
 
-echo Welcome to the MMC installer for Windows. Version 27 July 2025 16:58
 echo Installation directory set to %INSTALL_DIR%
 REM  ensure installation directory can be created
 md "%INSTALL_DIR%" 2>NUL
