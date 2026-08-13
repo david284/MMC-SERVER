@@ -96,6 +96,11 @@ class configuration {
       winston.info({message: className + `: currentUserDirectory: ` + this.currentUserDirectory});
       // and default layout exists (creates directory if not there also)
       this.createLayoutFile(this.currentUserDirectory, defaultLayoutData.layoutDetails.title)
+
+      if (!fs.existsSync(logsPath)) {
+        fs.mkdirSync(logsPath)
+      }
+
     } catch (err){
       winston.error({message:  name + ': createDirectories: '+ err});
     }
