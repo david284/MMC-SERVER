@@ -93,7 +93,7 @@ if %ERRORLEVEL% EQU 0 (
 
 REM Fetch the latest LTS version from the nodejs.org website.
 FOR /F "delims=" %%F IN ('curl -fsSL https://nodejs.org/download/release/index.json ^
-                           ^| "%JQ%" -r "[.[]|select (.lts != false)][0] | .version"') DO (
+                           ^| "%JQ%" -r "[.[]|select (.lts)][0] | .version"') DO (
    set NODEJS_VERSION=%%F
 )
 echo Latest NodeJS version was found to be %NODEJS_VERSION%
