@@ -131,7 +131,8 @@ if %ERRORLEVEL% NEQ 0 (
 		set this_version=%%i
 	)
 	echo NodeJS version !this_version! already installed.
-	if "!this_version!"=="%NODEJS_VERSION%" (
+	powershell -Command "if ([System.Version]'%NODEJS_VERSION:v=%' -le [System.Version]'!this_version:v=!') { exit 0 } else { exit 1 }"
+	if !ERRORLEVEL! equ 0 (
 		echo NodeJS is up to date.
 	) else (
 		echo NodeJS should be updated.
