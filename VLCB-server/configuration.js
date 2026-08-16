@@ -234,6 +234,7 @@ class configuration {
     try{
       if (this.currentUserDirectory){
         var achivedLogsFolder = path.join(this.appStorageDirectory, 'archives', 'logs')
+        winston.debug({message: className + `: getArchivedLogsList: achivedLogsFolder ` + achivedLogsFolder});
         if (!fs.existsSync(achivedLogsFolder)){
           // doesn't exist, so create
           this.createDirectory(achivedLogsFolder)      

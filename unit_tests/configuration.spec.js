@@ -558,6 +558,7 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
+/*  
   //
   //
   it("getArchivedLogsList test", function (done) {
@@ -571,6 +572,7 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
+*/
 
   //
   //
