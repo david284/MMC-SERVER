@@ -186,17 +186,16 @@ class configuration {
     // create filename
     const archiveFile = 'logs_' + utils.createDenseTimestamp() + '.zip'
 
-    let logsFolder = './logs'
     // get list of files in logs folder
-    var list = fs.readdirSync(logsFolder).filter(function (file) {
-      return fs.statSync(path.join(logsFolder, file)).isFile();
+    var list = fs.readdirSync(this.logsPath).filter(function (file) {
+      return fs.statSync(path.join(this.logsPath, file)).isFile();
     },(this));
 
     // now add all files in list to zip
     try{
       list.forEach(logFile => {
-        winston.info({message: name + `: archive: ` + path.join(logsFolder, logFile)});
-        zip.addLocalFile(path.join(logsFolder, logFile))
+        winston.info({message: name + `: archive: ` + path.join(this.logsPath, logFile)});
+        zip.addLocalFile(path.join(this.logsPath, logFile))
       })
       // create archive folder if it doesn't exist
       let archiveFolderName = path.join(this.appStorageDirectory, 'archives')
@@ -245,6 +244,7 @@ class configuration {
     try{
       if (this.currentUserDirectory){
         var achivedLogsFolder = path.join(this.appStorageDirectory, 'archives', 'logs')
+        winston.debug({message: className + `: getArchivedLogsList: achivedLogsFolder ` + achivedLogsFolder});
         if (!fs.existsSync(achivedLogsFolder)){
           // doesn't exist, so create
           this.createDirectory(achivedLogsFolder)      
