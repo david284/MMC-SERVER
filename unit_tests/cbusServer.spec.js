@@ -9,8 +9,8 @@ const itParam = require('mocha-param');
 // let has block scope (or global if top level)
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
-const testSystemConfigPath = "./unit_tests/test_output/config"
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+const testSystemDirectory = "./unit_tests/test_output"
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory)
 
 let cbusServer = require('../VLCB-server/cbusServer')(config)
 

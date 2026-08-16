@@ -21,7 +21,7 @@ const utils = require('./../VLCB-server/utilities.js');
 
 //
 // Modules are stored in two directories
-// module descriptors published in the distribution are found in <this.systemDirectory>/modules
+// module descriptors published in the distribution are found in <this.systemConfigPath>/modules
 // ( typically /VLCB-server/config/modules )
 // User loaded module descriptors are kept in an OS specific folder
 //
@@ -54,6 +54,19 @@ const defaultLayoutData = {
   // and the OS in use
   //
 
+  // There are three main directory paths in use
+  //
+  // 'systemDirectory' is where the actual code is located, and will be overwritten
+  // By an application update, and is where system supplied configurations are stored
+  //
+  // 'appStorageDirectory' is where application settings are stored in the appSettings.json file, and is preserved
+  // over an application update. This is OS dependant
+  //
+  // 'currentUserDirectory' is used to store user supplied settings
+  // This is OS dependant, and may be set to a custom value in the appSettings.json file
+  //
+
+
 class configuration {
 
   constructor(systemDirectory) {
@@ -62,6 +75,9 @@ class configuration {
 		winston.debug({message:  '--- system path: ' + systemDirectory});
 		winston.debug({message:  '--- logs path: ' + logsPath});
     
+    this.systemDirectory = systemDirectory
+    this.systemConfigPath = path.join(systemDirectory, "config")
+
     this.bustrafficLogStream = fs.createWriteStream(bustrafficPath, {flags: 'a+'});
     this.bootloaderDataLogStream = fs.createWriteStream(bootloaderDataPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
@@ -74,7 +90,7 @@ class configuration {
   //
   // Attempt to create all three directories needed
   //   appStorageDirectory - OS dependant
-  //   SystemDirectory - application directory
+  //   systemConfigPath - needed to store runtime configs
   //   currentUserDirectory - typically appStorageDirectory, but can be changed (Custom)
   // should only create (& populate if appropriate) if directory doesn't exist
   //
@@ -88,8 +104,7 @@ class configuration {
       // now read appSettings from AppStorage, as its content may affect subsequent actions
       this.readAppSettings()
       //
-      this.systemDirectory = systemDirectory
-      this.createDirectory(systemDirectory)
+      this.createDirectory(this.systemConfigPath)
       // decide which directory to use for 'USER' content
       if (this.appSettings.userDataMode == 'CUSTOM' ){ this.currentUserDirectory = this.appSettings.customUserDirectory }
       else { this.currentUserDirectory = this.appStorageDirectory }    
@@ -634,12 +649,12 @@ class configuration {
   // reads/writes nodeConfig file to/from system directory
   //
   readNodeConfig(){
-    var filePath = this.systemDirectory + "/nodeConfig.json"
+    var filePath = this.systemConfigPath + "/nodeConfig.json"
     return jsonfile.readFileSync(filePath)
   }
   writeNodeConfig(data){
     winston.debug({message: className + `: writeNodeConfig:`});
-    var filePath = this.systemDirectory + "/nodeConfig.json"
+    var filePath = this.systemConfigPath + "/nodeConfig.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
     this.writeLogFile("nodeConfig.json", data)
   }
@@ -655,12 +670,12 @@ class configuration {
   // reads/writes the module descriptors currently in use for nodes to/from system directory
   //
   readNodeDescriptors(){
-    var filePath = this.systemDirectory + "/nodeDescriptors.json"
+    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     return jsonfile.readFileSync(filePath)
   }
 
   writeNodeDescriptors(data){
-    var filePath = this.systemDirectory + "/nodeDescriptors.json"
+    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
@@ -711,7 +726,7 @@ class configuration {
     var moduleDescriptor
     var filePath = undefined
     if (location == 'SYSTEM'){
-      filePath = this.systemDirectory + "/modules/" + filename
+      filePath = this.systemConfigPath + "/modules/" + filename
     }
     else if (location == 'USER'){
       filePath = this.currentUserDirectory + "/modules/" + filename
@@ -741,9 +756,9 @@ class configuration {
           //winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.userModuleDescriptorFileList)})
         }
       }
-      if (this.systemDirectory){
+      if (this.systemConfigPath){
         if (this.systemModuleDescriptorFileList.length == 0){
-          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemDirectory, 'modules'))
+          this.systemModuleDescriptorFileList = fs.readdirSync(path.join(this.systemConfigPath, 'modules'))
           //winston.debug({message: className + ': getModuleDescriptorFileList ' + JSON.stringify(this.systemModuleDescriptorFileList)})
         }
       }
@@ -778,7 +793,7 @@ class configuration {
   getMatchingMDFList(location, match){
     var folder
     if (location.toUpperCase() == "SYSTEM"){
-      folder = path.join(this.systemDirectory, 'modules')
+      folder = path.join(this.systemConfigPath, 'modules')
     } else {
       folder = path.join(this.currentUserDirectory, 'modules')
     }
@@ -881,7 +896,7 @@ class configuration {
   // static file, so use fixed location
   //
   readMergConfig(){
-    var filePath = this.systemDirectory + "/mergConfig.json"
+    var filePath = this.systemConfigPath + "/mergConfig.json"
     return jsonfile.readFileSync(filePath)
   }
 
@@ -889,7 +904,7 @@ class configuration {
   // static file, so use fixed location
   //
   readServiceDefinitions(){
-    var filePath = this.systemDirectory + "/Service_Definitions.json"
+    var filePath = this.systemConfigPath + "/Service_Definitions.json"
     return jsonfile.readFileSync(filePath)
   }
   

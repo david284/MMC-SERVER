@@ -1,3 +1,6 @@
+MMC Version 0.23.2
+  Changed parameter to configuration.js to be root folder, not including /config
+
 MMC Version 0.23.1
   issue 171: Fix problem with Windows installer failing
 

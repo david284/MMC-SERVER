@@ -13,9 +13,9 @@ const utils = require('./../VLCB-server/utilities.js');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const testSystemConfigPath = "./unit_tests/test_output/config"
+const testSystemDirectory = "./unit_tests/test_output"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory)
 // override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory

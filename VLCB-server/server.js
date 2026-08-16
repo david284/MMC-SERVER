@@ -5,7 +5,7 @@ winston.info({message: name + ': Loaded'});
 const utils = require('./utilities.js');
 
 // pass in the system directory based on the directory of this module
-const config = require('../VLCB-server/configuration.js')(__dirname + '/config')
+const config = require('../VLCB-server/configuration.js')(__dirname)
 
 // set config items
 config.setSocketServerPort(5552);
