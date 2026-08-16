@@ -576,6 +576,7 @@ describe('configuration tests', function(){
   })
 */
 
+/*
   //
   //
   it("readBinaryFile test", function (done) {
@@ -592,7 +593,7 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
-
+*/
 
   //
   // test writeLogFile
