@@ -1,5 +1,7 @@
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
+  Added logsPath parameter to configuration, so unit test logs are stored separately
+  Merged pull request #176/ issue #175 - tests fail no logs directory
 
 MMC Version 0.23.1
   issue 171: Fix problem with Windows installer failing

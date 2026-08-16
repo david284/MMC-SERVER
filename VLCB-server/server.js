@@ -2,10 +2,12 @@
 const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
+const path = require('path');
 const utils = require('./utilities.js');
 
 // pass in the system directory based on the directory of this module
-const config = require('../VLCB-server/configuration.js')(__dirname)
+// and the logs path, based on the root directory of the project
+const config = require('../VLCB-server/configuration.js')(__dirname, path.join(process.cwd(), "logs"))
 
 // set config items
 config.setSocketServerPort(5552);

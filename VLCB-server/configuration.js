@@ -2,7 +2,7 @@
 const winston = require('winston');		// use config from root instance
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-var path = require('path');
+const path = require('path');
 const AdmZip = require("adm-zip");
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
@@ -38,22 +38,8 @@ const defaultLayoutData = {
   "eventDetails": {}
   }
 
-  const logsPath = path.join(process.cwd(), "logs")
-
-  const bustrafficPath = path.join(logsPath, "bustraffic.txt")
-  const bootloaderDataPath = path.join(logsPath, "bootloaderData.txt")
-
+  /////////////////////////////////////////////////////////////////////////////
   //
-  // Application settings are stored in the appSettings.json file
-  // This is stored in the 'appStorageDirectory' which is OS dependant
-  //
-  // The code will use two directories for other data storage,
-  // A system directory in the application folder
-  // And a 'user' directory, independant of the application folder, so it's not overwritten on an update
-  // The 'user' directory is dependant on the OS userDataMode setting
-  // and the OS in use
-  //
-
   // There are three main directory paths in use
   //
   // 'systemDirectory' is where the actual code is located, and will be overwritten
@@ -65,11 +51,12 @@ const defaultLayoutData = {
   // 'currentUserDirectory' is used to store user supplied settings
   // This is OS dependant, and may be set to a custom value in the appSettings.json file
   //
+  /////////////////////////////////////////////////////////////////////////////
 
 
 class configuration {
 
-  constructor(systemDirectory) {
+  constructor(systemDirectory, logsPath) {
     //                        012345678901234567890123456789987654321098765432109876543210
 		winston.debug({message:  '----------------- configuration Constructor ----------------'});
 		winston.debug({message:  '--- system path: ' + systemDirectory});
@@ -77,9 +64,13 @@ class configuration {
     
     this.systemDirectory = systemDirectory
     this.systemConfigPath = path.join(systemDirectory, "config")
+    
+    this.logsPath = logsPath
+    this.bustrafficPath = path.join(this.logsPath, "bustraffic.txt")
+    this.bootloaderDataPath = path.join(this.logsPath, "bootloaderData.txt")
 
-    this.bustrafficLogStream = fs.createWriteStream(bustrafficPath, {flags: 'a+'});
-    this.bootloaderDataLogStream = fs.createWriteStream(bootloaderDataPath, {flags: 'a+'});
+    this.bustrafficLogStream = fs.createWriteStream(this.bustrafficPath, {flags: 'a+'});
+    this.bootloaderDataLogStream = fs.createWriteStream(this.bootloaderDataPath, {flags: 'a+'});
     this.eventBus = new EventEmitter();
     this.userModuleDescriptorFileList = []
     this.systemModuleDescriptorFileList = []
@@ -112,8 +103,8 @@ class configuration {
       // and default layout exists (creates directory if not there also)
       this.createLayoutFile(this.currentUserDirectory, defaultLayoutData.layoutDetails.title)
 
-      if (!fs.existsSync(logsPath)) {
-        fs.mkdirSync(logsPath)
+      if (!fs.existsSync(this.logsPath)) {
+        fs.mkdirSync(this.logsPath)
       }
 
     } catch (err){
@@ -423,7 +414,7 @@ class configuration {
   //
   readLogFile(fileName){
     try{
-    var filePath = path.join(logsPath, fileName)
+    var filePath = path.join(this.logsPath, fileName)
     let data = btoa(fs.readFileSync(filePath))
     return data
     } catch(err){
@@ -453,7 +444,7 @@ class configuration {
   // writes data into a log file
   //
   writeLogFile(fileName, data){
-    let filePath = path.join(logsPath, fileName)
+    let filePath = path.join(this.logsPath, fileName)
     try{      
       winston.debug({message: className + `: writeLogFile: ${filePath}`});
       jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})

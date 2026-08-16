@@ -1,5 +1,6 @@
 const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: socketServer.spec.js'});
+const path = require('path');
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const fs = require('fs');
@@ -22,7 +23,8 @@ const socketServer = require('../VLCB-server/socketServer.js')
 const testSystemDirectory = "./unit_tests/test_output"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
 const testAppStoragePath = "./unit_tests/test_output"
-const config = require('../VLCB-server/configuration.js')(testSystemDirectory)
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 // override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory

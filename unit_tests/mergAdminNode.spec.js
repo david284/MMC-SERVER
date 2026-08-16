@@ -1,5 +1,6 @@
 const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: mergAdminNode.spec.js'});
+const path = require('path');
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 
@@ -15,7 +16,8 @@ const utils = require('./../VLCB-server/utilities.js');
 
 const testSystemDirectory = "./unit_tests/test_output"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
-const config = require('../VLCB-server/configuration.js')(testSystemDirectory)
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 // override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory

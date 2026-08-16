@@ -4,7 +4,7 @@ const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-var path = require('path');
+const path = require('path');
 const utils = require('../VLCB-server/utilities.js');
 
 
@@ -27,7 +27,8 @@ fs.rmSync(path.join(testSystemConfigPath, 'modules'), { recursive: true, force: 
 winston.info({message: 'Deleting user path ' + testUserConfigPath});
 fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
-const config = require('../VLCB-server/configuration.js')(testSystemDirectory)
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 //const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 // override direectories set in configuration constructor
