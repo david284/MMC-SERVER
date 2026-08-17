@@ -1,0 +1,188 @@
+{
+  "nodes": {
+    "65535": {
+      "CANID": 123,
+      "nodeNumber": 65535,
+      "moduleIdentifier": "",
+      "moduleVersion": "",
+      "parameters": {},
+      "nodeVariables": {},
+      "storedEventsNI": {
+        "FFFFFFFF": {
+          "eventIdentifier": "FFFFFFFF",
+          "variables": {
+            "255": 255
+          },
+          "eventIndex": 1
+        }
+      },
+      "eventsByIndex": {
+        "1": {
+          "eventIndex": 1,
+          "variables": {
+            "255": 255
+          },
+          "eventIdentifier": "FFFFFFFF"
+        }
+      },
+      "status": true,
+      "services": {},
+      "lastReceiveTimestamp": 1786895758671,
+      "getNodeDescriptorTimeStamp": 0,
+      "versionAlreadyRequested": false,
+      "eventsAlreadyRequested": false,
+      "minParamsAlreadyRequested": false,
+      "NodeModifiedTimestamp": 1786895758610,
+      "hasChanged": false
+    }
+  },
+  "events": {
+    "L00000000": {
+      "eventIdentifier": "00000000",
+      "nodeNumber": 0,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "L00000001": {
+      "eventIdentifier": "00000001",
+      "nodeNumber": 0,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "L0000FFFF": {
+      "eventIdentifier": "0000FFFF",
+      "nodeNumber": 0,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "L00010000": {
+      "eventIdentifier": "00010000",
+      "nodeNumber": 1,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "L00010001": {
+      "eventIdentifier": "00010001",
+      "nodeNumber": 1,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "L0001FFFF": {
+      "eventIdentifier": "0001FFFF",
+      "nodeNumber": 1,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "LFFFF0000": {
+      "eventIdentifier": "FFFF0000",
+      "nodeNumber": 65535,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "LFFFF0001": {
+      "eventIdentifier": "FFFF0001",
+      "nodeNumber": 65535,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "LFFFFFFFF": {
+      "eventIdentifier": "FFFFFFFF",
+      "nodeNumber": 65535,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "long",
+      "count": 2
+    },
+    "S00000000": {
+      "eventIdentifier": "00000000",
+      "nodeNumber": 0,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "S00000001": {
+      "eventIdentifier": "00000001",
+      "nodeNumber": 0,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "S0000FFFF": {
+      "eventIdentifier": "0000FFFF",
+      "nodeNumber": 0,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "S00010000": {
+      "eventIdentifier": "00000000",
+      "nodeNumber": 1,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "S00010001": {
+      "eventIdentifier": "00000001",
+      "nodeNumber": 1,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "S0001FFFF": {
+      "eventIdentifier": "0000FFFF",
+      "nodeNumber": 1,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "SFFFF0000": {
+      "eventIdentifier": "00000000",
+      "nodeNumber": 65535,
+      "eventNumber": 0,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "SFFFF0001": {
+      "eventIdentifier": "00000001",
+      "nodeNumber": 65535,
+      "eventNumber": 1,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    },
+    "SFFFFFFFF": {
+      "eventIdentifier": "0000FFFF",
+      "nodeNumber": 65535,
+      "eventNumber": 65535,
+      "status": "on",
+      "type": "short",
+      "count": 2
+    }
+  },
+  "setupMode": {
+    "NAME": ""
+  }
+}

@@ -4,7 +4,7 @@ const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const fs = require('fs');
 const jsonfile = require('jsonfile')
-var path = require('path');
+const path = require('path');
 const utils = require('../VLCB-server/utilities.js');
 
 
@@ -15,6 +15,7 @@ const utils = require('../VLCB-server/utilities.js');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
+const testSystemDirectory = "./unit_tests/test_output"
 const testSystemConfigPath = "./unit_tests/test_output/config"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
 
@@ -26,7 +27,8 @@ fs.rmSync(path.join(testSystemConfigPath, 'modules'), { recursive: true, force: 
 winston.info({message: 'Deleting user path ' + testUserConfigPath});
 fs.rmSync(path.join(testUserConfigPath), { recursive: true, force: true });
 
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 //const config = require('../VLCB-server/configuration.js')(testSystemConfigPath, testUserConfigPath)
 
 // override direectories set in configuration constructor
@@ -46,15 +48,15 @@ async function createTestFiles(){
   //
 
   // ensure 'system' modules directory exists
-  config.createDirectory(path.join(config.systemDirectory, "modules"))
+  config.createDirectory(path.join(config.systemDirectory, "config", "modules"))
   // write test files
-  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-1a--P11.json")
+  testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-1a--P11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-1b.json")
+  testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-1b.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-2a.json")
+  testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-2a.json")
   jsonfile.writeFileSync(testFilePath, testContent)
-  testFilePath = path.join(config.systemDirectory, "modules", "MDFTEST-YYYY-2a--p11.json")
+  testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-2a--p11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
 
   // ensure 'user' modules directory exists
@@ -558,7 +560,6 @@ describe('configuration tests', function(){
 		}, 50);
   })
 
-/*  
   //
   //
   it("getArchivedLogsList test", function (done) {
@@ -572,7 +573,8 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
-*/
+
+
 
   //
   //
@@ -590,7 +592,6 @@ describe('configuration tests', function(){
       done();
 		}, 50);
   })
-
 
   //
   // test writeLogFile

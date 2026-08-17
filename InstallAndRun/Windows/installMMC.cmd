@@ -93,7 +93,7 @@ if %ERRORLEVEL% EQU 0 (
 
 REM Fetch the latest LTS version from the nodejs.org website.
 FOR /F "delims=" %%F IN ('curl -fsSL https://nodejs.org/download/release/index.json ^
-                           ^| "%JQ%" -r "[.[]|select (.lts != false)][0] | .version"') DO (
+                           ^| "%JQ%" -r "[.[]|select (.lts)][0] | .version"') DO (
    set NODEJS_VERSION=%%F
 )
 echo Latest NodeJS version was found to be %NODEJS_VERSION%
@@ -131,7 +131,8 @@ if %ERRORLEVEL% NEQ 0 (
 		set this_version=%%i
 	)
 	echo NodeJS version !this_version! already installed.
-	if "!this_version!"=="%NODEJS_VERSION%" (
+	powershell -Command "if ([System.Version]'%NODEJS_VERSION:v=%' -le [System.Version]'!this_version:v=!') { exit 0 } else { exit 1 }"
+	if !ERRORLEVEL! equ 0 (
 		echo NodeJS is up to date.
 	) else (
 		echo NodeJS should be updated.

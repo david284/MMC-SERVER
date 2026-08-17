@@ -1,5 +1,6 @@
 const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: programNode.spec.js'});
+const path = require('path');
 const expect = require('chai').expect;
 var itParam = require('mocha-param');
 const fs = require('fs');
@@ -11,9 +12,10 @@ const cbusLib = require('cbuslibrary')
 const NET_PORT = 5591;
 const NET_ADDRESS = "127.0.0.1"
 
-const testSystemConfigPath = "./unit_tests/test_output/config"
+const testSystemDirectory = "./unit_tests/test_output"
 const testUserConfigPath = "./unit_tests/test_output/test_user"
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 // override direectories set in configuration constructor
 config.singleUserDirectory = testUserConfigPath
 config.currentUserDirectory = config.singleUserDirectory

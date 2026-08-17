@@ -1,5 +1,6 @@
 const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: messageRouter.spec.js'});
+const path = require('path');
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 
@@ -9,8 +10,9 @@ const itParam = require('mocha-param');
 // let has block scope (or global if top level)
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
-const testSystemConfigPath = "./unit_tests/test_output/config"
-const config = require('../VLCB-server/configuration.js')(testSystemConfigPath)
+const testSystemDirectory = "./unit_tests/test_output"
+const logsPath = path.join(process.cwd(), "unit_tests", "logs")
+const config = require('../VLCB-server/configuration.js')(testSystemDirectory, logsPath)
 
 const cbusServerPort = 9990
 

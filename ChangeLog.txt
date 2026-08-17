@@ -1,3 +1,12 @@
+MMC Version 0.23.2
+  Changed parameter to configuration.js to be root folder, not including /config
+  Added logsPath parameter to configuration, so unit test logs are stored separately
+  Merged pull request #176/ issue #175 - tests fail no logs directory
+  Added github action to run unit tests on commit (inc. pull request #179)
+  Merged pull request #173 - Fix issue with calculating Nodejs LTS version
+  Merged pull request #177 - Improve NodeJS installed version test
+  Updated client version to match server
+
 MMC Version 0.23.1
   issue 171: Fix problem with Windows installer failing
 
