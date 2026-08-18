@@ -79,3 +79,11 @@ For testing purposes, there is a software simulation of a CBUS network available
 which avoids the need for any other physical hardware
 This application provides a simulation of multiple modules on a VLCB network, and has been used to test operation of this conformance test
 https://github.com/david284/CbusNetworkSimulator.git
+
+# Contributing and Development
+
+Interested in contributing to the project?
+
+* **Contributors:** See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on setting up your fork, making changes, running tests, and submitting a pull request.
+* **Maintainers and contributors:** See [DEVELOPMENT.md](DEVELOPMENT.md) for the project's development workflow, branching model, integration process, and release procedure.
+
