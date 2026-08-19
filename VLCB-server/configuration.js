@@ -7,7 +7,6 @@ const AdmZip = require("adm-zip");
 const EventEmitter = require('events').EventEmitter;
 const name = 'configuration'
 const os = require("os");
-const packageInfo = require(process.cwd()+'/package.json')
 const utils = require('./../VLCB-server/utilities.js');
 
 
@@ -85,7 +84,7 @@ class configuration {
   //   currentUserDirectory - typically appStorageDirectory, but can be changed (Custom)
   // should only create (& populate if appropriate) if directory doesn't exist
   //
-  createDirectories(systemDirectory){
+  createDirectories(){
     // create a single user directory, based on OS platform
     try{
       // Create appStorage & create appSettings file is either don't exist
@@ -274,7 +273,6 @@ class configuration {
     if ((filename != undefined) && (filename.length > 0)){
       var filePath = path.join(this.currentUserDirectory, 'layouts', layoutName, 'backups', 'Node' + nodenumber, filename)
       winston.debug({message: className + ` deleteNodeBackup: ` + filePath });
-      var file = null
       try{
         fs.rmSync(filePath, { recursive: true }) 
       } catch(err){
@@ -580,7 +578,7 @@ class configuration {
       try{
         winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
         file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
-      } catch(e){
+      } catch {
         winston.info({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
         // couldn't read the layout, so get the default layout instead...
         try {
@@ -588,7 +586,7 @@ class configuration {
           filePath = path.join(this.currentUserDirectory, 'layouts', this.getCurrentLayoutFolder())
           winston.info({message: className + `: readLayoutData: reading ` + path.join(filePath, "layoutData.json")});
           file = jsonfile.readFileSync(path.join(filePath, "layoutData.json"))
-        } catch(e){
+        } catch {
           // ok, totally failed, so load with defaults
           winston.error({message: className + `: readLayoutData: Error reading ` + path.join(filePath, "layoutData.json")});
           winston.info({message: className + `: readLayoutData: defaults loaded`});
@@ -805,7 +803,7 @@ class configuration {
           result.push([item, moduleDescriptor.timestamp])
         }
       })
-    } catch(err){
+    } catch {
           
     }
     winston.debug({message: className + ': getMatchingMDFList: result: ' + JSON.stringify(result)})

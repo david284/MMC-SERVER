@@ -205,7 +205,7 @@ class serialGC  extends EventEmitter {
   }
 
   async getCANUSBx(){
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       winston.debug({message: name + `: getCANUSBx`})
       SerialPort.list().then(ports => {
         ports.forEach(function(port) {
@@ -227,7 +227,7 @@ class serialGC  extends EventEmitter {
   //
   //
   async getSerialPorts() {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       var serialports= [];
       var portIndex = 0;
       SerialPort.list().then(ports => {

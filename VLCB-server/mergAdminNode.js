@@ -1,10 +1,8 @@
 const winston = require('winston');		// use config from root instance
-const net = require('net')
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
 const longMessage = require('./../VLCB-server/longMessage.js')
-const { isUndefined } = require('util');
 const cbusLibrary = require('cbuslibrary');
 
 const name = 'mergAdminNode'
@@ -75,7 +73,7 @@ class cbusAdmin extends EventEmitter {
 
     //
     this.actions = { //actions when Opcodes are received
-      '00': async (cbusMsg) => { // ACK
+      '00': async () => { // ACK
           winston.info({message: "mergAdminNode: ACK (00) : No Action"});
       },
       //
@@ -369,7 +367,7 @@ class cbusAdmin extends EventEmitter {
         } catch (err) { winston.error({message: name + `: LM (E9) ${err}` }) }
       },
       //
-      'EF': async (cbusMsg) => {//PARAMS - response to RQNP in setup mode
+      'EF': async () => {//PARAMS - response to RQNP in setup mode
         try{
           //winston.debug({message: `mergAdminNode: PARAMS (EF) Received`});
         } catch (err) { winston.error({message: name + `: PARAMS (EF) ${err}` }) }

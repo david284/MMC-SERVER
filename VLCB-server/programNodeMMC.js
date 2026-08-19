@@ -1,10 +1,5 @@
 'use strict';
 var winston = require('winston');		// use config from root instance
-const net = require('net')
-const fs = require('fs');
-const readline = require('readline');
-const jsonfile = require('jsonfile')
-const path = require('path');
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
@@ -20,7 +15,6 @@ const name = 'programNode'
 
 // control bit weights
 const CTLBT_WRITE_UNLOCK = 1
-const CTLBT_ERASE_ONLY = 2
 const CTLBT_AUTO_ERASE = 4
 const CTLBT_AUTO_INC = 8
 const CTLBT_ACK = 16
@@ -486,7 +480,6 @@ class programNode extends EventEmitter  {
     // parameters start at offset 0x820 in the firmware download
     // cpu type is a byte value at 0x828
     //
-    var result = false
     var targetCPU =null
     if(this.BOOTLOADER_DATA_BLOCKS[0x828]){
       targetCPU = this.BOOTLOADER_DATA_BLOCKS[0x828][0]
@@ -551,7 +544,6 @@ class programNode extends EventEmitter  {
     // now lets look at the line we're given
     // but beware there is likely to be unwanted 'End of Line' characters
     // So calculate length of valid content
-    var MARK = line.substr(0,1)
     var RECLEN = parseInt(line.substr(1,2), 16)
     var OFFSET = parseInt(line.substr(3,4), 16)
     var RECTYP = parseInt(line.substr(7,2), 16) 
