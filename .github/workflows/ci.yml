@@ -1,0 +1,13 @@
+name: CI tests when code pushed to repository
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-common.yml
