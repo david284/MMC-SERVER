@@ -4,7 +4,6 @@ const path = require('path');
 const expect = require('chai').expect;
 const itParam = require('mocha-param');
 const fs = require('fs');
-const net = require('net')
 //import io from 'socket.io-client'
 const { io } = require("socket.io-client")
 const cbusLib = require('cbuslibrary')
@@ -49,25 +48,6 @@ const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 node.inUnitTest = true
 socketServer.socketServer(config, node, mock_messageRouter, cbusServer, programNode, status)
 
-
-function stringToHex(string) {
-  // expects UTF-8 string
-  var bytes = new TextEncoder().encode(string);
-  return Array.from(
-    bytes,
-    byte => byte.toString(16).padStart(2, "0")
-  ).join("");
-}
-
-function hexToString(hex) {
-    // returns UTF-8 string
-    const bytes = new Uint8Array(hex.length / 2);
-    for (let i = 0; i !== bytes.length; i++) {
-        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
-    }
-    return new TextDecoder().decode(bytes);
-}
-
 const name = 'unit_test: socketServer'
 
 describe('socketServer tests', async function(){
@@ -76,7 +56,7 @@ describe('socketServer tests', async function(){
   const socket = io(`http://${"localhost"}:${config.getSocketServerPort()}`)
 
   // Add a connect listener
-  socket.on('connect', function (socket) {
+  socket.on('connect', function () {
     winston.info({message: 'socketserver: web socket Connected!'})
   });
 
@@ -120,13 +100,6 @@ describe('socketServer tests', async function(){
   // Actual tests after here...
   //
   //****************************************************************************************** */  
-
-  function GetTestCase_boolean() {
-    var testCases = [];
-    testCases.push({'boolean':true});
-    testCases.push({'boolean':false});
-    return testCases;
-  }
 
   function GetTestCase_nodeNumber() {
     var arg1, testCases = [];
@@ -174,7 +147,7 @@ describe('socketServer tests', async function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
-        CbusMsg = mock_messageRouter.messagesIn[0]
+        const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -205,7 +178,7 @@ describe('socketServer tests', async function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
-        CbusMsg = mock_messageRouter.messagesIn[0]
+        const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -236,7 +209,7 @@ describe('socketServer tests', async function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
-        CbusMsg = mock_messageRouter.messagesIn[0]
+        const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -267,7 +240,7 @@ describe('socketServer tests', async function(){
     setTimeout(function(){
       if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
-        CbusMsg = mock_messageRouter.messagesIn[0]
+        const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
@@ -367,7 +340,7 @@ describe('socketServer tests', async function(){
     socket.emit('SET_CAN_ID', data)
 
     setTimeout(function(){
-      CbusMsg = mock_messageRouter.messagesIn[0]
+      const CbusMsg = mock_messageRouter.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
       expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
       expect(CbusMsg.CAN_ID).to.equal(1)
@@ -383,7 +356,7 @@ describe('socketServer tests', async function(){
     socket.emit('SET_NODE_NUMBER', value.nodeNumber)
 
     setTimeout(function(){
-      CbusMsg = mock_messageRouter.messagesIn[0]
+      const CbusMsg = mock_messageRouter.messagesIn[0]
       winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
       expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
       winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});
@@ -398,7 +371,6 @@ describe('socketServer tests', async function(){
     winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
     var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
     mock_messageRouter.messagesIn = []
-    nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
     //node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     var receivedNodeNumber = undefined
@@ -421,7 +393,7 @@ describe('socketServer tests', async function(){
   it("REQUEST_BUS_CONNECTION test", function (done) {
     winston.info({message: name + ': BEGIN REQUEST_BUS_CONNECTION test '});
     var result = false
-    socket.once('BUS_CONNECTION', function (data) {
+    socket.once('BUS_CONNECTION', function () {
       result = true
     })
     socket.emit('REQUEST_BUS_CONNECTION')

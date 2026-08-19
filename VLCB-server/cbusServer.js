@@ -2,9 +2,7 @@ const winston = require('winston');
 const name = 'cbusServer.js'
 const net = require('net')
 
-const utils = require('./utilities.js');
 const serialGC = require('../VLCB-server/serialGC.js');
-const { get } = require('http');
 
 //
 // cbusServer - many to one adapter
@@ -49,7 +47,7 @@ class cbusServer {
 
       //
       //
-      socket.on("error", (err) => {
+      socket.on("error", () => {
         winston.error({message: name + `: socket error:`})
       })
 

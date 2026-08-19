@@ -1,7 +1,6 @@
 const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: canUSBX.spec.js'});
 const expect = require('chai').expect;
-const itParam = require('mocha-param');
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only

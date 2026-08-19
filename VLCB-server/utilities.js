@@ -43,7 +43,7 @@ exports.getMGCCANID = function getMGCCANID(MGC_message){
 }
 
 exports.sleep = function sleep(timeout) {
-	return new Promise(function (resolve, reject) {
+	return new Promise(function (resolve) {
 		//here our function should be implemented 
 		setTimeout(()=>{
 			resolve();
@@ -142,7 +142,7 @@ exports.getEventTableIndexNI = function getEventTableIndexNI(node, eventIdentifi
   var tableIndex = undefined
   try{
     tableIndex = node.storedEventsNI[eventIdentifier].eventIndex
-  } catch (err) {}
+  } catch {}
   winston.debug({message: name + ': getEventTableIndexNI:  result ' + tableIndex})
   return tableIndex
 }

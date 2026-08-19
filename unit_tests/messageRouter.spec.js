@@ -2,7 +2,6 @@ const winston = require('./config/winston_test.js')
 winston.info({message: 'FILE: messageRouter.spec.js'});
 const path = require('path');
 const expect = require('chai').expect;
-const itParam = require('mocha-param');
 
 // Scope:
 // variables declared outside of the class are 'global' to this module only
@@ -67,7 +66,7 @@ describe('messageRouter tests', function(){
     })
 
     let testMessage = ":SB780N0D;"  // QNN
-    var result = messageRouter.sendCbusMessage(testMessage)
+    messageRouter.sendCbusMessage(testMessage)
 
     setTimeout(function(){
       winston.info({message: name +': sendCbusMessage test: result ' + mock_cbusServer.messagesIn[0].toString()});

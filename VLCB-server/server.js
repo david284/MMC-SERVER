@@ -3,7 +3,6 @@ const winston = require('winston');
 const name = "server.js"
 winston.info({message: name + ': Loaded'});
 const path = require('path');
-const utils = require('./utilities.js');
 
 // pass in the system directory based on the directory of this module
 // and the logs path, based on the root directory of the project
@@ -34,24 +33,5 @@ exports.run = async function run(){
   const programNode = require('./programNodeMMC.js')(config)
   socketServer.socketServer(config, mergAdminNode, messageRouter, cbusServer, programNode, status)
 
-}
-
-
-function CommandLineArgument(argument){
-	// command line arguments will be 'node' <javascript file started> '--' <arguments starting at index 3>
-	for (var item in process.argv){
-//    winston.info({message: 'main: argv ' + item + ' ' + process.argv[item]});
-    if (process.argv[item].toLowerCase().includes(argument)){
-      return process.argv[item];
-    }
-	}
-  return undefined;
-}
-
-async function terminateApp(message){
-  winston.info({message: "App terminate : " + message});
-  utils.sleep(500);   // allow time for logs to catch up
-  winston.info({message: "Exiting.... "});
-  process.exit()
 }
 

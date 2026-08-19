@@ -47,19 +47,19 @@ class messageRouter{
       }
     }.bind(this));
 
-    this.cbusClient.on('connection', function (data) {
+    this.cbusClient.on('connection', function () {
       winston.debug({message:name + `: cbusClient: on connection:`})
     })
 
-    this.cbusClient.on('connectionAttempt', function (data) {
+    this.cbusClient.on('connectionAttempt', function () {
       winston.debug({message:name + `: cbusClient: on connectionAttempt:`})
     })
 
-    this.cbusClient.on('connectionAttemptFailed', function (data) {
+    this.cbusClient.on('connectionAttemptFailed', function () {
       winston.debug({message:name + `: cbusClient: on connectionAttemptFailed:`})
     })
 
-    this.cbusClient.on('connectionTimeout', function (data) {
+    this.cbusClient.on('connectionTimeout', function () {
       winston.debug({message:name + `: cbusClient: on connectionTimeout:`})
     })
 

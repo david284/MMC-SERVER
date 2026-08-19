@@ -1,8 +1,6 @@
 const winston = require('winston');		// use config from root instance
 const name = 'socketServer'
-const jsonfile = require('jsonfile');
 const path = require('path');
-const { isUndefined } = require('util');
 const utils = require('./utilities');
 const packageInfo = require(process.cwd()+'/package.json')
 
@@ -610,7 +608,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('REQUEST_LAYOUTS_LIST', function(){
       try{
         winston.info({message: `socketServer: REQUEST_LAYOUTS_LIST`});
-        const layout_list = config.getListOfLayouts()
+        config.getListOfLayouts()
       }catch(err){
         winston.error({message: name + `: REQUEST_LAYOUTS_LIST: ${err}`});
       }
@@ -932,7 +930,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     socket.on('UPDATE_LAYOUT_DATA', async function(data){
       try{
         winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
-        var nodesList = Object.keys(data.nodeDetails)  // just get node numbers
+        Object.keys(data.nodeDetails)  // just get node numbers
         //winston.info({message: name + ': UPDATE_LAYOUT_DATA: nodes ' + nodesList});
         config.writeLayoutData(data)
         await utils.sleep(200)              // allow time for write to complete
@@ -969,14 +967,6 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   
   //
   //
-  function send_SERVER_MESSAGE(message){
-    winston.debug({message: name + ': send_SERVER_MESSAGE ' + JSON.stringify(message)});
-
-    io.emit('SERVER_MESSAGE', message)
-  }
-  
-  //
-  //      
   server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
 
   //*************************************************************************************** */

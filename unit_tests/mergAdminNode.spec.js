@@ -25,30 +25,8 @@ config.currentUserDirectory = config.singleUserDirectory
 // set config items
 config.setCurrentLayoutFolder() // use default layout
 
-
-const LAYOUT_PATH="./unit_tests/test_output/layouts/default/"
-
 const mock_messageRouter = require('./mock_messageRouter')(config)
 const node = require('./../VLCB-server/mergAdminNode.js')(config)
-
-function stringToHex(string) {
-  // expects UTF-8 string
-  var bytes = new TextEncoder().encode(string);
-  return Array.from(
-    bytes,
-    byte => byte.toString(16).padStart(2, "0")
-  ).join("");
-}
-
-function hexToString(hex) {
-    // returns UTF-8 string
-    const bytes = new Uint8Array(hex.length / 2);
-    for (let i = 0; i !== bytes.length; i++) {
-        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
-    }
-    return new TextDecoder().decode(bytes);
-}
-
 
 var nodeTraffic = []
 node.on('nodeTraffic', function (data) {
@@ -109,24 +87,6 @@ describe('mergAdminNode tests', function(){
     }
     return testCases;
   }
-
-
-  function GetTestCase_nodeNumberAndOneByte() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = 0}
-      if (a == 2) {arg1 = 1}
-      if (a == 3) {arg1 = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {arg2 = 0}
-        if (b == 2) {arg2 = 1}
-        if (b == 3) {arg2 = 255}
-        testCases.push({'nodeNumber':arg1, 'param1': arg2});
-      }
-    }
-    return testCases;
-  }
-
 
   function GetTestCase_events_with_type() {
     var arg1, arg2, arg3, testCases = [];
@@ -204,7 +164,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN query_all_nodes test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.query_all_nodes()
+    node.query_all_nodes()
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('QNN')
@@ -222,7 +182,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendSNN test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendSNN(value.nodeNumber)
+    node.sendSNN(value.nodeNumber)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('SNN')
@@ -238,7 +198,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendENUM test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendENUM(value.nodeNumber)
+    node.sendENUM(value.nodeNumber)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ENUM')
@@ -254,7 +214,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendNNRST test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendNNRST(value.nodeNumber)
+    node.sendNNRST(value.nodeNumber)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NNRST')
@@ -270,7 +230,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendRQNPN test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendRQNPN(1, 2)
+    node.sendRQNPN(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQNPN')
@@ -287,7 +247,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendCANID test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendCANID(1, 2)
+    node.sendCANID(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('CANID')
@@ -304,7 +264,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendRQSD test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendRQSD(1, 2)
+    node.sendRQSD(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RQSD')
@@ -321,7 +281,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendRDGN test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendRDGN(1, 2, 3)
+    node.sendRDGN(1, 2, 3)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('RDGN')
@@ -339,7 +299,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendACON test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendACON(1, 2)
+    node.sendACON(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ACON')
@@ -356,7 +316,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendACOF test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendACOF(1, 2)
+    node.sendACOF(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ACOF')
@@ -373,7 +333,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendNVSET test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendNVSET(1, 2, 3)
+    node.sendNVSET(1, 2, 3)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('NVSET')
@@ -391,7 +351,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendASON test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendASON(1, 2)
+    node.sendASON(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ASON')
@@ -408,7 +368,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendASOF test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendASOF(1, 2)
+    node.sendASOF(1, 2)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('ASOF')
@@ -425,7 +385,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: 'unit_test: BEGIN sendREVAL test '});
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
-    var result = node.sendREVAL(1, 2, 3)
+    node.sendREVAL(1, 2, 3)
     setTimeout(function(){
       winston.info({message: `unit_test: result ${JSON.stringify(mock_messageRouter.messagesIn[0])}`});
       expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal('REVAL')
@@ -772,11 +732,7 @@ describe('mergAdminNode tests', function(){
     mock_messageRouter.messagesIn = []
     nodeTraffic = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
-    var receivedNodeNumber = undefined
-    var receivedNAME = undefined
-    node.once('requestNodeNumber', function (nodeNumber, name) {
-      receivedNodeNumber = nodeNumber
-      receivedNAME = name
+    node.once('requestNodeNumber', function (nodeNumber) {
       winston.debug({message: 'unit_test: node.once - requestNodeNumber ' + nodeNumber});
     })
     mock_messageRouter.inject(testMessage)
@@ -1013,7 +969,7 @@ describe('mergAdminNode tests', function(){
     let nodeNumber = 1
     node.createNodeConfig(1)    // create node config for node we're testing
     node.nodeConfig.nodes[nodeNumber].parameters[6] = 2
-    var result = node.request_all_node_variables(nodeNumber)
+    node.request_all_node_variables(nodeNumber)
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
@@ -1039,7 +995,7 @@ describe('mergAdminNode tests', function(){
     node.createNodeConfig(1)    // create node config for node we're testing
     node.nodeConfig.nodes[nodeNumber].parameters[6] = 2
     node.nodeConfig.nodes[nodeNumber].VLCB = true
-    var result = node.request_all_node_variables(nodeNumber)
+    node.request_all_node_variables(nodeNumber)
     setTimeout(function(){
       for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
         winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
@@ -1597,7 +1553,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes)}`});
     winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
     expect(Object.keys(node.nodeConfig.nodes).length).to.equal(1)
-    var result = node.remove_node(nodeNumber)
+    node.remove_node(nodeNumber)
     winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes)}`});
     winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
     expect(Object.keys(node.nodeConfig.nodes).length).to.equal(0)
@@ -1616,7 +1572,7 @@ describe('mergAdminNode tests', function(){
     winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes, null, " ")}`});
     winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
     expect(Object.keys(node.nodeConfig.nodes).length).to.equal(3)
-    var result = node.remove_multiple_nodes([1, 2])
+    node.remove_multiple_nodes([1, 2])
     winston.info({message: `unit_test: nodes ${JSON.stringify(node.nodeConfig.nodes, null, " ")}`});
     winston.info({message: `unit_test: nodes ${Object.keys(node.nodeConfig.nodes).length}`});
     expect(Object.keys(node.nodeConfig.nodes).length).to.equal(1)

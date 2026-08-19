@@ -2,10 +2,6 @@
 const winston = require('winston');		// use config from root instance
 const EventEmitter = require('events').EventEmitter;
 
-const utils = require('./../VLCB-server/utilities.js');
-
-const logPrefix = 'mock_configuration'
-
 class mock_configuration {
 
   constructor() {

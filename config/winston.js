@@ -95,7 +95,7 @@ winston.add(new winston.transports.File(options.warn));
 
 
 winston.stream = {
-  write: function(message, encoding) {
+  write: function(message) {
     winston.info(message);
   },
 };

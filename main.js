@@ -1,3 +1,4 @@
+/* global nw */
 const fs = require('fs');
 // lets ensure the logs folder is empty
 if (fs.existsSync("logs")) {
@@ -10,7 +11,6 @@ const name = "main"
 winston.info({message: name + ': Starting'});
 winston.info({message: name + ': current working directory ' + process.cwd()});
 winston.info({message: name + ': file location ' + __dirname});
-const fork = require('child_process').fork;
 
 
 /*
@@ -133,12 +133,12 @@ function onListening() {
 
 try {
   // open a window with the port used by express
-  var win = nw.Window.open("http://localhost:" + port, {}, function(win) {
+  var win = nw.Window.open("http://localhost:" + port, {}, function() {
     win.on('loaded', function() {
       win.maximize()
     });
   });
-} catch (e){
+} catch {
   // if it fails, probably not using nw, so use openurl
   require("openurl").open("http://localhost:" + port, (e) => {
     if (e != undefined) {

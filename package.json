@@ -7,6 +7,7 @@
   "private": true,
   "main": "./main.js",
   "scripts": {
+    "lint": "eslint",
     "start": "node ./main.js",
     "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000 --exit"
   },
@@ -26,6 +27,8 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
     "mocha": "^11.7.4",
     "mocha-param": "^2.0.1"
   }

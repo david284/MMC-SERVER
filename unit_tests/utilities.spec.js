@@ -65,7 +65,7 @@ describe('utilities tests', function(){
   //
   itParam("getMGCCANID test ${JSON.stringify(value)}", GetTestCase_CANID(), function (value) {
     winston.info({message: 'unit_test: BEGIN getMGCCANID test ' + JSON.stringify(value)})
-    result = utils.getMGCCANID(value.MGC)
+    const result = utils.getMGCCANID(value.MGC)
     winston.info({message: 'result: ' + JSON.stringify(result)})
     expect(result).to.equal(value.expectedResult);
     winston.info({message: 'unit_test: END getMGCCANID test'})
@@ -106,31 +106,11 @@ describe('utilities tests', function(){
       // event should exist, so populate it
       node.storedEventsNI[value.eventIdentifier] = {eventIndex: 1}
     }
-    result = utils.getEventTableIndexNI(node, value.eventIdentifier )
+    const result = utils.getEventTableIndexNI(node, value.eventIdentifier )
     expect(result).to.equal(value.result)
     winston.info({message: 'unit_test: END getEventTableIndexNI test'});
   })
 
-
-  function GetTestCase_getEventTableIndex() {
-    var argA, argB, argC, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {argA = 0}
-      if (a == 2) {argA = 1}
-      if (a == 3) {argA = 65535}
-      for (var b = 1; b<= 3; b++) {
-        if (b == 1) {argB = "00000000"}
-        if (b == 2) {argB = "00000001"}
-        if (b == 3) {argB = "FFFFFFFF"}
-        for (var c = 1; c<= 2; c++) {
-          if (c == 1) {argC = '1'}
-          if (c == 2) {argC = undefined}
-            testCases.push({'nodeNumber':argA, 'eventIdentifier': argB, "result":argC});
-        }
-      }
-    }
-    return testCases;
-  }
 
   function GetTestCase_nodeNumberIsSource() {
     var arg1, arg2, testCases = [];
@@ -147,7 +127,7 @@ describe('utilities tests', function(){
 
   itParam("nodeNumberIsSource test ${JSON.stringify(value)}", GetTestCase_nodeNumberIsSource(), function (value) {
     winston.info({message: 'unit_test: BEGIN nodeNumberIsSource test '});
-    result = utils.nodeNumberIsSource(value.opCode )
+    const result = utils.nodeNumberIsSource(value.opCode )
     expect(result).to.equal(value.expectedResult)
     winston.info({message: 'unit_test: END nodeNumberIsSource test'});
   })
@@ -171,7 +151,7 @@ describe('utilities tests', function(){
 
   itParam("getModuleVersion test ${JSON.stringify(value)}", GetTestCase_getModuleVersion(), function (value) {
     winston.info({message: 'unit_test: BEGIN nodeNumberIsSource test '});
-    result = utils.getModuleVersion(value.node )
+    const result = utils.getModuleVersion(value.node )
     expect(result).to.equal(value.expectedResult)
     winston.info({message: 'unit_test: END getModuleVersion test'});
   })
