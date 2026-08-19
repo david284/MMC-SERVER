@@ -2,7 +2,7 @@ name: Run unit tests when code pushed to repository
 on:
   push:
     branches:
-      - '*'
+      - '**'
 
 permissions:
   id-token: write  # Required for OIDC
