@@ -5,7 +5,6 @@ const itParam = require('mocha-param');
 const fs = require('fs');
 const jsonfile = require('jsonfile')
 const path = require('path');
-const utils = require('../VLCB-server/utilities.js');
 
 
 // Scope:
@@ -50,7 +49,7 @@ async function createTestFiles(){
   // ensure 'system' modules directory exists
   config.createDirectory(path.join(config.systemDirectory, "config", "modules"))
   // write test files
-  testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-1a--P11.json")
+  var testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-1a--P11.json")
   jsonfile.writeFileSync(testFilePath, testContent)
   testFilePath = path.join(config.systemDirectory, "config", "modules", "MDFTEST-YYYY-1b.json")
   jsonfile.writeFileSync(testFilePath, testContent)
@@ -161,7 +160,6 @@ describe('configuration tests', function(){
   it("getListOfBackupsForAllNodes test", function (done) {
     winston.info({message: 'unit_test: BEGIN getListOfBackupsForAllNodes test '})
     var layoutName = 'test_backup_layout'
-    var layoutData = {layoutDetails:{title: layoutName}} 
     var backupNode1 = {moduleName:"CANACC5"}
     var backupNode2 = {moduleName:"CANMIO"}
     config.writeNodeBackupFile(layoutName, 300, "backupNode1.json", backupNode1)
@@ -220,7 +218,7 @@ describe('configuration tests', function(){
   it("currentLayoutFolder test", function () {
     winston.info({message: 'unit_test: BEGIN currentLayoutFolder test '})
     var layout = 'test_currentLayout_' + Date.now()
-    result = config.setCurrentLayoutFolder(layout)
+    config.setCurrentLayoutFolder(layout)
     winston.info({message: 'result: ' + config.getCurrentLayoutFolder()})
     expect(config.getCurrentLayoutFolder()).to.equal(layout)
     winston.info({message: 'unit_test: END currentLayoutFolder test'})
@@ -248,7 +246,7 @@ describe('configuration tests', function(){
   //
   it("copyLayout", function (done) {
     winston.info({message: 'unit_test: BEGIN copyLayout test '})
-    result = config.copyLayout("default layout", "copied Layout")
+    config.copyLayout("default layout", "copied Layout")
     setTimeout(function(){
       winston.info({message: 'unit_test: END copyLayout test'})
       done();
@@ -260,7 +258,7 @@ describe('configuration tests', function(){
   //
   it("readLayoutData", function (done) {
     winston.info({message: 'unit_test: BEGIN readLayoutData test '})
-    result = config.readLayoutData()
+    const result = config.readLayoutData()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       expect(result).to.have.property('layoutDetails')
@@ -292,9 +290,9 @@ describe('configuration tests', function(){
       "nodeDetails": {},
       "eventDetails": {}
     }
-    result = config.setCurrentLayoutFolder("write_test")
+    config.setCurrentLayoutFolder("write_test")
     config.writeLayoutData(data)
-    result = config.readLayoutData()
+    const result = config.readLayoutData()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       expect(result.layoutDetails.title).to.equal(value.layout + " layout");
@@ -326,7 +324,7 @@ describe('configuration tests', function(){
       }
     }
     config.writeNodeConfig(data)
-    result = config.readNodeConfig()
+    const result = config.readNodeConfig()
     setTimeout(function(){
       winston.info({message: 'result: ' + JSON.stringify(result)})
       expect(result.nodes["301"].nodeNumber).to.equal(value.nodeNumber);
@@ -361,18 +359,6 @@ describe('configuration tests', function(){
   })
 
 
-  function GetTestCase_readModuleDescriptor() {
-    var arg1, arg2, testCases = [];
-    for (var a = 1; a<= 3; a++) {
-      if (a == 1) {arg1 = "test#1", arg2 = 'pass', arg3 = 1}
-      if (a == 2) {arg1 = "test#2", arg2 = 'pass', arg3 = 2}
-      if (a == 3) {arg1 = "test#3", arg2 = 'fail', arg3 = 3}
-      testCases.push({'file':arg1, 'result':arg2, 'testNumber':arg3});
-    }
-    return testCases;
-  }
-
-
   // test Aims
   // ensure test 'user' module folder exists
   // ensure test file is deleted
@@ -400,7 +386,7 @@ describe('configuration tests', function(){
       config.writeModuleDescriptor(testPattern)
     }
     setTimeout(function(){
-      file = jsonfile.readFileSync(testFilePath)
+      const file = jsonfile.readFileSync(testFilePath)
       winston.info({message: 'unit_test: result length: ' + JSON.stringify(file).length})
       expect(JSON.stringify(file).length).to.be.greaterThan(3)
       expect (file.toString()).to.be.equal(testPattern.toString())
@@ -429,7 +415,7 @@ describe('configuration tests', function(){
 
 
   function GetTestCase_getMatchingMDFList() {
-    var arg1, arg2, testCases = [];
+    var arg1, testCases = [];
     for (var a = 1; a<= 2; a++) {
       if (a == 1) {arg1 = "system"}
       if (a == 2) {arg1 = "user"}
@@ -458,7 +444,7 @@ describe('configuration tests', function(){
     winston.info({message: 'unit_test: BEGIN getLayoutList test '})
     // ensure 'layouts' folder exists in 'test' user directory
 		config.createDirectory(config.userConfigPath + '/layouts/')
-    result = config.getListOfLayouts()
+    const result = config.getListOfLayouts()
     winston.info({message: 'result: ' + result})
 //    expect(config.getCurrentLayoutFolder()).to.equal(testFolder)
     winston.info({message: 'unit_test: END getLayoutList test'})
@@ -466,7 +452,7 @@ describe('configuration tests', function(){
 
 
   function GetTestCase_port() {
-    var arg1, arg2, testCases = [];
+    var arg1, testCases = [];
     for (var a = 1; a<= 3; a++) {
       if (a == 1) {arg1 = 0}
       if (a == 2) {arg1 = 1}
@@ -480,7 +466,7 @@ describe('configuration tests', function(){
   itParam("socketServerPort test ${JSON.stringify(value)}", GetTestCase_port(), function (value) {
     winston.info({message: 'unit_test: BEGIN socketServerPort test '});
     config.setSocketServerPort(value.port);
-    result = config.getSocketServerPort();
+    const result = config.getSocketServerPort();
     winston.info({message: 'result: ' + result});
     expect(result).to.equal(value.port);
     winston.info({message: 'unit_test: END socketServerPort test'});
@@ -526,7 +512,7 @@ describe('configuration tests', function(){
   itParam("getMatchingModuleDescriptorFile test ${JSON.stringify(value)}", GetTestCase_MDF(), async function (value) {
     winston.info({message: 'unit_test: BEGIN getMatchingModuleDescriptorFile test ' + JSON.stringify(value)});
 
-    result = config.getMatchingModuleDescriptorFile(value.moduleIdentifier, value.version, value.processorType);
+    const result = config.getMatchingModuleDescriptorFile(value.moduleIdentifier, value.version, value.processorType);
     winston.info({message: 'result: ' + JSON.stringify(result)})
     if (value.result != undefined){
       expect(result.moduleDescriptorFilename).to.equal(value.result)

@@ -1,7 +1,6 @@
 const net = require('net')
 const cbusLib = require('cbuslibrary')
 const winston = require('winston');		// use config from root instance
-const utils = require('./../VLCB-server/utilities.js');
 
 const name = 'mock_cbusServer'
 
@@ -18,7 +17,7 @@ class mock_cbusServer{
       this.clients.push(socket);
       winston.info({message:name + `: remote Client Connected: ` + JSON.stringify(socket.address())})
 
-      socket.on('connect', function (data) {
+      socket.on('connect', function () {
         winston.info({message:name + `: On connect :`})
       }.bind(this));
 
@@ -27,7 +26,7 @@ class mock_cbusServer{
         this.messagesIn.push(data)
       }.bind(this));
 
-      socket.on('error', function (data) {
+      socket.on('error', function () {
         winston.info({message:name + `: On error Received :`})
       }.bind(this));
 

@@ -1,6 +1,5 @@
 const winston = require('./config/winston_test.js')
 const expect = require('chai').expect;
-const itParam = require('mocha-param');
 
 
 // Scope:
@@ -10,7 +9,6 @@ const itParam = require('mocha-param');
 // var has function scope (or global if top level)
 // const has block scope (like let), but can't be changed through reassigment or redeclared
 
-const utils = require('../VLCB-server/utilities.js')
 const config = require('./mock_configuration.js')()
 const longMessage = require('../VLCB-server/longMessage.js')
 const cbusLib = require('cbuslibrary')
@@ -57,14 +55,13 @@ describe('long message tests', function(){
   //
   it("LM_REQUEST test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_REQUEST test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     let channel = 99
     let use = 2
     let option_flags = 3
     let testMessage = cbusLib.decode(cbusLib.encodeLM_REQUEST(channel, use, option_flags))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       expect(longMessage.channels[channel]).to.not.be.undefined
@@ -77,7 +74,6 @@ describe('long message tests', function(){
   //
   it("LM_START_MESSAGE test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_START_MESSAGE test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     let channel = 99
     let use = 2
@@ -85,7 +81,7 @@ describe('long message tests', function(){
     let option_flags = 3
     let testMessage = cbusLib.decode(cbusLib.encodeLM_START_MESSAGE(channel, use, nodeNumber, option_flags))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       expect(longMessage.channels[channel]).to.not.be.undefined
@@ -101,12 +97,11 @@ describe('long message tests', function(){
   //
   it("LM_PROPOSE_CHANNEL test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_PROPOSE_CHANNEL test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     let channel = 99
     let testMessage = cbusLib.decode(cbusLib.encodeLM_PROPOSE_CHANNEL(channel))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       winston.info({message: logPrefix +': END LM_PROPOSE_CHANNEL test'});
@@ -118,12 +113,11 @@ describe('long message tests', function(){
   //
   it("LM_CLAIM_CHANNEL test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_CLAIM_CHANNEL test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     let channel = 99
     let testMessage = cbusLib.decode(cbusLib.encodeLM_CLAIM_CHANNEL(channel))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       winston.info({message: logPrefix +': END LM_CLAIM_CHANNEL test'});
@@ -135,12 +129,11 @@ describe('long message tests', function(){
   //
   it("LM_DATA test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_DATA test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     let channel = 99
     let testMessage = cbusLib.decode(cbusLib.encodeLM_DATA(channel, 1, 2, 3, 4, 5, 6))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       expect(longMessage.channels[channel]).to.not.be.undefined
@@ -153,17 +146,15 @@ describe('long message tests', function(){
   //
   it("LM_END_MESSAGE test", function (done) {
     winston.info({message: logPrefix + ': BEGIN LM_END_MESSAGE test:'});
-    let cbusTraffic = undefined
     longMessage.channels = []   // clear channels
     config.eventBus.once('SERVER_NOTIFICATION', function (data) {
       winston.info({message: logPrefix +': eventBus: SERVER_NOTIFICATION ' + JSON.stringify(data)});
-      cbusTraffic = data
     })
     let channel = 99
     let checksum = 777
     let testMessage = cbusLib.decode(cbusLib.encodeLM_END_MESSAGE(channel, checksum))
     winston.info({message: logPrefix +': testMessage ' + JSON.stringify(testMessage)});
-    var result = longMessage.processLongMessage(testMessage)
+    longMessage.processLongMessage(testMessage)
     setTimeout(function(){
       winston.info({message: logPrefix +': channel ' + JSON.stringify(longMessage.channels[channel])});
       expect(longMessage.channels[channel]).to.not.be.undefined

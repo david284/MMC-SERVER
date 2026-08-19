@@ -6,10 +6,6 @@ const utils = require('./../VLCB-server/utilities.js');
 const name = 'mock_messageRouter'
 
 // bit weights
-const CTLBT_WRITE_UNLOCK = 0
-const CTLBT_ERASE_ONLY = 1
-const CTLBT_AUTO_ERASE = 2
-const CTLBT_AUTO_INC = 3
 const CTLBT_ACK = 4
 
 //
