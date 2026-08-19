@@ -1,3 +1,7 @@
+MMC Version 0.23.3
+  Merged PR #188 - Was not running on branches if the branch had a '/' in the name
+  Merged PR #190 - Update workflows to use latest NodeJS.
+
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
   Added logsPath parameter to configuration, so unit test logs are stored separately
