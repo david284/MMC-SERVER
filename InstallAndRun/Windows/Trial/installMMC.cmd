@@ -219,7 +219,7 @@ if NOT EXIST "MMC-SERVER\" (
 	git config --global --add safe.directory !LINUX_INSTALL_DIR!/MMC-SERVER
 	echo Installing MMC...
 	cd MMC-SERVER
-	cmd /c npm install
+	cmd /c npm ci
 	cd ..
 )
 REM Now check that MMC is up to date
@@ -237,7 +237,7 @@ if NOT !cnt!==0 (
 	if !ERRORLEVEL! EQU 1 (
 		echo Updating MMC...
 		git pull
-		npm update
+		npm ci
 	) 
 ) else (
 	echo MMC is up to date.
