@@ -967,7 +967,15 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   
   //
   //
-  server.listen(config.getSocketServerPort(), () => console.log(`SS: Server running on port ${config.getSocketServerPort()}`))
+  const listening = new Promise((resolve, reject) => {
+    server.once('error', reject)
+    server.listen(config.getSocketServerPort(), () => {
+      server.removeListener('error', reject)
+      const address = server.address()
+      console.log(`SS: Server running on port ${address.port}`)
+      resolve(address)
+    })
+  })
 
   //*************************************************************************************** */
   //
@@ -1116,8 +1124,11 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     io.emit('PROGRAM_NODE_PROGRESS', downloadData.text)
   });	        
 
+  return {
+    listening,
+    close: () => new Promise((resolve) => io.close(resolve))
+  }
 }
-
 
 
 
