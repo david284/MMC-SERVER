@@ -4,7 +4,6 @@ const path = require('path');
 const expect = require('chai').expect;
 var itParam = require('mocha-param');
 const fs = require('fs');
-const utils = require('../VLCB-server/utilities.js');
 
 const cbusLib = require('cbuslibrary')
 
@@ -28,14 +27,12 @@ const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 describe('programNode tests', async function(){
     
 
-  before(async function(done) {
+  before(function() {
 		winston.info({message: ' '});
 		winston.info({message: '======================================================================'});
 		winston.info({message: '------------------------ Program Node tests --------------------------'});
 		winston.info({message: '======================================================================'});
 		winston.info({message: ' '});
-      done();
-      await utils.sleep(1000) // allow time for clients to connect
   	});
     
     beforeEach(function() {
@@ -47,12 +44,13 @@ describe('programNode tests', async function(){
       mock_messageRouter.messagesIn = []
     })
 
-	after(function(done) {
-   		winston.info({message: ' '});   // blank line to separate tests
-        setTimeout(() => {
-            winston.debug({message: 'UNIT_TEST: programNode: Tests ended'});
-            done();
-        }, 500)
+	afterEach(function() {
+    programNode.removeAllListeners('programNode_progress')
+	})
+
+	after(function() {
+		winston.info({message: ' '});   // blank line to separate tests
+		winston.debug({message: 'UNIT_TEST: programNode: Tests ended'});
 	});																										
 	
 	//
@@ -200,9 +198,12 @@ describe('programNode tests', async function(){
   //
   // Use real hex file to ensure correct operation
   //
-  it('send_bootloader_data test', function(done) {
+  it('send_bootloader_data test', async function() {
     winston.info({message: 'UNIT_TEST: >>>>>> BEGIN: send_bootloader_data test:'});
     programNode.setCpuType(23)
+    programNode.BOOTLOADER_DATA_BLOCKS = []
+    programNode.calculatedHexChecksum = '0000'
+    programNode.dataCount = 0
     programNode.BOOTLOADER_DATA_BLOCKS[0] = [1, 2, 3, 4, 5, 6, 7, 8]
     programNode.BOOTLOADER_DATA_BLOCKS[0x820] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
     programNode.BOOTLOADER_DATA_BLOCKS[0x828] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
@@ -210,14 +211,9 @@ describe('programNode tests', async function(){
     programNode.BOOTLOADER_DATA_BLOCKS[0x800] = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
     programNode.BOOTLOADER_DATA_BLOCKS[0x300000] = [0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28]
     programNode.BOOTLOADER_DATA_BLOCKS[0xF00000] = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38]
-    programNode.send_bootloader_data(1)
-    // as we're testing this function outside the event handling, allow some time for events to be received
-    // before moving onto next test
-    setTimeout(() => {
-      //expect(result).to.equal(true);
-      winston.info({message: 'UNIT_TEST: <<<<<< END: send_bootloader_data test:'});
-      done();
-    }, 1100)
+    await programNode.send_bootloader_data(1)
+    expect(mock_messageRouter.messagesIn.length).to.be.above(0)
+    winston.info({message: 'UNIT_TEST: <<<<<< END: send_bootloader_data test:'});
   });
 
 
@@ -300,9 +296,7 @@ describe('programNode tests', async function(){
     expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
     expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: END program short:'});
-    await utils.sleep(1100)
 	});
 
 
@@ -404,9 +398,7 @@ describe('programNode tests', async function(){
     expect(corruptFileData.status).to.equal("Failure", 'Download event');
     expect(corruptFileData.text).to.equal("Failed: file parsing failed", 'Download event');
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: <<<<<< END: corrupt download:'});
-    await utils.sleep(1100)
 	});
 
 
@@ -441,9 +433,7 @@ describe('programNode tests', async function(){
       expect(downloadData.text).to.equal('CPU mismatch', 'Download event');
     }
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: END: CPUTYPE:'});
-    await utils.sleep(1100)
 	});
 
 
@@ -465,9 +455,7 @@ describe('programNode tests', async function(){
     expect(downloadDataArray[downloadDataArray.length-1].status).to.equal('Success', 'Download event');
     expect(downloadDataArray[downloadDataArray.length-1].text).to.equal('Success: programing completed', 'Download event');
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: <<<<<< END: ignore CPUTYPE:'});
-    await utils.sleep(1100)
 	});
 
 
@@ -507,9 +495,7 @@ describe('programNode tests', async function(){
     expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
     expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: <<<<<< END: programBootMode:'});
-    await utils.sleep(1100)
 	});
 
   //
@@ -552,9 +538,7 @@ describe('programNode tests', async function(){
     expect(lastMsg.type).to.equal('CONTROL', 'last message control type');
     expect(lastMsg.SPCMD).to.equal(1, 'last message reset command');
     //
-    programNode.removeAllListeners('programNode_progress');
     winston.info({message: 'UNIT_TEST: END program full download:'});
-    await utils.sleep(1100)
   });
 
 })
