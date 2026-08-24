@@ -17,10 +17,21 @@ describe('serialGC tests', function(){
 
   let messageIn = null
 
-  serialGC.on('data', function (data) {
+  async function connectMockSerialPort() {
+    await serialGC.connect("MOCK_PORT")
+    if (!serialGC.serialPort.isOpen) {
+      await new Promise((resolve, reject) => {
+        serialGC.serialPort.once('open', resolve)
+        serialGC.serialPort.once('error', reject)
+      })
+    }
+  }
+
+  function dataHandler(data) {
     winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
     messageIn = data
-  })
+  }
+  serialGC.on('data', dataHandler)
   
 
 	before(function(done) {
@@ -41,13 +52,14 @@ describe('serialGC tests', function(){
         // ensure expected CAN header is reset before each test run
 	});
 
-	after(function(done) {
+	after(function() {
  		winston.info({message: ' '});   // blank line to separate tests
-    // bit of timing to ensure all winston messages get sent before closing tests completely
-    setTimeout(function(){
-      done();
-    }, 100);
+    serialGC.removeListener('data', dataHandler)
 	});																										
+
+	afterEach(async function() {
+    await serialGC.close()
+	});
 
 
   //****************************************************************************************** */
@@ -58,39 +70,31 @@ describe('serialGC tests', function(){
 
   //
   //
-  it("serialGC_RX test ", function (done) {
+  it("serialGC_RX test ", async function () {
     winston.info({message: 'unit_test: BEGIN serialGC_RX test '});
-    serialGC.connect("MOCK_PORT")
-
-    setTimeout(function(){
-      // emulate some data being received on serialPort
-      let testPattern = ":SB780N0D;"
-      serialGC.serialPort.port.emitData(testPattern)
-
-      setTimeout(function(){
-        expect(messageIn).to.equal(testPattern)
-        winston.info({message: name +': END serialGC_RX test'});
-        done();
-      }, 20);
-    }, 20);
+    await connectMockSerialPort()
+    let testPattern = ":SB780N0D;"
+    const receivedData = new Promise((resolve) => serialGC.once('data', resolve))
+    serialGC.serialPort.port.emitData(testPattern)
+    await receivedData
+    expect(messageIn).to.equal(testPattern)
+    winston.info({message: name +': END serialGC_RX test'});
 
   })
 
   //
   //
-  it("serialGC_TX test ", function (done) {
+  it("serialGC_TX test ", async function () {
     winston.info({message: 'unit_test: BEGIN serialGC_TX test '});
-    serialGC.connect("MOCK_PORT")
+    await connectMockSerialPort()
     let testPattern = ":SB780N0D;"
-    setTimeout(function(){
-      serialGC.write(testPattern)
-      setTimeout(function(){        
-        winston.info({message: name +`: END serial TX ${serialGC.serialPort.port.recording}`});
-        expect(serialGC.serialPort.port.recording.toString()).to.equal(testPattern)
-        winston.info({message: name +': END serialGC_TX test'});
-        done();
-      }, 10);
-    }, 10);
+    serialGC.write(testPattern)
+    await new Promise((resolve, reject) => {
+      serialGC.serialPort.drain((error) => error ? reject(error) : resolve())
+    })
+    winston.info({message: name +`: END serial TX ${serialGC.serialPort.port.recording}`});
+    expect(serialGC.serialPort.port.recording.toString()).to.equal(testPattern)
+    winston.info({message: name +': END serialGC_TX test'});
   })
 
   //

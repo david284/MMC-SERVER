@@ -95,8 +95,20 @@ class serialGC  extends EventEmitter {
     return true
   }  // end connect
 
-  close(){
-    this.serialPort.close()
+  async close(){
+    if (!this.serialPort) {
+      return
+    }
+
+    const serialPort = this.serialPort
+    this.serialPort = undefined
+    if (!serialPort.isOpen) {
+      return
+    }
+
+    await new Promise((resolve, reject) => {
+      serialPort.close((error) => error ? reject(error) : resolve())
+    })
   }
     
   write(data){
@@ -258,7 +270,6 @@ module.exports = new serialGC()
     
 
   
-
 
 
 

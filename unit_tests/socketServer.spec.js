@@ -90,6 +90,8 @@ describe('socketServer tests', async function(){
     if (testSocketServer) {
       await testSocketServer.close()
     }
+    await cbusServer.close()
+    node.dispose()
 	});																										
 
 

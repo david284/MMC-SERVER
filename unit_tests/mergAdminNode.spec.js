@@ -64,12 +64,9 @@ describe('mergAdminNode tests', function(){
       node.inUnitTest=true
   });
 
-	after(function(done) {
+	after(function() {
  		winston.info({message: ' '});   // blank line to separate tests
-    // bit of timing to ensure all winston messages get sent before closing tests completely
-    setTimeout(function(){
-      done();
-    }, 100);
+    node.dispose()
 	});																										
 
 	afterEach(function() {
