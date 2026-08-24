@@ -1,5 +1,10 @@
 name: Release
 
+# Orchestrates the release process after a version tag is created. The
+# workflow runs the common CI checks, validates the release tag, creates the
+# GitHub Release, publishes the npm package, and sends the release
+# notification.
+
 on:
   # Real releases are triggered by version tags.
   push:
@@ -11,21 +16,43 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci-common.yml
 
-  licences:
-    name: Generate third-party licences
+  validate-release:
+    name: Validate release metadata
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
       - name: Checkout repository
+        if: github.ref_type == 'tag'
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate release metadata
+        if: github.ref_type == 'tag'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/validate-release.js "${GITHUB_REF_NAME}"
+
+  licences:
+    name: Generate third-party licences
+    needs: validate-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -334,6 +361,16 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate release metadata
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/validate-release.js "${GITHUB_REF_NAME}"
+
       - name: Download distributions
         uses: actions/download-artifact@v8
         with:
@@ -360,3 +397,4 @@ jobs:
               --title "MMC ${GITHUB_REF_NAME}" \
               --generate-notes
           fi
+
