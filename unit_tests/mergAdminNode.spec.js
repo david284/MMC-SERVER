@@ -130,6 +130,86 @@ describe('mergAdminNode tests', function(){
     }
   })
 
+  it("processes incoming CBUS messages sequentially", async function () {
+    const originalActionMessage = node.action_message
+    let resolveFirstAction
+    let signalFirstActionStarted
+    const firstActionStarted = new Promise((resolve) => {
+      signalFirstActionStarted = resolve
+    })
+    let actionCount = 0
+
+    node.action_message = function () {
+      actionCount++
+      if (actionCount == 1) {
+        signalFirstActionStarted()
+        return new Promise((resolve) => {
+          resolveFirstAction = resolve
+        })
+      }
+      return Promise.resolve()
+    }
+
+    const firstHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+    await firstActionStarted
+    const secondHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+
+    try {
+      await Promise.resolve()
+      expect(actionCount).to.equal(1)
+
+      resolveFirstAction()
+      await Promise.all([firstHandler, secondHandler])
+      expect(actionCount).to.equal(2)
+    } finally {
+      if (resolveFirstAction) {
+        resolveFirstAction()
+      }
+      await Promise.allSettled([firstHandler, secondHandler])
+      node.action_message = originalActionMessage
+    }
+  })
+
+  it("continues CBUS processing after an action fails", async function () {
+    const originalActionMessage = node.action_message
+    let rejectFirstAction
+    let signalFirstActionStarted
+    const firstActionStarted = new Promise((resolve) => {
+      signalFirstActionStarted = resolve
+    })
+    let actionCount = 0
+
+    node.action_message = function () {
+      actionCount++
+      if (actionCount == 1) {
+        signalFirstActionStarted()
+        return new Promise((resolve, reject) => {
+          rejectFirstAction = reject
+        })
+      }
+      return Promise.resolve()
+    }
+
+    const firstHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+    await firstActionStarted
+    const secondHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+
+    try {
+      await Promise.resolve()
+      expect(actionCount).to.equal(1)
+
+      rejectFirstAction(new Error("action failed"))
+      await Promise.all([firstHandler, secondHandler])
+      expect(actionCount).to.equal(2)
+    } finally {
+      if (rejectFirstAction) {
+        rejectFirstAction(new Error("action failed"))
+      }
+      await Promise.allSettled([firstHandler, secondHandler])
+      node.action_message = originalActionMessage
+    }
+  })
+
   function GetTestCase_events_with_type() {
     var arg1, arg2, arg3, testCases = [];
     for (var a = 1; a<= 3; a++) {

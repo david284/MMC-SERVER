@@ -55,21 +55,11 @@ class cbusAdmin extends EventEmitter {
     this.intervalHandles.push(setInterval(this.updateClients.bind(this), 200));
     this.opcodeTracker = {}
     this.connectionDetails = null
+    this.gridConnectReceiveQueue = Promise.resolve()
 
-    this.gridConnectReceiveHandler = async function (data) {
-      //winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${data}`})
-      try{
-        this.lastCbusTrafficTime = Date.now()     // store this time stamp
-        let cbusMsg = cbusLibrary.decode(data)
-        winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
-        //
-        this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
-        if (this.isMessageValid(cbusMsg)){
-          await this.action_message(cbusMsg)
-        }
-      } catch (err) {
-        winston.error({message: name + `: GRID_CONNECT_RECEIVE: ${err}`})
-      }
+    this.gridConnectReceiveHandler = function (data) {
+      this.gridConnectReceiveQueue = this.gridConnectReceiveQueue.then(() => this.processGridConnectMessage(data))
+      return this.gridConnectReceiveQueue
     }.bind(this)
     this.config.eventBus.on('GRID_CONNECT_RECEIVE', this.gridConnectReceiveHandler)
 
@@ -503,6 +493,24 @@ class cbusAdmin extends EventEmitter {
         // GRSP was for an event command
         winston.info({message: `mergAdminNode: GRSP for event command : node ` + nodeNumber});
       }
+    }
+  }
+
+  //
+  //
+  async processGridConnectMessage(data) {
+    //winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${data}`})
+    try{
+      this.lastCbusTrafficTime = Date.now()     // store this time stamp
+      let cbusMsg = cbusLibrary.decode(data)
+      winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
+      //
+      this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
+      if (this.isMessageValid(cbusMsg)){
+        await this.action_message(cbusMsg)
+      }
+    } catch (err) {
+      winston.error({message: name + `: GRID_CONNECT_RECEIVE: ${err}`})
     }
   }
 
