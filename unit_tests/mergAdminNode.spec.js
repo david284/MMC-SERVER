@@ -1009,6 +1009,8 @@ describe('mergAdminNode tests', function(){
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].VLCB = true
     node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].eventsByIndex = {}
     node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
     winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI, null, " ")});
     winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
@@ -1667,23 +1669,22 @@ describe('mergAdminNode tests', function(){
 
   // reset_node test
   //
-  it("reset_node test", function (done) {
+  it("reset_node test", async function () {
     winston.info({message: 'unit_test: BEGIN reset_node test: '});
     mock_messageRouter.messagesIn = []
     let nodeNumber = 1
-    node.reset_node(nodeNumber) 
-    setTimeout(function(){
-      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
-      }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNRST")
-      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
-      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("RQNPN")
-      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("MODE")
-      winston.info({message: 'unit_test: END reset_node test'});
-			done();
-		}, 1000);
+    node.reset_node(nodeNumber)
+    await waitForCBUSMessages(3)
+
+    for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+      winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+    }
+    expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNRST")
+    expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+    expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("RQNPN")
+    expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
+    expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("MODE")
+    winston.info({message: 'unit_test: END reset_node test'});
   })
 
 

@@ -1621,7 +1621,9 @@ class cbusAdmin extends EventEmitter {
         let eventNI = this.nodeConfig.nodes[nodeNumber].storedEventsNI[eventIdentifier]
         winston.info({message: name + `: requestAllEventVariablesByIdentifier:  event ${JSON.stringify(eventNI)}`});
         try{
-          numberOfVariables = eventNI.variables[0]
+          if (eventNI.variables[0] != undefined) {
+            numberOfVariables = eventNI.variables[0]
+          }
         } catch (err){
           winston.error({message: name + `: requestAllEventVariablesByIdentifier: EV0 ${err}`});
         }
