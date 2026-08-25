@@ -37,8 +37,10 @@ vlcbServer.on('close', () => {
 
 
 const VLCB = require('./VLCB-server/server.js');
-VLCB.run();
-
+VLCB.run().catch(err => {
+  console.error('VLCB startup failed:', err)
+  winston.error({message: `VLCB startup failed: ${err.stack || err}`})
+})
 
 
 /**
