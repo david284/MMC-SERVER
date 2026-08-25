@@ -43,8 +43,16 @@ jobs:
       - name: Install dependencies
         run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
 
-      - name: Run unit tests
-        run: npm test
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+          if-no-files-found: warn
 
       - name: Upload diagnostic files
         if: always()
