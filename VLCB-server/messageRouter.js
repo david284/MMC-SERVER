@@ -25,6 +25,7 @@ class messageRouter{
     this.connected = false
     this.cbusClientHost = null
     this.cbusClientPort = null
+    this.connectPromise = null
 
     //
     // Setup the handlers for cbusClient events
@@ -95,9 +96,25 @@ class messageRouter{
     this.cbusClientHost = remoteAddress
     this.cbusClientPort = cbusPort
     winston.info({message:name + ': try Connect ' + remoteAddress + ' on ' + cbusPort})
+
+    if (this.connected) {
+      return Promise.resolve()
+    }
+
+    if (this.connectPromise) {
+      return this.connectPromise
+    }
+
     // connect to remote socket for CBUS messages
-    try{
-      this.cbusClient.connect(cbusPort, remoteAddress, function () {
+    this.connectPromise = new Promise((resolve, reject) => {
+      const cleanup = () => {
+        this.cbusClient.removeListener('connect', onConnect)
+        this.cbusClient.removeListener('error', onError)
+        this.cbusClient.removeListener('close', onClose)
+      }
+
+      const onConnect = () => {
+        cleanup()
         let message = 'Connected to ' + remoteAddress + ' on ' + cbusPort
         winston.info({message:name + ': ' + message})
         this.connected = true
@@ -109,7 +126,30 @@ class messageRouter{
         }
         this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
         this.enableReconnect = true
-      }.bind(this));
+        resolve()
+      }
+
+      const onError = (error) => {
+        cleanup()
+        reject(error)
+      }
+
+      const onClose = () => {
+        cleanup()
+        reject(new Error('Connection closed before it was established'))
+      }
+
+      this.cbusClient.once('connect', onConnect)
+      this.cbusClient.once('error', onError)
+      this.cbusClient.once('close', onClose)
+
+      try {
+        this.cbusClient.connect(cbusPort, remoteAddress)
+      } catch (error) {
+        cleanup()
+        reject(error)
+      }
+
       if (this.cbusClient){
         winston.info({message:name + ': cbusClient connection succeeded: '})
         winston.info({message:name + ': cbusClient socket: ' +JSON.stringify(this.cbusClient)})
@@ -117,15 +157,16 @@ class messageRouter{
       } else {
         winston.info({message:name + ': cbusClient connection failed: '})
       }
-    } catch(e){
-      winston.info({message:name + ': cbusClient connection failed: ' + e})
-    }    
+    }).finally(() => {
+      this.connectPromise = null
+    })
+
+    return this.connectPromise
   }
 
   connectIntervalFunction(){
     winston.debug({message:name + ': cbusClient check connection:'})
     if (this.cbusClient.readyState == 'opening'){
-      this.connected = true
       let data = {
         message: "Network port opening",
         type: "info",
@@ -139,7 +180,9 @@ class messageRouter{
         winston.debug({message:name + ': cbusClient still connected:'})
       } else {
         winston.info({message:name + ': cbusClient not connected:'})
-        this.connect(this.cbusClientHost, this.cbusClientPort)
+        this.connect(this.cbusClientHost, this.cbusClientPort).catch(function (error) {
+          winston.debug({message:name + ': cbusClient reconnect failed: ' + error.message})
+        })
       }
     }
   }

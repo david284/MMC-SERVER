@@ -30,7 +30,7 @@ describe('messageRouter tests', function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
     await mock_cbusServer.listening
-    messageRouter.connect('localhost', cbusServerPort)
+    await messageRouter.connect('localhost', cbusServerPort)
 	});
 
 	beforeEach(function() {
@@ -51,6 +51,21 @@ describe('messageRouter tests', function(){
   // Actual tests after here...
   //
   //****************************************************************************************** */  
+
+
+  it("connect waits for the TCP connection", async function () {
+    const testCbusServer = new (require('./mock_cbusServer'))(0)
+    const testMessageRouter = require('../VLCB-server/messageRouter.js')(config)
+    const address = await testCbusServer.listening
+
+    try {
+      await testMessageRouter.connect('localhost', address.port)
+      expect(testMessageRouter.connected).to.equal(true)
+    } finally {
+      await testMessageRouter.close()
+      await testCbusServer.close()
+    }
+  })
 
 
   it("sendCbusMessage test", function (done) {
