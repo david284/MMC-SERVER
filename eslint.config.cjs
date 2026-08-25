@@ -21,7 +21,10 @@ module.exports = [
   },
 
   {
-    files: ['unit_tests/**/*.js'],
+    files: [
+      'unit_tests/**/*.js',
+      'functional_tests/**/*.js'
+    ],
 
     languageOptions: {
       globals: {
