@@ -37,7 +37,7 @@ vlcbServer.on('close', () => {
 
 
 const VLCB = require('./VLCB-server/server.js');
-VLCB.run();
+const vlcbStartup = VLCB.run();
 
 
 
@@ -70,6 +70,9 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
 
 /**
  * Normalize a port into a number, string, or false.
@@ -129,6 +132,33 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+}
+
+let shuttingDown = false
+
+async function shutdown(signal) {
+  if (shuttingDown) {
+    return
+  }
+  shuttingDown = true
+  winston.info({message: `${name}: shutting down after ${signal}`})
+
+  await Promise.all([
+    closeHttpServer(),
+    vlcbStartup.then((vlcbServer) => vlcbServer.close())
+  ])
+
+  process.exit(0)
+}
+
+function closeHttpServer() {
+  return new Promise((resolve) => {
+    if (!server.listening) {
+      resolve()
+      return
+    }
+    server.close(resolve)
+  })
 }
 
 if (process.env.MMC_SERVER_DISABLE_UI !== '1') {
