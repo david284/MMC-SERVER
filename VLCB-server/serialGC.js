@@ -17,12 +17,14 @@ const { MockBinding } = require('@serialport/binding-mock')
 
 class serialGC  extends EventEmitter {
 
-  constructor(){
+  constructor(options = {}){
     winston.debug({message: name + `: constructor`})
     super();
     this.serialPort = undefined
     this.targetSerialPort = ''
     this.RxBuffer = ""
+    this.SerialPort = options.SerialPort || SerialPort
+    this.MockBinding = options.MockBinding || MockBinding
   } // end constructor
 
   async connect(targetSerialPort){
@@ -41,12 +43,12 @@ class serialGC  extends EventEmitter {
     winston.info({message: name + `: starting on ${this.targetSerialPort}`})
 
     if(this.targetSerialPort == "MOCK_PORT"){
-      MockBinding.createPort('MOCK_PORT', { echo: false, record: true })
-      this.serialPort = new SerialPort({binding: MockBinding, path:'MOCK_PORT', baudRate: 115200});
+      this.MockBinding.createPort('MOCK_PORT', { echo: false, record: true })
+      this.serialPort = new this.SerialPort({binding: this.MockBinding, path:'MOCK_PORT', baudRate: 115200});
     }
     else if(this.targetSerialPort) {     
       // 'standard' serialport
-      this.serialPort = new SerialPort({
+      this.serialPort = new this.SerialPort({
         path: this.targetSerialPort,
         baudRate: 115200,
         dataBits: 8,
@@ -60,17 +62,31 @@ class serialGC  extends EventEmitter {
       return false
     }
 
-    this.serialPort.on("open", function () {
+    const serialPort = this.serialPort
+
+    serialPort.on("open", function () {
+      if (this.serialPort !== serialPort) {
+        if (serialPort.isOpen) {
+          serialPort.close(() => {})
+        }
+        return
+      }
       winston.info({message: name + `: Serial port: ${targetSerialPort} Open`})
       this.emit('open', this.targetSerialPort)
     }.bind(this))
       
-    this.serialPort.on("close", function () {
+    serialPort.on("close", function () {
+      if (this.serialPort !== serialPort) {
+        return
+      }
       winston.info({message: name + `: Serial port: ${targetSerialPort} close`})
       this.emit('close', this.targetSerialPort)
     }.bind(this))
       
-    this.serialPort.on("data", function (data) {
+    serialPort.on("data", function (data) {
+      if (this.serialPort !== serialPort) {
+        return
+      }
       //winston.debug({message: name + `: data Rx ${data}`})
       this.RxBuffer += data
       let messageArray = this.RxBuffer.split(';')
@@ -87,12 +103,30 @@ class serialGC  extends EventEmitter {
       }
     }.bind(this))
 
-    this.serialPort.on("error", function (err) {
+    serialPort.on("error", function (err) {
+      if (this.serialPort !== serialPort) {
+        return
+      }
         winston.error({message: name + `: Serial port ERROR:  : ${err.message}`})
         this.emit('error', err.message)
       }.bind(this));
 
-    return true
+    if (serialPort.isOpen) {
+      return true
+    }
+
+    return new Promise((resolve) => {
+      const onOpen = () => {
+        serialPort.removeListener('error', onOpenError)
+        resolve(this.serialPort === serialPort)
+      }
+      const onOpenError = () => {
+        serialPort.removeListener('open', onOpen)
+        resolve(false)
+      }
+      serialPort.once('open', onOpen)
+      serialPort.once('error', onOpenError)
+    })
   }  // end connect
 
   async close(){
@@ -217,44 +251,33 @@ class serialGC  extends EventEmitter {
   }
 
   async getCANUSBx(){
-    return new Promise(function (resolve) {
-      winston.debug({message: name + `: getCANUSBx`})
-      SerialPort.list().then(ports => {
-        ports.forEach(function(port) {
-          if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('04D8') && port.productId.toString().toUpperCase().includes('F80C')) {
-            // CANUSB4
-            winston.debug({message: name + ': CANUSB4 found on ' + port.path});
-            resolve(port.path);
-          } else if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('0403') && port.productId.toString().toUpperCase().includes('6001')) {
-            // Old CANUSB
-            winston.debug({message: name + ': CANUSB found on ' + port.path});
-            resolve(port.path);
-          }
-        })
-        resolve(undefined);
-      })
-    })
+    winston.debug({message: name + `: getCANUSBx`})
+    const ports = await this.SerialPort.list()
+    for (const port of ports) {
+      if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('04D8') && port.productId.toString().toUpperCase().includes('F80C')) {
+        winston.debug({message: name + ': CANUSB4 found on ' + port.path});
+        return port.path
+      }
+      if (port.vendorId != undefined && port.vendorId.toString().toUpperCase().includes('0403') && port.productId.toString().toUpperCase().includes('6001')) {
+        winston.debug({message: name + ': CANUSB found on ' + port.path});
+        return port.path
+      }
+    }
+    return undefined
   } // end connectCANUSBx
 
   //
   //
   async getSerialPorts() {
-    return new Promise(function (resolve) {
-      var serialports= [];
-      var portIndex = 0;
-      SerialPort.list().then(ports => {
-        ports.forEach(function(port) {
-          serialports[portIndex] = port
-          winston.info({message: 'serial port ' + portIndex + ': ' + serialports[portIndex].path});
-          winston.debug({message: 'serial port ' + portIndex + ': ' + JSON.stringify(serialports[portIndex])});
-          portIndex++
-        })
-        if (portIndex == 0){
-          winston.info({message: 'No active serial ports found...\n'});
-        }
-        resolve(serialports);
-      })
+    const serialports = await this.SerialPort.list()
+    serialports.forEach(function(port, portIndex) {
+      winston.info({message: 'serial port ' + portIndex + ': ' + port.path});
+      winston.debug({message: 'serial port ' + portIndex + ': ' + JSON.stringify(port)});
     })
+    if (serialports.length == 0){
+      winston.info({message: 'No active serial ports found...\n'});
+    }
+    return serialports
   } // end getSerialPorts
   
 
@@ -262,6 +285,7 @@ class serialGC  extends EventEmitter {
 }
 
 module.exports = new serialGC()
+module.exports.create = (options) => new serialGC(options)
 
 
     
@@ -270,8 +294,5 @@ module.exports = new serialGC()
     
 
   
-
-
-
 
 
