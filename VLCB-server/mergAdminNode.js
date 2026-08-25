@@ -65,7 +65,7 @@ class cbusAdmin extends EventEmitter {
         //
         this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
         if (this.isMessageValid(cbusMsg)){
-          this.action_message(cbusMsg)
+          await this.action_message(cbusMsg)
         }
       } catch (err) {
         winston.error({message: name + `: GRID_CONNECT_RECEIVE: ${err}`})
