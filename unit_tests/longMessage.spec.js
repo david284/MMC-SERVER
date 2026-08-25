@@ -46,6 +46,29 @@ describe('long message tests', function(){
   //
   //****************************************************************************************** */  
 
+  it("ignores malformed long-message input and processes the next valid message", function () {
+    longMessage.channels = []
+
+    const malformedMessages = [
+      undefined,
+      null,
+      '',
+      {command: 'UNKNOWN'},
+      {command: 'DATA'}
+    ]
+
+    malformedMessages.forEach((message) => {
+      expect(() => longMessage.processLongMessage(message)).to.not.throw()
+    })
+    expect(longMessage.channels).to.deep.equal([])
+
+    const channel = 99
+    const validMessage = cbusLib.decode(cbusLib.encodeLM_START_MESSAGE(channel, 2, 7, 3))
+    longMessage.processLongMessage(validMessage)
+
+    expect(longMessage.channels[channel]).to.not.be.undefined
+  })
+
   // LM_REQUEST (220)
   //
   it("LM_REQUEST test", function () {

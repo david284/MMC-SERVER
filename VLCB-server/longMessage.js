@@ -13,6 +13,10 @@ class longMessage{
   }
   
   processLongMessage(cbusMsg){
+    if (!cbusMsg || typeof cbusMsg !== 'object'){
+      winston.debug({message: logPrefix + ': ignoring malformed long message'})
+      return
+    }
     winston.debug({message: logPrefix + `: Long Message ${JSON.stringify(cbusMsg)}`})
     switch(cbusMsg.command){
       case "DATA":
@@ -217,4 +221,3 @@ class longMessage{
 
 }
 module.exports = new longMessage()
-
