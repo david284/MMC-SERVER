@@ -179,6 +179,65 @@ describe('MMC Server functional tests', function() {
     }
   })
 
+  it('shuts down cleanly with a connected Socket.IO client', function(done) {
+    this.timeout(startupTimeout + 1000)
+
+    let clientDisconnected = false
+    let applicationExited = false
+    let shutdownFinished = false
+    const timeout = setTimeout(() => {
+      finishShutdown(new Error(`Timed out waiting for MMC Server shutdown. Output:\n${applicationOutput}`))
+    }, startupTimeout)
+
+    socket.once('disconnect', () => {
+      clientDisconnected = true
+      completeWhenReady()
+    })
+    application.once('exit', (code, signal) => {
+      try {
+        expect(code).to.equal(0)
+        expect(signal).to.equal(null)
+        applicationExited = true
+        completeWhenReady()
+      } catch (error) {
+        finishShutdown(error)
+      }
+    })
+    application.kill('SIGTERM')
+
+    function completeWhenReady() {
+      if (clientDisconnected && applicationExited) {
+        verifyNewConnectionsFail()
+      }
+    }
+
+    function verifyNewConnectionsFail() {
+      const disconnectedClient = io(socketServerUrl, {
+        autoConnect: false,
+        reconnection: false,
+        timeout: 1000
+      })
+      disconnectedClient.once('connect', () => {
+        disconnectedClient.disconnect()
+        finishShutdown(new Error('Socket.IO client connected after MMC Server shutdown'))
+      })
+      disconnectedClient.once('connect_error', () => {
+        disconnectedClient.disconnect()
+        finishShutdown()
+      })
+      disconnectedClient.connect()
+    }
+
+    function finishShutdown(error) {
+      if (shutdownFinished) {
+        return
+      }
+      shutdownFinished = true
+      clearTimeout(timeout)
+      done(error)
+    }
+  })
+
   function appendApplicationOutput(data) {
     applicationOutput += data.toString()
   }
