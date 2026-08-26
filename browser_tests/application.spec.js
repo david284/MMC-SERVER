@@ -53,6 +53,20 @@ test('loads the MMC client and opens its Socket.IO connection', async ({ page })
   await socketConnection
 })
 
+test('displays the startup state after connecting', async ({ page }) => {
+  await page.goto(applicationUrl)
+
+  await expect(page.getByText('Startup', { exact: true })).toBeVisible()
+  await expect(page.getByText('Connection details', { exact: true })).toBeVisible()
+})
+
+test('opens the startup information dialog', async ({ page }) => {
+  await page.goto(applicationUrl)
+  await page.getByRole('button', { name: 'INFO', exact: true }).click()
+
+  await expect(page.getByText('Information about the Startup Dialog', { exact: true })).toBeVisible()
+})
+
 function appendApplicationOutput(data) {
   applicationOutput += data.toString()
 }
