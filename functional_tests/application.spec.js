@@ -1,10 +1,14 @@
 const { spawn } = require('child_process')
+const fs = require('fs')
 const net = require('net')
 const path = require('path')
 const { expect } = require('chai')
 const { io } = require('socket.io-client')
 
 const applicationRoot = path.join(__dirname, '..')
+const testOutputDirectory = path.join(__dirname, 'test_output', 'application')
+const functionalTestLogsDirectory = path.join(testOutputDirectory, 'logs')
+const applicationOutputFile = path.join(functionalTestLogsDirectory, 'application-output.log')
 const startupTimeout = 10000
 
 describe('MMC Server functional tests', function() {
@@ -19,6 +23,8 @@ describe('MMC Server functional tests', function() {
     this.timeout(startupTimeout + 1000)
 
     getAvailableSocketPort().then((socketServerPort) => {
+      fs.rmSync(testOutputDirectory, { recursive: true, force: true })
+      fs.mkdirSync(testOutputDirectory, { recursive: true })
       socketServerUrl = `http://127.0.0.1:${socketServerPort}`
       application = spawn(process.execPath, ['main.js'], {
         cwd: applicationRoot,
@@ -26,7 +32,8 @@ describe('MMC Server functional tests', function() {
           ...process.env,
           MMC_SERVER_DISABLE_UI: '1',
           MMC_SERVER_HTTP_PORT: '0',
-          MMC_SERVER_SOCKET_PORT: socketServerPort.toString()
+          MMC_SERVER_SOCKET_PORT: socketServerPort.toString(),
+          MMC_SERVER_APP_STORAGE_DIRECTORY: path.join(testOutputDirectory, 'storage')
         },
         stdio: ['ignore', 'pipe', 'pipe']
       })
@@ -89,7 +96,7 @@ describe('MMC Server functional tests', function() {
     }
 
     if (!application || application.exitCode !== null) {
-      done()
+      finishCleanup()
       return
     }
 
@@ -114,6 +121,12 @@ describe('MMC Server functional tests', function() {
       }
       shutdownFinished = true
       clearTimeout(timeout)
+      finishCleanup(error)
+    }
+
+    function finishCleanup(error) {
+      fs.mkdirSync(functionalTestLogsDirectory, { recursive: true })
+      fs.writeFileSync(applicationOutputFile, applicationOutput)
       done(error)
     }
   })
@@ -126,6 +139,8 @@ describe('MMC Server functional tests', function() {
     expect(serverStatus).to.have.nested.property('busConnection.state')
     expect(serverStatus.mode).to.equal('STARTUP')
     expect(moduleNames).to.be.an('object')
+    expect(serverStatus.appStorageDirectory).to.equal(path.join(testOutputDirectory, 'storage'))
+    expect(serverStatus.currentUserDirectory).to.equal(path.join(testOutputDirectory, 'storage'))
   })
 
   it('sends initial events after a client reconnects', function(done) {

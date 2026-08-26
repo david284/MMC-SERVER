@@ -1,18 +1,33 @@
 const { spawn } = require('child_process')
+const fs = require('fs')
 const net = require('net')
 const path = require('path')
 const { expect } = require('chai')
 const { io } = require('socket.io-client')
 
 const applicationRoot = path.join(__dirname, '..')
+const testOutputDirectory = path.join(__dirname, 'test_output', 'socket-port-configuration')
+const functionalTestLogsDirectory = path.join(testOutputDirectory, 'logs')
+const applicationOutputFile = path.join(functionalTestLogsDirectory, 'application-output.log')
 const defaultSocketPort = 5552
 const startupTimeout = 10000
 
 describe('MMC Server Socket.IO port configuration', function() {
+  const applications = []
+
+  before(function() {
+    fs.rmSync(testOutputDirectory, { recursive: true, force: true })
+  })
+
+  after(function() {
+    fs.mkdirSync(functionalTestLogsDirectory, { recursive: true })
+    fs.writeFileSync(applicationOutputFile, applications.map((application) => application.output()).join('\n'))
+  })
+
   it('starts Socket.IO on the requested port', async function() {
     this.timeout(startupTimeout + 1000)
     const socketPort = await getAvailableSocketPort()
-    const application = startApplication(socketPort)
+    const application = startApplication(socketPort, applications)
     let socket
     try {
       socket = await connectSocket(socketPort, application)
@@ -29,7 +44,7 @@ describe('MMC Server Socket.IO port configuration', function() {
     it(`falls back to the default Socket.IO port for ${invalidPort}`, async function() {
       this.timeout(startupTimeout + 1000)
       await verifyPortAvailable(defaultSocketPort)
-      const application = startApplication(invalidPort)
+      const application = startApplication(invalidPort, applications)
       let socket
       try {
         socket = await connectSocket(defaultSocketPort, application)
@@ -47,7 +62,7 @@ describe('MMC Server Socket.IO port configuration', function() {
     this.timeout(startupTimeout + 1000)
     const portReservation = await reserveAvailablePort()
     const socketPort = portReservation.address().port
-    const application = startApplication(socketPort)
+    const application = startApplication(socketPort, applications)
 
     const { code, signal } = await waitForExit(application.process)
 
@@ -60,15 +75,17 @@ describe('MMC Server Socket.IO port configuration', function() {
   })
 })
 
-function startApplication(socketPort) {
+function startApplication(socketPort, applications) {
   let output = ''
+  fs.mkdirSync(testOutputDirectory, { recursive: true })
   const applicationProcess = spawn(process.execPath, ['main.js'], {
     cwd: applicationRoot,
     env: {
       ...process.env,
       MMC_SERVER_DISABLE_UI: '1',
       MMC_SERVER_HTTP_PORT: '0',
-      MMC_SERVER_SOCKET_PORT: socketPort.toString()
+      MMC_SERVER_SOCKET_PORT: socketPort.toString(),
+      MMC_SERVER_APP_STORAGE_DIRECTORY: path.join(testOutputDirectory, 'storage'),
     },
     stdio: ['ignore', 'pipe', 'pipe']
   })
@@ -80,7 +97,9 @@ function startApplication(socketPort) {
     output += data.toString()
   }
 
-  return { process: applicationProcess, output: () => output }
+  const application = { process: applicationProcess, output: () => output }
+  applications.push(application)
+  return application
 }
 
 function connectSocket(socketPort, application) {
