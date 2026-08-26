@@ -76,9 +76,11 @@ I would welcome any help from anyone who has experience in creating installable 
 # testing
 
 For testing purposes, there is a software simulation of a CBUS network available, again using the 'network' option,
-which avoids the need for any other physical hardware
-This application provides a simulation of multiple modules on a VLCB network, and has been used to test operation of this conformance test
-https://github.com/david284/CbusNetworkSimulator.git
+which avoids the need for any other physical hardware. This application provides a simulation of multiple modules on a VLCB network and has been used to test MMC.
+
+The simulator is [CbusNetworkSimulator](https://github.com/david284/CbusNetworkSimulator). It listens for modified GridConnect traffic on TCP port `5550` by default. Start it in a separate checkout with `npm ci` followed by `npm start`, then select MMC's network connection mode with host `127.0.0.1` and port `5550`.
+
+The simulator-backed functional test is enabled by setting `MMC_CBUS_SIMULATOR_DIRECTORY` to that checkout before running `npm run test:functional`. CI checks out the simulator at a pinned revision and sets this variable automatically; without it, the simulator-specific spec is skipped so the hardware-free startup tests remain usable on their own.
 
 # Contributing and Development
 

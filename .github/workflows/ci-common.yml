@@ -43,6 +43,17 @@ jobs:
       - name: Install dependencies
         run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
 
+      - name: Check out CBUS network simulator
+        uses: actions/checkout@v7
+        with:
+          repository: david284/CbusNetworkSimulator
+          ref: 6a3acd7b6990092ec21de4091c5cf288e5f92227
+          path: CbusNetworkSimulator
+
+      - name: Install CBUS network simulator dependencies
+        working-directory: CbusNetworkSimulator
+        run: npm ci
+
       - name: Run unit tests with coverage
         run: npm run test:coverage
 
@@ -56,6 +67,8 @@ jobs:
 
       - name: Run functional tests
         run: npm run test:functional
+        env:
+          MMC_CBUS_SIMULATOR_DIRECTORY: ${{ github.workspace }}/CbusNetworkSimulator
 
       - name: Upload diagnostic files
         if: always()
