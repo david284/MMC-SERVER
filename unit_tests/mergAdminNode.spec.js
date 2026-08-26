@@ -94,6 +94,42 @@ describe('mergAdminNode tests', function(){
     expect(mock_messageRouter.messagesIn.length).to.equal(expectedCount)
   }
 
+  it("gridConnectReceiveHandler waits for action processing", async function () {
+    const originalActionMessage = node.action_message
+    let resolveAction
+    let signalActionStarted
+    const actionStarted = new Promise((resolve) => {
+      signalActionStarted = resolve
+    })
+
+    node.action_message = function () {
+      signalActionStarted()
+      return new Promise((resolve) => {
+        resolveAction = resolve
+      })
+    }
+
+    let handlerCompleted = false
+    const handlerPromise = node.gridConnectReceiveHandler(":SB780N0D;")
+    handlerPromise.then(() => {
+      handlerCompleted = true
+    })
+
+    try {
+      await actionStarted
+      await Promise.resolve()
+      expect(handlerCompleted).to.equal(false)
+
+      resolveAction()
+      await handlerPromise
+    } finally {
+      if (resolveAction) {
+        resolveAction()
+      }
+      node.action_message = originalActionMessage
+    }
+  })
+
   function GetTestCase_events_with_type() {
     var arg1, arg2, arg3, testCases = [];
     for (var a = 1; a<= 3; a++) {
