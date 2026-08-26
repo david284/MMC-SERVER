@@ -130,6 +130,86 @@ describe('mergAdminNode tests', function(){
     }
   })
 
+  it("processes incoming CBUS messages sequentially", async function () {
+    const originalActionMessage = node.action_message
+    let resolveFirstAction
+    let signalFirstActionStarted
+    const firstActionStarted = new Promise((resolve) => {
+      signalFirstActionStarted = resolve
+    })
+    let actionCount = 0
+
+    node.action_message = function () {
+      actionCount++
+      if (actionCount == 1) {
+        signalFirstActionStarted()
+        return new Promise((resolve) => {
+          resolveFirstAction = resolve
+        })
+      }
+      return Promise.resolve()
+    }
+
+    const firstHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+    await firstActionStarted
+    const secondHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+
+    try {
+      await Promise.resolve()
+      expect(actionCount).to.equal(1)
+
+      resolveFirstAction()
+      await Promise.all([firstHandler, secondHandler])
+      expect(actionCount).to.equal(2)
+    } finally {
+      if (resolveFirstAction) {
+        resolveFirstAction()
+      }
+      await Promise.allSettled([firstHandler, secondHandler])
+      node.action_message = originalActionMessage
+    }
+  })
+
+  it("continues CBUS processing after an action fails", async function () {
+    const originalActionMessage = node.action_message
+    let rejectFirstAction
+    let signalFirstActionStarted
+    const firstActionStarted = new Promise((resolve) => {
+      signalFirstActionStarted = resolve
+    })
+    let actionCount = 0
+
+    node.action_message = function () {
+      actionCount++
+      if (actionCount == 1) {
+        signalFirstActionStarted()
+        return new Promise((resolve, reject) => {
+          rejectFirstAction = reject
+        })
+      }
+      return Promise.resolve()
+    }
+
+    const firstHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+    await firstActionStarted
+    const secondHandler = node.gridConnectReceiveHandler(":SB780N0D;")
+
+    try {
+      await Promise.resolve()
+      expect(actionCount).to.equal(1)
+
+      rejectFirstAction(new Error("action failed"))
+      await Promise.all([firstHandler, secondHandler])
+      expect(actionCount).to.equal(2)
+    } finally {
+      if (rejectFirstAction) {
+        rejectFirstAction(new Error("action failed"))
+      }
+      await Promise.allSettled([firstHandler, secondHandler])
+      node.action_message = originalActionMessage
+    }
+  })
+
   function GetTestCase_events_with_type() {
     var arg1, arg2, arg3, testCases = [];
     for (var a = 1; a<= 3; a++) {
@@ -929,6 +1009,8 @@ describe('mergAdminNode tests', function(){
     node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
     node.nodeConfig.nodes[value.nodeNumber].VLCB = true
     node.nodeConfig.nodes[value.nodeNumber].parameters[5] = 2
+    node.nodeConfig.nodes[value.nodeNumber].storedEventsNI = {}
+    node.nodeConfig.nodes[value.nodeNumber].eventsByIndex = {}
     node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, value.eventIndex)
     winston.info({message: 'unit_test: storedEventsNI ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].storedEventsNI, null, " ")});
     winston.info({message: 'unit_test: eventsByIndex ' + JSON.stringify(node.nodeConfig.nodes[value.nodeNumber].eventsByIndex, null, " ")});
@@ -1587,23 +1669,22 @@ describe('mergAdminNode tests', function(){
 
   // reset_node test
   //
-  it("reset_node test", function (done) {
+  it("reset_node test", async function () {
     winston.info({message: 'unit_test: BEGIN reset_node test: '});
     mock_messageRouter.messagesIn = []
     let nodeNumber = 1
-    node.reset_node(nodeNumber) 
-    setTimeout(function(){
-      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
-      }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNRST")
-      expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
-      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("RQNPN")
-      expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("MODE")
-      winston.info({message: 'unit_test: END reset_node test'});
-			done();
-		}, 1000);
+    node.reset_node(nodeNumber)
+    await waitForCBUSMessages(3)
+
+    for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+      winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+    }
+    expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNRST")
+    expect(mock_messageRouter.messagesIn[0].nodeNumber).to.equal(nodeNumber)
+    expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("RQNPN")
+    expect(mock_messageRouter.messagesIn[1].nodeNumber).to.equal(nodeNumber)
+    expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("MODE")
+    winston.info({message: 'unit_test: END reset_node test'});
   })
 
 
