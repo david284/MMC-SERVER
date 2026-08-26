@@ -18,6 +18,7 @@ describe('MMC Server functional tests', function() {
   let moduleNames
   let applicationOutput = ''
   let socketServerUrl
+  let testDirectory
 
   before(function(done) {
     this.timeout(startupTimeout + 1000)
