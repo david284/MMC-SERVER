@@ -38,6 +38,7 @@ vlcbServer.on('close', () => {
 
 const VLCB = require('./VLCB-server/server.js');
 const vlcbStartup = VLCB.run();
+vlcbStartup.catch(handleVLCBStartupError)
 
 
 
@@ -159,6 +160,14 @@ function closeHttpServer() {
     }
     server.close(resolve)
   })
+}
+
+async function handleVLCBStartupError(error) {
+  const message = `${name}: VLCB startup failed: ${error.message}`
+  winston.error({message})
+  console.error(message)
+  await closeHttpServer()
+  process.exit(1)
 }
 
 if (process.env.MMC_SERVER_DISABLE_UI !== '1') {
