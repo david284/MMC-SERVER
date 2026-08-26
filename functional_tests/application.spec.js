@@ -13,11 +13,13 @@ describe('MMC Server functional tests', function() {
   let serverStatus
   let moduleNames
   let applicationOutput = ''
+  let socketServerUrl
 
   before(function(done) {
     this.timeout(startupTimeout + 1000)
 
     getAvailableSocketPort().then((socketServerPort) => {
+      socketServerUrl = `http://127.0.0.1:${socketServerPort}`
       application = spawn(process.execPath, ['main.js'], {
         cwd: applicationRoot,
         env: {
@@ -36,7 +38,7 @@ describe('MMC Server functional tests', function() {
         finishStartup(new Error(`MMC Server exited before startup (code: ${code}, signal: ${signal}). Output:\n${applicationOutput}`))
       })
 
-      socket = io(`http://127.0.0.1:${socketServerPort}`, {
+      socket = io(socketServerUrl, {
         autoConnect: false,
         reconnectionDelay: 100,
         reconnectionDelayMax: 500,
@@ -124,6 +126,57 @@ describe('MMC Server functional tests', function() {
     expect(serverStatus).to.have.nested.property('busConnection.state')
     expect(serverStatus.mode).to.equal('STARTUP')
     expect(moduleNames).to.be.an('object')
+  })
+
+  it('sends initial events after a client reconnects', function(done) {
+    this.timeout(startupTimeout + 1000)
+    socket.disconnect()
+
+    socket = io(socketServerUrl, {
+      autoConnect: false,
+      reconnection: false,
+      timeout: 1000
+    })
+
+    let connected = false
+    let reconnectedServerStatus
+    let reconnectedModuleNames
+    let reconnectFinished = false
+    const timeout = setTimeout(() => {
+      finishReconnect(new Error(`Timed out waiting for MMC Server reconnection. Output:\n${applicationOutput}`))
+    }, startupTimeout)
+
+    socket.on('connect', () => {
+      connected = true
+      completeWhenReady()
+    })
+    socket.on('SERVER_STATUS', (status) => {
+      reconnectedServerStatus = status
+      completeWhenReady()
+    })
+    socket.on('MODULE_NAMES', (modules) => {
+      reconnectedModuleNames = modules
+      completeWhenReady()
+    })
+    socket.connect()
+
+    function completeWhenReady() {
+      if (connected && reconnectedServerStatus && reconnectedModuleNames) {
+        expect(reconnectedServerStatus).to.have.nested.property('busConnection.state')
+        expect(reconnectedServerStatus.mode).to.equal('STARTUP')
+        expect(reconnectedModuleNames).to.be.an('object')
+        finishReconnect()
+      }
+    }
+
+    function finishReconnect(error) {
+      if (reconnectFinished) {
+        return
+      }
+      reconnectFinished = true
+      clearTimeout(timeout)
+      done(error)
+    }
   })
 
   function appendApplicationOutput(data) {
