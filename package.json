@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint",
     "start": "node ./main.js",
-    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000 --exit"
+    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",

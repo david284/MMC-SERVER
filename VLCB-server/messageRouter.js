@@ -20,7 +20,7 @@ class messageRouter{
     this.cbusClient = new net.Socket()
     this.config = configuration
     this.eventBus = configuration.eventBus
-    setInterval(this.connectIntervalFunction.bind(this), 5000);
+    this.connectInterval = setInterval(this.connectIntervalFunction.bind(this), 5000);
     this.enableReconnect = false
     this.connected = false
     this.cbusClientHost = null
@@ -78,12 +78,13 @@ class messageRouter{
       this.connected = false
     }.bind(this))
 
-    this.config.eventBus.on('GRID_CONNECT_SEND', function (data) {
+    this.gridConnectSendHandler = function (data) {
       let cbusLibMsg = cbusLib.decode(data)
       winston.info({message: name + ': GRID_CONNECT_SEND ' + cbusLibMsg.text});
       winston.debug({message: name + `:  GRID_CONNECT_SEND ${data}`})
       this.sendCbusMessage(data)
-    }.bind(this))
+    }.bind(this)
+    this.config.eventBus.on('GRID_CONNECT_SEND', this.gridConnectSendHandler)
 
   }
 
@@ -153,7 +154,22 @@ class messageRouter{
     this.cbusClient.write(cbusMSG)
   }
 
+  async close(){
+    this.enableReconnect = false
+    this.connected = false
+    clearInterval(this.connectInterval)
+    this.config.eventBus.removeListener('GRID_CONNECT_SEND', this.gridConnectSendHandler)
+
+    if (this.cbusClient.destroyed) {
+      return
+    }
+
+    await new Promise((resolve) => {
+      this.cbusClient.once('close', resolve)
+      this.cbusClient.destroy()
+    })
+  }
+
 }
 
 module.exports = (configuration) => { return new messageRouter(configuration) }
-

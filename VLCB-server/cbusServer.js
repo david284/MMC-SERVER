@@ -20,6 +20,7 @@ class cbusServer {
     this.serialConnected = false
     this.targetSerial = null
     this.cbusServerPort = null
+    this.disposed = false
 
     //
     //
@@ -85,7 +86,9 @@ class cbusServer {
       this.serialConnected = false
       // restart timer so we start with the correct time gap
       clearInterval(this.reconnectTimer);
-      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+      if (!this.disposed) {
+        this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+      }
       let eventData = {
         message: "Serial port closed",
         caption: data,
@@ -133,6 +136,11 @@ class cbusServer {
   // need to supply port number so unit tests can use a different port
   //
   async connect(CbusServerPort, targetSerial){
+
+    if (this.disposed) {
+      this.disposed = false
+      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000)
+    }
 
     // now start the listener...
     winston.info({message: name + `: connect: starting cbusServer listener on port ${CbusServerPort}`})
@@ -201,13 +209,21 @@ class cbusServer {
   // method to close the listener
   // Essential for unit testing, so that we can close the connection & open it again
   //
-  close(){
+  async close(){
     winston.info({message: name + ': close:'});
-    this.server.removeAllListeners()
-    this.server.close()
-    if (this.serialGC){
-      this.serialGC.close()
+    this.disposed = true
+    this.enableSerialReconnect = false
+    clearInterval(this.reconnectTimer)
+    for (const client of this.clients) {
+      client.destroy()
     }
+    this.clients = []
+    if (this.server.listening) {
+      await new Promise((resolve, reject) => {
+        this.server.close((error) => error ? reject(error) : resolve())
+      })
+    }
+    await serialGC.close()
   }
 
   //
@@ -248,4 +264,3 @@ class cbusServer {
 }
 
 module.exports = (config) => { return new cbusServer(config) }
-

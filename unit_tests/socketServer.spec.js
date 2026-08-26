@@ -30,7 +30,7 @@ config.currentUserDirectory = config.singleUserDirectory
 config.appStorageDirectory =  testAppStoragePath
 
 // set config items
-config.setSocketServerPort(5552);
+config.setSocketServerPort(0);
 
 
 const mock_messageRouter = require('./mock_messageRouter')(config)
@@ -46,25 +46,13 @@ const node = require('./../VLCB-server/mergAdminNode.js')(config)
 const programNode = require('../VLCB-server/programNodeMMC.js')(config)
 
 node.inUnitTest = true
-socketServer.socketServer(config, node, mock_messageRouter, cbusServer, programNode, status)
+let testSocketServer
 
 const name = 'unit_test: socketServer'
 
 describe('socketServer tests', async function(){
 
-
-  const socket = io(`http://${"localhost"}:${config.getSocketServerPort()}`)
-
-  // Add a connect listener
-  socket.on('connect', function () {
-    winston.info({message: 'socketserver: web socket Connected!'})
-  });
-
-  var layoutData = {}
-  socket.on('LAYOUT_DATA', function (data) {
-    layoutData = data;
-//    winston.debug({message: ' layoutData : ' + JSON.stringify(layoutData)});
-    });	
+  let socket
 
 	before(async function() {
 		winston.info({message: ' '});
@@ -74,7 +62,14 @@ describe('socketServer tests', async function(){
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
         
-    await utils.sleep(200)
+    testSocketServer = socketServer.socketServer(config, node, mock_messageRouter, cbusServer, programNode, status)
+    const address = await testSocketServer.listening
+    socket = io(`http://localhost:${address.port}`, {autoConnect: false})
+    await new Promise((resolve, reject) => {
+      socket.once('connect', resolve)
+      socket.once('connect_error', reject)
+      socket.connect()
+    })
     //
     // Use local 'user' directory for tests...
     config.singleUserConfigPath = "./unit_tests/test_output/test_user"
@@ -86,12 +81,17 @@ describe('socketServer tests', async function(){
         // ensure expected CAN header is reset before each test run
 	});
 
-	after(function(done) {
+	after(async function() {
 		winston.info({message: ' '});   // blank line to separate tests
-    // bit of timing to ensure all winston messages get sent before closing tests completely
-    setTimeout(function(){
-      done();
-    }, 100);
+    if (socket) {
+      socket.removeAllListeners()
+      socket.disconnect()
+    }
+    if (testSocketServer) {
+      await testSocketServer.close()
+    }
+    await cbusServer.close()
+    node.dispose()
 	});																										
 
 
@@ -110,6 +110,26 @@ describe('socketServer tests', async function(){
       testCases.push({'nodeNumber':arg1});
     }
     return testCases;
+  }
+
+  function waitForSocketEvent(eventName, action) {
+    return new Promise((resolve) => {
+      socket.once(eventName, resolve)
+      action()
+    })
+  }
+
+  async function waitForSocketBarrier() {
+    await waitForSocketEvent('BUS_CONNECTION', () => socket.emit('REQUEST_BUS_CONNECTION'))
+  }
+
+  async function waitForCBUSMessages(expectedCount, timeoutMs = 2000) {
+    const timeout = Date.now() + timeoutMs
+    while ((node.CBUS_Queue.length > 0 || mock_messageRouter.messagesIn.length < expectedCount) && Date.now() < timeout) {
+      await utils.sleep(1)
+    }
+    expect(node.CBUS_Queue.length).to.equal(0)
+    expect(mock_messageRouter.messagesIn.length).to.equal(expectedCount)
   }
 
   function GetTestCase_event() {
@@ -131,7 +151,7 @@ describe('socketServer tests', async function(){
   }
 
 
-  itParam("ACCESSORY_LONG_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+  itParam("ACCESSORY_LONG_OFF test ${JSON.stringify(value)}", GetTestCase_event(), async function (value) {
     winston.info({message: name +': BEGIN ACCESSORY_LONG_OFF test  ' + JSON.stringify(value)});
     mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
@@ -143,26 +163,24 @@ describe('socketServer tests', async function(){
         "eventNumber": value.eventNumber
       })
     }
-    //
-    setTimeout(function(){
-      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+    await waitForSocketBarrier()
+    if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        await waitForCBUSMessages(1)
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
         const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
-      } else {
+    } else {
         // if either parameter is undefined, then no message should be generated
         expect(mock_messageRouter.messagesIn.length).to.equal(0);
-      }
-      winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
-			done();
-		}, 50);
+    }
+    winston.info({message: name + ': END ACCESSORY_LONG_OFF test'});
   })
 
 
-  itParam("ACCESSORY_LONG_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+  itParam("ACCESSORY_LONG_ON test ${JSON.stringify(value)}", GetTestCase_event(), async function (value) {
     winston.info({message: name + ': BEGIN ACCESSORY_LONG_ON test ' + JSON.stringify(value)});
     mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
@@ -174,26 +192,24 @@ describe('socketServer tests', async function(){
         "eventNumber": value.eventNumber
       })
     }
-    //
-    setTimeout(function(){
-      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+    await waitForSocketBarrier()
+    if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        await waitForCBUSMessages(1)
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
         const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ACON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.eventNumber).to.equal(value.eventNumber);
-      } else {
+    } else {
         // if either parameter is undefined, then no message should be generated
         expect(mock_messageRouter.messagesIn.length).to.equal(0);
-      }
-      winston.info({message: name +': END ACCESSORY_LONG_ON test'});
-			done();
-		}, 50);
+    }
+    winston.info({message: name +': END ACCESSORY_LONG_ON test'});
   })
 
 
-  itParam("ACCESSORY_SHORT_OFF test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+  itParam("ACCESSORY_SHORT_OFF test ${JSON.stringify(value)}", GetTestCase_event(), async function (value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_OFF test  ' + JSON.stringify(value)});
     mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
@@ -205,26 +221,24 @@ describe('socketServer tests', async function(){
         "deviceNumber": value.eventNumber
       })
     }
-    //
-    setTimeout(function(){
-      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+    await waitForSocketBarrier()
+    if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        await waitForCBUSMessages(1)
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
         const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASOF");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
-      } else {
+    } else {
         // if either parameter is undefined, then no message should be generated
         expect(mock_messageRouter.messagesIn.length).to.equal(0);
-      }
-      winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
-			done();
-		}, 50);
+    }
+    winston.info({message: name + ': END ACCESSORY_SHORT_OFF test'});
   })
 
 
-  itParam("ACCESSORY_SHORT_ON test ${JSON.stringify(value)}", GetTestCase_event(), function (done, value) {
+  itParam("ACCESSORY_SHORT_ON test ${JSON.stringify(value)}", GetTestCase_event(), async function (value) {
     winston.info({message: name +': BEGIN ACCESSORY_SHORT_ON test  ' + JSON.stringify(value)});
     mock_messageRouter.messagesIn = []
     if ((value.nodeNumber == undefined) && (value.eventNumber == undefined)){
@@ -236,39 +250,30 @@ describe('socketServer tests', async function(){
         "deviceNumber": value.eventNumber
       })
     }
-    //
-    setTimeout(function(){
-      if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+    await waitForSocketBarrier()
+    if((value.nodeNumber != undefined) && (value.eventNumber != undefined)) {
+        await waitForCBUSMessages(1)
         winston.info({message: name + ': raw result ' + mock_messageRouter.messagesIn[0]});
         const CbusMsg = mock_messageRouter.messagesIn[0]
         winston.info({message: name + ': result ' + JSON.stringify(CbusMsg)});
         expect(CbusMsg.mnemonic).to.equal("ASON");
         expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber);
         expect(CbusMsg.deviceNumber).to.equal(value.eventNumber);
-      } else {
+    } else {
         // if either parameter is undefined, then no message should be generated
         expect(mock_messageRouter.messagesIn.length).to.equal(0);
-      }
-      winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
-			done();
-		}, 50);
+    }
+    winston.info({message: name + ': END ACCESSORY_SHORT_ON test'});
   })
 
   //
   //
-  it("request_layout_list test", function (done) {
+  it("request_layout_list test", async function () {
     winston.info({message: 'unit_test: BEGIN request_layout_list test '});
     //
-    socket.once('LAYOUTS_LIST', function (data) {
-			var layouts_list = data;
-			winston.info({message: ' LAYOUTS_LIST : ' + JSON.stringify(layouts_list)});
-			});	
-    socket.emit('REQUEST_LAYOUTS_LIST')
-    //
-    setTimeout(function(){
-      winston.info({message: 'unit_test: END request_layout_list test'});
-			done();
-		}, 100);
+    const layoutsList = await waitForSocketEvent('LAYOUTS_LIST', () => socket.emit('REQUEST_LAYOUTS_LIST'))
+    winston.info({message: ' LAYOUTS_LIST : ' + JSON.stringify(layoutsList)});
+    winston.info({message: 'unit_test: END request_layout_list test'});
   })
 
 
@@ -285,16 +290,14 @@ describe('socketServer tests', async function(){
 
 
   //
-  itParam("change_layout test ${JSON.stringify(value)}", GetTestCase_layout(), function (done, value) {
+  itParam("change_layout test ${JSON.stringify(value)}", GetTestCase_layout(), async function (value) {
     winston.info({message: 'unit_test: BEGIN change_layout test '});
-    socket.emit('CHANGE_LAYOUT', {"layoutName": value.layout})
-    //
-    setTimeout(function(){
-      winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
-      expect(layoutData.layoutDetails.title).to.equal(value.layout.toUpperCase());
-      winston.info({message: 'unit_test: END change_layout test'});
-			done();
-		}, 100);
+    const layoutData = await waitForSocketEvent('LAYOUT_DATA', () => {
+      socket.emit('CHANGE_LAYOUT', {"layoutName": value.layout.toUpperCase()})
+    })
+    winston.info({message: ' layoutData : ' + JSON.stringify(layoutData)});
+    expect(layoutData.layoutDetails.title).to.equal(value.layout.toUpperCase());
+    winston.info({message: 'unit_test: END change_layout test'});
   })
 
   /*
@@ -314,23 +317,16 @@ describe('socketServer tests', async function(){
 */
 
   //
-  it("request_version test", function (done) {
+  it("request_version test", async function () {
     winston.info({message: 'unit_test: BEGIN request_version test '});
     //
-    socket.once('VERSION', function (data) {
-			var version = data;
-			winston.info({message: ' VERSION : ' + JSON.stringify(version)});
-			});	
-    socket.emit('REQUEST_VERSION')
-    //
-    setTimeout(function(){
-      winston.info({message: 'unit_test: END request_version test'});
-			done();
-		}, 100);
+    const version = await waitForSocketEvent('VERSION', () => socket.emit('REQUEST_VERSION'))
+    winston.info({message: ' VERSION : ' + JSON.stringify(version)});
+    winston.info({message: 'unit_test: END request_version test'});
   })
 
 
-  itParam("SET_CAN_ID test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+  itParam("SET_CAN_ID test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
     winston.info({message: 'unit_test: BEGIN SET_CAN_ID test - nodeNumber ' + value.nodeNumber});
     mock_messageRouter.messagesIn = []
     var data = {
@@ -338,72 +334,54 @@ describe('socketServer tests', async function(){
       CAN_ID: 1
     }
     socket.emit('SET_CAN_ID', data)
-
-    setTimeout(function(){
-      const CbusMsg = mock_messageRouter.messagesIn[0]
-      winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
-      expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
-      expect(CbusMsg.CAN_ID).to.equal(1)
-      winston.info({message: 'unit_test: END SET_CAN_ID test'});
-			done();
-		}, 200);
+    await waitForSocketBarrier()
+    await waitForCBUSMessages(1)
+    const CbusMsg = mock_messageRouter.messagesIn[0]
+    winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
+    expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
+    expect(CbusMsg.CAN_ID).to.equal(1)
+    winston.info({message: 'unit_test: END SET_CAN_ID test'});
   })
 
 
-  itParam("SET_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (done, value) {
+  itParam("SET_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
     winston.info({message: 'unit_test: BEGIN SET_NODE_NUMBER test - nodeNumber ' + value.nodeNumber});
     mock_messageRouter.messagesIn = []
     socket.emit('SET_NODE_NUMBER', value.nodeNumber)
-
-    setTimeout(function(){
-      const CbusMsg = mock_messageRouter.messagesIn[0]
-      winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
-      expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
-      winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});
-			done();
-		}, 200);
+    await waitForSocketBarrier()
+    await waitForCBUSMessages(1)
+    const CbusMsg = mock_messageRouter.messagesIn[0]
+    winston.info({message: 'unit_test: result ' + JSON.stringify(CbusMsg)});
+    expect(CbusMsg.nodeNumber).to.equal(value.nodeNumber)
+    winston.info({message: 'unit_test: END SET_NODE_NUMBER test'});
   })
 
 
   //
   //
-  itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), function (done, value) {
+  itParam("REQUEST_NODE_NUMBER test ${JSON.stringify(value)}", GetTestCase_nodeNumber(), async function (value) {
     winston.info({message: 'unit_test: BEGIN REQUEST_NODE_NUMBER test '});
     var testMessage = cbusLib.encodeRQNN(value.nodeNumber)
     mock_messageRouter.messagesIn = []
     node.rqnnPreviousNodeNumber = value.nodeNumber
     //node.createNodeConfig(value.nodeNumber)    // create node config for node we're testing
-    var receivedNodeNumber = undefined
-    var receivedNAME = undefined
-    socket.once('REQUEST_NODE_NUMBER', function (nodeNumber, name) {
-      receivedNodeNumber = nodeNumber
-      receivedNAME = name
-      winston.debug({message: 'unit_test: node.once - REQUEST_NODE_NUMBER ' + nodeNumber});
+    const response = new Promise((resolve) => {
+      socket.once('REQUEST_NODE_NUMBER', function (nodeNumber, name) {
+        resolve({nodeNumber, name})
+      })
     })
     mock_messageRouter.inject(testMessage)
-    setTimeout(function(){
-      expect(receivedNodeNumber).to.equal(value.nodeNumber)
-      expect(receivedNAME).to.equal("")   // won't get a name for this test
-      winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
-			done();
-		}, 300);
+    const received = await response
+    expect(received.nodeNumber).to.equal(value.nodeNumber)
+    expect(received.name).to.equal("")   // won't get a name for this test
+    winston.info({message: 'unit_test: END REQUEST_NODE_NUMBER test'});
   })
 
 
-  it("REQUEST_BUS_CONNECTION test", function (done) {
+  it("REQUEST_BUS_CONNECTION test", async function () {
     winston.info({message: name + ': BEGIN REQUEST_BUS_CONNECTION test '});
-    var result = false
-    socket.once('BUS_CONNECTION', function () {
-      result = true
-    })
-    socket.emit('REQUEST_BUS_CONNECTION')
-    //
-    setTimeout(function(){
-      winston.info({message: name + ': result ' + result});
-      expect (result).to.equal(true)
-      winston.info({message: name + ': END REQUEST_BUS_CONNECTION test'});
-			done();
-		}, 200);
+    await waitForSocketEvent('BUS_CONNECTION', () => socket.emit('REQUEST_BUS_CONNECTION'))
+    winston.info({message: name + ': END REQUEST_BUS_CONNECTION test'});
   })
 
 
@@ -434,7 +412,7 @@ describe('socketServer tests', async function(){
   }
 
 
-  itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), function (done, value) {
+  itParam("EVENT_TEACH_BY_IDENTIFIER test ${JSON.stringify(value)}", GetTestCase_teach_event(), async function (value) {
     winston.info({message: 'unit_test: BEGIN EVENT_TEACH_BY_IDENTIFIER test '});
     mock_messageRouter.messagesIn = []
     node.nodeConfig.nodes = {}          // start with clean slate
@@ -445,111 +423,70 @@ describe('socketServer tests', async function(){
     }
     node.updateEventInNodeConfig(value.nodeNumber, value.eventIdentifier, 1)
     socket.emit('EVENT_TEACH_BY_IDENTIFIER', data)
-
-    setTimeout(function(){
-      for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
-        winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
-      }
-      expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
-      expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
-      expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
-      expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
-      winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
-			done();
-		}, 300);
+    await waitForSocketBarrier()
+    await waitForCBUSMessages(4)
+    for (let i = 0; i < mock_messageRouter.messagesIn.length; i++) {
+      winston.info({message: 'unit_test: messagesIn ' + JSON.stringify(mock_messageRouter.messagesIn[i])});
+    }
+    expect(mock_messageRouter.messagesIn[0].mnemonic).to.equal("NNLRN")
+    expect(mock_messageRouter.messagesIn[1].mnemonic).to.equal("EVLRN")
+    expect(mock_messageRouter.messagesIn[2].mnemonic).to.equal("NNULN")
+    expect(mock_messageRouter.messagesIn[3].mnemonic).to.equal("REVAL")
+    winston.info({message: 'unit_test: END EVENT_TEACH_BY_IDENTIFIER test'});
   })
 
   //
   //
-  it("SAVE_SETTING test", function (done) {
+  it("SAVE_SETTING test", async function () {
     winston.info({message: 'unit_test: BEGIN SAVE_SETTING test '});
     //
     socket.emit('SAVE_SETTING',{"lastUsedExportFolder":"xxxx"})
-    //
-    setTimeout(function(){
-      expect(config.appSettings.lastUsedExportFolder).to.equal("xxxx")
-      winston.info({message: 'unit_test: END SAVE_SETTING test'});
-			done();
-		}, 100);
+    await waitForSocketBarrier()
+    expect(config.appSettings.lastUsedExportFolder).to.equal("xxxx")
+    winston.info({message: 'unit_test: END SAVE_SETTING test'});
   })
 
   //
   //
-  it("REQUEST_FIRMWARE_INFO test", function (done) {
+  it("REQUEST_FIRMWARE_INFO test", async function () {
     winston.info({message: name + ': BEGIN REQUEST_FIRMWARE_INFO test '});
-    var result = false
-    let returnData = null
-    socket.once('FIRMWARE_INFO', function (data) {
-      returnData = data
-      winston.debug({message: name + `: FIRMWARE_INFO: data: ${JSON.stringify(data)}`});
-      result = true
-    })
     let filename = './unit_tests/test_firmware/CANACC5_v2v.hex'
     winston.info({message: 'UNIT_TEST: REQUEST_FIRMWARE_INFO test: Filename: ' + filename});
     var intelHexString = fs.readFileSync(filename);
     //    
-    socket.emit('REQUEST_FIRMWARE_INFO', intelHexString)
-    //
-    setTimeout(function(){
-      winston.info({message: name + ': result ' + result});
-      winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
-      expect (result).to.equal(true)
-      expect (returnData.valid).to.equal(true)
-      expect (returnData.moduleID).to.equal(2)
-      expect (returnData.targetCpuType).to.equal(1)
-      winston.info({message: name + ': END REQUEST_FIRMWARE_INFO test'});
-			done();
-		}, 100);
+    const returnData = await waitForSocketEvent('FIRMWARE_INFO', () => {
+      socket.emit('REQUEST_FIRMWARE_INFO', intelHexString)
+    })
+    winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
+    expect (returnData.valid).to.equal(true)
+    expect (returnData.moduleID).to.equal(2)
+    expect (returnData.targetCpuType).to.equal(1)
+    winston.info({message: name + ': END REQUEST_FIRMWARE_INFO test'});
   })
 
 
 
   //
   //
-  it("REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test", function (done) {
+  it("REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test", async function () {
     winston.info({message: name + ': BEGIN REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test '});
-    var result = false
-    let returnData = null
-    socket.once('LIST_OF_BACKUPS_FOR_ALL_NODES', function (data) {
-      returnData = data
-      winston.debug({message: name + `: LIST_OF_BACKUPS_FOR_ALL_NODES: data: ${JSON.stringify(data)}`});
-      result = true
+    const returnData = await waitForSocketEvent('LIST_OF_BACKUPS_FOR_ALL_NODES', () => {
+      socket.emit('REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES', {"layoutName":'test_backup_layout'})
     })
-    //    
-    socket.emit( 'REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES', {"layoutName":'test_backup_layout'} )
-    //
-    setTimeout(function(){
-      winston.info({message: name + ': result ' + result});
-      winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
-      expect (result).to.equal(true)
-      winston.info({message: name + ': END REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test'});
-			done();
-		}, 100);
+    winston.info({message: name + `: data ${JSON.stringify(returnData)}`});
+    winston.info({message: name + ': END REQUEST_LIST_OF_BACKUPS_FOR_ALL_NODES test'});
   })
 
 
   //
   //
-  it("REQUEST_LOG_FILE test", function (done) {
+  it("REQUEST_LOG_FILE test", async function () {
     winston.info({message: name + ': BEGIN REQUEST_LOG_FILE test '});
-    var result = false
-    var text = null
-    socket.once('LOG_FILE', function (data) {
-      winston.debug({message: name + `: LOG_FILE: data: ${JSON.stringify(data)}`});
-      text = atob(data.logFile)
-      result = true
-    })
     let targetData = {fileName:"bustraffic.txt"}
-    socket.emit('REQUEST_LOG_FILE', targetData)
-    //
-    setTimeout(function(){
-      winston.info({message: name + ': result ' + result});
-      //winston.info({message: name + ': text ' + text});
-      expect (result).to.equal(true)
-      expect (text.length).to.be.above(0)
-      winston.info({message: name + ': END REQUEST_LOG_FILE test'});
-			done();
-		}, 500);
+    const data = await waitForSocketEvent('LOG_FILE', () => socket.emit('REQUEST_LOG_FILE', targetData))
+    const text = atob(data.logFile)
+    expect (text.length).to.be.above(0)
+    winston.info({message: name + ': END REQUEST_LOG_FILE test'});
   })
 
 
@@ -557,5 +494,3 @@ describe('socketServer tests', async function(){
 
 
 })
-
-

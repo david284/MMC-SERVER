@@ -9,12 +9,12 @@ class mock_cbusServer{
   constructor(CBUS_SERVER_PORT) {
     winston.info({message:name + `: Constructor - Port ` + CBUS_SERVER_PORT})
 
-    this.clients = [];
+    this.clients = new Set();
     this.messagesIn = [];
 
-    const server = net.createServer(function (socket) {
+    this.server = net.createServer(function (socket) {
       socket.setKeepAlive(true, 60000);
-      this.clients.push(socket);
+      this.clients.add(socket);
       winston.info({message:name + `: remote Client Connected: ` + JSON.stringify(socket.address())})
 
       socket.on('connect', function () {
@@ -30,9 +30,19 @@ class mock_cbusServer{
         winston.info({message:name + `: On error Received :`})
       }.bind(this));
 
+      socket.on('close', function () {
+        this.clients.delete(socket)
+      }.bind(this));
+
     }.bind(this));
 
-    server.listen(CBUS_SERVER_PORT)
+    this.listening = new Promise((resolve, reject) => {
+      this.server.once('error', reject)
+      this.server.listen(CBUS_SERVER_PORT, () => {
+        this.server.removeListener('error', reject)
+        resolve(this.server.address())
+      })
+    })
   } // end constructor
 
   // this accepts gridconnect data
@@ -47,8 +57,22 @@ class mock_cbusServer{
     });
   }
 
+  async close(){
+    for (const client of this.clients) {
+      client.destroy()
+    }
+    this.clients.clear()
+
+    if (!this.server.listening) {
+      return
+    }
+
+    await new Promise((resolve, reject) => {
+      this.server.close((error) => error ? reject(error) : resolve())
+    })
+  }
+
 
 }
 
 module.exports = mock_cbusServer;
-

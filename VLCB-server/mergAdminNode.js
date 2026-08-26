@@ -38,7 +38,8 @@ class cbusAdmin extends EventEmitter {
     // keep a record of when any module descriptors are updated, so we know when to recheck
     this.moduleDescriptorFilesTimeStamp = Date.now()   // put valid milliseconds in to start
     this.nodeDescripter_Queue = []      // create a queue for reading MDF's for nodes
-    setInterval(this.checkNodeDescriptorIntervalFunc.bind(this), 20);
+    this.intervalHandles = []
+    this.intervalHandles.push(setInterval(this.checkNodeDescriptorIntervalFunc.bind(this), 20));
 
     const outHeader = ((((this.pr1 * 4) + this.pr2) * 128) + this.canId) << 5
     this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
@@ -46,16 +47,16 @@ class cbusAdmin extends EventEmitter {
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
     this.LastCbusMessage = null
     this.CBUS_Queue = []
-    setInterval(this.sendCBUSIntervalFunc.bind(this), 10);
+    this.intervalHandles.push(setInterval(this.sendCBUSIntervalFunc.bind(this), 10));
     this.awaitingNodeReset_Queue = []
-    setInterval(this.awaitingNodeResetIntervalFunc.bind(this), 500);
+    this.intervalHandles.push(setInterval(this.awaitingNodeResetIntervalFunc.bind(this), 500));
     this.eventsChanged = false
     // update client if anything changed
-    setInterval(this.updateClients.bind(this), 200);
+    this.intervalHandles.push(setInterval(this.updateClients.bind(this), 200));
     this.opcodeTracker = {}
     this.connectionDetails = null
 
-    this.config.eventBus.on('GRID_CONNECT_RECEIVE', async function (data) {
+    this.gridConnectReceiveHandler = async function (data) {
       //winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${data}`})
       try{
         this.lastCbusTrafficTime = Date.now()     // store this time stamp
@@ -69,7 +70,8 @@ class cbusAdmin extends EventEmitter {
       } catch (err) {
         winston.error({message: name + `: GRID_CONNECT_RECEIVE: ${err}`})
       }
-    }.bind(this))
+    }.bind(this)
+    this.config.eventBus.on('GRID_CONNECT_RECEIVE', this.gridConnectReceiveHandler)
 
     //
     this.actions = { //actions when Opcodes are received
@@ -1952,6 +1954,14 @@ class cbusAdmin extends EventEmitter {
     } catch (err){
       winston.error({message: name + `: getNodeDescriptor: node ${nodeNumber} ${err}` });              
     }
+  }
+
+  dispose(){
+    for (const intervalHandle of this.intervalHandles) {
+      clearInterval(intervalHandle)
+    }
+    this.intervalHandles = []
+    this.config.eventBus.removeListener('GRID_CONNECT_RECEIVE', this.gridConnectReceiveHandler)
   }
 
 };

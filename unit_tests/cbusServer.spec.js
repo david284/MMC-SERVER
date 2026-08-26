@@ -70,18 +70,15 @@ describe('cbusServer tests', function(){
   // it doesn't mean the serial port has connected
   // see serialGC.spec.js for serial port tests
   //
-  itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (done, value) {
+  itParam("connect test ${JSON.stringify(value)}", GetTestCase_connect(), async function (value) {
 
     winston.info({message: name + ': BEGIN connect test: ' + JSON.stringify(value)});
     var result = await cbusServer.connect(9999, value.targetSerial)
 
-    setTimeout(function(){
-      winston.info({message: name +': connect test: result ' + result});
-      cbusServer.close()
-      expect(result).to.equal(value.result);
-      winston.info({message: name +': END connect test'});
-			done();
-		}, 20);
+    winston.info({message: name +': connect test: result ' + result});
+    await cbusServer.close()
+    expect(result).to.equal(value.result);
+    winston.info({message: name +': END connect test'});
   })
 
 })

@@ -22,17 +22,15 @@ const name = 'unit_test: messageRouter'
   
 describe('messageRouter tests', function(){
 
-  messageRouter.connect('localhost', cbusServerPort)
-
-	before(function(done) {
+	before(async function() {
 		winston.info({message: ' '});
 		winston.info({message: '================================================================================'});
     //                      12345678901234567890123456789012345678900987654321098765432109876543210987654321
 		winston.info({message: '----------------------------- messageRouter tests ------------------------------'});
 		winston.info({message: '================================================================================'});
 		winston.info({message: ' '});
-    //
-		done();
+    await mock_cbusServer.listening
+    messageRouter.connect('localhost', cbusServerPort)
 	});
 
 	beforeEach(function() {
@@ -41,12 +39,10 @@ describe('messageRouter tests', function(){
         // ensure expected CAN header is reset before each test run
 	});
 
-	after(function(done) {
+	after(async function() {
  		winston.info({message: ' '});   // blank line to separate tests
-    // bit of timing to ensure all winston messages get sent before closing tests completely
-    setTimeout(function(){
-      done();
-    }, 100);
+    await messageRouter.close()
+    await mock_cbusServer.close()
 	});																										
 
 
