@@ -9,7 +9,22 @@
   "scripts": {
     "lint": "eslint",
     "start": "node ./main.js",
-    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000"
+    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000",
+    "test:coverage": "c8 npm test"
+  },
+  "c8": {
+    "all": true,
+    "include": [
+      "main.js",
+      "VLCB-server/**/*.js"
+    ],
+    "exclude": [
+      "unit_tests/**"
+    ],
+    "reporter": [
+      "text",
+      "lcov"
+    ]
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
@@ -26,6 +41,7 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "c8": "^12.0.0",
     "chai": "^4.2.0",
     "eslint": "^10.8.1",
     "globals": "^17.11.0",
