@@ -6,6 +6,9 @@ It is intended as a reference for both contributors and maintainers, with partic
 
 For step-by-step instructions on submitting a contribution, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+For an architectural overview of MMC-SERVER, see
+[Documents/Architecture/README.md](Documents/Architecture/README.md).
+
 ---
 
 # 1. Development Model
