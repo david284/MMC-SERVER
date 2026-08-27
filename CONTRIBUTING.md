@@ -119,12 +119,15 @@ Follow the existing structure and conventions of the project.
 
 Where appropriate:
 
-- Add tests for new functionality.
-- Update tests when behaviour changes.
+- Treat unit tests as compulsory for changes to server behaviour: add tests for
+  new functionality and update tests when behaviour changes.
 - Update documentation.
 - Preserve existing behaviour unless a change is intentional.
 - Avoid unrelated refactoring.
 - Keep the change focused.
+
+Read [TESTING.md](TESTING.md) before making a code change. It explains the
+project's test-first expectations, commands, coverage practice, and test tools.
 
 ### Do not change the project version
 
@@ -151,24 +154,21 @@ Avoid adding dependencies when the functionality can reasonably be provided by e
 
 Before submitting a pull request, run the project's normal checks locally.
 
-The exact commands are defined by `package.json`.
-
-A typical Node.js project may use:
+The project currently provides these commands:
 
 ```bash
-npm ci
 npm test
 npm run lint
-npm run build
+npm run test:coverage
 ```
 
 Make a reasonable effort to ensure that:
 
 - Existing tests pass.
-- New functionality has appropriate tests.
+- New or changed server behaviour has appropriate unit tests. If there is a
+  genuine reason not to add one, explain it in the pull request.
+- Coverage does not slip without a clear, reviewed reason.
 - Linting passes.
-- The project builds successfully, where applicable.
-- Formatting requirements are satisfied.
 
 The project's automated checks normally repeat these checks for relevant repository updates, including commits pushed to a pull request.
 
@@ -336,10 +336,11 @@ Before submitting a pull request:
 - [ ] I am working from an up-to-date version of the project.
 - [ ] My changes are on a dedicated branch.
 - [ ] My changes are focused on the intended issue or feature.
-- [ ] I have added or updated tests where appropriate.
+- [ ] I have added or updated unit tests for changed server behaviour, or explained why a test is not appropriate.
+- [ ] I have checked that coverage has not slipped without a clear reason.
 - [ ] I have updated documentation where appropriate.
 - [ ] I have run the project's tests locally.
-- [ ] I have run the project's lint/build/format checks where applicable.
+- [ ] I have run the project's lint checks.
 - [ ] I have not changed the project version.
 - [ ] I have not included unrelated changes.
 - [ ] My commits have clear messages.
