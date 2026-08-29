@@ -101,6 +101,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install MMC-CLIENT
+        # run: npm run install:client
+        # Uncomment above, and delete below once package.json has correct version in it - this is just a POC ATM
+        run: npm run install:client -- 0.24.0-beta.1
+
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
