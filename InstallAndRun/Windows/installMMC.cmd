@@ -221,6 +221,7 @@ if NOT EXIST "MMC-SERVER\" (
 	echo Installing MMC...
 	cd MMC-SERVER
 	cmd /c npm ci
+	cmd /c npm run install:client
 	cd ..
 )
 REM Now check that MMC is up to date
@@ -239,6 +240,7 @@ if NOT !cnt!==0 (
 		echo Updating MMC...
 		git pull
 		npm ci
+		cmd /c npm run install:client
 	) 
 ) else (
 	echo MMC is up to date.

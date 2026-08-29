@@ -7,6 +7,7 @@
   "private": true,
   "main": "./main.js",
   "scripts": {
+    "install:client": ".github/scripts/install-mmc-client.sh",
     "lint": "eslint",
     "start": "node ./main.js",
     "test": "mocha ./unit_tests/*.spec.js --timeout 150000",
