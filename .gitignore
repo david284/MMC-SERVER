@@ -12,3 +12,4 @@ browser_tests/test-results/
 browser_tests/test_output/
 VLCB-server/config/nodeDescriptors.json
 coverage
+public
