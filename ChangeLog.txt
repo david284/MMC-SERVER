@@ -8,7 +8,8 @@ MMC Version 0.23.3
   Merge pull request #205 from jimmythedog/issue/204_await_cbus_action_processing
   Merge pull request #207 from jimmythedog/issue/206_serialize_cbus_processing
   Merge pull request #213 from jimmythedog/issue/208_add_test_coverage
-  Merge pull request #186 from jimmythedog/docs/182_generate_dev_docs 
+  Merge pull request #186 from jimmythedog/docs/182_generate_dev_docs
+  Merge pull request #214 from jimmythedog/issue/209_test_server_startup 
 
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
