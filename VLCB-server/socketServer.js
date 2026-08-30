@@ -18,7 +18,20 @@ const io = require('socket.io')(server, {
 });
 
 
-exports.socketServer = function(config, node, messageRouter, cbusServer, programNode, status) {
+exports.socketServer = function(config, node, messageRouter, cbusServer, programNode, status, options = {}) {
+
+  const exitProcess = options.exitProcess || process.exit.bind(process)
+  const sleep = options.sleep || utils.sleep
+  let connectionInProgress = false
+  let programmingInProgress = false
+
+  function acknowledge(callback, error, data = {}) {
+    if (typeof callback == 'function') {
+      callback(error
+        ? {success: false, error: error.message}
+        : {success: true, ...data})
+    }
+  }
 
 
   //*************************************************************************************** */
@@ -186,14 +199,16 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('DELETE_ALL_EVENTS', async function(data){
+    socket.on('DELETE_ALL_EVENTS', async function(data, callback){
       try{
         winston.info({message: name + `: DELETE_ALL_EVENTS ${JSON.stringify(data.nodeNumber)}`});
         await node.delete_all_events(data.nodeNumber)
         node.removeNodeEvents(data.nodeNumber)                   // clear node structure of events
         await node.request_all_node_events(data.nodeNumber) // now refresh
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: DELETE_ALL_EVENTS: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -238,17 +253,19 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('EVENT_TEACH_BY_INDEX', async function(data){
+    socket.on('EVENT_TEACH_BY_INDEX', async function(data, callback){
       try{
         winston.info({message: `socketServer: EVENT_TEACH_BY_INDEX ${JSON.stringify(data)}`});
         await node.event_teach_by_index(data.nodeNumber, data.eventIdentifier, data.eventIndex, data.eventVariableIndex, data.eventVariableValue, data.reLoad)
         if(data.linkedVariableList != undefined){
           for (let i = 0; i < data.linkedVariableList.length; i++) {
-            node.requestEventVariableByIndex(data.nodeNumber, data.eventIndex, data.linkedVariableList[i])
+            await node.requestEventVariableByIndex(data.nodeNumber, data.eventIndex, data.linkedVariableList[i])
           }
         }
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: EVENT_TEACH_BY_INDEX: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -272,19 +289,28 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('PROGRAM_NODE', async function(data){
+    socket.on('PROGRAM_NODE', async function(data, callback){
+      if (programmingInProgress) {
+        acknowledge(callback, new Error('Node programming is already in progress'))
+        return
+      }
+      programmingInProgress = true
       try{
         winston.info({message: 'socketServer:  PROGRAM_NODE: nodeNumber ' + data.nodeNumber});
         await programNode.program(data.nodeNumber, data.cpuType, data.flags, data.hexFile)
         node.createNodeConfig(data.nodeNumber, false) // reset config as firmware changed
-        await utils.sleep(5000)              // allow time for module to restart after programming
+        await sleep(5000)              // allow time for module to restart after programming
         node.set_FCU_compatibility()
         // request flags to trigger postOpcodeProcessing
         node.sendRQNPN(data.nodeNumber, 8)
         // push node onto queue to read all events, will trigger other events
         node.sendRQEVN(data.nodeNumber)
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: PROGRAM_NODE: ${err}`});
+        acknowledge(callback, err)
+      }finally{
+        programmingInProgress = false
       }
     })
 
@@ -302,14 +328,16 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('REMOVE_EVENT', async function(data){
+    socket.on('REMOVE_EVENT', async function(data, callback){
       try{
         winston.info({message: `socketServer: REMOVE_EVENT ${JSON.stringify(data)}`});
         await node.event_unlearn(data.nodeNumber, data.eventName)
         node.removeNodeEvent(data.nodeNumber, data.eventName)
         await node.request_all_node_events(data.nodeNumber) // now refresh
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: REMOVE_EVENT: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -354,16 +382,18 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('REQUEST_ALL_EVENT_VARIABLES_FOR_NODE', function(data){
+    socket.on('REQUEST_ALL_EVENT_VARIABLES_FOR_NODE', async function(data, callback){
       try{
         winston.info({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES_FOR_NODE ${JSON.stringify(data)}`});
         if (data.nodeNumber != undefined){
-          node.requestAllEventVariablesForNode(data.nodeNumber)
+          await node.requestAllEventVariablesForNode(data.nodeNumber)
+          acknowledge(callback)
         } else {
-          winston.error({message: `socketServer:  REQUEST_ALL_EVENT_VARIABLES_FOR_NODE: ERROR ${JSON.stringify(data)}`});
+          throw new Error('nodeNumber is required')
         }
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_EVENT_VARIABLES_FOR_NODE: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -421,23 +451,27 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('REQUEST_ALL_NODE_PARAMETERS', function(data){ //Request Node Parameter
+    socket.on('REQUEST_ALL_NODE_PARAMETERS', async function(data, callback){ //Request Node Parameter
       try{
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_PARAMETERS ${JSON.stringify(data)}`});
-        node.request_all_node_parameters(data.nodeNumber)
+        await node.request_all_node_parameters(data.nodeNumber)
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_NODE_PARAMETERS: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
     //
     //
-    socket.on('REQUEST_ALL_NODE_VARIABLES', function(data){
+    socket.on('REQUEST_ALL_NODE_VARIABLES', async function(data, callback){
       try{
         winston.info({message: `socketServer:  REQUEST_ALL_NODE_VARIABLES ${JSON.stringify(data)}`})
-        node.request_all_node_variables(data.nodeNumber)
+        await node.request_all_node_variables(data.nodeNumber)
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: REQUEST_ALL_NODE_VARIABLES: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -744,12 +778,14 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('SAVE_LOGS_ARCHIVE', function(){
+    socket.on('SAVE_LOGS_ARCHIVE', async function(callback){
       try{
         winston.info({message: `socketServer: SAVE_LOGS_ARCHIVE`});
-        config.archiveLogs()
+        await config.archiveLogs()
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: SAVE_LOGS_ARCHIVE: ${err}`});
+        acknowledge(callback, err)
       }
     })
 
@@ -816,7 +852,12 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     
     //
     //
-    socket.on('START_CONNECTION', async function(connectionDetails){
+    socket.on('START_CONNECTION', async function(connectionDetails, callback){
+      if (connectionInProgress) {
+        acknowledge(callback, new Error('A connection attempt is already in progress'))
+        return
+      }
+      connectionInProgress = true
       try{
         winston.info({message: name + `: START_CONNECTION ${JSON.stringify(connectionDetails)}`});
         status.busConnection.state = undefined
@@ -850,23 +891,30 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
           // now connect the messageRouter to the configured CbusServer
           await messageRouter.connect(config.getCbusServerHost(), config.getCbusServerPort())
           await node.onConnect(connectionDetails);
+          status.busConnection.state = true
           status.mode = 'RUNNING'
         }
+        acknowledge(callback, undefined, {status: status.busConnection.state})
       }catch(err){
+        status.busConnection.state = false
         winston.error({message: name + `: START_CONNECTION: ${err}`});
+        acknowledge(callback, err)
+      }finally{
+        connectionInProgress = false
       }
     })
 
     //
     //
-    socket.on('STOP_SERVER', async function(){
+    socket.on('STOP_SERVER', async function(callback){
       try{
         winston.info({message: `socketServer: STOP_SERVER`});
         await config.archiveLogs()
-        await utils.sleep(1000)   // allow some time
-        process.exit();
+        acknowledge(callback)
+        exitProcess()
       }catch(err){
         winston.error({message: name + `: STOP_SERVER: ${err}`});
+        acknowledge(callback, err)
       }
     })
     
@@ -927,19 +975,20 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
 
     //
     //
-    socket.on('UPDATE_LAYOUT_DATA', async function(data){
+    socket.on('UPDATE_LAYOUT_DATA', async function(data, callback){
       try{
         winston.info({message: `socketServer: UPDATE_LAYOUT_DATA`});
         Object.keys(data.nodeDetails)  // just get node numbers
         //winston.info({message: name + ': UPDATE_LAYOUT_DATA: nodes ' + nodesList});
-        config.writeLayoutData(data)
-        await utils.sleep(200)              // allow time for write to complete
+        await config.writeLayoutData(data)
         // add any new nodes
         node.addLayoutNodes(node.config.readLayoutData())
         winston.info({message: `socketServer: UPDATE_LAYOUT_DATA: send LAYOUT_DATA`});
         io.emit('LAYOUT_DATA', data)    // refresh client, so pages can respond
+        acknowledge(callback)
       }catch(err){
         winston.error({message: name + `: UPDATE_LAYOUT_DATA: ${err}`});
+        acknowledge(callback, err)
       }
     })
       
@@ -1129,7 +1178,3 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
     close: () => new Promise((resolve) => io.close(resolve))
   }
 }
-
-
-
-
