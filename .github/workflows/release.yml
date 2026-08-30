@@ -209,12 +209,73 @@ jobs:
           path: dist/release/*
           if-no-files-found: error
 
+  macos:
+    name: Build macOS ${{ matrix.arch }} distribution
+    needs: ci
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-14
+          - arch: x64
+            runner: macos-15-intel
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          architecture: ${{ matrix.arch }}
+          cache: npm
+
+      - name: Prepare distribution
+        uses: ./.github/actions/prepare-distribution
+
+      - name: Copy Node.js runtime
+        shell: bash
+        run: |
+          cp "$(command -v node)" dist/MMC/runtime/node
+          chmod +x dist/MMC/runtime/node
+
+      - name: Copy launcher
+        shell: bash
+        run: |
+          cp InstallAndRun/MacOS/runMMC dist/MMC/runMMC
+          chmod +x dist/MMC/runMMC
+
+      - name: Create macOS archive
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="test"
+          fi
+
+          tar \
+            -C dist \
+            -czf "MMC-${version}-macos-${{ matrix.arch }}.tar.gz" \
+            MMC
+
+      - name: Upload macOS distribution
+        uses: actions/upload-artifact@v7
+        with:
+          name: MMC-macos-${{ matrix.arch }}
+          path: MMC-*-macos-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+
   release:
     name: Create GitHub release
     if: github.ref_type == 'tag'
     needs:
       - windows-x64
       - linux-x64
+      - macos
     runs-on: ubuntu-latest
 
     steps:
