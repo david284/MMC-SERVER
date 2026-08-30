@@ -92,6 +92,29 @@ jobs:
         run: |
           Copy-Item InstallAndRun/Windows/runMMC-packaged.cmd dist/MMC/runMMC.cmd
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          winget install --id JRSoftware.InnoSetup.7 -e `
+            --scope machine `
+            --accept-source-agreements `
+            --accept-package-agreements `
+            --disable-interactivity
+
+      - name: Create Windows installer
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $iscc = "${env:ProgramFiles}\Inno Setup 7\ISCC.exe"
+
+          if (-not (Test-Path $iscc)) {
+            throw "Inno Setup compiler not found at: $iscc"
+          }
+
+          & $iscc `
+            "/DMyAppVersion=$version" `
+            "InstallAndRun\Windows\MMC.iss"
+
       - name: Create Windows archive
         shell: pwsh
         run: |
@@ -112,7 +135,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: MMC-windows-x64-test-build
-          path: MMC-test-windows-x64.zip
+          path: |
+            MMC-test-windows-x64.zip
+            dist/installer/*.exe
           if-no-files-found: error
 
       # Everything below here is only performed for an actual release tag.
@@ -122,15 +147,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+ 
           if [[ "${GITHUB_REF_NAME}" == *-beta.* ]]; then
             gh release create "${GITHUB_REF_NAME}" \
               "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
+              "dist/installer/MMC-${TAG_VERSION}-windows-x64-setup.exe" \
               --title "MMC ${GITHUB_REF_NAME}" \
               --generate-notes \
               --prerelease
           else
             gh release create "${GITHUB_REF_NAME}" \
               "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
+              "dist/installer/MMC-${TAG_VERSION}-windows-x64-setup.exe" \
               --title "MMC ${GITHUB_REF_NAME}" \
               --generate-notes
           fi
