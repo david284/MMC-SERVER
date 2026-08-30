@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  # Real releases are triggered by version tags.
+  push:
+    tags:
+      - 'v*.*.*'
+
+  # Allows the release build to be tested manually from any branch.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci-common.yml
+
+  windows-x64:
+    name: Build Windows x64 distribution
+    needs: ci
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          architecture: x64
+          cache: npm
+
+      - name: Validate release version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          echo "Tag version:     ${TAG_VERSION}"
+          echo "Package version: ${PACKAGE_VERSION}"
+
+          if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
+            echo "::error::Invalid release tag: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [[ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]]; then
+            echo "::error::Tag version does not match package.json version"
+            exit 1
+          fi
+
+      - name: Install MMC-CLIENT
+        shell: bash
+        run: .github/scripts/install-mmc-client.sh
+
+      - name: Create distribution directory
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/MMC/app | Out-Null
+          New-Item -ItemType Directory -Force dist/MMC/runtime | Out-Null
+
+      - name: Copy application files
+        shell: pwsh
+        run: |
+          Copy-Item main.js dist/MMC/app/
+          Copy-Item app.js dist/MMC/app/
+          Copy-Item package.json dist/MMC/app/
+          Copy-Item package-lock.json dist/MMC/app/
+          Copy-Item License.txt dist/MMC/app/
+          Copy-Item config dist/MMC/app/config -Recurse
+          Copy-Item routes dist/MMC/app/routes -Recurse
+          Copy-Item views dist/MMC/app/views -Recurse
+          Copy-Item VLCB-server dist/MMC/app/VLCB-server -Recurse
+          Copy-Item public dist/MMC/app/public -Recurse
+
+      - name: Install production dependencies
+        shell: pwsh
+        working-directory: dist/MMC/app
+        run: npm ci --omit=dev
+
+      - name: Copy Node.js runtime
+        shell: pwsh
+        run: |
+          Copy-Item (Get-Command node).Source dist/MMC/runtime/node.exe
+
+      - name: Copy launcher
+        shell: pwsh
+        run: |
+          Copy-Item InstallAndRun/Windows/runMMC-packaged.cmd dist/MMC/runMMC.cmd
+
+      - name: Create Windows archive
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $version = "${{ github.ref_name }}"
+          }
+          else {
+            $version = "test"
+          }
+
+          Compress-Archive `
+            -Path dist/MMC/* `
+            -DestinationPath "MMC-$version-windows-x64.zip"
+
+      # Manual runs prove the packaging without creating a release.
+      - name: Upload test build
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: MMC-windows-x64-test-build
+          path: MMC-test-windows-x64.zip
+          if-no-files-found: error
+
+      # Everything below here is only performed for an actual release tag.
+      - name: Create GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == *-beta.* ]]; then
+            gh release create "${GITHUB_REF_NAME}" \
+              "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
+              --title "MMC ${GITHUB_REF_NAME}" \
+              --generate-notes \
+              --prerelease
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
+              --title "MMC ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
