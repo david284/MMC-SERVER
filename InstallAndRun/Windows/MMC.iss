@@ -15,6 +15,8 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\MMC
 DefaultGroupName=MMC
 
+DisableProgramGroupPage=yes
+
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 

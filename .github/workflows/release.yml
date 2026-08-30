@@ -176,6 +176,7 @@ jobs:
 
           cat > dist/deb/usr/bin/mmc <<'EOF'
           #!/bin/sh
+
           exec /opt/mmc/runMMC "$@"
           EOF
 
