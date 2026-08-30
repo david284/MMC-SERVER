@@ -42,54 +42,8 @@ jobs:
           architecture: x64
           cache: npm
 
-      - name: Validate release version
-        if: github.ref_type == 'tag'
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-
-          echo "Tag version:     ${TAG_VERSION}"
-          echo "Package version: ${PACKAGE_VERSION}"
-
-          if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
-            echo "::error::Invalid release tag: ${GITHUB_REF_NAME}"
-            exit 1
-          fi
-
-          if [[ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]]; then
-            echo "::error::Tag version does not match package.json version"
-            exit 1
-          fi
-
-      - name: Install MMC-CLIENT
-        shell: bash
-        run: .github/scripts/install-mmc-client.sh
-
-      - name: Create distribution directory
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force dist/MMC/app | Out-Null
-          New-Item -ItemType Directory -Force dist/MMC/runtime | Out-Null
-
-      - name: Copy application files
-        shell: pwsh
-        run: |
-          Copy-Item main.js dist/MMC/app/
-          Copy-Item app.js dist/MMC/app/
-          Copy-Item package.json dist/MMC/app/
-          Copy-Item package-lock.json dist/MMC/app/
-          Copy-Item License.txt dist/MMC/app/
-          Copy-Item config dist/MMC/app/config -Recurse
-          Copy-Item routes dist/MMC/app/routes -Recurse
-          Copy-Item views dist/MMC/app/views -Recurse
-          Copy-Item VLCB-server dist/MMC/app/VLCB-server -Recurse
-          Copy-Item public dist/MMC/app/public -Recurse
-
-      - name: Install production dependencies
-        shell: pwsh
-        working-directory: dist/MMC/app
-        run: npm ci --omit=dev
+      - name: Prepare distribution
+        uses: ./.github/actions/prepare-distribution
 
       - name: Copy Node.js runtime
         shell: pwsh
@@ -138,40 +92,19 @@ jobs:
             -Path dist/MMC/* `
             -DestinationPath "MMC-$version-windows-x64.zip"
 
-      # Manual runs prove the packaging without creating a release.
-      - name: Upload test build
-        if: github.ref_type != 'tag'
+      - name: Stage Windows artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/release | Out-Null
+          Copy-Item MMC-*-windows-x64.zip dist/release/
+          Copy-Item dist/installer/*.exe dist/release/
+
+      - name: Upload Windows distribution
         uses: actions/upload-artifact@v7
         with:
-          name: MMC-windows-x64-test-build
-          path: |
-            MMC-test-windows-x64.zip
-            dist/installer/*.exe
+          name: MMC-windows-x64
+          path: dist/release/*
           if-no-files-found: error
-
-      # Everything below here is only performed for an actual release tag.
-      - name: Create GitHub release
-        if: github.ref_type == 'tag'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
- 
-          if [[ "${GITHUB_REF_NAME}" == *-beta.* ]]; then
-            gh release create "${GITHUB_REF_NAME}" \
-              "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
-              "dist/installer/MMC-${TAG_VERSION}-windows-x64-setup.exe" \
-              --title "MMC ${GITHUB_REF_NAME}" \
-              --generate-notes \
-              --prerelease
-          else
-            gh release create "${GITHUB_REF_NAME}" \
-              "MMC-${GITHUB_REF_NAME}-windows-x64.zip" \
-              "dist/installer/MMC-${TAG_VERSION}-windows-x64-setup.exe" \
-              --title "MMC ${GITHUB_REF_NAME}" \
-              --generate-notes
-          fi
 
   linux-x64:
     name: Build Linux x64 distribution
@@ -189,51 +122,8 @@ jobs:
           architecture: x64
           cache: npm
 
-      - name: Validate release version
-        if: github.ref_type == 'tag'
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-
-          echo "Tag version:     ${TAG_VERSION}"
-          echo "Package version: ${PACKAGE_VERSION}"
-
-          if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
-            echo "::error::Invalid release tag: ${GITHUB_REF_NAME}"
-            exit 1
-          fi
-
-          if [[ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]]; then
-            echo "::error::Tag version does not match package.json version"
-            exit 1
-          fi
-
-      - name: Install MMC-CLIENT
-        run: .github/scripts/install-mmc-client.sh
-
-      - name: Create distribution directory
-        run: |
-          mkdir -p dist/MMC/app
-          mkdir -p dist/MMC/runtime
-
-      - name: Copy application files
-        run: |
-          cp main.js dist/MMC/app/
-          cp app.js dist/MMC/app/
-          cp package.json dist/MMC/app/
-          cp package-lock.json dist/MMC/app/
-          cp License.txt dist/MMC/app/
-
-          cp -r config dist/MMC/app/
-          cp -r routes dist/MMC/app/
-          cp -r views dist/MMC/app/
-          cp -r VLCB-server dist/MMC/app/
-          cp -r public dist/MMC/app/
-
-      - name: Install production dependencies
-        working-directory: dist/MMC/app
-        run: npm ci --omit=dev
+      - name: Prepare distribution
+        uses: ./.github/actions/prepare-distribution
 
       - name: Copy Node.js runtime
         run: cp "$(command -v node)" dist/MMC/runtime/node
@@ -258,10 +148,50 @@ jobs:
             -czf "MMC-${version}-linux-x64.tar.gz" \
             MMC
 
-      - name: Upload test build
-        if: github.ref_type != 'tag'
+      - name: Stage Linux artifacts
+        run: |
+          mkdir -p dist/release
+          cp MMC-*-linux-x64.tar.gz dist/release/
+
+      - name: Upload Linux distribution
         uses: actions/upload-artifact@v7
         with:
-          name: MMC-linux-x64-test-build
-          path: MMC-test-linux-x64.tar.gz
+          name: MMC-linux-x64
+          path: dist/release/*
           if-no-files-found: error
+
+  release:
+    name: Create GitHub release
+    if: github.ref_type == 'tag'
+    needs:
+      - windows-x64
+      - linux-x64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v8
+        with:
+          pattern: MMC-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == *-beta.* ]]; then
+            gh release create "${GITHUB_REF_NAME}" \
+              dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "MMC ${GITHUB_REF_NAME}" \
+              --generate-notes \
+              --prerelease
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "MMC ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi

@@ -1,0 +1,57 @@
+name: Prepare MMC distribution
+description: Stage MMC and install its production dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: Validate release version
+      if: github.ref_type == 'tag'
+      shell: bash
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+        echo "Tag version:     ${TAG_VERSION}"
+        echo "Package version: ${PACKAGE_VERSION}"
+
+        if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
+          echo "::error::Invalid release tag: ${GITHUB_REF_NAME}"
+          exit 1
+        fi
+
+        if [[ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]]; then
+          echo "::error::Tag version does not match package.json version"
+          exit 1
+        fi
+
+    - name: Install MMC-CLIENT
+      shell: bash
+      run: .github/scripts/install-mmc-client.sh
+
+    - name: Create distribution directory
+      shell: bash
+      run: |
+        mkdir -p dist/MMC/app
+        mkdir -p dist/MMC/runtime
+
+    - name: Copy application files
+      shell: bash
+      run: |
+        cp main.js dist/MMC/app/
+        cp app.js dist/MMC/app/
+        cp package.json dist/MMC/app/
+        cp package-lock.json dist/MMC/app/
+        cp License.txt dist/MMC/app/
+
+        cp -r config dist/MMC/app/
+        cp -r routes dist/MMC/app/
+        cp -r views dist/MMC/app/
+        cp -r VLCB-server dist/MMC/app/
+        cp -r public dist/MMC/app/
+
+        cp InstallAndRun/Linux/MMCicon-256.png dist/MMC/MMCicon-256.png
+
+    - name: Install production dependencies
+      shell: bash
+      working-directory: dist/MMC/app
+      run: npm ci --omit=dev
