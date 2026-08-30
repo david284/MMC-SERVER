@@ -16,6 +16,15 @@ jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci-common.yml
+    #
+    # TODO: Refactor the platform packaging jobs once Windows and Linux
+    # packaging have been proven. Much of the application staging,
+    # version validation, MMC-CLIENT installation, and release handling
+    # is currently duplicated between platform jobs.
+    #
+    # Consider extracting common steps into a reusable workflow or
+    # composite action, leaving each platform job responsible only for
+    # platform-specific runtime packaging and installer/archive creation.
 
   windows-x64:
     name: Build Windows x64 distribution
@@ -163,3 +172,96 @@ jobs:
               --title "MMC ${GITHUB_REF_NAME}" \
               --generate-notes
           fi
+
+  linux-x64:
+    name: Build Linux x64 distribution
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          architecture: x64
+          cache: npm
+
+      - name: Validate release version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          echo "Tag version:     ${TAG_VERSION}"
+          echo "Package version: ${PACKAGE_VERSION}"
+
+          if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
+            echo "::error::Invalid release tag: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [[ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]]; then
+            echo "::error::Tag version does not match package.json version"
+            exit 1
+          fi
+
+      - name: Install MMC-CLIENT
+        run: .github/scripts/install-mmc-client.sh
+
+      - name: Create distribution directory
+        run: |
+          mkdir -p dist/MMC/app
+          mkdir -p dist/MMC/runtime
+
+      - name: Copy application files
+        run: |
+          cp main.js dist/MMC/app/
+          cp app.js dist/MMC/app/
+          cp package.json dist/MMC/app/
+          cp package-lock.json dist/MMC/app/
+          cp License.txt dist/MMC/app/
+
+          cp -r config dist/MMC/app/
+          cp -r routes dist/MMC/app/
+          cp -r views dist/MMC/app/
+          cp -r VLCB-server dist/MMC/app/
+          cp -r public dist/MMC/app/
+
+      - name: Install production dependencies
+        working-directory: dist/MMC/app
+        run: npm ci --omit=dev
+
+      - name: Copy Node.js runtime
+        run: cp "$(command -v node)" dist/MMC/runtime/node
+
+      - name: Copy launcher
+        run: |
+          cp InstallAndRun/Linux/runMMC dist/MMC/runMMC
+          chmod +x dist/MMC/runMMC
+          chmod +x dist/MMC/runtime/node
+
+      - name: Create Linux archive
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="test"
+          fi
+
+          tar \
+            -C dist \
+            -czf "MMC-${version}-linux-x64.tar.gz" \
+            MMC
+
+      - name: Upload test build
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: MMC-linux-x64-test-build
+          path: MMC-test-linux-x64.tar.gz
+          if-no-files-found: error
