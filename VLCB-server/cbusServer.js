@@ -12,7 +12,7 @@ const serialGC = require('../VLCB-server/serialGC.js');
 //
 
 class cbusServer {
-  constructor(config) {
+  constructor(config, options = {}) {
     winston.info({message: name + `: Constructor`});
     this.config = config
     this.clients = []
@@ -21,6 +21,10 @@ class cbusServer {
     this.targetSerial = null
     this.cbusServerPort = null
     this.disposed = false
+    this.serialGC = options.serialGC || serialGC
+    this.setInterval = options.setInterval || setInterval
+    this.clearInterval = options.clearInterval || clearInterval
+    this.serialConnectInProgress = false
 
     //
     //
@@ -34,7 +38,7 @@ class cbusServer {
       socket.on('data', function (data) {
           let outMsg = data.toString().split(";");
           for (let i = 0; i < outMsg.length - 1; i++) {
-            serialGC.write(outMsg[i] + ';')
+            this.serialGC.write(outMsg[i] + ';')
             this.broadcast(outMsg[i] + ';', socket)
           }
       }.bind(this));
@@ -70,24 +74,24 @@ class cbusServer {
 
     //
     //
-    serialGC.on('data', function (data) {
+    this.serialDataHandler = function (data) {
       //winston.info({message: name + `: emitted:  ${JSON.stringify(data)}`})
       let outMsg = data.toString().split(";");
       for (let i = 0; i < outMsg.length - 1; i++) {
         // don't specify socket as it doesn't have one
         this.broadcast(outMsg[i] + ';')
       }
-    }.bind(this))
+    }.bind(this)
     
     //
     //
-    serialGC.on('close', function (data) {
+    this.serialCloseHandler = function (data) {
       winston.info({message: name + `: serial port closed:`})
       this.serialConnected = false
       // restart timer so we start with the correct time gap
-      clearInterval(this.reconnectTimer);
+      this.clearInterval(this.reconnectTimer);
       if (!this.disposed) {
-        this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+        this.reconnectTimer = this.setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
       }
       let eventData = {
         message: "Serial port closed",
@@ -96,11 +100,11 @@ class cbusServer {
         timeout: 3000
       }
       this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', eventData)
-    }.bind(this))
+    }.bind(this)
 
     //
     //
-    serialGC.on('error', function (data) {
+    this.serialErrorHandler = function (data) {
       winston.info({message: name + `: serial port error:  ${JSON.stringify(data)}`})
       this.serialConnected = false
       let eventData = {
@@ -110,11 +114,11 @@ class cbusServer {
         timeout: 3000
       }
       this.config.eventBus.emit ('SERIAL_CONNECTION_FAILURE', eventData)
-    }.bind(this))
+    }.bind(this)
 
     //
     //
-    serialGC.on('open', function (message) {
+    this.serialOpenHandler = function (message) {
       winston.info({message: name + `: serial port open: ${message}`})
       this.serialConnected = true
       let data = {
@@ -124,11 +128,34 @@ class cbusServer {
         timeout: 500
       }
       this.config.eventBus.emit ('SERVER_NOTIFICATION', data)
-    }.bind(this))
+    }.bind(this)
+    this.attachSerialListeners()
 
-    this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+    this.reconnectTimer = this.setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
 
 } // end constructor
+
+  attachSerialListeners(){
+    if (this.serialListenersAttached) {
+      return
+    }
+    this.serialGC.on('data', this.serialDataHandler)
+    this.serialGC.on('close', this.serialCloseHandler)
+    this.serialGC.on('error', this.serialErrorHandler)
+    this.serialGC.on('open', this.serialOpenHandler)
+    this.serialListenersAttached = true
+  }
+
+  detachSerialListeners(){
+    if (!this.serialListenersAttached) {
+      return
+    }
+    this.serialGC.removeListener('data', this.serialDataHandler)
+    this.serialGC.removeListener('close', this.serialCloseHandler)
+    this.serialGC.removeListener('error', this.serialErrorHandler)
+    this.serialGC.removeListener('open', this.serialOpenHandler)
+    this.serialListenersAttached = false
+  }
 
   //
   // separate connect method so the instance can be passed
@@ -139,7 +166,8 @@ class cbusServer {
 
     if (this.disposed) {
       this.disposed = false
-      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000)
+      this.attachSerialListeners()
+      this.reconnectTimer = this.setInterval(this.serialConnectIntervalFunction.bind(this), 5000)
     }
 
     // now start the listener...
@@ -180,13 +208,29 @@ class cbusServer {
     winston.info({message: name + ': Connecting to serial port ' + targetSerial});
     this.targetSerial = targetSerial
     // connect to serial port
-    let result = await serialGC.connect(this.targetSerial)
+    if (this.serialConnectInProgress) {
+      return false
+    }
+    this.serialConnectInProgress = true
+    let result
+    try {
+      result = await this.serialGC.connect(this.targetSerial)
+    } catch (error) {
+      winston.error({message: name + ': serial connection failed: ' + error})
+      result = false
+    } finally {
+      this.serialConnectInProgress = false
+    }
+
+    if (this.disposed) {
+      return false
+    }
 
     if (result == false){
       // connection failed
       // restart timer so we start with the correct time gap
-      clearInterval(this.reconnectTimer);
-      this.reconnectTimer = setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
+      this.clearInterval(this.reconnectTimer);
+      this.reconnectTimer = this.setInterval(this.serialConnectIntervalFunction.bind(this), 5000);
       winston.info({message: name + ': failed to connect to serial port ' + this.targetSerial});
       let data = {
         message: `Serial port failed to connect: ${this.targetSerial}`,
@@ -213,7 +257,7 @@ class cbusServer {
     winston.info({message: name + ': close:'});
     this.disposed = true
     this.enableSerialReconnect = false
-    clearInterval(this.reconnectTimer)
+    this.clearInterval(this.reconnectTimer)
     for (const client of this.clients) {
       client.destroy()
     }
@@ -223,7 +267,8 @@ class cbusServer {
         this.server.close((error) => error ? reject(error) : resolve())
       })
     }
-    await serialGC.close()
+    await this.serialGC.close()
+    this.detachSerialListeners()
   }
 
   //
@@ -263,4 +308,4 @@ class cbusServer {
 
 }
 
-module.exports = (config) => { return new cbusServer(config) }
+module.exports = (config, options) => { return new cbusServer(config, options) }
