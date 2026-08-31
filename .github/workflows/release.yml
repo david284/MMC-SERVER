@@ -53,7 +53,7 @@ jobs:
       - name: Copy launcher
         shell: pwsh
         run: |
-          Copy-Item InstallAndRun/Windows/runMMC-packaged.cmd dist/MMC/runMMC.cmd
+          Copy-Item InstallAndRun/Windows/runMMC.cmd dist/MMC/runMMC.cmd
 
       - name: Install Inno Setup
         shell: pwsh
