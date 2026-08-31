@@ -131,18 +131,20 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-try {
-  // open a window with the port used by express
-  var win = nw.Window.open("http://localhost:" + port, {}, function() {
-    win.on('loaded', function() {
-      win.maximize()
+if (process.env.MMC_SERVER_DISABLE_UI !== '1') {
+  try {
+    // open a window with the port used by express
+    var win = nw.Window.open("http://localhost:" + port, {}, function() {
+      win.on('loaded', function() {
+        win.maximize()
+      });
     });
-  });
-} catch {
-  // if it fails, probably not using nw, so use openurl
-  require("openurl").open("http://localhost:" + port, (e) => {
-    if (e != undefined) {
-      winston.error({message: `${name}: Error when using openurl: ${e}`})
-    }
-  });
+  } catch {
+    // if it fails, probably not using nw, so use openurl
+    require("openurl").open("http://localhost:" + port, (e) => {
+      if (e != undefined) {
+        winston.error({message: `${name}: Error when using openurl: ${e}`})
+      }
+    });
+  }
 }
