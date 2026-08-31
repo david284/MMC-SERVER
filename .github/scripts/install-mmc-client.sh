@@ -20,4 +20,6 @@ unzip -q "${ARCHIVE}" -d public
 
 rm "${ARCHIVE}"
 
+printf '%s\n' "$VERSION" > public/.mmc-client-version
+
 echo "MMC-CLIENT ${VERSION} installed into public/"
