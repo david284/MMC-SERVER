@@ -210,6 +210,33 @@ describe('mergAdminNode tests', function(){
     }
   })
 
+  itParam("accepts only complete standard GridConnect message lengths ${JSON.stringify(value)}", [
+    {encoded: ':SB780N0D;', valid: true},
+    {encoded: ':SB780N;', valid: false},
+    {encoded: ':SB780N0D', valid: false},
+    {encoded: 'SB780N0D;', valid: false},
+    {encoded: ':SB780N5001;', valid: false}
+  ], function (value) {
+    const decoded = cbusLib.decode(value.encoded)
+    expect(node.isMessageValid(decoded)).to.equal(value.valid)
+  })
+
+  it("recovers from malformed GridConnect input before the next valid message", async function () {
+    const originalActionMessage = node.action_message
+    let actionCount = 0
+    node.action_message = async function () {
+      actionCount++
+    }
+
+    try {
+      await node.processGridConnectMessage(':S;')
+      await node.processGridConnectMessage(':SB780N0D;')
+      expect(actionCount).to.equal(1)
+    } finally {
+      node.action_message = originalActionMessage
+    }
+  })
+
   function GetTestCase_events_with_type() {
     var arg1, arg2, arg3, testCases = [];
     for (var a = 1; a<= 3; a++) {
