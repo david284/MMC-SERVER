@@ -15,6 +15,9 @@ MMC Version 0.23.3
   Merge pull request #217 from jimmythedog/issue/212_test_configuration_and_cbus_parsing
   Merge pull request #221 from jimmythedog/issue/220_add_initial_functional_testing_framework
   Merge pull request #230 from jimmythedog/issue/222_configurable_ports_graceful_shutdown
+  Merge pull request #231 from jimmythedog/issue/223_socketio_reconnect_functional_test
+  Merge pull request #232 from jimmythedog/issue/224_graceful_shutdown_active_socketio_client
+  Merge pull request #233 from jimmythedog/issue/225_socketio_port_configuration_validation
 
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
