@@ -1,10 +1,10 @@
 const { spawn } = require('child_process')
+const net = require('net')
 const path = require('path')
 const { expect } = require('chai')
 const { io } = require('socket.io-client')
 
 const applicationRoot = path.join(__dirname, '..')
-const socketServerUrl = 'http://127.0.0.1:5552'
 const startupTimeout = 10000
 
 describe('MMC Server functional tests', function() {
@@ -17,65 +17,68 @@ describe('MMC Server functional tests', function() {
   before(function(done) {
     this.timeout(startupTimeout + 1000)
 
-    application = spawn(process.execPath, ['main.js'], {
-      cwd: applicationRoot,
-      env: {
-        ...process.env,
-        MMC_SERVER_DISABLE_UI: '1',
-        MMC_SERVER_HTTP_PORT: '0'
-      },
-      stdio: ['ignore', 'pipe', 'pipe']
-    })
+    getAvailableSocketPort().then((socketServerPort) => {
+      application = spawn(process.execPath, ['main.js'], {
+        cwd: applicationRoot,
+        env: {
+          ...process.env,
+          MMC_SERVER_DISABLE_UI: '1',
+          MMC_SERVER_HTTP_PORT: '0',
+          MMC_SERVER_SOCKET_PORT: socketServerPort.toString()
+        },
+        stdio: ['ignore', 'pipe', 'pipe']
+      })
 
-    application.stdout.on('data', appendApplicationOutput)
-    application.stderr.on('data', appendApplicationOutput)
-    application.once('error', finishStartup)
-    application.once('exit', (code, signal) => {
-      finishStartup(new Error(`MMC Server exited before startup (code: ${code}, signal: ${signal}). Output:\n${applicationOutput}`))
-    })
+      application.stdout.on('data', appendApplicationOutput)
+      application.stderr.on('data', appendApplicationOutput)
+      application.once('error', finishStartup)
+      application.once('exit', (code, signal) => {
+        finishStartup(new Error(`MMC Server exited before startup (code: ${code}, signal: ${signal}). Output:\n${applicationOutput}`))
+      })
 
-    socket = io(socketServerUrl, {
-      autoConnect: false,
-      reconnectionDelay: 100,
-      reconnectionDelayMax: 500,
-      timeout: 1000
-    })
+      socket = io(`http://127.0.0.1:${socketServerPort}`, {
+        autoConnect: false,
+        reconnectionDelay: 100,
+        reconnectionDelayMax: 500,
+        timeout: 1000
+      })
 
-    let connected = false
-    let startupFinished = false
-    const timeout = setTimeout(() => {
-      finishStartup(new Error(`Timed out waiting for MMC Server startup. Output:\n${applicationOutput}`))
-    }, startupTimeout)
+      let connected = false
+      const timeout = setTimeout(() => {
+        finishStartup(new Error(`Timed out waiting for MMC Server startup. Output:\n${applicationOutput}`))
+      }, startupTimeout)
+      let startupFinished = false
 
-    socket.on('connect', () => {
-      connected = true
-      completeWhenReady()
-    })
-    socket.on('SERVER_STATUS', (status) => {
-      serverStatus = status
-      completeWhenReady()
-    })
-    socket.on('MODULE_NAMES', (modules) => {
-      moduleNames = modules
-      completeWhenReady()
-    })
+      socket.on('connect', () => {
+        connected = true
+        completeWhenReady()
+      })
+      socket.on('SERVER_STATUS', (status) => {
+        serverStatus = status
+        completeWhenReady()
+      })
+      socket.on('MODULE_NAMES', (modules) => {
+        moduleNames = modules
+        completeWhenReady()
+      })
 
-    socket.connect()
+      socket.connect()
 
-    function completeWhenReady() {
-      if (connected && serverStatus && moduleNames) {
-        finishStartup()
+      function completeWhenReady() {
+        if (connected && serverStatus && moduleNames) {
+          finishStartup()
+        }
       }
-    }
 
-    function finishStartup(error) {
-      if (startupFinished) {
-        return
+      function finishStartup(error) {
+        if (startupFinished) {
+          return
+        }
+        startupFinished = true
+        clearTimeout(timeout)
+        done(error)
       }
-      startupFinished = true
-      clearTimeout(timeout)
-      done(error)
-    }
+    }).catch(done)
   })
 
   after(function(done) {
@@ -88,14 +91,29 @@ describe('MMC Server functional tests', function() {
       return
     }
 
+    let shutdownFinished = false
     const timeout = setTimeout(() => {
-      application.kill('SIGKILL')
+      finishShutdown(new Error('MMC Server did not exit cleanly after SIGTERM'))
     }, 5000)
-    application.once('exit', () => {
-      clearTimeout(timeout)
-      done()
+    application.once('exit', (code, signal) => {
+      try {
+        expect(code).to.equal(0)
+        expect(signal).to.equal(null)
+        finishShutdown()
+      } catch (error) {
+        finishShutdown(error)
+      }
     })
     application.kill('SIGTERM')
+
+    function finishShutdown(error) {
+      if (shutdownFinished) {
+        return
+      }
+      shutdownFinished = true
+      clearTimeout(timeout)
+      done(error)
+    }
   })
 
   it('connects a Socket.IO client', function() {
@@ -112,3 +130,20 @@ describe('MMC Server functional tests', function() {
     applicationOutput += data.toString()
   }
 })
+
+function getAvailableSocketPort() {
+  return new Promise((resolve, reject) => {
+    const portFinder = net.createServer()
+    portFinder.once('error', reject)
+    portFinder.listen(0, '127.0.0.1', () => {
+      const { port } = portFinder.address()
+      portFinder.close((error) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(port)
+        }
+      })
+    })
+  })
+}
