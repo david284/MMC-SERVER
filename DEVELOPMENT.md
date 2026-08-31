@@ -379,13 +379,175 @@ main
 
 # 12. Automated Release Process
 
-Once the release tag is created, the project's release automation can perform the repetitive release tasks. Its exact steps are defined by the repository's current release configuration.
+MMC-SERVER releases include a pre-built version of MMC-CLIENT. The corresponding MMC-CLIENT release must therefore exist **before** the MMC-SERVER release is created.
 
-The important principle is:
+MMC-CLIENT and MMC-SERVER should use the same version number.
 
-> **The version tag is the trigger for the release process.**
+The version tag is the trigger for the automated release process.
 
-This makes releases reproducible and minimises manual steps.
+## Beta Releases
+
+Beta releases allow the integrated release to be packaged and tested before it is promoted to `main`.
+
+Beta versions use Semantic Versioning pre-release identifiers:
+
+```text id="mj81yv"
+0.24.0-beta.1
+0.24.0-beta.2
+0.24.0-beta.3
+```
+
+Both MMC-CLIENT and MMC-SERVER must use the same beta version.
+
+> [!IMPORTANT]
+> **Do not edit the version number manually in `package.json` or `package-lock.json` when preparing a release.**
+>
+> Use `npm version` as shown below. It updates the version consistently in both `package.json` and `package-lock.json`.
+>
+> The `--no-git-tag-version` option prevents npm from automatically creating the Git commit and tag, allowing those steps to remain explicit in the release procedure.
+
+For example:
+
+```bash id="brzrhj"
+npm version 0.24.0-beta.11 --no-git-tag-version
+```
+
+After running the command, both version files can be committed together:
+
+```bash id="27kb4m"
+git add package.json package-lock.json
+git commit -m "Bump version to 0.24.0-beta.11"
+```
+
+### Release MMC-CLIENT Beta
+
+From the MMC-CLIENT release branch:
+
+```bash id="emjq79"
+npm version <version>-beta.<n> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>-beta.<n>"
+git push origin <branch>
+```
+
+Create and push the beta tag:
+
+```bash id="gqt0nb"
+git tag v<version>-beta.<n>
+git push origin v<version>-beta.<n>
+```
+
+Wait for the MMC-CLIENT release workflow to complete and confirm that the beta GitHub Release and release artifact have been created successfully.
+
+### Release MMC-SERVER Beta
+
+Update MMC-SERVER to the **same beta version**:
+
+```bash id="a2fxnx"
+npm version <version>-beta.<n> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>-beta.<n>"
+git push origin <branch>
+```
+
+Verify that MMC-SERVER can install the released client:
+
+```bash id="96f0r9"
+npm run install:client
+```
+
+Run the required tests and release checks.
+
+Create and push the server beta tag:
+
+```bash id="h1yvpg"
+git tag v<version>-beta.<n>
+git push origin v<version>-beta.<n>
+```
+
+The release workflow builds the supported operating-system artifacts and creates the MMC-SERVER beta release.
+
+Additional beta releases can be produced by incrementing the beta number.
+
+For example:
+
+```text id="rlk9vb"
+v0.24.0-beta.1
+v0.24.0-beta.2
+v0.24.0-beta.3
+```
+
+Beta releases do **not** require the release branch to be promoted to `main`.
+
+## Production Release
+
+Once the beta has been tested and the release is considered ready, the release branch is promoted to `main` as described in Section 10.
+
+The production version does not contain the beta suffix:
+
+```text id="xhwstj"
+0.24.0
+```
+
+Use `npm version` to set the final production version. Do not edit the version files manually.
+
+
+```bash id="7umwq8"
+npm version <version> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>"
+```
+
+As with beta releases, MMC-CLIENT must be released first.
+
+Create and push the MMC-CLIENT production tag:
+
+```bash id="hnl2io"
+git tag v<version>
+git push origin v<version>
+```
+
+Confirm that the MMC-CLIENT production release completed successfully before releasing MMC-SERVER.
+
+Once MMC-SERVER contains the matching version and has been promoted to `main`, create and push its production tag:
+
+```bash id="mxthxb"
+git tag v<version>
+git push origin v<version>
+```
+
+The MMC-SERVER release workflow then creates the production GitHub Release and its supported operating-system artifacts.
+
+## Release Order
+
+For both beta and production releases, the dependency order is:
+
+```text id="45ryy9"
+MMC-CLIENT
+    │
+    │ release completes
+    ▼
+MMC-SERVER
+    │
+    ▼
+OS release artifacts
+```
+
+The complete release sequence is:
+
+1. Set the MMC-CLIENT version.
+2. Commit and push the version change.
+3. Tag and release MMC-CLIENT.
+4. Confirm the MMC-CLIENT release completed successfully.
+5. Set MMC-SERVER to exactly the same version.
+6. Verify MMC-SERVER can install the released MMC-CLIENT.
+7. Complete the server tests and release checks.
+8. Tag and release MMC-SERVER.
+9. Confirm the GitHub Release and OS-specific artifacts were created successfully.
+
+> **Never create an MMC-SERVER release tag until the corresponding MMC-CLIENT release is available.**
+
+Beta releases allow this process to be exercised and the resulting application packages tested before the final release is promoted to `main`.
 
 ---
 
