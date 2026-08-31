@@ -9,7 +9,7 @@
   "scripts": {
     "install:client": ".github/scripts/install-mmc-client.sh",
     "lint": "eslint",
-    "start": "node ./main.js",
+    "start": "node .github/scripts/check-mmc-client.js && node ./main.js",
     "test": "mocha ./unit_tests/*.spec.js --timeout 150000",
     "test:coverage": "c8 npm test",
     "test:functional": "mocha ./functional_tests/*.spec.js --timeout 30000",
