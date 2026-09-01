@@ -77,6 +77,14 @@ server.on('listening', onListening);
 
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
+// SIGTERM terminates a child process directly on Windows, so it cannot be used
+// to exercise graceful shutdown there.  An IPC parent may request the same
+// shutdown path without exposing a network-facing control mechanism.
+process.on('message', (message) => {
+  if (message && message.type === 'shutdown') {
+    shutdown('IPC')
+  }
+})
 
 /**
  * Normalize a port into a number, string, or false.
@@ -149,10 +157,24 @@ async function shutdown(signal) {
 
   await Promise.all([
     closeHttpServer(),
-    vlcbStartup.then((vlcbServer) => vlcbServer.close())
+    closeVLCBServer()
   ])
 
-  process.exitCode = 0
+  process.exit(0)
+}
+
+async function closeVLCBServer() {
+  const closeTimeout = new Promise((resolve) => {
+    setTimeout(() => {
+      winston.error({message: `${name}: VLCB shutdown timed out`})
+      resolve()
+    }, 5000)
+  })
+
+  await Promise.race([
+    vlcbStartup.then((vlcbServer) => vlcbServer.close()),
+    closeTimeout
+  ])
 }
 
 function closeHttpServer() {
@@ -165,12 +187,11 @@ function closeHttpServer() {
   })
 }
 
-async function handleVLCBStartupError(error) {
+function handleVLCBStartupError(error) {
   const message = `${name}: VLCB startup failed: ${error.message}`
   winston.error({message})
   console.error(message)
-  await closeHttpServer()
-  process.exitCode = 1
+  process.exit(1)
 }
 
 if (process.env.MMC_SERVER_DISABLE_UI !== '1') {
