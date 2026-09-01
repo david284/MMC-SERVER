@@ -41,7 +41,6 @@ runs:
         cp app.js dist/MMC/app/
         cp package.json dist/MMC/app/
         cp package-lock.json dist/MMC/app/
-        cp License.txt dist/MMC/app/
 
         cp -r config dist/MMC/app/
         cp -r routes dist/MMC/app/
@@ -51,7 +50,33 @@ runs:
 
         cp InstallAndRun/Linux/MMCicon-256.png dist/MMC/MMCicon-256.png
 
+    - name: Install build dependencies
+      shell: bash
+      run: npm ci
+
     - name: Install production dependencies
       shell: bash
       working-directory: dist/MMC/app
       run: npm ci --omit=dev
+
+    - name: Add MMC licences
+      shell: bash
+      run: |
+        mkdir -p dist/MMC/licenses
+
+        cp License.txt \
+          dist/MMC/licenses/MMC-SERVER-LICENSE.txt
+
+    - name: Add Node.js licence
+      shell: bash
+      run: |
+        NODE_VERSION="$(node --version)"
+
+        echo "Bundling Node.js ${NODE_VERSION} licence"
+
+        curl --fail --location \
+          "https://raw.githubusercontent.com/nodejs/node/${NODE_VERSION}/LICENSE" \
+          --output dist/MMC/licenses/NODE-LICENSE.txt
+
+        test -s dist/MMC/licenses/NODE-LICENSE.txt
+
