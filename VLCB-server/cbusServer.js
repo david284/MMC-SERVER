@@ -264,7 +264,15 @@ class cbusServer {
     this.clients = []
     if (this.server.listening) {
       await new Promise((resolve, reject) => {
-        this.server.close((error) => error ? reject(error) : resolve())
+        const timeout = setTimeout(resolve, 1000)
+        this.server.close((error) => {
+          clearTimeout(timeout)
+          if (error) {
+            reject(error)
+          } else {
+            resolve()
+          }
+        })
       })
     }
     await this.serialGC.close()
