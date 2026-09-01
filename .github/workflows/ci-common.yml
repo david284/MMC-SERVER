@@ -18,8 +18,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: '24.20.0'
           cache: npm
+
+      - name: Show Node version
+        shell: bash
+        run: |
+          node --version
+          node -p "process.execPath"
 
       - name: Install dependencies
         run: npm ci
@@ -38,7 +44,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: '24.20.0'
           cache: npm
 
       - name: Install dependencies
@@ -96,7 +102,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: '24.20.0'
 
       - name: Install dependencies
         run: npm ci
