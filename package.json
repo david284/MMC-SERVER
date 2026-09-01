@@ -9,9 +9,9 @@
   "scripts": {
     "lint": "eslint",
     "start": "node ./main.js",
-    "test": "./node_modules/.bin/mocha ./unit_tests/*.spec.js --timeout 150000",
+    "test": "mocha ./unit_tests/*.spec.js --timeout 150000",
     "test:coverage": "c8 npm test",
-    "test:functional": "./node_modules/.bin/mocha ./functional_tests/*.spec.js --timeout 30000",
+    "test:functional": "mocha ./functional_tests/*.spec.js --timeout 30000",
     "test:browser": "playwright test"
   },
   "c8": {
