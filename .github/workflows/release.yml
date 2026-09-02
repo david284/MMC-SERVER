@@ -378,6 +378,17 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Generate release checksums
+        shell: bash
+        run: |
+          (
+            cd dist
+            sha256sum MMC-* > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
+
+          cat dist/SHA256SUMS
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
