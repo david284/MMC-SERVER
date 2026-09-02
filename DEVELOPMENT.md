@@ -603,6 +603,12 @@ The Git history is used to determine which pull requests belong to the release,
 while the pull request title and labels provide the information used to
 organise the release notes.
 
+## Release signing
+
+Release artifacts include SHA-256 checksums and a GPG signature that can be used to verify downloaded files.
+
+The release signing public key, verification instructions, and maintainer key setup/rotation procedure are documented in [Documents/keys/README.md](Documents/keys/README.md).
+
 ---
 
 # 13. Release Notifications
