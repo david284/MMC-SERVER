@@ -1,0 +1,15 @@
+# Configuration for GitHub-generated release notes.
+
+changelog:
+  categories:
+    - title: Enhancements
+      labels:
+        - enhancement
+
+    - title: Bug fixes
+      labels:
+        - bug
+
+    - title: Documentation
+      labels:
+        - documentation
