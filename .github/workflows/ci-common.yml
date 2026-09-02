@@ -10,6 +10,7 @@ jobs:
   lint:
     name: ESLint
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -36,6 +37,7 @@ jobs:
   test:
     name: Unit and functional tests
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -94,6 +96,7 @@ jobs:
   browser-test:
     name: Browser end-to-end tests
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
