@@ -28,7 +28,8 @@ function getDependencies(overrides) {
 
 function getDefaultConfig() {
   if (!defaultConfig) {
-    defaultConfig = require('./configuration.js')(__dirname, path.join(process.cwd(), 'logs'));
+    const logsPath = path.join(process.env.MMC_SERVER_APP_STORAGE_DIRECTORY || process.cwd(), 'logs');
+    defaultConfig = require('./configuration.js')(__dirname, logsPath);
     const socketServerPort = parseInt(process.env.MMC_SERVER_SOCKET_PORT || '5552', 10);
     defaultConfig.setSocketServerPort(isNaN(socketServerPort) || socketServerPort < 0 ? 5552 : socketServerPort);
   }

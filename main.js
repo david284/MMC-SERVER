@@ -1,11 +1,14 @@
 /* global nw */
 const fs = require('fs');
-// lets ensure the logs folder is empty
-if (fs.existsSync("logs")) {
-  fs.rmSync("logs", { recursive: true }) 
-}
+const path = require('path')
+const logsPath = path.join(process.env.MMC_SERVER_APP_STORAGE_DIRECTORY || process.cwd(), 'logs');
 
-let path = require('path')
+// lets ensure the logs folder is empty
+if (fs.existsSync(logsPath)) {
+  fs.rmSync(logsPath, { recursive: true })
+}
+fs.mkdirSync(logsPath, { recursive: true })
+
 const winston = require(path.join(process.cwd(), 'config/winston.js'));
 const name = "main"
 winston.info({message: name + ': Starting'});
@@ -149,7 +152,7 @@ async function shutdown(signal) {
     vlcbStartup.then((vlcbServer) => vlcbServer.close())
   ])
 
-  process.exit(0)
+  process.exitCode = 0
 }
 
 function closeHttpServer() {
@@ -167,7 +170,7 @@ async function handleVLCBStartupError(error) {
   winston.error({message})
   console.error(message)
   await closeHttpServer()
-  process.exit(1)
+  process.exitCode = 1
 }
 
 if (process.env.MMC_SERVER_DISABLE_UI !== '1') {

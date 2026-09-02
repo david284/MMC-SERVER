@@ -68,4 +68,5 @@ jobs:
             unit_tests/test_output/config/modules/
             unit_tests/test_output/config/nodeConfig.json
             unit_tests/test_output/test_user/
+            functional_tests/test_output/
           if-no-files-found: warn

@@ -942,6 +942,14 @@ class configuration {
 
   createAppStorage(){
     try{
+      if (process.env.MMC_SERVER_APP_STORAGE_DIRECTORY) {
+        this.appStorageDirectory = process.env.MMC_SERVER_APP_STORAGE_DIRECTORY
+        this.createDirectory(this.appStorageDirectory)
+        this.createDirectory(path.join(this.appStorageDirectory, 'layouts'))
+        this.createDirectory(path.join(this.appStorageDirectory, 'modules'))
+        this.createLayoutFile(this.appStorageDirectory, defaultLayoutData.layoutDetails.title)
+        return
+      }
       // create OS based user directories
       winston.info({message: className + ': createAppStorage: Platform: ' + os.platform()});
       switch (os.platform()) {
