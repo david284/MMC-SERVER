@@ -389,6 +389,34 @@ jobs:
 
           cat dist/SHA256SUMS
 
+      - name: Import release signing key
+        shell: bash
+        env:
+          RELEASE_GPG_PRIVATE_KEY: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+        run: |
+          printf '%s' "${RELEASE_GPG_PRIVATE_KEY}" |
+            gpg --batch --import
+
+      - name: Sign release checksums
+        shell: bash
+        env:
+          RELEASE_GPG_PASSPHRASE: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+        run: |
+          printf '%s' "${RELEASE_GPG_PASSPHRASE}" |
+            gpg \
+              --batch \
+              --yes \
+              --pinentry-mode loopback \
+              --passphrase-fd 0 \
+              --armor \
+              --detach-sign \
+              --output dist/SHA256SUMS.asc \
+              dist/SHA256SUMS
+
+          gpg --verify \
+            dist/SHA256SUMS.asc \
+            dist/SHA256SUMS
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
