@@ -19,6 +19,8 @@ MMC Version 0.23.3
   Merge pull request #232 from jimmythedog/issue/224_graceful_shutdown_active_socketio_client
   Merge pull request #233 from jimmythedog/issue/225_socketio_port_configuration_validation
   Updated CANCDU_U-A558-4d--P23 Module Descriptor File
+  Merge pull request #234 from jimmythedog/MMC-SERVER/tree/issue/226_isolate_functional_test_data
+  Merge pull request #236 from jimmythedog/MMC-SERVER/tree/issue/228_add_functional_cbus_simultation 
 
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
