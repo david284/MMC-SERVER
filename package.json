@@ -7,6 +7,7 @@
   "private": true,
   "main": "./main.js",
   "scripts": {
+    "format": "prettier --write .",
     "install:client": ".github/scripts/install-mmc-client.sh",
     "lint": "eslint",
     "start": "node .github/scripts/check-mmc-client.js && node ./main.js",
@@ -50,6 +51,7 @@
     "globals": "^17.11.0",
     "license-checker": "^25.0.1",
     "mocha": "^11.7.4",
-    "mocha-param": "^2.0.1"
+    "mocha-param": "^2.0.1",
+    "prettier": "^3.9.6"
   }
 }
