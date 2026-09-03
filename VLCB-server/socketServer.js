@@ -1018,7 +1018,7 @@ exports.socketServer = function(config, node, messageRouter, cbusServer, program
   //
   const listening = new Promise((resolve, reject) => {
     server.once('error', reject)
-    server.listen(config.getSocketServerPort(), () => {
+    server.listen(config.getSocketServerPort(), process.env.MMC_SERVER_SOCKET_HOST || '0.0.0.0', () => {
       server.removeListener('error', reject)
       const address = server.address()
       console.log(`SS: Server running on port ${address.port}`)
