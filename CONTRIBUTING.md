@@ -70,6 +70,24 @@ origin    → your fork
 upstream  → main project
 ```
 
+### Git hooks
+
+The repository includes optional Git hooks which perform quick checks before changes are committed.
+
+To enable them for your local clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To disable them:
+
+```bash
+git config --unset core.hooksPath
+```
+
+The hooks are optional and do not replace the checks performed by CI.
+
 ---
 
 ## 4. Keep Your Fork Up to Date
