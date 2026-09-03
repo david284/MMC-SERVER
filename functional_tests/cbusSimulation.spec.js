@@ -32,7 +32,7 @@ describeSimulator('MMC Server CBUS simulation', function() {
     fs.mkdirSync(logsDirectory, { recursive: true })
     await verifyPortAvailable(simulatorPort)
 
-    simulator = startProcess(process.execPath, ['server.js'], simulatorDirectory, appendSimulatorOutput)
+    simulator = startSimulator()
     await waitForPort(simulatorPort, simulator, () => simulatorOutput)
 
     socketPort = await getAvailableSocketPort()
@@ -55,12 +55,14 @@ describeSimulator('MMC Server CBUS simulation', function() {
     fs.writeFileSync(path.join(logsDirectory, 'simulator-output.log'), simulatorOutput)
   })
 
-  it('connects to the supported simulated CBUS network and relays an accessory command', async function() {
+  it('connects to the supported simulated CBUS network and relays long accessory commands', async function() {
     this.timeout(startupTimeout * 2)
     const notifications = []
     const traffic = []
+    const events = []
     socket.on('SERVER_NOTIFICATION', (notification) => notifications.push(notification))
     socket.on('CBUS_TRAFFIC', (data) => traffic.push(data))
+    socket.on('BUS_EVENTS', (data) => events.push(data))
 
     const response = await emitWithAck(socket, 'START_CONNECTION', {
       mode: 'Network',
@@ -78,6 +80,12 @@ describeSimulator('MMC Server CBUS simulation', function() {
       data.json.nodeNumber === 1 && data.json.eventNumber === 2), 'the simulated CBUS network to receive ACON 1:2')
     await waitFor(() => simulatorOutput.includes('Received message') && simulatorOutput.includes('ACON'),
       'CbusNetworkSimulator to process ACON 1:2')
+
+    socket.emit('ACCESSORY_LONG_OFF', { nodeNumber: 1, eventNumber: 2 })
+
+    await waitFor(() => events.some((data) => Object.values(data).some((event) =>
+      event.nodeNumber === 1 && event.eventNumber === 2 && event.status === 'off' && event.type === 'long')),
+    'ACCESSORY_LONG_OFF to create an ACOF bus event')
   })
 
   it('relays a simulated node response back to Socket.IO clients', async function() {
@@ -92,6 +100,43 @@ describeSimulator('MMC Server CBUS simulation', function() {
     'the simulator response to be relayed as inbound CBUS traffic')
   })
 
+  it('relays a simulator accessory event that updates the bus event state', async function() {
+    this.timeout(startupTimeout)
+    const events = []
+    socket.on('BUS_EVENTS', (data) => events.push(data))
+
+    sendSimulatorCommand('acon1 40 1 1')
+
+    await waitFor(() => events.some((data) => Object.values(data).some((event) =>
+      event.nodeNumber === 40 && event.eventNumber === 1 && event.status === 'on' && event.type === 'long')),
+    'the simulator accessory event to update bus event state')
+  })
+
+  it('notifies clients of a network failure and reconnection', async function() {
+    this.timeout(startupTimeout * 2)
+    const notifications = []
+    const failures = []
+    socket.on('SERVER_NOTIFICATION', (notification) => notifications.push(notification))
+    socket.on('NETWORK_CONNECTION_FAILURE', (failure) => failures.push(failure))
+
+    await stopProcess(simulator)
+    await waitFor(() => failures.some((failure) => failure.message === 'Network error - retrying connection'),
+      'a network failure notification')
+
+    simulator = startSimulator()
+    await waitForPort(simulatorPort, simulator, () => simulatorOutput)
+    await waitFor(() => notifications.some((notification) => notification.message === 'Network port connected'),
+      'a network reconnection notification')
+  })
+
+  function startSimulator() {
+    return startProcess(process.execPath, ['server.js'], simulatorDirectory, appendSimulatorOutput)
+  }
+
+  function sendSimulatorCommand(command) {
+    simulator.stdin.write(`${command}\n`)
+  }
+
   function appendApplicationOutput(data) {
     applicationOutput += data.toString()
   }
@@ -105,7 +150,7 @@ function startProcess(command, args, cwd, appendOutput, environment = {}) {
   const childProcess = spawn(command, args, {
     cwd,
     env: { ...process.env, ...environment },
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['pipe', 'pipe', 'pipe']
   })
   childProcess.stdout.on('data', appendOutput)
   childProcess.stderr.on('data', appendOutput)
