@@ -64,7 +64,7 @@ describe('MMC Server Socket.IO port configuration', function() {
     const socketPort = portReservation.address().port
     const application = startApplication(socketPort, applications)
 
-    const { code, signal } = await waitForExit(application.process)
+    const { code, signal } = await waitForExit(application)
 
     expect(code).to.equal(1)
     expect(signal).to.equal(null)
@@ -85,9 +85,10 @@ function startApplication(socketPort, applications) {
       MMC_SERVER_DISABLE_UI: '1',
       MMC_SERVER_HTTP_PORT: '0',
       MMC_SERVER_SOCKET_PORT: socketPort.toString(),
-      MMC_SERVER_APP_STORAGE_DIRECTORY: path.join(testOutputDirectory, 'storage'),
+      MMC_SERVER_SOCKET_HOST: '127.0.0.1',
+      MMC_SERVER_APP_STORAGE_DIRECTORY: path.join(testOutputDirectory, 'storage')
     },
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc']
   })
 
   applicationProcess.stdout.on('data', appendOutput)
@@ -130,20 +131,21 @@ function connectSocket(socketPort, application) {
 }
 
 async function stopApplication(application) {
-  const exit = waitForExit(application.process)
-  application.process.kill('SIGTERM')
+  const exit = waitForExit(application)
+  application.process.send({ type: 'shutdown' })
   const { code, signal } = await exit
   expect(code).to.equal(0)
   expect(signal).to.equal(null)
 }
 
-function waitForExit(process) {
+function waitForExit(application) {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      reject(new Error('MMC Server did not exit cleanly.'))
+      application.process.kill()
+      reject(new Error(`MMC Server did not exit cleanly. Output:\n${application.output()}`))
     }, startupTimeout)
-    process.once('error', finish)
-    process.once('exit', (code, signal) => finish(null, { code, signal }))
+    application.process.once('error', finish)
+    application.process.once('exit', (code, signal) => finish(null, { code, signal }))
 
     function finish(error, result) {
       clearTimeout(timeout)
@@ -181,7 +183,7 @@ function reserveAvailablePort() {
   return new Promise((resolve, reject) => {
     const portReservation = net.createServer()
     portReservation.once('error', reject)
-    portReservation.listen(0, '127.0.0.1', () => resolve(portReservation))
+    portReservation.listen({ port: 0, host: '127.0.0.1', exclusive: true }, () => resolve(portReservation))
   })
 }
 
