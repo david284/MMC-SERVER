@@ -67,6 +67,47 @@ describe('messageRouter tests', function(){
     }
   })
 
+  it("reports a network failure when an established connection closes", async function () {
+    const testConfig = require('./mock_configuration.js')()
+    const testCbusServer = new (require('./mock_cbusServer'))(0)
+    const testMessageRouter = require('../VLCB-server/messageRouter.js')(testConfig)
+    const address = await testCbusServer.listening
+    const failure = waitForEvent(testConfig.eventBus, 'NETWORK_CONNECTION_FAILURE')
+
+    try {
+      await testMessageRouter.connect('localhost', address.port)
+      await testCbusServer.close()
+
+      expect((await failure).message).to.equal('Network error - retrying connection')
+      expect(testMessageRouter.connected).to.equal(false)
+      expect(testMessageRouter.enableReconnect).to.equal(true)
+    } finally {
+      await testMessageRouter.close()
+      await testCbusServer.close()
+    }
+  })
+
+  it("does not duplicate a network failure notification when an error is followed by close", async function () {
+    const testConfig = require('./mock_configuration.js')()
+    const testCbusServer = new (require('./mock_cbusServer'))(0)
+    const testMessageRouter = require('../VLCB-server/messageRouter.js')(testConfig)
+    const address = await testCbusServer.listening
+    const failures = []
+    testConfig.eventBus.on('NETWORK_CONNECTION_FAILURE', (failure) => failures.push(failure))
+
+    try {
+      await testMessageRouter.connect('localhost', address.port)
+      testMessageRouter.cbusClient.emit('error', new Error('test connection error'))
+      testMessageRouter.cbusClient.emit('close')
+
+      expect(failures).to.have.lengthOf(1)
+      expect(failures[0].message).to.equal('Network error - retrying connection')
+    } finally {
+      await testMessageRouter.close()
+      await testCbusServer.close()
+    }
+  })
+
 
   it("sendCbusMessage test", function (done) {
     winston.info({message: name + ': BEGIN sendCbusMessage test:'});
@@ -129,3 +170,7 @@ describe('messageRouter tests', function(){
 
 
 })
+
+function waitForEvent(eventBus, event) {
+  return new Promise((resolve) => eventBus.once(event, resolve))
+}
