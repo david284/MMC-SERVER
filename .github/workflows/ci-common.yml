@@ -18,10 +18,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: '24.20.0'
+          cache: npm
+
+      - name: Show Node version
+        shell: bash
+        run: |
+          node --version
+          node -p "process.execPath"
 
       - name: Install dependencies
-        run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
+        run: npm ci
 
       - name: Run ESLint
         run: npm run lint
@@ -37,11 +44,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
-          # cache: npm
+          node-version: '24.20.0'
+          cache: npm
 
       - name: Install dependencies
-        run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
+        run: npm ci
 
       - name: Check out CBUS network simulator
         uses: actions/checkout@v7
@@ -82,4 +89,41 @@ jobs:
             unit_tests/test_output/config/nodeConfig.json
             unit_tests/test_output/test_user/
             functional_tests/test_output/
+          if-no-files-found: warn
+
+  browser-test:
+    name: Browser end-to-end tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.20.0'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install MMC-CLIENT
+        # run: npm run install:client
+        # Uncomment above, and delete below once package.json has correct version in it - this is just a POC ATM
+        run: npm run install:client -- 0.24.0-beta.1
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser end-to-end tests
+        run: npm run test:browser
+
+      - name: Upload browser diagnostic files
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-diagnostic-files
+          path: |
+            browser_tests/test-results/
+            browser_tests/test_output/
           if-no-files-found: warn
