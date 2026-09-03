@@ -94,7 +94,8 @@ if [ ! -d "MMC-SERVER" ]; then
 	git config --global --add safe.directory $INSTALL_DIR/MMC-SERVER
 	echo "Installing MMC..."
 	cd MMC-SERVER
-	npm install
+	npm ci
+	npm run install:client
 	git config --global --add safe.directory $INSTALL_DIR/MMC_SERVER
 	cd ..
 fi
@@ -110,7 +111,8 @@ if [ $cnt -ne 0 ]; then
 	if [ "X$input" = "XY" ] || [ "X$input" = "Xy" ]; then
 		echo "Updating MMC..."
 		git pull
-		npm update
+		npm ci
+		npm run install:client
 	fi 
 else
 	echo "MMC is up to date."
