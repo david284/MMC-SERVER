@@ -35,7 +35,7 @@ describe('MMC Server functional tests', function() {
           MMC_SERVER_SOCKET_PORT: socketServerPort.toString(),
           MMC_SERVER_APP_STORAGE_DIRECTORY: path.join(testOutputDirectory, 'storage')
         },
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc']
       })
 
       application.stdout.on('data', appendApplicationOutput)
@@ -102,7 +102,7 @@ describe('MMC Server functional tests', function() {
 
     let shutdownFinished = false
     const timeout = setTimeout(() => {
-      finishShutdown(new Error('MMC Server did not exit cleanly after SIGTERM'))
+      finishShutdown(new Error('MMC Server did not exit cleanly after a shutdown request'))
     }, 5000)
     application.once('exit', (code, signal) => {
       try {
@@ -113,7 +113,7 @@ describe('MMC Server functional tests', function() {
         finishShutdown(error)
       }
     })
-    application.kill('SIGTERM')
+    requestShutdown(application)
 
     function finishShutdown(error) {
       if (shutdownFinished) {
@@ -218,7 +218,7 @@ describe('MMC Server functional tests', function() {
         finishShutdown(error)
       }
     })
-    application.kill('SIGTERM')
+    requestShutdown(application)
 
     function completeWhenReady() {
       if (clientDisconnected && applicationExited) {
@@ -273,4 +273,8 @@ function getAvailableSocketPort() {
       })
     })
   })
+}
+
+function requestShutdown(application) {
+  application.send({ type: 'shutdown' })
 }
