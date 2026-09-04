@@ -6,6 +6,9 @@ This project uses a **fork and pull request** workflow. Contributors work in the
 
 For an overview of how contributions are integrated and released, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
+For an architectural overview of MMC-SERVER, see the
+[architecture guide](Documents/Architecture/README.md).
+
 ---
 
 ## 1. Before You Start
@@ -67,6 +70,24 @@ origin    → your fork
 upstream  → main project
 ```
 
+### Git hooks
+
+The repository includes optional Git hooks which perform quick checks before changes are committed.
+
+To enable them for your local clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To disable them:
+
+```bash
+git config --unset core.hooksPath
+```
+
+The hooks are optional and do not replace the checks performed by CI.
+
 ---
 
 ## 4. Keep Your Fork Up to Date
@@ -122,6 +143,8 @@ Where appropriate:
 - Treat unit tests as compulsory for changes to server behaviour: add tests for
   new functionality and update tests when behaviour changes.
 - Update documentation.
+- Update the relevant architecture diagram or recipe when changing component
+  responsibilities, event contracts, connection behaviour, or extension points.
 - Preserve existing behaviour unless a change is intentional.
 - Avoid unrelated refactoring.
 - Keep the change focused.
@@ -339,6 +362,7 @@ Before submitting a pull request:
 - [ ] I have added or updated unit tests for changed server behaviour, or explained why a test is not appropriate.
 - [ ] I have checked that coverage has not slipped without a clear reason.
 - [ ] I have updated documentation where appropriate.
+- [ ] I have updated the architecture documentation when the system behaviour or boundaries changed.
 - [ ] I have run the project's tests locally.
 - [ ] I have run the project's lint checks.
 - [ ] I have not changed the project version.
