@@ -26,6 +26,9 @@ MMC Version 0.23.3
     CAN4IN4OUT-0D52-1a.json
     CANLEVER-0D20-1a.json
     CANSLOT-0D03-1a.json
+  Merge pull request #238 from jimmythedog/issue/229_browser_end_to_end
+  Merge pull request #240 from jimmythedog/issue/237_browser_connection_state
+
 
 MMC Version 0.23.2
   Changed parameter to configuration.js to be root folder, not including /config
