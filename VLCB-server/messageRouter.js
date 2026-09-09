@@ -66,17 +66,11 @@ class messageRouter{
 
     this.cbusClient.on('error', async function (err) {
       winston.error({message: name + `: cbusClient error: ` + err.stack});
-      let caption = `IP: ${this.cbusClientHost}  Port: ${this.cbusClientPort}` 
-      winston.error({message: name + `: cbusClient error: ` + caption});
-      let eventData = {
-        message: "Network error - retrying connection",
-        caption: caption,
-        type: "warning",
-        timeout: 3000
-      }
-      this.eventBus.emit ('NETWORK_CONNECTION_FAILURE', eventData)
-      this.enableReconnect = true
-      this.connected = false
+      this.handleNetworkFailure()
+    }.bind(this))
+
+    this.cbusClient.on('close', function () {
+      this.handleNetworkFailure(true)
     }.bind(this))
 
     this.gridConnectSendHandler = function (data) {
@@ -87,6 +81,23 @@ class messageRouter{
     }.bind(this)
     this.config.eventBus.on('GRID_CONNECT_SEND', this.gridConnectSendHandler)
 
+  }
+
+  handleNetworkFailure(onlyIfConnected = false){
+    if (onlyIfConnected && !this.connected) {
+      return
+    }
+    let caption = `IP: ${this.cbusClientHost}  Port: ${this.cbusClientPort}`
+    winston.error({message: name + `: cbusClient error: ` + caption});
+    let eventData = {
+      message: "Network error - retrying connection",
+      caption: caption,
+      type: "warning",
+      timeout: 3000
+    }
+    this.eventBus.emit ('NETWORK_CONNECTION_FAILURE', eventData)
+    this.enableReconnect = true
+    this.connected = false
   }
 
   //
