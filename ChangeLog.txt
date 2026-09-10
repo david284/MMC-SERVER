@@ -28,6 +28,10 @@ MMC Version 0.23.3
     CANSLOT-0D03-1a.json
   Merge pull request #238 from jimmythedog/issue/229_browser_end_to_end
   Merge pull request #240 from jimmythedog/issue/237_browser_connection_state
+  Merge pull request #241 from jimmythedog/issue/235_extend_cbus_functional_tests
+  Merge pull request #257 from jimmythedog/issue/247_intermittent_ci_test_failures
+  Merge pull request #255 from jimmythedog/issue/253_intermittent_test_failure_on_windows
+  Merge pull request #256 from jimmythedog/issue/254_running_test_on_windows_gives_error
 
 
 MMC Version 0.23.2
