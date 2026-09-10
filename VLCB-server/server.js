@@ -42,9 +42,9 @@ async function disposeResources(resources) {
   for (const resource of resources.reverse()) {
     try {
       if (typeof resource.close === 'function') {
-        await resource.close();
+        await closeResource(resource.close.bind(resource));
       } else if (typeof resource.dispose === 'function') {
-        await resource.dispose();
+        await closeResource(resource.dispose.bind(resource));
       }
     } catch (error) {
       errors.push(error);
@@ -57,6 +57,13 @@ async function disposeResources(resources) {
   if (errors.length > 1) {
     throw new AggregateError(errors, 'Failed to close server resources');
   }
+}
+
+function closeResource(close) {
+  return Promise.race([
+    close(),
+    new Promise((resolve) => setTimeout(resolve, 1000))
+  ]);
 }
 
 exports.run = async function run(overrides = {}) {
