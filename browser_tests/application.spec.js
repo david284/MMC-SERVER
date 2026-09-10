@@ -121,7 +121,7 @@ async function stopApplication() {
     const timeout = setTimeout(() => reject(new Error('MMC Server did not exit cleanly after SIGTERM')), startupTimeout)
     application.once('exit', (code, signal) => {
       clearTimeout(timeout)
-      if (code === 0 && signal === null) {
+      if ((code === 0 && signal === null) || (code === null && signal === 'SIGTERM')) {
         resolve()
       } else {
         reject(new Error(`MMC Server exited with code ${code} and signal ${signal}`))
