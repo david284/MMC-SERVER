@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Check staged changes for whitespace errors and conflict markers.
+git diff --staged --check
+
+# Run ESLint on staged JavaScript files.
+js_files=$(
+    git diff --staged --name-only --diff-filter=ACMR |
+        grep '\.js$' || true
+)
+
+if [ -n "$js_files" ]; then
+    echo "Running ESLint on staged JavaScript files..."
+    echo "$js_files" | xargs npx --no-install eslint --max-warnings 0
+fi
+
+# Check formatting of newly added files.
+prettier_files=$(
+    git diff --staged --name-only --diff-filter=A |
+        grep -E '\.(js|json|ya?ml|md)$' || true
+)
+
+if [ -n "$prettier_files" ]; then
+    echo "Checking formatting of newly added files..."
+    echo "$prettier_files" | xargs npx --no-install prettier --check
+fi
+
+# Validate staged GitHub Actions workflow files.
+workflow_files=$(
+    git diff --staged --name-only --diff-filter=ACMR |
+        grep -E '^\.github/workflows/.*\.ya?ml$' || true
+)
+
+if [ -n "$workflow_files" ]; then
+    if command -v actionlint >/dev/null 2>&1; then
+        echo "Running actionlint on staged workflow files..."
+        echo "$workflow_files" | xargs actionlint
+    else
+        echo "WARNING: actionlint is not installed; skipping workflow validation."
+    fi
+fi
+
+echo "Pre-commit checks passed."
