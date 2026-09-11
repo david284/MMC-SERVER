@@ -7,8 +7,10 @@
   "private": true,
   "main": "./main.js",
   "scripts": {
+    "format": "prettier --write .",
+    "install:client": ".github/scripts/install-mmc-client.sh",
     "lint": "eslint",
-    "start": "node ./main.js",
+    "start": "node .github/scripts/check-mmc-client.js && node ./main.js",
     "test": "mocha ./unit_tests/*.spec.js --timeout 150000",
     "test:coverage": "c8 npm test",
     "test:functional": "mocha ./functional_tests/*.spec.js --timeout 30000",
@@ -31,7 +33,6 @@
   "dependencies": {
     "adm-zip": "^0.5.16",
     "cbuslibrary": "^2.12.0",
-    "chrome-apps-serialport": "^1.0.9",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "jsonfile": "^6.1.0",
@@ -48,7 +49,9 @@
     "chai": "^4.2.0",
     "eslint": "^10.8.1",
     "globals": "^17.11.0",
+    "license-checker": "^25.0.1",
     "mocha": "^11.7.4",
-    "mocha-param": "^2.0.1"
+    "mocha-param": "^2.0.1",
+    "prettier": "^3.9.6"
   }
 }
