@@ -19,9 +19,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
+          cache: npm
 
       - name: Install dependencies
-        run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
+        run: npm ci
 
       - name: Run ESLint
         run: npm run lint
@@ -38,10 +39,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
-          # cache: npm
+          cache: npm
 
       - name: Install dependencies
-        run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
+        run: npm ci
 
       - name: Check out CBUS network simulator
         uses: actions/checkout@v7
@@ -98,7 +99,7 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm install  # I wish package-lock.json was in git, cos then it would be "npm ci"
+        run: npm ci
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

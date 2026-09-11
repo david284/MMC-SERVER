@@ -37,7 +37,7 @@ Once Node.js is installed, clone the application, or take the zip file, & extrac
 Use the green 'code' button near the top of this page
 See the [Git Cloning](GitCloning.md) page for more about cloning a repository
 
-In the folder where MMC is cloned or copied locally, at the command line run 'npm install' to load all dependancies - this may take a little while, so please be patient
+In the folder where MMC is cloned or copied locally, at the command line run 'npm ci' to load all dependancies - this may take a little while, so please be patient
 
 ### Windows
 

@@ -200,6 +200,24 @@ update
 
 There is no requirement to produce a particular number of commits. Focus on making the change and pull request easy to understand.
 
+### Git hooks
+
+The repository includes optional Git hooks which perform quick checks before changes are committed.
+
+If you wish to make use of them, you will need to enable them first:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To disable them:
+
+```bash
+git config --unset core.hooksPath
+```
+
+The hooks **_are optional_** and do not replace the checks performed by CI.
+
 ---
 
 ## 10. Push Your Branch
