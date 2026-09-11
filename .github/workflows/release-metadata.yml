@@ -1,0 +1,111 @@
+name: Release Metadata
+
+# Checks pull requests for the release metadata required to generate release
+# notes.
+# i.e. an early-warning workflow for PR release metadata
+# A warning is added when a PR has no valid release label, allowing the
+# issue to be corrected before release time. This workflow is advisory and
+# does not prevent the PR from being merged; release-time validation
+# is handled by release.yml -> create-release.js.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: write
+
+jobs:
+  check-label:
+    name: Check release label
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check PR labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          release_labels=$(jq -r '.releaseLabels[]' .github/scripts/release-config.json)
+
+          valid_label=false
+
+          for label in ${{ join(github.event.pull_request.labels.*.name, ' ') }}; do
+            if echo "$release_labels" | grep -Fxq "$label"; then
+              valid_label=true
+              break
+            fi
+          done
+
+          if [ "$valid_label" = true ]; then
+            echo "PR has a valid release label."
+
+            # Fork PRs have a read-only GITHUB_TOKEN, so cannot delete comments.
+            if [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
+              exit 0
+            fi
+
+            # Remove any previous warning comment created by this workflow.
+            gh api \
+              --paginate \
+              "/repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              --jq '.[] | select(.body | startswith("<!-- release-metadata-warning -->")) | .id' |
+            while read -r comment_id; do
+              gh api \
+                --method DELETE \
+                "/repos/$REPOSITORY/issues/comments/$comment_id"
+            done
+
+            exit 0
+          fi
+
+          echo "PR does not have a valid release label."
+
+          # Fork PRs have a read-only GITHUB_TOKEN, so cannot create comments.
+          if [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
+            echo "::warning title=Release label missing::This PR does not have a valid release label. Add one of: $(echo "$release_labels" | tr '\n' ',')"
+            exit 0
+          fi
+
+          comment=$(cat <<-EOF
+          	<!-- release-metadata-warning -->
+          	## ⚠️ Release label missing
+
+          	This PR does not currently have a valid release label.
+
+          	Please add at least one of:
+
+          	$release_labels
+
+          	This is a **warning only** and does not prevent the PR from being merged.
+          	EOF
+          )
+
+          # Check whether the warning comment already exists.
+          existing_comment=$(gh api \
+            --paginate \
+            "/repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.body | startswith("<!-- release-metadata-warning -->")) | .id' |
+            head -n 1)
+
+          if [ -n "$existing_comment" ]; then
+            echo "Release metadata warning already exists."
+          else
+            echo "Adding release metadata warning."
+
+            gh api \
+              --method POST \
+              "/repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              -f body="$comment"
+          fi
+          exit 0

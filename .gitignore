@@ -11,5 +11,5 @@ functional_tests/test_output/
 browser_tests/test-results/
 browser_tests/test_output/
 VLCB-server/config/nodeDescriptors.json
-package-lock.json
 coverage
+public
