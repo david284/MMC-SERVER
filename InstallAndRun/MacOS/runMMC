@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+export MMC_SERVER_APP_STORAGE_DIRECTORY="$HOME/Library/Application Support/MMC"
+
+cd "$SCRIPT_DIR/app"
+exec "$SCRIPT_DIR/runtime/node" main.js

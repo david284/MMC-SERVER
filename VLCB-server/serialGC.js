@@ -3,7 +3,6 @@ const name = 'serialGC.js'
 winston.info({message: name + `: loaded`})
 const EventEmitter = require('events').EventEmitter;
 
-//const SerialPort = require("chrome-apps-serialport").SerialPort;
 const { SerialPort } = require("serialport");
 const { MockBinding } = require('@serialport/binding-mock')
 
