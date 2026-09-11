@@ -63,7 +63,15 @@ class configuration {
     
     this.systemDirectory = systemDirectory
     this.systemConfigPath = path.join(systemDirectory, "config")
-    
+
+    if (process.env.MMC_SERVER_APP_STORAGE_DIRECTORY) {
+      this.userConfigPath = path.join( process.env.MMC_SERVER_APP_STORAGE_DIRECTORY, "config");
+      winston.debug({message:  '--- user config path: ' + this.userConfigPath});
+      this.createDirectory(this.userConfigPath)
+    } else {
+      this.userConfigPath = this.systemConfigPath;
+    }
+
     this.logsPath = logsPath
     this.bustrafficPath = path.join(this.logsPath, "bustraffic.txt")
     this.bootloaderDataPath = path.join(this.logsPath, "bootloaderData.txt")
@@ -638,12 +646,12 @@ class configuration {
   // reads/writes nodeConfig file to/from system directory
   //
   readNodeConfig(){
-    var filePath = this.systemConfigPath + "/nodeConfig.json"
+    const filePath = path.join(this.userConfigPath, "nodeConfig.json");
     return jsonfile.readFileSync(filePath)
   }
   writeNodeConfig(data){
     winston.debug({message: className + `: writeNodeConfig:`});
-    var filePath = this.systemConfigPath + "/nodeConfig.json"
+    const filePath = path.join(this.userConfigPath, "nodeConfig.json");
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
     this.writeLogFile("nodeConfig.json", data)
   }
@@ -659,12 +667,12 @@ class configuration {
   // reads/writes the module descriptors currently in use for nodes to/from system directory
   //
   readNodeDescriptors(){
-    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
+    const filePath = path.join(this.userConfigPath, "nodeDescriptors.json");
     return jsonfile.readFileSync(filePath)
   }
 
   writeNodeDescriptors(data){
-    var filePath = this.systemConfigPath + "/nodeDescriptors.json"
+    const filePath = path.join(this.userConfigPath, "nodeDescriptors.json");
     jsonfile.writeFileSync(filePath, data, {spaces: 2, EOL: '\r\n'})
   }
 
