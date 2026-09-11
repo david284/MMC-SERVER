@@ -6,6 +6,9 @@ It is intended as a reference for both contributors and maintainers, with partic
 
 For step-by-step instructions on submitting a contribution, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+For an architectural overview of MMC-SERVER, see
+[Documents/Architecture/README.md](Documents/Architecture/README.md).
+
 ---
 
 # 1. Development Model
@@ -129,7 +132,70 @@ This gives the maintainer control over the contents and timing of each release.
 
 ---
 
-# 4. Pull Request Validation
+# 4. Dependency Management
+
+The project uses `npm` for dependency management.
+
+`package.json` defines the project's dependencies and acceptable version
+ranges, while `package-lock.json` records the exact dependency tree used by
+the project.
+
+## `package-lock.json`
+
+**Note:** `package-lock.json` is part of the project's source code and **must
+be committed to Git**.
+
+When dependencies are changed, changes to `package.json` and
+`package-lock.json` should normally be committed together.
+
+## Install dependencies
+
+When installing dependencies from an existing `package-lock.json` file:
+
+```bash
+npm ci
+```
+
+`npm ci` deletes the `node_modules` directory (if it exists) and then
+installs the exact dependency tree specified by `package-lock.json`.
+
+`npm ci` does **not** modify `package.json` or `package-lock.json`.
+
+> **Do not use `npm install` or `npm update` when simply installing the
+project's existing dependencies. Use `npm ci` instead.**
+
+When adding, removing, or updating dependencies, developers should use `npm`
+commands rather than manually editing `package.json` or `package-lock.json`.
+`npm` will update `package.json` and `package-lock.json` as appropriate.
+
+                 `npm` command
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+    `package.json`          `package-lock.json`
+   dependency metadata     exact dependency tree
+
+## Runtime dependency
+
+```bash
+npm install <package>
+```
+
+## Development dependency
+
+```bash
+npm install --save-dev <package>
+```
+
+## Remove a dependency
+
+```bash
+npm uninstall <package>
+```
+
+---
+
+# 5. Pull Request Validation
 
 Changes should be subject to automated CI checks before they are integrated. The current checks and their triggers are defined by the repository's CI configuration.
 
@@ -137,7 +203,7 @@ These checks provide automated verification, while the maintainer remains respon
 
 ---
 
-# 5. Integration Testing
+# 6. Integration Testing
 
 Individual pull requests may pass their automated checks while the combination of several changes introduces an unexpected problem.
 
@@ -157,7 +223,7 @@ The release branch should eventually represent:
 
 ---
 
-# 6. Tracking a Release
+# 7. Tracking a Release
 
 GitHub Issues, pull requests, labels, and milestones can be used to track release contents.
 
@@ -204,7 +270,7 @@ The exact tracking mechanism is a project-management choice and does not affect 
 
 ---
 
-# 7. Versioning
+# 8. Versioning
 
 The project should use [Semantic Versioning](https://semver.org/) where appropriate:
 
@@ -232,7 +298,7 @@ This keeps version management centralised and prevents multiple PRs from competi
 
 ---
 
-# 8. Preparing a Release
+# 9. Preparing a Release
 
 When the maintainer decides that the current release branch is ready:
 
@@ -256,7 +322,7 @@ The resulting release should accurately describe the changes that have been inte
 
 ---
 
-# 9. Promoting a Release to `main`
+# 10. Promoting a Release to `main`
 
 Once the release is ready, the release branch is merged into `main`.
 
@@ -286,7 +352,7 @@ main → v2.5.0
 
 ---
 
-# 10. Git Tags and Releases
+# 11. Git Tags and Releases
 
 Each released version should have a corresponding Git tag.
 
@@ -313,20 +379,239 @@ main
 ```
 
 ---
+# 12. Automated Release Process
 
-# 11. Automated Release Process
+MMC-SERVER releases include a pre-built version of MMC-CLIENT. The corresponding MMC-CLIENT release must therefore exist **before** the MMC-SERVER release is created.
 
-Once the release tag is created, the project's release automation can perform the repetitive release tasks. Its exact steps are defined by the repository's current release configuration.
+MMC-CLIENT and MMC-SERVER should use the same version number.
 
-The important principle is:
+The version tag is the trigger for the automated release process.
 
-> **The version tag is the trigger for the release process.**
+## Beta Releases
 
-This makes releases reproducible and minimises manual steps.
+Beta releases allow the integrated release to be packaged and tested before it is promoted to `main`.
+
+Beta versions use Semantic Versioning pre-release identifiers:
+
+```text id="mj81yv"
+0.24.0-beta.1
+0.24.0-beta.2
+0.24.0-beta.3
+```
+
+Both MMC-CLIENT and MMC-SERVER must use the same beta version.
+
+> [!IMPORTANT]
+> **Do not edit the version number manually in `package.json` or `package-lock.json` when preparing a release.**
+>
+> Use `npm version` as shown below. It updates the version consistently in both `package.json` and `package-lock.json`.
+>
+> The `--no-git-tag-version` option prevents npm from automatically creating the Git commit and tag, allowing those steps to remain explicit in the release procedure.
+
+For example:
+
+```bash id="brzrhj"
+npm version 0.24.0-beta.11 --no-git-tag-version
+```
+
+After running the command, both version files can be committed together:
+
+```bash id="27kb4m"
+git add package.json package-lock.json
+git commit -m "Bump version to 0.24.0-beta.11"
+```
+
+### Release MMC-CLIENT Beta
+
+From the MMC-CLIENT release branch:
+
+```bash id="emjq79"
+npm version <version>-beta.<n> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>-beta.<n>"
+git push origin <branch>
+```
+
+Create and push the beta tag:
+
+```bash id="gqt0nb"
+git tag v<version>-beta.<n>
+git push origin v<version>-beta.<n>
+```
+
+Wait for the MMC-CLIENT release workflow to complete and confirm that the beta GitHub Release and release artifact have been created successfully.
+
+### Release MMC-SERVER Beta
+
+Update MMC-SERVER to the **same beta version**:
+
+```bash id="a2fxnx"
+npm version <version>-beta.<n> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>-beta.<n>"
+git push origin <branch>
+```
+
+Verify that MMC-SERVER can install the released client:
+
+```bash id="96f0r9"
+npm run install:client
+```
+
+Run the required tests and release checks.
+
+Create and push the server beta tag:
+
+```bash id="h1yvpg"
+git tag v<version>-beta.<n>
+git push origin v<version>-beta.<n>
+```
+
+The release workflow builds the supported operating-system artifacts and creates the MMC-SERVER beta release.
+
+Additional beta releases can be produced by incrementing the beta number.
+
+For example:
+
+```text id="rlk9vb"
+v0.24.0-beta.1
+v0.24.0-beta.2
+v0.24.0-beta.3
+```
+
+Beta releases do **not** require the release branch to be promoted to `main`.
+
+## Production Release
+
+Once the beta has been tested and the release is considered ready, the release branch is promoted to `main` as described in Section 10.
+
+The production version does not contain the beta suffix:
+
+```text id="xhwstj"
+0.24.0
+```
+
+Use `npm version` to set the final production version. Do not edit the version files manually.
+
+
+```bash id="7umwq8"
+npm version <version> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "Bump version to <version>"
+```
+
+As with beta releases, MMC-CLIENT must be released first.
+
+Create and push the MMC-CLIENT production tag:
+
+```bash id="hnl2io"
+git tag v<version>
+git push origin v<version>
+```
+
+Confirm that the MMC-CLIENT production release completed successfully before releasing MMC-SERVER.
+
+Once MMC-SERVER contains the matching version and has been promoted to `main`, create and push its production tag:
+
+```bash id="mxthxb"
+git tag v<version>
+git push origin v<version>
+```
+
+The MMC-SERVER release workflow then creates the production GitHub Release and its supported operating-system artifacts.
+
+## Release Order
+
+For both beta and production releases, the dependency order is:
+
+```text id="45ryy9"
+MMC-CLIENT
+    │
+    │ release completes
+    ▼
+MMC-SERVER
+    │
+    ▼
+OS release artifacts
+```
+
+The complete release sequence is:
+
+1. Set the MMC-CLIENT version.
+2. Commit and push the version change.
+3. Tag and release MMC-CLIENT.
+4. Confirm the MMC-CLIENT release completed successfully.
+5. Set MMC-SERVER to exactly the same version.
+6. Verify MMC-SERVER can install the released MMC-CLIENT.
+7. Complete the server tests and release checks.
+8. Tag and release MMC-SERVER.
+9. Confirm the GitHub Release and OS-specific artifacts were created successfully.
+
+> **Never create an MMC-SERVER release tag until the corresponding MMC-CLIENT release is available.**
+
+Beta releases allow this process to be exercised and the resulting application packages tested before the final release is promoted to `main`.
+
+## Automated Release Metadata
+
+Pull requests are used as the source of information for generating GitHub
+Release notes.
+
+Each pull request intended to contribute to a release must have at least one
+of the following labels:
+
+- `bug`
+- `documentation`
+- `enhancement`
+
+The list of valid release labels is defined in
+`.github/scripts/release-config.json`.
+
+### PR Label Validation
+
+A separate GitHub Actions workflow, `release-metadata.yml`, checks pull
+requests when they are opened, updated, or their labels change.
+
+If a pull request does not have a valid release label, the workflow adds a
+warning comment to the pull request. This check is advisory and **does not
+prevent the pull request from being merged**.
+
+Once a valid label is added, the warning is removed.
+
+This provides early feedback to contributors and maintainers, rather than
+waiting until a release is being prepared.
+
+### Release-time Validation
+
+The release workflow performs a second, authoritative check when a release is
+created.
+
+The release scripts identify the pull requests included in the release and
+verify that each has at least one valid release label.
+
+If any release pull request is missing a valid label, the release process stops
+before the GitHub Release is created.
+
+This provides a final safeguard against incomplete release notes, even if a
+pull request was merged without its release metadata being corrected.
+
+### Release Notes
+
+Release notes are generated from the labelled pull requests included in the
+release. This avoids maintaining a separate changelog file in the repository.
+
+The Git history is used to determine which pull requests belong to the release,
+while the pull request title and labels provide the information used to
+organise the release notes.
+
+## Release signing
+
+Release artifacts include SHA-256 checksums and a GPG signature that can be used to verify downloaded files.
+
+The release signing public key, verification instructions, and maintainer key setup/rotation procedure are documented in [Documents/keys/README.md](Documents/keys/README.md).
 
 ---
 
-# 12. Release Notifications
+# 13. Release Notifications
 
 Release announcements should preferably be generated as part of the release process.
 
@@ -351,7 +636,7 @@ The release itself becomes the source of truth for the announcement.
 
 ---
 
-# 13. Responsibilities
+# 14. Responsibilities
 
 ## Contributors
 
@@ -406,7 +691,7 @@ official release
 
 ---
 
-# 14. Complete Release Cycle
+# 15. Complete Release Cycle
 
 A typical release cycle looks like this:
 
@@ -445,7 +730,7 @@ The next cycle then begins from `v2.5.0`.
 
 ---
 
-# 15. Guiding Principles
+# 16. Guiding Principles
 
 ### `main` is stable
 
