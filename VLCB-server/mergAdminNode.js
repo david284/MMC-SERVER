@@ -2,6 +2,24 @@ const winston = require('winston');		// use config from root instance
 let cbusLib = require('cbuslibrary')
 const EventEmitter = require('events').EventEmitter;
 const utils = require('./../VLCB-server/utilities.js');
+
+// [KeithB 2026-09-20] messages a node sends in answer to something MMC asked. Only these
+// extend the end-of-reply wait in sendCBUSIntervalFunc; everything else on the
+// bus is treated as unrelated.
+// [KeithB 2026-09-20b] extra gap after a matched reply, in ms, before the next queued
+// request goes out. 0 = as soon as the reply is in. The getTimeGap() values are
+// unchanged and remain the wait for any request whose reply does not arrive.
+const REPLY_FOLLOW_GAP_MS = 0
+// [KeithB 2026-09-20b] how long to wait for more EVANS after a REQEV index-0 answer, before
+// deciding the module answered with the count only (CBUS style) and reading the
+// variables one by one. The 400 ms overall wait is unchanged.
+const EV_BURST_GRACE_MS = 100
+
+const REPLY_MNEMONICS = new Set([
+  'PNN', 'NAME', 'PARAMS', 'PARAN', 'NVANS', 'NEVAL', 'ENRSP', 'EVANS',
+  'NUMEV', 'EVNLF', 'CMDERR', 'GRSP', 'WRACK', 'NNACK', 'SD', 'ESD', 'DGN',
+  'RQNN', 'NNREL'
+])
 const longMessage = require('./../VLCB-server/longMessage.js')
 const cbusLibrary = require('cbuslibrary');
 
@@ -45,6 +63,11 @@ class cbusAdmin extends EventEmitter {
     this.header = ':S' + outHeader.toString(16).toUpperCase() + 'N'
 
     this.lastCbusTrafficTime = Date.now()   // put valid milliseconds in to start
+    this.lastTransmitTime = Date.now()      // [KeithB 2026-09-20] our own last send
+    this.lastResponseTime = Date.now()      // [KeithB 2026-09-20] last frame that could be a reply to us
+    this.expectedReply = null               // [KeithB 2026-09-20b] test for the reply to the request just sent
+    this.replyMatched = false               // [KeithB 2026-09-20b] set when that reply has arrived
+    this.replyMatchedTime = 0               // [KeithB 2026-09-20b]
     this.LastCbusMessage = null
     this.CBUS_Queue = []
     this.intervalHandles.push(setInterval(this.sendCBUSIntervalFunc.bind(this), 10));
@@ -319,6 +342,8 @@ class cbusAdmin extends EventEmitter {
           if (cbusMsg.eventVariableIndex > 0){
             this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
             winston.debug({message: name + `: lastEVANSTimestamp: node ${nodeNumber} ${this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp}`});
+          } else {
+            this.nodeConfig.nodes[nodeNumber]['lastEVANS0Timestamp'] = Date.now()   // [KeithB 2026-09-20b]
           }
         } catch(err){ winston.error({message: name + `: EVANS(D3): node ${nodeNumber} ${err}`}) }
       },
@@ -503,6 +528,14 @@ class cbusAdmin extends EventEmitter {
     try{
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
       let cbusMsg = cbusLibrary.decode(data)
+      if (this.isReplyMessage(cbusMsg)) {      // [KeithB 2026-09-20]
+        this.lastResponseTime = Date.now()      // a frame that may be answering us
+      }
+      if ((this.expectedReply != null) && this.expectedReply(cbusMsg)) {   // [KeithB 2026-09-20b]
+        this.expectedReply = null
+        this.replyMatched = true
+        this.replyMatchedTime = Date.now()
+      }
       winston.debug({message: name + `: GRID_CONNECT_RECEIVE ${JSON.stringify(cbusMsg)}`})
       //
       this.emit('nodeTraffic', {direction: 'In', json: cbusMsg});
@@ -910,9 +943,58 @@ class cbusAdmin extends EventEmitter {
       winston.debug({message: name + `: GRID_CONNECT_SEND ${JSON.stringify(cbusMSG)}`})
       this.config.eventBus.emit ('GRID_CONNECT_SEND', GCmsg)
       this.lastCbusTrafficTime = Date.now()     // store this time stamp
+      this.lastTransmitTime = Date.now()        // [KeithB 2026-09-20]
+      this.lastResponseTime = Date.now()        // [KeithB 2026-09-20] the reply window starts at the send
       this.LastCbusMessage = cbusMSG            // used in conjunction with timesatmp above
+      this.expectedReply = this.replyMatcherFor(cbusMSG)   // [KeithB 2026-09-20b]
+      this.replyMatched = false                            // [KeithB 2026-09-20b]
       //
     }
+  }
+
+  //
+  // [KeithB 2026-09-20b] the test that recognises the reply to a request, or null when the
+  // request has no single reply (learn mode in/out, index-0 reads that answer
+  // with a burst, QNN, NERD, writes). With a test, the queue releases the next
+  // request as soon as the reply arrives; without one, or if the reply never
+  // comes, it waits getTimeGap() as before.
+  //
+  replyMatcherFor(msg){
+    try {
+      switch (msg.mnemonic) {
+        case "REQEV":
+          if (msg.eventVariableIndex > 0) {
+            return (r) => (r.mnemonic == "EVANS") && (r.eventIdentifier == msg.eventIdentifier)
+                          && (r.eventVariableIndex == msg.eventVariableIndex)
+          }
+          break
+        case "RQNPN":
+          if (msg.parameterIndex > 0) {
+            return (r) => (r.mnemonic == "PARAN") && (r.nodeNumber == msg.nodeNumber)
+                          && (r.parameterIndex == msg.parameterIndex)
+          }
+          break
+        case "NVRD":
+          if (msg.nodeVariableIndex > 0) {
+            return (r) => (r.mnemonic == "NVANS") && (r.nodeNumber == msg.nodeNumber)
+                          && (r.nodeVariableIndex == msg.nodeVariableIndex)
+          }
+          break
+        case "REVAL":
+          if (msg.eventVariableIndex > 0) {
+            return (r) => (r.mnemonic == "NEVAL") && (r.nodeNumber == msg.nodeNumber)
+                          && (r.eventIndex == msg.eventIndex)
+                          && (r.eventVariableIndex == msg.eventVariableIndex)
+          }
+          break
+        case "RQEVN":
+          return (r) => (r.mnemonic == "NUMEV") && (r.nodeNumber == msg.nodeNumber)
+        case "NNEVN":
+          return (r) => (r.mnemonic == "EVNLF") && (r.nodeNumber == msg.nodeNumber)
+        default:
+      }
+    } catch {}
+    return null
   }
 
   //
@@ -1103,7 +1185,18 @@ class cbusAdmin extends EventEmitter {
   sendCBUSIntervalFunc(){
     // get calculated time gap to leave after last message
     var timeGap = this.getTimeGap()
-    if ( Date.now() > this.lastCbusTrafficTime + timeGap){
+    // [KeithB 2026-09-20] the 40 ms floor paces our own sends, so it runs from our last
+    // send. The longer gaps wait for the end of a multi-frame reply, so they run
+    // from the last frame that could be part of one - unrelated traffic (another
+    // module's events, a command station, telemetry) does not hold the queue.
+    //if ( Date.now() > this.lastCbusTrafficTime + timeGap){
+    var since = (timeGap > 40) ? this.lastResponseTime : this.lastTransmitTime
+    // [KeithB 2026-09-20b] a request whose reply has arrived is finished: the next one can go
+    // without waiting out the gap. The gap still applies in full to any request
+    // whose reply has not arrived.
+    var replyDone = this.replyMatched && (Date.now() >= this.replyMatchedTime + REPLY_FOLLOW_GAP_MS)
+    //if ( Date.now() > since + timeGap){
+    if ( replyDone || (Date.now() > since + timeGap)){
       if (this.CBUS_Queue.length > 0){
         // get first out of queue
         var msg = this.CBUS_Queue[0]
@@ -1115,6 +1208,15 @@ class cbusAdmin extends EventEmitter {
     } else {
       //winston.debug({message: name + ": sendCBUSIntervalFunc - paused " + timeGap});
     }
+  }
+
+  // [KeithB 2026-09-20] is this received message one a node sends in answer to a request?
+  // used to decide whether it extends the end-of-reply wait.
+  //
+  isReplyMessage(cbusMsg){
+    try {
+      return REPLY_MNEMONICS.has(cbusMsg.mnemonic)
+    } catch { return false }
   }
 
   // calculate a new time gap between CBUS tranmits dependant on the type of the last message
@@ -1368,7 +1470,8 @@ class cbusAdmin extends EventEmitter {
     timeGap = this.inUnitTest ? 1 : timeGap
     // so now wait for the specified timeGap after the last message recieved
     // in case there was multiple responses (VLCB style)
-    while ( Date.now() < this.lastCbusTrafficTime + timeGap){
+    //while ( Date.now() < this.lastCbusTrafficTime + timeGap){
+    while ( Date.now() < this.lastResponseTime + timeGap){    // [KeithB 2026-09-20]
       //winston.debug({message: name +': request_all_node_parameters: timeGap '})
       await utils.sleep(10)
       if (count++ > 100){break} // safety escape
@@ -1568,18 +1671,34 @@ class cbusAdmin extends EventEmitter {
   async requestAllEventVariablesForNode(nodeNumber){
     winston.debug({message: name + `: requestAllEventVariablesForNode ${nodeNumber}` });
     var node = this.nodeConfig.nodes[nodeNumber]
+    // [KeithB 2026-09-20b] a VLCB node is put into learn mode once for the whole walk,
+    // instead of once per event variable (NNLRN, REQEV, NNULN for every read).
+    let learnOnce = (node.VLCB == true)
+    if (learnOnce) {
+      this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
+      this.nodeNumberInLearnMode = nodeNumber
+    }
     for (let eventIdentifier in node.storedEventsNI){
       winston.debug({message: name + `: requestAllEventVariablesForNode: eventIdentifier ${eventIdentifier}` });
       let startTime = Date.now()
-      await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+      //await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier)
+      await this.requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier, learnOnce)   // [KeithB 2026-09-20b]
       // wait until the traffic has died down before doing next one
       let timeGap = 100
-      while ( Date.now() < this.lastCbusTrafficTime + timeGap){
+      //while ( Date.now() < this.lastCbusTrafficTime + timeGap){
+      //while ( Date.now() < this.lastResponseTime + timeGap){    // [KeithB 2026-09-20]
+      // [KeithB 2026-10-09] also wait for the queue to empty: after a count-only EV0 answer the
+      // one-by-one reads are only queued, and their EVANS replies were being taken as the next
+      // event's burst, so every second event lost its variables (backups since 2026-09-20).
+      while ( (this.CBUS_Queue.length > 0) || (Date.now() < this.lastResponseTime + timeGap)){
         //winston.debug({message: name + `: wait on eventIdentifier ${eventIdentifier}` });
         await sleep(1)
       }
       winston.debug({message: name + `: elapsed time  ${Date.now() - startTime}` });
       winston.debug({message: name + `: lastCbusTrafficTime  ${this.lastCbusTrafficTime}` });
+    }
+    if (learnOnce) {
+      this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))   // [KeithB 2026-09-20b]
     }
     winston.debug({message: name + `: requestAllEventVariablesForNode: END` });
   }
@@ -1587,7 +1706,8 @@ class cbusAdmin extends EventEmitter {
   //
   // request all event variables for specific event
   //
-  async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier){
+  //async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier){
+  async requestAllEventVariablesByIdentifier(nodeNumber, eventIdentifier, alreadyInLearnMode){   // [KeithB 2026-09-20b]
     try {
     winston.info({message: name + `: requestAllEventVariablesByIdentifier: ${nodeNumber} ${eventIdentifier}` });
 
@@ -1598,7 +1718,9 @@ class cbusAdmin extends EventEmitter {
       // but check if we get at least one other eventVariableIndex, and if not, then request them all one-by-one
       this.nodeConfig.nodes[nodeNumber]['lastEVANSTimestamp'] = Date.now()
       let startTime = Date.now()
-      this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
+      this.nodeConfig.nodes[nodeNumber]['lastEVANS0Timestamp'] = startTime   // [KeithB 2026-09-20b]
+      //this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0)
+      this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, 0, alreadyInLearnMode)   // [KeithB 2026-09-20b]
       // reduce wait time if doing unit tests
       // timeout needs to be long enough to cater for putting into learn mode as well as sending REQEV + receiving 2+ EVANS responses
       let waitTime = this.inUnitTest ? 100 : 400
@@ -1607,6 +1729,14 @@ class cbusAdmin extends EventEmitter {
         // if lastEVANSTimestamp is greater than start time, then we have multiple responses
         if (this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp > startTime){
           winston.debug({message: name + `: requestAllEventVariablesByIdentifier: break time ${this.nodeConfig.nodes[nodeNumber].lastEVANSTimestamp-startTime}`});
+          break
+        }
+        // [KeithB 2026-09-20b] the index-0 answer has arrived and nothing followed it for
+        // EV_BURST_GRACE_MS: the module answers with the count only, so stop
+        // waiting for a burst that is not coming and read one by one.
+        let ev0 = this.nodeConfig.nodes[nodeNumber].lastEVANS0Timestamp
+        if ((ev0 > startTime) && (Date.now() > ev0 + EV_BURST_GRACE_MS)) {
+          winston.debug({message: name + `: requestAllEventVariablesByIdentifier: count-only answer after ${ev0-startTime} ms`});
           break
         }
         await sleep(1)
@@ -1628,7 +1758,8 @@ class cbusAdmin extends EventEmitter {
           winston.error({message: name + `: requestAllEventVariablesByIdentifier: EV0 ${err}`});
         }
         for (let i = 1; i <= numberOfVariables; i++) {
-          this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, i)
+          //this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, i)
+          this.Read_EV_in_learn_mode(nodeNumber, eventIdentifier, i, alreadyInLearnMode)   // [KeithB 2026-09-20b]
         }
       }
     } else {
@@ -1650,13 +1781,20 @@ class cbusAdmin extends EventEmitter {
   // To use REQEV, the module needs to be in learn mode
   // but then can use the eventIdentifier directly, bypassing the need to use eventIndex
   //
-  async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex){
-    this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
+  //async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex){
+  async Read_EV_in_learn_mode(nodeNumber, eventIdentifier, eventVariableIndex, alreadyInLearnMode){   // [KeithB 2026-09-20b]
+    // [KeithB 2026-09-20b] when the caller has already put the node into learn mode for a
+    // whole walk, only the REQEV is queued.
+    if (alreadyInLearnMode != true) {
+      this.CBUS_Queue.push(cbusLib.encodeNNLRN(nodeNumber))
+    }
     this.nodeNumberInLearnMode = nodeNumber
     let eventNodeNumber = parseInt(eventIdentifier.substr(0, 4), 16)
     let eventNumber = parseInt(eventIdentifier.substr(4, 4), 16)
     this.CBUS_Queue.push(cbusLib.encodeREQEV(eventNodeNumber, eventNumber, eventVariableIndex))
-    this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    if (alreadyInLearnMode != true) {
+      this.CBUS_Queue.push(cbusLib.encodeNNULN(nodeNumber))
+    }
     // don't change nodeNumberInLearnMode value, as we may receive multiple responses to REQEV
   }
 
