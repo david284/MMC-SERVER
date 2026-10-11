@@ -410,7 +410,71 @@
 		"name":"DCC Cab Service"
 	},
 	"14":{
-		"name":"DCC Command Service"
+		"name":"DCC Command Service",
+		"version":{ 
+			"1": {
+				"diagnostics":{
+					"0":{"name":"Number of diagnostics"},
+					"1":{"name":"Health (0 green, 1 amber, 2 red)"},
+					"2":{"name":"Worst health since acknowledge (0 green, 1 amber, 2 red)"},
+					"3":{"name":"FW version (major x 256 + minor)"},
+					"4":{"name":"FW build"},
+					"5":{"name":"Uptime high word (s x 65536)"},
+					"6":{"name":"Uptime low word (s)"},
+					"7":{"name":"Reset cause (PCON0 at start)"},
+					"8":{"name":"Seconds since counters cleared"},
+					"9":{"name":"Track power (0 off, 1 on)"},
+					"10":{"name":"Main current now (raw counts)"},
+					"11":{"name":"Main current, 1 min average (raw counts)"},
+					"12":{"name":"Main current, peak last 1-2 min (raw counts)"},
+					"13":{"name":"Main current, peak since cleared (raw counts)"},
+					"14":{"name":"Main current limit, NV6 (raw counts)"},
+					"15":{"name":"Main current, 1 min average (% of limit)"},
+					"16":{"name":"Programming track current now (raw counts)"},
+					"17":{"name":"Overload trips"},
+					"18":{"name":"Seconds since last overload trip (65535 never)"},
+					"19":{"name":"Last trip cause (1 short, 2 average, 7 hardware, 8 repeated)"},
+					"20":{"name":"Halted (0 no, else cause 3-6)"},
+					"21":{"name":"Booster alarm (0/1)"},
+					"22":{"name":"Booster alarm activations"},
+					"23":{"name":"Seconds since last booster alarm (65535 never)"},
+					"24":{"name":"5 V rail dips"},
+					"25":{"name":"Seconds since last rail dip (65535 never)"},
+					"26":{"name":"Start-up self-test (0 pass, 1 no DCC signal, 2 waveform fail, 3 ADC backstop, 4 hardware trip)"},
+					"27":{"name":"Image CRC vs last boot (0 none, 1 same, 2 changed)"},
+					"28":{"name":"Seconds since a must-be-0 counter moved (65535 never)"},
+					"29":{"name":"HIGH queue drops"},
+					"30":{"name":"LOW queue drops"},
+					"31":{"name":"Seconds since last queue drop (65535 never)"},
+					"32":{"name":"Loco sessions in use (of 32)"},
+					"33":{"name":"Loco sessions, peak since cleared"},
+					"34":{"name":"Session timeouts (walkabout)"},
+					"35":{"name":"CAN frames received, last s"},
+					"36":{"name":"CAN frames received, 1 min average (per s)"},
+					"37":{"name":"Seconds since CAN receive/transmit overflow (65535 never)"},
+					"38":{"name":"Cab command delay, worst last 1-2 min (0.1 ms)"},
+					"39":{"name":"Cab command delay, worst since cleared (0.1 ms)"},
+					"40":{"name":"Cab command delay, average last second with any (0.1 ms)"},
+					"41":{"name":"Red: halted (0/1)"},
+					"42":{"name":"Red: must-be-0 counter moved, last minute (0/1)"},
+					"43":{"name":"Red: start-up self-test failed (0/1)"},
+					"44":{"name":"Red: overload trip, last minute (0/1)"},
+					"45":{"name":"Red: CAN overflow, last minute (0/1)"},
+					"46":{"name":"Amber: booster alarm active (0/1)"},
+					"47":{"name":"Amber: rail dip, last minute (0/1)"},
+					"48":{"name":"Amber: queue drop, last minute (0/1)"},
+					"49":{"name":"Amber: main current above warning (0/1)"},
+					"50":{"name":"Amber: slow main-loop pass, last minute (0/1)"},
+					"51":{"name":"Amber: image changed without bootload (0/1)"},
+					"52":{"name":"Amber: ring top-up or cab delay over 20 ms, last minute (0/1)"}
+				},
+				"ESD":{
+					"1":{"name":"Board (module id)"},
+					"2":{"name":"DCC engine tier"},
+					"3":{"name":"Build options (as DN:256 d4)"}
+				}
+			}
+		}
 	},
 	"15":{
 		"name":"CAN Bridge Service"
