@@ -74,6 +74,11 @@ const FLAG_PROGRAM_IN_BOOTMODE = 8
 //  so the wait on transmit can be terminated early
 
 
+// [KeithB 2026-09-20] extra gap after an acknowledged frame, in ms. 0 = send the next
+// frame as soon as the ack is in. Raise it if a module is found to acknowledge
+// before it has finished writing.
+const MIN_GAP_AFTER_ACK = 0
+
 const STATE_NULL = 0
 const STATE_START = 1
 const STATE_SEND_DATA = 2
@@ -91,6 +96,7 @@ class programNode extends EventEmitter  {
     this.config = config
     this.BOOTLOADER_DATA_BLOCKS = {}
     this.ackReceived = false
+    this.resolveAck = null      // [KeithB 2026-09-20] resolves the wait in transmitCBUS when an ack arrives
     this.programState = STATE_NULL
     this.nodeCpuType = null
     this.success = false
@@ -121,7 +127,8 @@ class programNode extends EventEmitter  {
               this.programState = STATE_QUIT
             }
             if (cbusMsg.response == 1) {
-              this.ackReceived = true
+              //this.ackReceived = true
+              this.markAckReceived()    // [KeithB 2026-09-20]
               if (this.programState == STATE_CHECK){
                 this.programState = STATE_FINISH
                 winston.info({message: name + ': Check OK received: Sending reset'});
@@ -143,7 +150,8 @@ class programNode extends EventEmitter  {
               }
             }
             if (cbusMsg.response == 5) {
-              this.ackReceived = true
+              //this.ackReceived = true
+              this.markAckReceived()    // [KeithB 2026-09-20]
               winston.debug({message: name + ': DATA_ACK received'});
             }
           }
@@ -495,22 +503,62 @@ class programNode extends EventEmitter  {
   //   The PC program should have delays of 10millisecs between program data frames
   //   and 50millisecs between config and EEPROM data frames.  
   //
+  // [KeithB 2026-09-20] original transmitCBUS kept below for reference. The polling loop
+  // slept on setTimeout, which on Windows rounds up to the ~15.6 ms system tick,
+  // so an acknowledged frame still waited 7-21 ms. The replacement waits on a
+  // promise the receive handler resolves, raced against the same fixed delay,
+  // so a bootloader that does not acknowledge sees exactly the old timing.
+  //
+//  async transmitCBUS(msg, delay)
+//  {
+//    if (delay == undefined){ delay = 50}
+//    this.ackReceived = false  // set to false before writing
+//    //winston.debug({message: name + `: CBUS Transmit ${this.TxCount} ${msg}`})
+//    winston.debug({message: name + `:  GRID_CONNECT_SEND ${cbusLib.decode(msg).text}`})
+//    this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
+//
+//    // need to add a delay between write to the module
+//    //
+//    var startTime = Date.now()
+//    await utils.sleep(5) // always allow at least 5mSecs anyway
+//    while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
+//      await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
+//    }       
+//    winston.debug({message: name + `: CBUS Transmit time ${(Date.now() - startTime)} msg count ${this.TxCount++}`})
+//  }
+
   async transmitCBUS(msg, delay)
   {
     if (delay == undefined){ delay = 50}
     this.ackReceived = false  // set to false before writing
-    //winston.debug({message: name + `: CBUS Transmit ${this.TxCount} ${msg}`})
+    // the receive handler resolves this when an ack arrives
+    let ackPromise = new Promise((resolve) => { this.resolveAck = resolve })
     winston.debug({message: name + `:  GRID_CONNECT_SEND ${cbusLib.decode(msg).text}`})
     this.config.eventBus.emit ('GRID_CONNECT_SEND', msg)
 
-    // need to add a delay between write to the module
+    // wait for the ack, or for the full delay if none comes
     //
     var startTime = Date.now()
-    await utils.sleep(5) // always allow at least 5mSecs anyway
-    while (((Date.now() - startTime) < delay) && (this.ackReceived == false)){
-      await utils.sleep(0)    // allow task switch (potentially takes a while anyway )
-    }       
+    let timer = null
+    let timeoutPromise = new Promise((resolve) => { timer = setTimeout(resolve, delay) })
+    await Promise.race([ackPromise, timeoutPromise])
+    clearTimeout(timer)
+    this.resolveAck = null
+    if (this.ackReceived && (MIN_GAP_AFTER_ACK > 0)) {
+      await utils.sleep(MIN_GAP_AFTER_ACK)
+    }
     winston.debug({message: name + `: CBUS Transmit time ${(Date.now() - startTime)} msg count ${this.TxCount++}`})
+  }
+
+  //
+  // [KeithB 2026-09-20] called by the receive handler for every acknowledging response
+  //
+  markAckReceived() {
+    this.ackReceived = true
+    if (this.resolveAck != null) {
+      this.resolveAck()
+      this.resolveAck = null
+    }
   }
 
 

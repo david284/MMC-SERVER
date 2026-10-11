@@ -1446,9 +1446,9 @@ describe('mergAdminNode tests', function(){
       // first test, legacy CBUS, expect one by one REVAL/NEVAL, preceeded by NERD
       if (a == 1) {arg1 = 1, arg2=false, arg3 = true, arg4 = 14} // vlcb = false, FCU_Compatability = true
       // 2nd test, VLCB, but one by one REQEV/EVANS
-      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 20} // vlcb = true, FCU_Compatability = true
+      if (a == 2) {arg1 = 1, arg2=true, arg3 = true, arg4 = 10} // vlcb = true, FCU_Compatability = true - one NNLRN/NNULN pair for the whole walk
       // 3rd test
-      if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 14} // vlcb = true, FCU_Compatability = false
+      if (a == 3) {arg1 = 1, arg2=true, arg3 = false, arg4 = 12} // vlcb = true, FCU_Compatability = false - one NNLRN/NNULN pair for the whole walk
       testCases.push({'nodeNumber':arg1, 'VLCB':arg2, "FCU_Compatability":arg3, "count":arg4});
     }
     return testCases;
