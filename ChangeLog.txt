@@ -32,6 +32,10 @@ MMC Version 0.23.3
   Merge pull request #257 from jimmythedog/issue/247_intermittent_ci_test_failures
   Merge pull request #255 from jimmythedog/issue/253_intermittent_test_failure_on_windows
   Merge pull request #256 from jimmythedog/issue/254_running_test_on_windows_gives_error
+  Client
+    Merged PR #14 Add package lock file
+    Merged PR #15 create GitHub action for lint
+    renamed logic operator index to EventIndex, also added identical Slot operator
 
 
 MMC Version 0.23.2
